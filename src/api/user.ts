@@ -4,10 +4,28 @@ import { computed, type Ref } from "vue";
 import { createEvent, publishEvent } from "./event";
 import { getRelayListMetadataByPubkey, relayConfigurator, sub } from "./relays";
 
+export const PRIVATE_KEY = "prikey";
 /**
  *  私钥
  */
-const privateKey: Ref<string> = useLocalStorage("priKey", generatePrivateKey);
+export const privateKey: Ref<string> = useLocalStorage("prikey", "");
+
+export function createPrikey() {
+  return generatePrivateKey();
+}
+export function loginPrikey(key: string) {
+  privateKey.value = key;
+}
+export function registerPrikey() {
+  const key = createPrikey();
+  loginPrikey(key);
+  return key;
+}
+export function logout() {
+  privateKey.value = "";
+  window.localStorage[PRIVATE_KEY] = "";
+  location.reload();
+}
 
 /**
  *  用户公私钥

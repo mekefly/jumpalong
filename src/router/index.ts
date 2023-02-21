@@ -1,8 +1,14 @@
 import { createRouter, createWebHashHistory } from "vue-router";
+import { PRIVATE_KEY } from "../api/user";
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
+    {
+      path: "/login",
+      name: "login",
+      component: () => import("../views/LoginView.vue"),
+    },
     {
       path: "/",
       redirect: "/home",
@@ -35,6 +41,17 @@ const router = createRouter({
       ],
     },
   ],
+});
+
+router.beforeEach((to, from, next) => {
+  const prikey = window.localStorage.getItem(PRIVATE_KEY);
+  if (to.name === "login") {
+    next();
+  } else if (!prikey) {
+    next({ name: "login", query: { redirected: to.fullPath } });
+  } else {
+    next();
+  }
 });
 
 export default router;

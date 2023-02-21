@@ -1,9 +1,11 @@
 <script lang="ts" setup>
 import { BookmarkOutline, CaretDownOutline } from "@vicons/ionicons5";
+import { isFunction } from "@vueuse/core";
 import { NIcon, NMenu, type MenuOption } from "naive-ui";
 import { h, ref } from "vue";
 import { RouterLink } from "vue-router";
 import { useRouterPath } from "../utils/use";
+import LogoutButton from "./LogoutButton.vue";
 const { collapsed } = defineProps<{ collapsed: boolean }>();
 
 const hash = useRouterPath();
@@ -16,6 +18,10 @@ const menuOptions = ref([
   { key: "Channels", label: "Channels", href: "/channels" },
   { key: "Settings", label: "Settings", href: "/settings" },
   { key: "About", label: "About", href: "/about" },
+  {
+    key: "Logout",
+    label: () => h(LogoutButton),
+  },
 ] as MenuOption[]);
 
 function renderMenuLabel(option: MenuOption) {
@@ -27,6 +33,10 @@ function renderMenuLabel(option: MenuOption) {
       },
       { default: () => option.label }
     );
+  }
+
+  if (isFunction(option.label)) {
+    return option.label();
   }
   return option.label as string;
 }

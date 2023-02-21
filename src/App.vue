@@ -11,9 +11,9 @@ if (false) {
 </script>
 
 <template>
-  <n-config-provider :theme="theme" class="box-shadow">
+  <n-config-provider :theme="theme" class="">
     <n-message-provider>
-      <div class="w-full h-full bg-[#f1f2f6]">
+      <div class="w-full h-screen">
         <RouterView />
       </div>
     </n-message-provider>
