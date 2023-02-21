@@ -13,6 +13,7 @@ export default defineConfig({
       imports: [
         "vue",
         "vue-router",
+        "vitest",
         {
           "naive-ui": [
             "useDialog",
@@ -22,9 +23,8 @@ export default defineConfig({
             "NButton",
             "NDropdown",
             "NAvatar",
-            "n-modal",
+            "NModal",
           ],
-          "@vicons/fluent": ["*"],
         },
       ],
     }),
