@@ -37,10 +37,6 @@ export class RelayConfigurator {
       }
       this.sync();
     }, 0);
-
-    watchEffect(() => {
-      console.log(this.writeList.value);
-    });
   }
 
   private sync() {
@@ -126,7 +122,7 @@ export class RelayConfigurator {
   }
 
   private refreshOtherUrls() {
-    this.otherList.value = this.getOtherList();
+    this.otherList.value = getOtherUrls();
   }
   private updateLocal(e: Event) {
     this.clear();

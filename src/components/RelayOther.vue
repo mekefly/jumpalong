@@ -9,7 +9,7 @@ const other = computed(() => relayConfigurator.getOtherList());
 </script>
 
 <template>
-  <n-card title="其他">
+  <n-card title="其他" class="h-[512px] overflow-auto">
     <n-table striped>
       <tbody>
         <tr class="flex" v-for="(url, index) in other">

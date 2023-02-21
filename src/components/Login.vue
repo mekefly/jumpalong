@@ -1,12 +1,14 @@
 <script lang="ts" setup>
 import { getPublicKey, nip19 } from "nostr-tools";
-import { loginPrikey, privateKey, registerPrikey } from "../api/user";
+import { loginPrikey, PRIVATE_KEY, registerPrikey } from "../api/login";
+
+const key = localStorage.getItem(PRIVATE_KEY);
 
 const emit = defineEmits<{
   (e: "next"): void;
 }>();
 const msg = useMessage();
-const prikey = ref(!privateKey.value ? "" : nip19.nsecEncode(privateKey.value));
+const prikey = ref(!key ? "" : nip19.nsecEncode(key));
 const nprofile = ref("");
 function register() {
   emit("next");
@@ -16,6 +18,7 @@ function register() {
 function login() {
   if (!prikey.value) {
     msg.error("请输入私钥");
+    return;
   }
   try {
     getPublicKey(prikey.value);
@@ -32,7 +35,9 @@ function login() {
           return;
           break;
       }
-    } catch (error) {}
+    } catch (error) {
+      msg.error("既不是nsec,也不是hex");
+    }
   }
 
   function _login(key: string) {

@@ -63,12 +63,11 @@ function complete() {
 
       <Login v-if="current === 1" @next="next" />
       <div v-else-if="current === 2">
+        <RelayConfig />
         <n-button type="primary" block secondary strong @click="next">
           下一步
         </n-button>
-        <RelayConfig />
       </div>
-
       <LoginPrompt v-if="current === maxStep" @next="complete" />
     </n-space>
   </n-card>

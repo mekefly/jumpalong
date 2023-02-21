@@ -1,5 +1,5 @@
 import { createRouter, createWebHashHistory } from "vue-router";
-import { PRIVATE_KEY } from "../api/user";
+import { PRIVATE_KEY } from "../api/login";
 
 const router = createRouter({
   history: createWebHashHistory(),

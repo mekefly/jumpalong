@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { NPopconfirm } from "naive-ui";
-import { logout } from "../api/user";
+import { logout } from "../api/login";
 </script>
 
 <template>

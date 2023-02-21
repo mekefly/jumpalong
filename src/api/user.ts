@@ -1,39 +1,27 @@
 import { useLocalStorage } from "@vueuse/core";
-import { generatePrivateKey, getPublicKey, nip19 } from "nostr-tools";
+import { getPublicKey, nip19 } from "nostr-tools";
 import { computed, type Ref } from "vue";
 import { createEvent, publishEvent } from "./event";
+import { createPrikey, PRIVATE_KEY } from "./login";
 import { getRelayListMetadataByPubkey, relayConfigurator, sub } from "./relays";
 
-export const PRIVATE_KEY = "prikey";
 /**
  *  私钥
  */
-export const privateKey: Ref<string> = useLocalStorage("prikey", "");
-
-export function createPrikey() {
-  return generatePrivateKey();
-}
-export function loginPrikey(key: string) {
-  privateKey.value = key;
-}
-export function registerPrikey() {
-  const key = createPrikey();
-  loginPrikey(key);
-  return key;
-}
-export function logout() {
-  privateKey.value = "";
-  window.localStorage[PRIVATE_KEY] = "";
-  location.reload();
-}
+export const privateKey: Ref<string> = useLocalStorage(
+  PRIVATE_KEY,
+  createPrikey
+);
 
 /**
  *  用户公私钥
  */
-export const userKey = computed(() => ({
-  privateKey: privateKey.value,
-  publicKey: getPublicKey(privateKey.value),
-}));
+export const userKey = computed(() => {
+  return {
+    privateKey: privateKey.value,
+    publicKey: privateKey.value ? getPublicKey(privateKey.value) : "",
+  };
+});
 
 export const nproKey = computed(() =>
   nip19.nprofileEncode({ pubkey: userKey.value.publicKey, relays: [] })
