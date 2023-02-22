@@ -13,7 +13,7 @@ export default defineConfig({
       imports: [
         "vue",
         "vue-router",
-        "vitest",
+        // "vitest",
         {
           "naive-ui": [
             "useDialog",

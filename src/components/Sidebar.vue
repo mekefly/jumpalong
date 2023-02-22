@@ -1,26 +1,52 @@
 <script lang="ts" setup>
-import { BookmarkOutline, CaretDownOutline } from "@vicons/ionicons5";
+import { Linode, User, Users } from "@vicons/fa";
+import {
+  AlertOutline,
+  BookmarkOutline,
+  CaretDownOutline,
+  Home,
+  LogOut,
+  Settings,
+} from "@vicons/ionicons5";
 import { isFunction } from "@vueuse/core";
 import { NIcon, NMenu, type MenuOption } from "naive-ui";
 import { h, ref } from "vue";
 import { RouterLink } from "vue-router";
+import { renderIcon } from "../utils/naiveUi";
 import { useRouterPath } from "../utils/use";
 import LogoutButton from "./LogoutButton.vue";
+
 const { collapsed } = defineProps<{ collapsed: boolean }>();
 
 const hash = useRouterPath();
 
 const menuOptions = ref([
-  { key: "Profile", label: "Profile", href: "/profile" },
-  { key: "Relays", label: "Relays", href: "/relays" },
-  { key: "Global Feed", label: "Global Feed", href: "/home" },
-  { key: "My Feed", label: "My Feed", href: "/feed" },
-  { key: "Channels", label: "Channels", href: "/channels" },
-  { key: "Settings", label: "Settings", href: "/settings" },
-  { key: "About", label: "About", href: "/about" },
+  { key: "Home", label: "首页", href: "/home", icon: renderIcon(Home) },
+  { key: "Profile", label: "我的", href: "/profile", icon: renderIcon(User) },
+  { key: "Relays", label: "中继", href: "/relays", icon: renderIcon(Linode) },
+  {
+    key: "Channels",
+    label: "频道",
+    href: "/channels",
+    icon: renderIcon(Users),
+  },
+  {
+    key: "Settings",
+    label: "设置",
+    href: "/settings",
+    icon: renderIcon(Settings),
+  },
+  {
+    key: "About",
+    label: "关于",
+    href: "/about",
+
+    icon: renderIcon(AlertOutline),
+  },
   {
     key: "Logout",
-    label: () => h(LogoutButton),
+    label: () => h(LogoutButton, {}, { default: () => "退出登录" }),
+    icon: renderIcon(LogOut),
   },
 ] as MenuOption[]);
 
@@ -41,10 +67,7 @@ function renderMenuLabel(option: MenuOption) {
   return option.label as string;
 }
 function renderMenuIcon(option: MenuOption) {
-  // 渲染图标占位符以保持缩进
-  if (option.key === "sheep-man") return true;
-  // 返回 falsy 值，不再渲染图标及占位符
-  if (option.key === "food") return null;
+  if (option.icon) return option.icon();
   return h(NIcon, null, { default: () => h(BookmarkOutline) });
 }
 //展开图标

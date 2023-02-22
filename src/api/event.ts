@@ -40,7 +40,7 @@ export function getShortTextEvent(options?: { relayUrls?: Set<string> }) {
 }
 
 export function getGlobalShortTextEvent(
-  pubkey?: string,
+  pubkey?: string[],
   options?: { relayUrls?: Set<string> }
 ) {
   const eventOps = useEvent();
@@ -48,7 +48,7 @@ export function getGlobalShortTextEvent(
     [
       {
         kinds: [1],
-        authors: pubkey ? [pubkey] : undefined,
+        authors: pubkey ? pubkey : undefined,
       },
     ],
     {

@@ -11,7 +11,7 @@ import {
 import profile from "../assets/profile-2-400x400.png";
 import Content from "./Content.vue";
 
-const { pubkey } = defineProps<{ pubkey?: string }>();
+const { pubkey } = defineProps<{ pubkey?: string[] }>();
 
 const {
   events: posts,
