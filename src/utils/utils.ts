@@ -38,3 +38,18 @@ export function clipboardText(text: string) {
 export function nowSecondTimestamp() {
   return Math.floor(Date.now() / 1000);
 }
+export function withDefault(target: object | undefined, def: object) {
+  if (!target) return { ...def };
+
+  for (const key in def) {
+    (target as any)[key] ?? ((target as any)[key] = (def as any)[key]);
+  }
+  return target;
+}
+export async function timeout(timeout: number = 0) {
+  return new Promise<void>((resolve, reject) => {
+    setTimeout(() => {
+      resolve();
+    }, timeout);
+  });
+}

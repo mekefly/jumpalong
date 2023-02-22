@@ -5,7 +5,7 @@
     "dev": "vite",
     "build": "run-p type-check build-only",
     "preview": "vite preview",
-    "unit": "vitest --environment jsdom --root src/",
+    "unit": "vitest  --root src/",
     "build-only": "vite build",
     "type-check": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
     "release": "pnpm standard-version",
@@ -23,6 +23,8 @@
     "vue-router": "^4.1.5"
   },
   "devDependencies": {
+    "mockdate": "^3.0.5",
+    "@types/mockdate": "^3.0.0",
     "@types/jsdom": "^20.0.0",
     "@types/node": "^16.11.68",
     "@vitejs/plugin-vue": "^3.1.2",

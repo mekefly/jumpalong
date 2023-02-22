@@ -1,3 +1,5 @@
+import { withDefault } from "../utils";
+
 export * from "./intelligentCleaning";
 /**内存缓存数据对象，更快一点 */
 let memoryCacheDate: { [key: string]: any } = {};
@@ -10,8 +12,8 @@ export function clearMemoryCache() {
 }
 
 /** @type {*} 缓存失效或没有缓存将会抛出此错误 */
-const noCache = Symbol();
-const skip = Symbol();
+const noCache = Symbol("noCache");
+const skip = Symbol("skip");
 
 const defaultCacheOptions: AsyncReCacheOptions = {
   useMemoryCache: true,
@@ -20,52 +22,133 @@ const defaultCacheOptions: AsyncReCacheOptions = {
   cacheError: true,
 };
 
+const callbackCacheMergeDate: Record<string, any[]> = {};
 export function useCallbackCache<E, REST extends any[], C extends object>(
   key: string,
   genValue: (callback: C, ...rest: REST) => E,
-  options: CacheOptions = defaultCacheOptions,
+  options: AsyncReCacheOptions | undefined,
   callback: C,
   ...rest: REST
 ): E {
-  const returnKey = "return:" + key;
+  withDefault(options, defaultCacheOptions);
+  let callbackList: any;
+  if (options?.requestMerge) {
+    callbackList = getCallbackList<C>(options, key, callback);
+  }
+
+  const RETURN_KEY = "return:" + key;
   try {
     const value = getCache(key, options) as any;
 
-    const returnValue = getCache(returnKey, options) as any;
-    setTimeout(() => {
-      for (const key in value) {
-        const restList = value[key];
-        for (const rest of restList) {
-          const c = (callback as any)[key];
-          if (typeof c === "function") {
-            c(...rest);
-          }
-        }
-      }
-    }, 0);
+    const returnValue = getCache(RETURN_KEY, options) as any;
+
+    callCallback<C>(value, callback);
+
     return returnValue;
   } catch (error) {
     const restListMap = {} as any;
-    const callBackProxy = new Proxy(callback, {
-      get(t: any, p) {
-        const v = t[p];
-        if (typeof v === "function") {
-          return (...rest: any) => {
-            // rest push 到 restList里面
-            (restListMap[p] ?? (restListMap[p] = [])).push(rest);
-            setCache(key, restListMap, options);
-            return v(...rest);
-          };
-        }
-        return v;
-      },
-    });
+
+    const callbackProxy = callbackProxyFactory<C>(
+      options,
+      key,
+      callback,
+      restListMap,
+      callbackList
+    );
 
     //加入缓存空数组是因为，未来所有此请求都会优先读取缓存
     setCache(key, restListMap, options);
-    return reCache(returnKey, genValue, options, callBackProxy, ...rest);
+    return reCache(RETURN_KEY, genValue, options, callbackProxy, ...rest);
   }
 }
+function callCallback<C extends object>(value: any, callback: C) {
+  setTimeout(() => {
+    for (const key in value) {
+      const c = (callback as any)[key];
+      if (typeof c === "function") {
+        const restList = value[key];
+        if (!restList) continue;
+        for (const rest of restList) {
+          c(...rest);
+        }
+      }
+    }
+  }, 0);
+}
+
+function callbackProxyFactory<C extends object>(
+  options: AsyncReCacheOptions | undefined,
+  key: string,
+  callback: C,
+  restListMap: any,
+  callbackList: any
+) {
+  let genCallbackFunciton: any = genCallbackFactory<C>(
+    options,
+    key,
+    callback,
+    callbackList
+  );
+  const callBackProxy = new Proxy(callback, {
+    get(t: any, p) {
+      const callbackFunciton = genCallbackFunciton(p);
+      if (typeof callbackFunciton === "function") {
+        return (...rest: any) => {
+          // rest push 到 restList里面
+          (restListMap[p] ?? (restListMap[p] = [])).push(rest);
+          setCache(key, restListMap, options);
+          return callbackFunciton(...rest);
+        };
+      }
+      return callbackFunciton;
+    },
+  });
+  return callBackProxy;
+}
+
+function genCallbackFactory<C extends object>(
+  options: AsyncReCacheOptions | undefined,
+  key: string,
+  callback: C,
+  callbackList: any
+) {
+  let genCallbackFunciton: any;
+  if (options?.requestMerge) {
+    genCallbackFunciton =
+      (p: string) =>
+      (...rest: any) =>
+        callbackList.forEach((t: any) => {
+          t[p](...rest);
+        });
+  } else {
+    genCallbackFunciton =
+      (p: string) =>
+      (...rest: any) =>
+        (callback as any)[p](...rest);
+  }
+  return genCallbackFunciton;
+}
+
+function getCallbackList<C extends object>(
+  options: AsyncReCacheOptions | undefined,
+  key: string,
+  callback: C
+) {
+  const callbackListKey = `callbackList:${key}`;
+  const callbackListOptions = {
+    ...options,
+    useLocalStorage: false,
+  };
+  let v;
+  try {
+    v = getCache(callbackListKey, callbackListOptions) as any;
+  } catch (error) {
+    setCache(callbackListKey, (v = []), callbackListOptions);
+  }
+  v.push(callback);
+  return v;
+}
+
 /**
  * 异步缓存
  *
@@ -79,9 +162,11 @@ export function useCallbackCache<E, REST extends any[], C extends object>(
 export async function useAsyncCache<E, REST extends any[]>(
   key: string,
   genValue: (...rest: REST) => Promise<E>,
-  options: AsyncReCacheOptions = defaultCacheOptions,
+  options: AsyncReCacheOptions,
   ...rest: REST
 ): Promise<E> {
+  withDefault(options, defaultCacheOptions);
+
   try {
     return getCache(key, options);
   } catch (error) {
@@ -136,6 +221,7 @@ function asyncReCache<E, REST extends any[]>(
               setCache(key, value, options);
               resRejItem[0](value);
             });
+            delete onRequestMap[key];
           },
           (value: any) => {
             ResRejList.forEach((resRejItem) => {
@@ -185,9 +271,9 @@ function reCache<E, REST extends any[]>(
  * @param {string} key
  * @return {*}
  */
-function getCache(
+export function getCache(
   key: string,
-  options: CacheOptions = { useLocalStorage: true, useMemoryCache: true }
+  options: CacheOptions = defaultCacheOptions
 ) {
   try {
     if (!options.useMemoryCache) {
@@ -198,7 +284,9 @@ function getCache(
     if (!options.useLocalStorage) {
       throw skip;
     }
-    return getLocalStorageCache(key);
+    const cache = getLocalStorageCache(key);
+
+    return cache;
   }
 }
 /**
@@ -208,10 +296,11 @@ function getCache(
  * @param {*} value
  * @param {number} [duration]
  */
-function setCache(key: string, value: any, options?: CacheOptions) {
+export function setCache(key: string, value: any, options?: CacheOptions) {
   const localStorageCache = createCache(value, options?.duration);
-  (options?.useMemoryCache ?? true) && setMemoryCache(key, localStorageCache);
-  (options?.useLocalStorage ?? true) && setLocalStorage(key, localStorageCache);
+
+  options?.useMemoryCache && setMemoryCache(key, localStorageCache);
+  options?.useLocalStorage && setLocalStorage(key, localStorageCache);
 }
 export interface CacheOptions {
   duration?: number;
@@ -237,13 +326,11 @@ function getMemoryCache(key: string) {
  * @param {string} key
  * @return {*}
  */
-function getLocalStorageCache(key: string) {
+export function getLocalStorageCache(key: string) {
   const catchString = getLocalStorageString(key);
   const cache: LocalCache<any> = JSON.parse(catchString);
 
   checkLocalCache(cache);
-
-  setMemoryCache(key, cache);
 
   return cache.value;
 }
@@ -276,7 +363,7 @@ function setMemoryCache(key: string, value: any) {
  * @param {string} key
  * @param {*} value
  */
-function setLocalStorage(key: string, value: any) {
+export function setLocalStorage(key: string, value: any) {
   localStorage.setItem(key, JSON.stringify(value));
 }
 /**
@@ -311,7 +398,7 @@ export function checkLocalCache<E>(localCache: LocalCache<E>) {
  * @param {number} [duration=3600000]
  * @return {*}  {LocalCache<T>}
  */
-function createCache<T>(
+export function createCache<T>(
   value: T,
   duration: number = 3600000 /**= 1000 * 60 * 60 1h */
 ): LocalCache<T> {

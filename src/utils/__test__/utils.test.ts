@@ -1,8 +1,12 @@
-function add() {
-  return 1 + 1;
-}
-it("xx", () => {
-  expect(add()).toMatchInlineSnapshot("2");
-  expect(window.document.createElement("div")).toMatchInlineSnapshot("<div />");
+import { withDefault } from "../utils";
+
+it("withDefault", () => {
+  expect(
+    withDefault({ xyz: "3" }, { zzz: "2", xyz: "4" })
+  ).toMatchInlineSnapshot(`
+    {
+      "xyz": "3",
+      "zzz": "2",
+    }
+  `);
 });
-export {};
