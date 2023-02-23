@@ -92,7 +92,8 @@ function callbackProxyFactory<C extends object>(
   const callBackProxy = new Proxy(callback, {
     get(t: any, p) {
       const callbackFunciton = genCallbackFunciton(p);
-      if (typeof callbackFunciton === "function") {
+
+      if (typeof (callback as any)[p] === "function") {
         return (...rest: any) => {
           // rest push 到 restList里面
           (restListMap[p] ?? (restListMap[p] = [])).push(rest);
@@ -100,7 +101,7 @@ function callbackProxyFactory<C extends object>(
           return callbackFunciton(...rest);
         };
       }
-      return callbackFunciton;
+      return (callback as any)[p];
     },
   });
   return callBackProxy;
