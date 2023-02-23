@@ -40,7 +40,7 @@ const list = computed(() => {
 </template>
 
 <style scoped>
-.img >>> img {
+.img :deep() img {
   width: 100%;
 }
 </style>
