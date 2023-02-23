@@ -1,7 +1,8 @@
 <script lang="ts" setup>
-import { Close } from "@vicons/ionicons5";
 import { relayConfigurator, relayPool } from "../api/relays";
+import AddButtonVue from "./AddButton.vue";
 import Ellipsis from "./Ellipsis.vue";
+import CloseVue from "./icon/Close.vue";
 </script>
 
 <template>
@@ -14,10 +15,10 @@ import Ellipsis from "./Ellipsis.vue";
           </td>
           <td class="shrink-0">
             <n-space justify="end" align="center">
-              <AddButton
+              <AddButtonVue
                 @click="() => relayConfigurator.addWriteRead(relay?.url as any)"
               >
-              </AddButton>
+              </AddButtonVue>
 
               <n-button
                 quaternary
@@ -28,7 +29,7 @@ import Ellipsis from "./Ellipsis.vue";
               >
                 <template #icon>
                   <n-icon>
-                    <Close />
+                    <CloseVue />
                   </n-icon>
                 </template>
               </n-button>

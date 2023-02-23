@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { Add20Filled } from "@vicons/fluent";
 const emit = defineEmits<{
   (e: "click", id: number): void;
 }>();

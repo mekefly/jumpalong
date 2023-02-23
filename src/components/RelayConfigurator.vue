@@ -1,9 +1,8 @@
 <script lang="ts" setup>
-import { ArrowDownload16Filled, ArrowUpload16Filled } from "@vicons/fluent";
-import { Close } from "@vicons/ionicons5";
 import { NIcon, NSpace } from "naive-ui";
 import { relayConfigurator } from "../api/relays";
-import Ellipsis from "./Ellipsis.vue";
+import EllipsisVue from "./Ellipsis.vue";
+import CloseVue from "./icon/Close.vue";
 
 const urls = computed(() => Object.keys(relayConfigurator.getConfiguration()));
 function switchWrite(url: string) {
@@ -25,7 +24,7 @@ function switchRead(url: string) {
         <tbody>
           <tr class="flex" v-for="url in urls">
             <td class="flex-grow">
-              <Ellipsis>{{ url }}</Ellipsis>
+              <EllipsisVue>{{ url }}</EllipsisVue>
             </td>
             <td class="flex-shrink-0">
               <n-space justify="end" align="center">
@@ -54,7 +53,7 @@ function switchRead(url: string) {
                 >
                   <template #icon>
                     <n-icon>
-                      <Close />
+                      <CloseVue />
                     </n-icon>
                   </template>
                 </n-button>

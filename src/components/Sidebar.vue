@@ -1,52 +1,62 @@
 <script lang="ts" setup>
-import { Linode, User, Users } from "@vicons/fa";
-import {
-  AlertOutline,
-  BookmarkOutline,
-  CaretDownOutline,
-  Home,
-  LogOut,
-  Settings,
-} from "@vicons/ionicons5";
 import { isFunction } from "@vueuse/core";
 import { NIcon, NMenu, type MenuOption } from "naive-ui";
 import { h, ref } from "vue";
 import { RouterLink } from "vue-router";
 import { renderIcon } from "../utils/naiveUi";
 import { useRouterPath } from "../utils/use";
-import LogoutButton from "./LogoutButton.vue";
+import AlertOutlineVue from "./icon/AlertOutline.vue";
+import BookmarkOutlineVue from "./icon/BookmarkOutline.vue";
+import CaretDownOutlineVue from "./icon/CaretDownOutline.vue";
+import HomeVue from "./icon/Home.vue";
+import LinodeVue from "./icon/Linode.vue";
+import LogOutVue from "./icon/LogOut.vue";
+import SettingsVue from "./icon/Settings.vue";
+import UserVue from "./icon/User.vue";
+import UsersVue from "./icon/Users.vue";
+import LogoutButtonVue from "./LogoutButton.vue";
 
 const { collapsed } = defineProps<{ collapsed: boolean }>();
 
 const hash = useRouterPath();
 
 const menuOptions = ref([
-  { key: "Home", label: "首页", href: "/home", icon: renderIcon(Home) },
-  { key: "Profile", label: "我的", href: "/profile", icon: renderIcon(User) },
-  { key: "Relays", label: "中继", href: "/relays", icon: renderIcon(Linode) },
+  { key: "Home", label: "首页", href: "/home", icon: renderIcon(HomeVue) },
+  {
+    key: "Profile",
+    label: "我的",
+    href: "/profile",
+    icon: renderIcon(UserVue),
+  },
+  {
+    key: "Relays",
+    label: "中继",
+    href: "/relays",
+    icon: renderIcon(LinodeVue),
+  },
   {
     key: "Channels",
     label: "频道",
     href: "/channels",
-    icon: renderIcon(Users),
+    icon: renderIcon(UsersVue),
   },
   {
     key: "Settings",
     label: "设置",
     href: "/settings",
-    icon: renderIcon(Settings),
+    icon: renderIcon(SettingsVue),
   },
   {
     key: "About",
     label: "关于",
     href: "/about",
 
-    icon: renderIcon(AlertOutline),
+    icon: renderIcon(AlertOutlineVue),
   },
   {
     key: "Logout",
-    label: () => h(LogoutButton, {}, { default: () => "退出登录" }),
-    icon: renderIcon(LogOut),
+    label: () => h(LogoutButtonVue, {}, { default: () => "退出登录" }),
+    icon: renderIcon(LogOutVue),
   },
 ] as MenuOption[]);
 
@@ -68,11 +78,11 @@ function renderMenuLabel(option: MenuOption) {
 }
 function renderMenuIcon(option: MenuOption) {
   if (option.icon) return option.icon();
-  return h(NIcon, null, { default: () => h(BookmarkOutline) });
+  return h(NIcon, null, { default: () => h(BookmarkOutlineVue) });
 }
 //展开图标
 function expandIcon() {
-  return h(NIcon, null, { default: () => h(CaretDownOutline) });
+  return h(NIcon, null, { default: () => h(CaretDownOutlineVue) });
 }
 </script>
 

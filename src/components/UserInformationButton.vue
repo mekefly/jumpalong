@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-import { Pencil as EditIcon, ShareSocial } from "@vicons/ionicons5";
 import { nip19 } from "nostr-tools";
 import { relayConfigurator } from "../api/relays";
 import { userKey } from "../api/user";
 import { renderIcon, useClipboard } from "../utils/naiveUi";
+import PencilVue from "./icon/Pencil.vue";
+import ShareSocialVue from "./icon/ShareSocial.vue";
 
 const { pubkey } = defineProps<{
   pubkey: string;
@@ -19,7 +20,7 @@ const options = ref<any>(
     isItMe.value && {
       label: "编辑用户资料",
       key: "editProfile",
-      icon: renderIcon(EditIcon),
+      icon: renderIcon(PencilVue),
       props: {
         onclick() {
           showModal.value = !showModal.value;
@@ -29,7 +30,7 @@ const options = ref<any>(
     {
       label: "复制",
       key: "clipboard",
-      icon: renderIcon(ShareSocial),
+      icon: renderIcon(ShareSocialVue),
       children: [
         {
           label: "复制npub",

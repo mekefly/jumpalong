@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { Delete28Regular } from "@vicons/fluent";
 import { NSkeleton, NSpace } from "naive-ui";
 import { ref } from "vue";
 import { getGlobalShortTextEvent } from "../api/event";
