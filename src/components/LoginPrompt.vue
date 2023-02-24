@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { Copy16Filled } from "@vicons/fluent";
 import { NSpace } from "naive-ui";
 import { nip19 } from "nostr-tools";
 import { userKey } from "../api/user";
 import { useClipboard } from "../utils/naiveUi";
+import Copy16FilledVue from "./icon/Copy16Filled.vue";
 
 const emit = defineEmits<{
   (e: "next"): void;
@@ -27,7 +27,7 @@ const value = ref();
     >
       <template #suffix>
         <n-icon class="px-2" @click="_clipboard"
-          ><Copy16Filled class="hover:text-[#2ed573]"
+          ><Copy16FilledVue class="hover:text-[#2ed573]"
         /></n-icon>
       </template>
     </n-input>

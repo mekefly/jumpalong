@@ -87,7 +87,7 @@ export async function jointRelay(
     : new Set(defaultUrls),
   callBack: (relay: Relay) => void
 ) {
-  [...urls].map(async (url) => {
+  await Array.from(urls, async (url) => {
     if (!url) {
       return;
     }

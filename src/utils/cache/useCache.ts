@@ -150,7 +150,7 @@ function autoAsyncChche<E, REST extends any[]>(
 ): any {
   const v = genValue(...rest);
   if (isPromise(v)) {
-    return promiseHandle(v);
+    return promiseHandle(v as any);
   } else {
     setCache(key, v, options);
     return v;
