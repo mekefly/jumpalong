@@ -1,4 +1,4 @@
-import { checkLocalCache, isLocalCache } from ".";
+import { checkCache, isCache } from ".";
 
 intelligentCleaning();
 export function intelligentCleaning() {
@@ -17,18 +17,19 @@ export function intelligentCleaning() {
         continue;
       }
       const cache: any = JSON.parse(cacheString);
-      if (!isLocalCache(cache)) {
+      if (!isCache(cache)) {
         continue;
       }
 
       try {
-        checkLocalCache(cache);
+        checkCache(cache);
       } catch (err) {
         localStorage.removeItem(key);
       }
     } catch (error) {}
   }
 }
+(window as any).clearCache = clearCache;
 export function clearCache() {
   const localStorage = window.localStorage;
   const len = localStorage.length;
@@ -46,7 +47,7 @@ export function clearCache() {
     try {
       const cache: any = JSON.parse(cacheString);
 
-      if (!isLocalCache(cache)) {
+      if (!isCache(cache)) {
         continue;
       }
       localStorage.removeItem(key);
