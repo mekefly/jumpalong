@@ -1,29 +1,31 @@
+import { ReversePromise } from "../utils/promise";
 export function expectCalled(
   fn: Function,
   expectNum: number = 1,
   timeout: number = 1000
 ) {
   let num = 0;
-  let rej: any;
-  let res: any;
+  const p = new ReversePromise<void>();
 
-  const p = new Promise<void>((resolve, reject) => {
-    rej = reject;
-    res = resolve;
-  });
   setTimeout(() => {
-    rej?.(`在${timeout}ms内,需要执行次数${expectNum},实际执行次数${num}`);
+    p.toReject(`在${timeout}ms内,需要执行次数${expectNum},实际执行次数${num}`);
   }, timeout);
   return {
     async expectCalled() {
-      return p.then();
+      return p.promise;
     },
     fn(...rest: any[]) {
       num++;
       if (num === expectNum) {
-        res?.();
+        setTimeout(() => {
+          p.toResolve();
+        }, 0);
       }
       fn(...rest);
     },
   };
+}
+
+export function clearLocalStorage() {
+  localStorage.clear();
 }

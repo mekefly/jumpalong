@@ -4,7 +4,6 @@ import { NIcon, NMenu, type MenuOption } from "naive-ui";
 import { h, ref } from "vue";
 import { RouterLink } from "vue-router";
 import { renderIcon } from "../utils/naiveUi";
-import { useRouterPath } from "../utils/use";
 import AlertOutlineVue from "./icon/AlertOutline.vue";
 import BookmarkOutlineVue from "./icon/BookmarkOutline.vue";
 import CaretDownOutlineVue from "./icon/CaretDownOutline.vue";
@@ -17,8 +16,6 @@ import UsersVue from "./icon/Users.vue";
 import LogoutButtonVue from "./LogoutButton.vue";
 
 const { collapsed } = defineProps<{ collapsed: boolean }>();
-
-const hash = useRouterPath();
 
 const menuOptions = ref([
   { key: "Home", label: "首页", href: "/home", icon: renderIcon(HomeVue) },

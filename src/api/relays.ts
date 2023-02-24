@@ -1,13 +1,14 @@
 import {
   relayInit,
-  Sub,
   type Event,
   type Filter,
   type Relay,
   type SubscriptionOptions,
 } from "nostr-tools";
 import { reactive } from "vue";
-import { useAsyncCache, useCallbackCache } from "../utils/cache";
+import { relayQuery } from "../nostr";
+import { unSub } from "../nostr/relay";
+import { useAsyncCache } from "../utils/cache";
 import { type CallBackT } from "../utils/types";
 import { createEvent, publishEvent } from "./event";
 import { generateReadWriteList, RelayConfigurator } from "./relayConfigurator";
@@ -111,16 +112,17 @@ export function getRecommendRelay(even: CallBackT<Event>) {
 }
 
 export async function getRelayListMetadataByPubkey(pubkey: string) {
-  return new Promise<[Set<string>, Set<string>]>((resolve, reject) => {
-    const { unSubAll } = sub([{ kinds: [10002], authors: [pubkey] }], {
+  return new Promise<[Set<string>, Set<string>]>(async (resolve, reject) => {
+    const subIdList = await (
+      await relayQuery
+    ).send("sub", [{ kinds: [10002], authors: [pubkey] }], {
       useCache: true,
-      even(e, { sub }) {
+      even(e, { subId }) {
         resolve(generateReadWriteList(e));
-        sub.unsub();
-        unSubAll();
+        unSub(subIdList);
       },
-      eose({ sub }) {
-        sub.unsub();
+      eose({ subId }) {
+        unSub(subId);
       },
     });
   });
@@ -135,7 +137,7 @@ export function sendRelayListMetadata(urls: string[]) {
   publishEvent(event);
 }
 
-type Context = { sub: Sub; fromUrl: string };
+type Context = { subId: string; fromUrl: string };
 export interface SubEvent {
   even?: (event: Event, context: Context) => void;
   eose?: (context: Context) => void;
@@ -143,43 +145,9 @@ export interface SubEvent {
   useCache?: boolean;
   cacheDuration?: number;
 }
-export function sub(
+export async function sub(
   filters: Filter[],
   opts: SubscriptionOptions & SubEvent = {}
 ) {
-  // 是否启动缓存
-  if (opts.useCache) {
-    return useCallbackCache(
-      JSON.stringify(filters),
-      toSub,
-      {
-        duration: opts.cacheDuration,
-        useLocalStorage: false,
-      },
-      opts,
-      filters
-    );
-  }
-
-  return toSub(opts, filters);
-}
-function toSub(opts: SubscriptionOptions & SubEvent = {}, filters: Filter[]) {
-  const list: Sub[] = [];
-  jointRelay(opts.relayUrls, (relay) => {
-    try {
-      let sub = relay.sub(filters);
-      list.push(sub);
-
-      const context = { fromUrl: relay.url, sub };
-      opts.even && sub.on("event", (e: Event) => opts.even?.(e, context));
-      opts.eose && sub.on("eose", (e: Event) => opts.eose?.(context));
-    } catch (error) {}
-  });
-  return {
-    unSubAll() {
-      list.forEach((l) => {
-        l.unsub();
-      });
-    },
-  };
+  return await (await relayQuery).send("sub", filters, opts);
 }

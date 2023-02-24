@@ -1,4 +1,5 @@
 import { getEventHash, signEvent, type Event } from "nostr-tools";
+import { unSub } from "../nostr/relay";
 import { type CallBackT } from "../utils/types";
 import { useEvent } from "../utils/use";
 import { jointRelay, relayConfigurator, sub } from "./relays";
@@ -44,24 +45,28 @@ export function getGlobalShortTextEvent(
   options?: { relayUrls?: Set<string> }
 ) {
   const eventOps = useEvent();
-  const { unSubAll } = sub(
-    [
-      {
-        kinds: [1],
-        authors: pubkey ? pubkey : undefined,
-      },
-    ],
-    {
-      even: (e, { sub }) => {
-        eventOps.pushEvent(e);
 
-        if (eventOps.events.value.length > 20) {
-          unSubAll();
-        }
-      },
-      relayUrls: options?.relayUrls,
-    }
-  );
+  async function _sub() {
+    const subIds = await sub(
+      [
+        {
+          kinds: [1],
+          authors: pubkey ? pubkey : undefined,
+        },
+      ],
+      {
+        even: (e, { subId }) => {
+          eventOps.pushEvent(e);
+
+          if (eventOps.events.value.length > 20) {
+            unSub(subIds);
+          }
+        },
+        relayUrls: options?.relayUrls,
+      }
+    );
+  }
+  _sub();
   return eventOps;
 }
 

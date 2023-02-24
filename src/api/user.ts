@@ -1,6 +1,7 @@
 import { useLocalStorage } from "@vueuse/core";
 import { getPublicKey, nip19 } from "nostr-tools";
 import { computed, type Ref } from "vue";
+import { unSub } from "../nostr/relay";
 import { createEvent, publishEvent } from "./event";
 import { createPrikey, PRIVATE_KEY } from "./login";
 import { getRelayListMetadataByPubkey, relayConfigurator, sub } from "./relays";
@@ -71,16 +72,16 @@ export async function getUserMetadataByPubkey(
 }
 
 async function getUserMetadataByRelayListMetadata(author: string) {
-  const p = await getRelayListMetadataByPubkey(author);
-  if (!p) {
+  const relayListMetadataByPubkey = await getRelayListMetadataByPubkey(author);
+  if (!relayListMetadataByPubkey) {
     throw new Error("出错了");
   }
-  return toUserMetadataById(p[0], author);
+  return toUserMetadataById(relayListMetadataByPubkey[0], author);
 }
 
 function toUserMetadataById(url: Set<string>, author: string) {
-  return new Promise<UserMetaData>((resolve, reject) => {
-    const { unSubAll } = sub([{ kinds: [0], authors: [author] }], {
+  return new Promise<UserMetaData>(async (resolve, reject) => {
+    const subIds = await sub([{ kinds: [0], authors: [author] }], {
       useCache: true,
       relayUrls: url,
       even(e) {
@@ -88,7 +89,7 @@ function toUserMetadataById(url: Set<string>, author: string) {
         try {
           metadata = JSON.parse(e.content);
         } catch (error) {}
-        unSubAll();
+        unSub(subIds);
         resolve(metadata);
       },
     });

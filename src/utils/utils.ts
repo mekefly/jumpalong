@@ -38,13 +38,17 @@ export function clipboardText(text: string) {
 export function nowSecondTimestamp() {
   return Math.floor(Date.now() / 1000);
 }
-export function withDefault(target: object | undefined, def: object) {
-  if (!target) return { ...def };
+export function withDefault<T extends object, D extends object>(
+  target?: T,
+  def?: D
+): T & D {
+  if (!target) return { ...def } as any;
+  if (!def) return target as any;
 
   for (const key in def) {
     (target as any)[key] ?? ((target as any)[key] = (def as any)[key]);
   }
-  return target;
+  return target as any;
 }
 export async function timeout(timeout: number = 0) {
   return new Promise<void>((resolve, reject) => {
@@ -52,4 +56,12 @@ export async function timeout(timeout: number = 0) {
       resolve();
     }, timeout);
   });
+}
+export function isClass(c: unknown): c is new (...args: any[]) => any {
+  return (
+    typeof c === "function" && typeof c.prototype?.constructor === "function"
+  );
+}
+export function isPromise(promise: any) {
+  return !!promise && typeof promise.then === "function";
 }
