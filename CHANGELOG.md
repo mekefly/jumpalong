@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.3.0](https://github.com/mekefly/jumpalong/compare/v0.2.2...v0.3.0) (2023-02-25)
+
+
+### Features
+
+* Added header and footer ([9b6bfb3](https://github.com/mekefly/jumpalong/commit/9b6bfb30d0a59b0ba92b7574fc4207e814e3a8bb))
+* Added task list ([1df6aa2](https://github.com/mekefly/jumpalong/commit/1df6aa26cbbf51c92b5e2d20ecd45d2a5e85f510))
+
+
+### Bug Fixes
+
+* dead code ([6d9573c](https://github.com/mekefly/jumpalong/commit/6d9573c46be3475a4663ac84411a865449c270ae))
+
 ### [0.2.2](https://github.com/mekefly/jumpalong/compare/v0.2.1...v0.2.2) (2023-02-24)
 
 
