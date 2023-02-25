@@ -9,7 +9,6 @@ const route = useRoute();
 const showModal = ref(false);
 const maxStep = ref(3);
 const current = ref(1);
-const currentStatus = ref("");
 function next() {
   current.value++;
 }
@@ -40,11 +39,7 @@ function complete() {
     }"
   >
     <n-space size="large" vertical>
-      <n-steps
-        size="small"
-        :current="(current as number)"
-        :status="currentStatus"
-      >
+      <n-steps size="small" :current="(current as number)">
         <n-step title="注册登录" description="" />
         <n-step title="配置中续" description="" />
         <n-step title="完成" description="" />
