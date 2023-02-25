@@ -11,7 +11,7 @@ import {
 } from "vue";
 import { useRouter } from "vue-router";
 import { eventDeletion } from "../api/event";
-import { sub, type SubEvent } from "../api/relays";
+import { sub, type SubEventOptions } from "../api/relays";
 import { type CallBackT } from "./types";
 
 export function useNextUpdate() {
@@ -163,7 +163,7 @@ export function userGetEvent(
     relayUrls?: Set<string>;
     filters: Filter[];
   } & SubscriptionOptions &
-    SubEvent
+    SubEventOptions
 ) {
   const eventRef = useEvent();
   const set = new Set();
@@ -187,7 +187,7 @@ export function userGetEvent(
 
 export function useNewestEvent(
   filters: Filter[],
-  opts?: SubscriptionOptions & SubEvent
+  opts?: SubscriptionOptions & SubEventOptions
 ) {
   const newestEvent = ref<Event | null>(null);
   sub(filters, {

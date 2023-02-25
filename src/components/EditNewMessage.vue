@@ -28,14 +28,14 @@ function send() {
 
 <template>
   <button
-    class="rounded-full fixed bottom-4 right-4 bg-[#2ed573] h-24 w-24 font-bold text-3xl text-white active:scale-95"
+    class="rounded-full fixed bottom-4 right-4 bg-[#2ed573] h-24 w-24 font-bold text-3xl text-white active:scale-95 z-10"
     @click="show"
   >
     发布
   </button>
   <div
     v-if="safeActive"
-    class="fixed left-0 bottom-0 w-full bg-[#7bed9f] rounded-t-3xl"
+    class="fixed left-0 bottom-0 w-full bg-[#7bed9f] rounded-t-3xl z-10"
     :style="messageBoxStyle"
   >
     <button

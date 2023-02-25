@@ -82,6 +82,7 @@ async function getUserMetadataByRelayListMetadata(author: string) {
 function toUserMetadataById(url: Set<string>, author: string) {
   return new Promise<UserMetaData>(async (resolve, reject) => {
     const subIds = await sub([{ kinds: [0], authors: [author] }], {
+      describe: "获取用户详细信息",
       useCache: true,
       relayUrls: url,
       even(e) {

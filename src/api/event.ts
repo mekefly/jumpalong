@@ -1,8 +1,9 @@
 import { getEventHash, signEvent, type Event } from "nostr-tools";
+import { relayQuery } from "../nostr";
 import { unSub } from "../nostr/relay";
 import { type CallBackT } from "../utils/types";
 import { useEvent } from "../utils/use";
-import { jointRelay, relayConfigurator, sub } from "./relays";
+import { sub } from "./relays";
 import { userKey } from "./user";
 
 export async function sendShortTextNote(
@@ -55,6 +56,7 @@ export function getGlobalShortTextEvent(
         },
       ],
       {
+        describe: "获取短消息列表",
         even: (e, { subId }) => {
           eventOps.pushEvent(e);
 
@@ -106,7 +108,7 @@ export async function eventDeletion(
     });
   });
 }
-export function publishEvent(
+export async function publishEvent(
   event: Event,
   options: {
     relayUrls?: Set<string>;
@@ -114,10 +116,5 @@ export function publishEvent(
     failed?: CallBackT<Event>;
   } = {}
 ) {
-  const { relayUrls, ok: ok, failed } = options;
-  jointRelay(relayUrls ?? relayConfigurator.getWriteList(), (relay) => {
-    let pub = relay.publish(event);
-    ok && pub.on("ok", ok);
-    failed && pub.on("failed", failed);
-  });
+  await (await relayQuery).send("publishEvent", event, options);
 }

@@ -7,6 +7,7 @@ import { renderIcon } from "../utils/naiveUi";
 import AlertOutlineVue from "./icon/AlertOutline.vue";
 import BookmarkOutlineVue from "./icon/BookmarkOutline.vue";
 import CaretDownOutlineVue from "./icon/CaretDownOutline.vue";
+import ClipboardTaskListLtr20FilledVue from "./icon/ClipboardTaskListLtr20Filled.vue";
 import HomeVue from "./icon/Home.vue";
 import LinodeVue from "./icon/Linode.vue";
 import LogOutVue from "./icon/LogOut.vue";
@@ -36,6 +37,12 @@ const menuOptions = ref([
     label: "频道",
     href: "/channels",
     icon: renderIcon(UsersVue),
+  },
+  {
+    key: "Task",
+    label: "任物",
+    href: "/task",
+    icon: renderIcon(ClipboardTaskListLtr20FilledVue),
   },
   {
     key: "Settings",

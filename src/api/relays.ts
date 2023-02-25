@@ -116,6 +116,7 @@ export async function getRelayListMetadataByPubkey(pubkey: string) {
     const subIdList = await (
       await relayQuery
     ).send("sub", [{ kinds: [10002], authors: [pubkey] }], {
+      describe: "获取用户的中继配置信息",
       useCache: true,
       even(e, { subId }) {
         resolve(generateReadWriteList(e));
@@ -138,16 +139,40 @@ export function sendRelayListMetadata(urls: string[]) {
 }
 
 type Context = { subId: string; fromUrl: string };
-export interface SubEvent {
+export interface TaskEventOptions {
+  describe?: string;
+}
+export interface SubEventOptions extends TaskEventOptions {
   even?: (event: Event, context: Context) => void;
   eose?: (context: Context) => void;
   relayUrls?: ReadonlySet<string>;
   useCache?: boolean;
   cacheDuration?: number;
+  eoseAutoUnSub?: boolean;
+  evenAutoUnSub?: boolean;
+  eoseAutoUnSubAll?: boolean;
+  evenAutoUnSubAll?: boolean;
+  blockAlreadyHaveEvent?: boolean;
 }
+export interface PublishEventOptions extends TaskEventOptions {
+  relayUrls?: Set<string>;
+  ok?: CallBackT<void>;
+  failed?: CallBackT<void>;
+}
+export const defaultSubEvent: SubEventOptions = {
+  eoseAutoUnSub: true,
+  blockAlreadyHaveEvent: true,
+  relayUrls: getDefaultRelay(),
+};
 export async function sub(
   filters: Filter[],
-  opts: SubscriptionOptions & SubEvent = {}
+  opts: SubscriptionOptions & SubEventOptions = {}
 ) {
   return await (await relayQuery).send("sub", filters, opts);
+}
+
+export function getDefaultRelay() {
+  return relayConfigurator.getReadList().size
+    ? relayConfigurator.getReadList()
+    : new Set(defaultUrls);
 }

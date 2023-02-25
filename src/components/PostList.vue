@@ -8,6 +8,7 @@ import {
   type UserMetaData,
 } from "../api/user";
 import profile from "../assets/profile-2-400x400.png";
+import { nowSecondTimestamp } from "../utils/utils";
 import Content from "./Content.vue";
 
 const { pubkey } = defineProps<{ pubkey?: string[] }>();
@@ -47,7 +48,7 @@ on("push", async (e) => {
     <n-empty v-if="!posts.length" description="你什么也找不到"> </n-empty>
 
     <div
-      class="w-max-full bg-[#dfe4ea] rounded-2xl mb-6 mr-6 ml-6"
+      class="w-max-full bg-[#dfe4ea55] rounded-2xl mb-6 mr-6 ml-6"
       v-for="post in posts"
     >
       <div class="p-3 flex justify-between items-center">
@@ -62,7 +63,26 @@ on("push", async (e) => {
           <div class="font-bold ml-2">
             {{ v?.[post.pubkey]?.name }}
           </div>
-          <span class="ml-4">
+          <span class="ml-4" v-if="nowSecondTimestamp() - post.created_at < 60">
+            {{ nowSecondTimestamp() - post.created_at }}秒前
+          </span>
+          <span
+            class="ml-4"
+            v-else-if="nowSecondTimestamp() - post.created_at < 3600"
+          >
+            {{
+              Math.floor((nowSecondTimestamp() - post.created_at) / 60)
+            }}分钟前
+          </span>
+          <span
+            class="ml-4"
+            v-else-if="nowSecondTimestamp() - post.created_at < 60 * 60 * 24"
+          >
+            {{
+              Math.floor((nowSecondTimestamp() - post.created_at) / 60 / 60)
+            }}小时前
+          </span>
+          <span v-else>
             {{
               `${new Date(post.created_at * 1000).getFullYear()}.` +
               `${new Date(post.created_at * 1000).getMonth()}.` +

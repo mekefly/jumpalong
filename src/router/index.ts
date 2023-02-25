@@ -38,6 +38,10 @@ const router = createRouter({
           path: "/profile",
           component: () => import("../views/ProfileView.vue"),
         },
+        {
+          path: "/task",
+          component: () => import("../views/TaskView.vue"),
+        },
       ],
     },
   ],

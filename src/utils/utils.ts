@@ -65,3 +65,17 @@ export function isClass(c: unknown): c is new (...args: any[]) => any {
 export function isPromise(promise: any) {
   return !!promise && typeof promise.then === "function";
 }
+export const newWeakMap = (() => {
+  if (window.WeakMap) {
+    return <K extends object, V>() => {
+      return new WeakMap() as WeakMap<K, V>;
+    };
+  }
+
+  return <K extends object, V>() => {
+    return new Map() as WeakMap<K, V>;
+  };
+})();
+export function createId() {
+  return crypto.randomUUID()
+}

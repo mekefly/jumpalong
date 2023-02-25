@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { NIcon, NSpace } from "naive-ui";
 import { relayConfigurator } from "../api/relays";
+import ButtonCloseVue from "./ButtonClose.vue";
 import EllipsisVue from "./Ellipsis.vue";
-import CloseVue from "./icon/Close.vue";
 
 const urls = computed(() => Object.keys(relayConfigurator.getConfiguration()));
 function switchWrite(url: string) {
@@ -44,20 +44,7 @@ function switchRead(url: string) {
                 >
                   <ArrowDownload16Filled />
                 </n-icon>
-                <n-button
-                  quaternary
-                  circle
-                  type="error"
-                  class="text-[#6c5ce7] hover:text-[#a29bfe]"
-                  @click="() => relayConfigurator.remove(url)"
-                >
-                  <template #icon>
-                    <n-icon>
-                      <CloseVue />
-                    </n-icon>
-                  </template>
-                </n-button>
-
+                <ButtonCloseVue @click="() => relayConfigurator.remove(url)" />
                 <RelayFailedFlay url="url" />
               </n-space>
             </td>
