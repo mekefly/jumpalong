@@ -1,17 +1,12 @@
 <script setup lang="ts">
 import { NMessageProvider } from "naive-ui";
 // let's query for an event that exists
-import type { GlobalTheme } from "naive-ui";
-import { darkTheme, NConfigProvider } from "naive-ui";
-import { ref } from "vue";
-const theme = ref<GlobalTheme | null>(null);
-if (false) {
-  theme.value = darkTheme;
-}
+import { NConfigProvider } from "naive-ui";
+import { theme } from "./App";
 </script>
 
 <template>
-  <n-config-provider :theme="theme" class="">
+  <n-config-provider :theme="theme">
     <n-message-provider>
       <div class="w-full h-screen">
         <RouterView />
