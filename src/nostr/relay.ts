@@ -1,4 +1,4 @@
-import { EventEmitter } from "events";
+import relayConfigurator from "@/api/relayConfigurator";
 import {
   Event,
   Filter,
@@ -13,27 +13,41 @@ import {
   failedUrl,
   getDefaultRelay,
   PublishEventOptions,
-  relayConfigurator,
   SubEventOptions,
 } from "../api/relays";
 import { useAsyncCache, useCallbackCache } from "../utils/cache";
 import { AsyncReCacheOptions } from "../utils/cache/types";
-import { createId, withDefault } from "../utils/utils";
-import { PublishRelayTask, rootTask, SubRelayTask } from "./relayTask";
+import { withDefault } from "../utils/utils";
+import { PublishRelayTask, rootTask, SubRelayTask, taskMap } from "./relayTask";
 
 export const relayPool: Record<string, RelayConnect | undefined> = reactive({});
-const subEventEmitter = new EventEmitter();
+// const subEventEmitter = new EventEmitter();
 
 export function unSub(id: string | string[]) {
   if (typeof id === "string") {
     id = [id];
   }
   id.forEach((id) => {
-    subEventEmitter.emit(genUnSubId(id));
+    const [taskId, url] = deserializationUnSubId(id);
+    const task: SubRelayTask | PublishRelayTask = taskMap.get(taskId) as any;
+    if (!task) return;
+    if (task.type === "sub") {
+      const context = task.subContext.get(url);
+      if (!context) return;
+      context.sub?.unsub();
+      taskDelete(context.relayConnect, id);
+    }
   });
 }
-export function genUnSubId(id: string) {
-  return `unsub:${id}`;
+export function serializeUnSubId(taskId: string, url: string) {
+  return JSON.stringify([taskId, url]);
+}
+export function deserializationUnSubId(id: string): [string, string] {
+  try {
+    return JSON.parse(id);
+  } catch (error) {
+    return ["", ""];
+  }
 }
 export class RelayQuery extends Definition {
   realyConnectSystem!: ActorSystem<RealyConnect>;
@@ -57,8 +71,10 @@ export class RelayQuery extends Definition {
       relayUrls ?? relayConfigurator.getWriteList(),
       (relayConnect) => {
         return new Promise<void>((resolve, reject) => {
-          const id = createId();
+          const id = serializeUnSubId(relayTask.id, relayConnect.relay.url);
           let pub = relayConnect.relay.publish(event);
+
+          relayTask.pubMap.set(relayConnect.relay.url, pub);
 
           taskAdd(relayConnect, id);
           const autoClose = () => taskDelete(relayConnect, id);
@@ -80,10 +96,7 @@ export class RelayQuery extends Definition {
     );
   }
 
-  async sub(
-    filters: Filter[],
-    opts: SubscriptionOptions & SubEventOptions & AsyncReCacheOptions = {}
-  ) {
+  async sub(filters: Filter[], opts: SubOptions = {}) {
     // 是否启动缓存
     if (opts.useCache) {
       return useCallbackCache(
@@ -106,6 +119,7 @@ export class RelayQuery extends Definition {
     filters: Filter[]
   ) {
     withDefault(opts, defaultSubEvent);
+
     const relayTask = new SubRelayTask(
       "sub",
       opts.relayUrls as any,
@@ -117,23 +131,24 @@ export class RelayQuery extends Definition {
       opts.relayUrls,
       (relayConnect) => {
         return new Promise<void>((resolve, reject) => {
-          const id = createId();
+          const id = serializeUnSubId(relayTask.id, relayConnect.relay.url);
           const autoClose = () => taskDelete(relayConnect, id);
           try {
+            const relay = relayConnect.relay;
             let sub = relayConnect.relay.sub(filters, {
               alreadyHaveEvent: (id) =>
                 (opts.blockAlreadyHaveEvent ?? false) &&
                 relayTask.eventIds.has(id),
             });
+
             const unsub = () => {
               sub.unsub();
               autoClose();
-              subEventEmitter.removeAllListeners(genUnSubId(id));
             };
+
+            relayTask.subContext.set(relay.url, { sub, relayConnect });
             relayTask.subIds.push(id);
             taskAdd(relayConnect, id);
-
-            subEventEmitter.once(genUnSubId(id), unsub);
 
             const context = { fromUrl: relayConnect.relay.url, subId: id };
             sub.on("event", (e: Event) => {
@@ -184,7 +199,7 @@ export class RelayQuery extends Definition {
   }
 }
 
-interface RelayConnect {
+export interface RelayConnect {
   relay: Relay;
   taskList: Set<string>;
 }
@@ -259,3 +274,7 @@ class RealyConnect {
     return relayConnect;
   }
 }
+
+export type SubOptions = SubscriptionOptions &
+  SubEventOptions &
+  AsyncReCacheOptions;

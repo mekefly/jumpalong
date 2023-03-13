@@ -1,0 +1,22 @@
+// Vitest Snapshot v1
+
+exports[`autoAddRelayurlByPubkeyStaff:1 1`] = `
+[
+  [
+    {
+      "authors": [
+        "38440fe4b3729a614592d712e722edd87f7c3bc40e316901ed5b436f25dbcc02",
+      ],
+      "kinds": [
+        10002,
+      ],
+    },
+  ],
+]
+`;
+
+exports[`autoAddRelayurlByPubkeyStaff:1 2`] = `
+[
+  "wss://test2.com",
+]
+`;
