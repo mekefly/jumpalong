@@ -1,19 +1,22 @@
 import { getEventLineById } from "@/api/event";
-import { toDeCodeNevent } from "@/utils/nostr";
+import { neventEncodeByEvent, toDeCodeNevent } from "@/utils/nostr";
 import { Event } from "nostr-tools";
 
 const pushEvent = ref<Event | null>(null);
 export function useEvent() {
   const route = useRoute();
-  const neventObj = computed(() => {
-    return toDeCodeNevent(route.params["eventId"] as string);
+  const value = computed(() => route.params["eventId"] as string);
+
+  const neventOpt = computed(() => {
+    return toDeCodeNevent(value.value);
   });
   const eventId = computed(() => {
-    return neventObj.value?.id;
+    console.debug("neventOpt", neventOpt.value);
+
+    return neventOpt.value?.id;
   });
 
   return computed(() => {
-    console.log("useEvent", pushEvent.value?.id, eventId.value);
     if (!eventId.value) return null;
 
     if (pushEvent.value?.id === eventId.value) {
@@ -31,7 +34,7 @@ export function usePushShortTextNote() {
     pushEvent.value = event;
     router.push({
       name: "short-text-note",
-      params: { eventId: event.id },
+      params: { eventId: neventEncodeByEvent(event) },
     });
   };
 }

@@ -34,7 +34,7 @@ export async function publishEvent(
     .publish(event, relayConfigurator.getWriteList());
 }
 
-export function getEventLineById(eventId: string) {
+export function getEventLineById(eventId: string, opt?: { url?: Set<string> }) {
   return useCache("getEventLineById" + eventId, () => {
     const line = createEventBeltlineReactive({
       describe: "获取id通过id",
@@ -60,7 +60,17 @@ export function getEventLineById(eventId: string) {
         return;
       }
 
-      line.addReadUrl();
+      if (opt?.url) {
+        line.addRelayUrls(opt.url);
+        setTimeout(() => {
+          const e = line.feat.useEvent();
+          if (e) return;
+          line.addReadUrl();
+        }, 2000);
+      } else {
+        line.addReadUrl();
+      }
+
       // line.feat.startAutomaticRandomRequestStaff();
       // //得到结果就关闭
       // line.feat.onHasEventOnce(() => {

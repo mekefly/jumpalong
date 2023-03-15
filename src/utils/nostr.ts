@@ -1,4 +1,5 @@
-import { Filter, nip19 } from "nostr-tools";
+import { deserializeTagR } from "@/nostr/tag";
+import { Event, Filter, nip19 } from "nostr-tools";
 import { ProfilePointer } from "nostr-tools/nip19";
 import { setAdds } from "./utils";
 
@@ -36,12 +37,19 @@ export function toNprofile(str: string): string | null {
   if (!profilePointer) return null;
   return profilePointerToNprofile(profilePointer);
 }
-export function toDeCodeNevent(str: string): {
+export function neventEncodeByNeventOpt(v: NeventOpt | null) {
+  if (!v) return null;
+  return nip19.neventEncode(v);
+}
+type NeventOpt = {
   id: string;
   relays: string[];
-} | null {
+};
+export function toDeCodeNevent(str: string): NeventOpt | null {
   try {
+    console.log("toDeCodeNevent");
     const v = nip19.decode(str);
+    console.log("toDeCodeNevent", v);
 
     switch (v["type"]) {
       case "nevent":
@@ -79,4 +87,11 @@ export function getIncludeMergeByFilters(
     }
   }
   return merageArr;
+}
+export function neventEncodeByEvent(event: Event) {
+  const url = deserializeTagR(event.tags);
+  return nip19.neventEncode({
+    id: event.id as string,
+    relays: [...url],
+  });
 }
