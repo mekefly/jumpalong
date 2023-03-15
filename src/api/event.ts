@@ -1,9 +1,9 @@
 import { createEvent } from "@/nostr/event";
 import { relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
 import createOneEventStaff from "@/nostr/staff/createOneEventStaff";
-import createLocalStorageStaff from "@/nostr/staff/storage/createLocalStorageStaff";
+import setCacheStaff from "@/nostr/staff/storage/setCacheStaff";
 import { userKey } from "@/nostr/user";
-import { useCache } from "@/utils/cache";
+import { getCache, useCache } from "@/utils/cache";
 import { syncInterval } from "@/utils/utils";
 import { Event } from "nostr-tools";
 // import { relayQuery } from "../nostr";
@@ -39,29 +39,19 @@ export function getEventLineById(eventId: string, opt?: { url?: Set<string> }) {
     const line = createEventBeltlineReactive({
       describe: "获取id通过id",
     })
-      .addStaff(createLocalStorageStaff(1))
       .addFilter({ ids: [eventId], limit: 1 })
+      .addStaff(setCacheStaff())
       .addStaff(createOneEventStaff());
     // .addStaff(createAutomaticRandomRequestStaff());
 
-    console.log("getEventLineById");
+    if (hasEvent()) return line;
 
-    const e = line.feat.useEvent() ?? line.feat.getItem(eventId);
-    console.log("getEventLineById", e);
-
-    if (e) {
-      line.pushEvent(e);
-      return;
-    }
     const req = () => {
-      const e = line.feat.useEvent() ?? line.feat.getItem(eventId);
-      if (e) {
-        line.pushEvent(e);
-        return;
-      }
+      if (hasEvent()) return;
 
       if (opt?.url) {
         line.addRelayUrls(opt.url);
+
         setTimeout(() => {
           const e = line.feat.useEvent();
           if (e) return;
@@ -82,6 +72,18 @@ export function getEventLineById(eventId: string, opt?: { url?: Set<string> }) {
     syncInterval(`getEventLineById:${eventId}`, () => {
       req();
     });
+
+    function hasEvent() {
+      if (Boolean(line.feat.useEvent())) {
+        return true;
+      }
+      const cacheEvent: Event = getCache(eventId, {});
+      if (cacheEvent) {
+        line.pushEvent(cacheEvent);
+        return true;
+      }
+      return false;
+    }
 
     return line;
   });

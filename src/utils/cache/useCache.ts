@@ -245,6 +245,14 @@ export function getLocalStorageCache(key: string) {
 
   return cache.value;
 }
+
+export function deleteCache(key: string) {
+  deleteLocalStorageCache(key);
+  deleteMemoryCache(key);
+}
+export function deleteMemoryCache(key: string) {
+  delete memoryCacheDate[key];
+}
 export function deleteLocalStorageCache(key: string) {
   keylist.deleteCacheKey(key);
   localStorage.removeItem(key);

@@ -12,7 +12,6 @@ import { Event, Filter } from "nostr-tools";
 import { createStaffFactory, FeatType, StaffThisType } from "..";
 import PopLimit from "../PopLimit";
 
-const prefix = "event-id:";
 const cache = new Map<string, Event>();
 class LocalStorageFilter {
   filters: Filter[];
@@ -41,7 +40,7 @@ class LocalStorageFilter {
     } catch (error) {
       this.eventIdList = [];
     }
-    this.clearAll();
+    // this.clearAll();
   }
   getWholeEvent() {
     const list: Event[] = [];
@@ -55,37 +54,13 @@ class LocalStorageFilter {
     }
     return list;
   }
-  clearAll() {
-    const localStorage = window.localStorage;
-    const len = localStorage.length;
-
-    for (let i = 0; i < len; i++) {
-      try {
-        const key = localStorage.key(i);
-        if (key?.startsWith(prefix)) {
-          localStorage.removeItem(key);
-          continue;
-        }
-        if (!key?.startsWith("LocalStorageFilter")) {
-          continue;
-        }
-
-        const cacheString = localStorage.getItem(key);
-        if (!cacheString) {
-          continue;
-        }
-        const cacheKey: any = JSON.parse(cacheString);
-        if (Array.isArray(cacheKey)) {
-          for (const id of cacheKey) {
-            localStorage.removeItem(this.createKey(id));
-          }
-          localStorage.removeItem(key);
-        }
-      } catch (error) {}
+  clear() {
+    for (const eventId of this.eventIdList) {
+      this.removeItem(eventId);
     }
   }
   createKey(eventId: string) {
-    return `${prefix}${eventId}`;
+    return eventId;
   }
   setItem(e: Event) {
     const key = this.createKey(e.id as string);

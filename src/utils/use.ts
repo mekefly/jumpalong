@@ -259,7 +259,7 @@ export function useElementIntoScreen(target: Ref<HTMLDivElement | null>) {
       isIntoScreen.value = false;
     }
   };
-  const debounceCall = debounce(call, 600);
+  const debounceCall = debounce(call, 500);
   debounceCall();
 
   window.addEventListener("mousewheel", debounceCall);

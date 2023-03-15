@@ -1,6 +1,7 @@
 import { createEventBeltlineReactive } from "@/nostr/createEventBeltline";
 import { createEvent } from "@/nostr/event";
 import { config, rootEventBeltline } from "@/nostr/nostr";
+import ReplaceableEventMap from "@/nostr/ReplaceableEventMap";
 import { createDoNotRepeatStaff } from "@/nostr/staff";
 import autoAddRelayurlByPubkeyStaff from "@/nostr/staff/autoAddRelayurlByPubkeyStaff";
 import createEoseUnSubStaff from "@/nostr/staff/createEoseUnSubStaff";
@@ -9,6 +10,7 @@ import createUseChannelMetadata, {
   ChannelMetadata,
   parseMetadata,
 } from "@/nostr/staff/createUseChannelMetadata";
+import ReplaceableEventMapStaff from "@/nostr/staff/ReplaceableEventMapStaff";
 import createLocalStorageStaff from "@/nostr/staff/storage/createLocalStorageStaff";
 import UserUniqueEventStaff from "@/nostr/staff/UserUniqueEventStaff";
 import { useCache } from "@/utils/cache";
@@ -69,10 +71,20 @@ export function getUserMetadataLineByPubkey(pubkey: string) {
           authors: [pubkey],
           kinds: [0],
         })
-        .addStaff(createLocalStorageStaff(1))
+        .addStaff(ReplaceableEventMapStaff(0)) //可替换事件缓存
         .addStaff(createLatestEventStaff())
         .addStaff(createUseChannelMetadata())
         .addStaff(createEoseUnSubStaff());
+
+      const event = ReplaceableEventMap.kind0.getEvent(pubkey);
+      console.log("ReplaceableEventMap", event);
+
+      if (event) {
+        setTimeout(() => {
+          line.pushEvent(event);
+        }, 1000);
+        return line;
+      }
 
       const req = () => {
         line.addReadUrl();
