@@ -112,9 +112,6 @@ export class EventBeltline<
   }
 
   public pushEvent(event: Event, subId?: string) {
-    // if (!toFilters(event, this.filters, this.eventList.length)) {
-    //   return;
-    // }
     for (const staff of this.staffs) {
       staff.beforePush?.(event, this.eventList);
     }
@@ -328,8 +325,16 @@ export class EventBeltline<
       } catch (error) {}
     });
   }
-  public async publish(eventPart: Partial<Event>, urls: Set<string>) {
+  public async publish(eventPart: Partial<Event>, urls: Set<string>, opt?: {}) {
+    //自动判断是否已签名，如果没有自动添加url
+    if (!eventPart.sig && !eventPart.id && urls.size !== 0) {
+      const tags = eventPart.tags ?? [];
+      tags.push(...Array.from(urls, (v: string) => ["r", v]));
+      eventPart.tags = tags;
+    }
     const event = createEvent(eventPart);
+    console.log("publishevent", event);
+
     this.pushEvent(event);
     for (const url of urls) {
       this.toPublish(url, event);

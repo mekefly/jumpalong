@@ -1,5 +1,6 @@
 import { createEventBeltlineReactive } from "@/nostr/createEventBeltline";
-import { createEvent } from "@/nostr/event";
+import { rootEventBeltline } from "@/nostr/nostr";
+import relayConfigurator from "@/nostr/relayConfigurator";
 import {
   createDoNotRepeatStaff,
   createFilterGreaterThanTheCurrenttimeStaff,
@@ -12,7 +13,6 @@ import { Filter } from "nostr-tools";
 import { createGarbageFilter } from "../nostr/staff/createGarbageFilter";
 import { useCache } from "../utils/cache";
 import { createBlackStaff } from "../views/ContentBlacklistView";
-import { publishEvent } from "./event";
 
 const filterKind1: Filter = { kinds: [1] };
 export function getShortTextEventBeltline(
@@ -86,14 +86,12 @@ export async function sendShortTextNote(
     event?: Partial<Event>;
   } = {}
 ) {
-  const event = createEvent({
-    kind: 1,
-    content,
-    ...options?.event,
-  });
-
-  publishEvent(event, {
-    relayUrls: options.relayUrls,
-    ok() {},
-  });
+  rootEventBeltline.publish(
+    {
+      kind: 1,
+      content,
+      ...options?.event,
+    },
+    relayConfigurator.getWriteList() as any
+  );
 }
