@@ -7,8 +7,12 @@ import PapawVue from "./Papaw.vue";
 
 logger.for("home.vue").for("PostList.vue").info("进入PostList.vue");
 
-const props = defineProps<{ pubkey?: string[]; filter?: Filter }>();
-const { pubkey, filter } = toRefs(props);
+const props = defineProps<{
+  url?: Set<string>;
+  pubkey?: string[];
+  filter?: Filter;
+}>();
+const { pubkey, filter, url } = toRefs(props);
 
 logger
   .for("home.vue")
@@ -18,6 +22,7 @@ logger
 const beltline = computed(() => {
   const opt: any = {};
 
+  url?.value && url.value.size > 0 && (opt.relayUrls = url.value);
   filter?.value && (opt.filter = filter.value);
 
   return getShortTextEventBeltline(pubkey?.value, opt);
@@ -27,24 +32,6 @@ onUnmounted(() => {
 });
 
 const postEvents = computed(() => beltline.value.getList());
-
-// const v = ref({} as Record<string, UserMetaData>);
-// const userMetaDataMap = reactive(new WeakMap<object, UserMetaData>());
-// beltline.addStaff({
-//   push: (e) => {
-//     v.value[e.pubkey] = { name: e.pubkey.slice(0, 10) };
-//     getUserMetadataByPubkey(e.pubkey).then((data) => {
-//       if (!data) return;
-//       v.value[e.pubkey] = data;
-//       userMetaDataMap.set(e, data);
-//     });
-//   },
-//   feat: {
-//     getUserMetaData(e: Event) {
-//       return userMetaDataMap.get(e);
-//     },
-//   },
-// });
 </script>
 
 <template>

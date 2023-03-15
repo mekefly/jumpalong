@@ -1,30 +1,16 @@
 <script lang="ts" setup>
-import { getEventLineById } from "@/api/event";
 import ContentVue from "@/components/Content.vue";
 import DateTimeVue from "@/components/DateTime.vue";
 import PostListVue from "@/components/PostList.vue";
 import SMSButtonVue from "@/components/SMSButton.vue";
 import UserInfoVue from "@/components/UserInfo.vue";
-import { toDeCodeNevent } from "@/utils/nostr";
-const route = useRoute();
-const neventObj = computed(() => {
-  return toDeCodeNevent(route.params["eventId"] as string);
+import { deserializeTagR } from "@/nostr/tag";
+import { useEvent } from "./ShortTextNoteView";
+const event = useEvent();
+const url = computed<Set<string>>(() => {
+  if (!event.value) return new Set();
+  return deserializeTagR(event.value?.tags);
 });
-
-const eventId = computed(() => {
-  return neventObj.value?.id;
-});
-console.log("ShortTextNoteView");
-
-const line = computed(() => {
-  console.log("eventId", eventId.value);
-
-  if (!eventId.value) return null;
-
-  // return null;
-  return getEventLineById(eventId.value);
-});
-const event = computed(() => line.value?.feat.useEvent());
 </script>
 
 <template>
@@ -38,10 +24,10 @@ const event = computed(() => line.value?.feat.useEvent());
       </template>
     </UserInfoVue>
     <div class="p-5 font">
-      <ContentVue :content="event.content" />
+      <ContentVue :event="event" />
     </div>
     <div>
-      <PostListVue :filter="{ '#e': [event.id as string] }" />
+      <PostListVue :url="url" :filter="{ '#e': [event.id as string] }" />
     </div>
   </div>
 </template>

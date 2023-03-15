@@ -49,10 +49,16 @@ export function getEventLineById(eventId: string) {
     const e = line.feat.useEvent() ?? line.feat.getItem(eventId);
     console.log("getEventLineById", e);
 
-    if (e) return;
+    if (e) {
+      line.pushEvent(e);
+      return;
+    }
     const req = () => {
       const e = line.feat.useEvent() ?? line.feat.getItem(eventId);
-      if (e) return;
+      if (e) {
+        line.pushEvent(e);
+        return;
+      }
 
       line.addReadUrl();
       // line.feat.startAutomaticRandomRequestStaff();
