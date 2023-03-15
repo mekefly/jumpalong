@@ -5,7 +5,7 @@ import createLocalStorageStaff from "../createLocalStorageStaff";
 export function assignRootOption(opt: EventBeltlineOptions) {
   Object.assign((rootEventBeltline as any).options, opt);
 }
-const { relayEmiter, testOption } = initializeTesttime({});
+const { relayEmiter, testOption, createEvent } = initializeTesttime({});
 
 it("createLocalStorageStaff:limit", async () => {
   const opt = testOption();

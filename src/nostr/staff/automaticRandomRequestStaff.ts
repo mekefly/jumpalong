@@ -80,6 +80,11 @@ class AutoRandomRequestStaff {
         .addStaff(createEoseUnSubStaff())
         .addRelayUrls(new Set<string>().add(randomUrl));
 
+      //超时停止订阅
+      setTimeout(() => {
+        child.closeReq();
+      }, 20_000);
+
       this.getEventBeltline().addExtends(child);
     }, this.interval);
   }

@@ -38,6 +38,7 @@ it("useCallbackCache:cache", async () => {
   expect(localStorage).toMatchInlineSnapshot(`
     Storage {
       "_store": {
+        "__cache_key_list_": "[\\"test2\\",\\"return:test2\\"]",
         "return:test2": "{\\"updateTime\\":1677034530000,\\"duration\\":3600000}",
         "test2": "{\\"value\\":{\\"even\\":[[\\"333\\"]]},\\"updateTime\\":1677034530000,\\"duration\\":3600000}",
       },

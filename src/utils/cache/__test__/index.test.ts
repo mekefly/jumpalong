@@ -66,6 +66,7 @@ it("setLocalStorage", () => {
   expect(localStorage).toMatchInlineSnapshot(`
     Storage {
       "_store": {
+        "__cache_key_list_": "[\\"test\\"]",
         "test": "{\\"x\\":3}",
       },
     }
@@ -74,6 +75,7 @@ it("setLocalStorage", () => {
   expect(localStorage).toMatchInlineSnapshot(`
     Storage {
       "_store": {
+        "__cache_key_list_": "[\\"test\\"]",
         "test": "3",
       },
     }
@@ -82,6 +84,7 @@ it("setLocalStorage", () => {
   expect(localStorage).toMatchInlineSnapshot(`
     Storage {
       "_store": {
+        "__cache_key_list_": "[\\"test\\",\\"test343\\"]",
         "test": "3",
         "test343": "[1,2,3]",
       },

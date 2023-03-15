@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { getEventLineById } from "@/api/event";
 import ContentVue from "@/components/Content.vue";
 import DateTimeVue from "@/components/DateTime.vue";
 import PostListVue from "@/components/PostList.vue";
@@ -16,10 +17,12 @@ const eventId = computed(() => {
 console.log("ShortTextNoteView");
 
 const line = computed(() => {
+  console.log("eventId", eventId.value);
+
   if (!eventId.value) return null;
 
-  return null;
-  // return getEventLineById(eventId.value);
+  // return null;
+  return getEventLineById(eventId.value);
 });
 const event = computed(() => line.value?.feat.useEvent());
 </script>

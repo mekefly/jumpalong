@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { relayPool } from "@/nostr/nostr";
 import { lightTheme } from "naive-ui";
 import { ref } from "vue";
 import { switchTheme, theme } from "../app";
@@ -17,6 +18,8 @@ const collapsed = ref(true);
       <span class="text-xl font-bold"> Jumpalong </span>
       <SearchFormVue></SearchFormVue>
       <n-space>
+        <div>订阅:{{ relayPool.allSubIds.size }}</div>
+        <div>连接:{{ relayPool.getPool().size }}</div>
         <n-button quaternary @click="switchTheme">
           {{ theme === lightTheme ? "浅色" : "深色" }}
         </n-button>

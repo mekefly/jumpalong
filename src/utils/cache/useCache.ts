@@ -1,8 +1,7 @@
 import { EventEmitter } from "events";
-import { isPromise } from "../utils";
-
-import { withDefault } from "../utils";
+import { isPromise, withDefault } from "../utils";
 import { defaultCacheOptions } from "./defaultCacheOptions";
+import keylist from "./keylist";
 import { AsyncReCacheOptions, Cache, CacheOptions } from "./types";
 
 /**内存缓存数据对象，更快一点 */
@@ -237,9 +236,18 @@ export function getLocalStorageCache(key: string) {
   const catchString = getLocalStorageString(key);
   const cache: Cache<any> = JSON.parse(catchString);
 
-  checkCache(cache);
+  try {
+    checkCache(cache);
+  } catch (error) {
+    keylist.deleteCacheKey(key);
+    throw error;
+  }
 
   return cache.value;
+}
+export function deleteLocalStorageCache(key: string) {
+  keylist.deleteCacheKey(key);
+  localStorage.removeItem(key);
 }
 /**
  * LocalStorage只可以存储文本
@@ -271,6 +279,7 @@ function setMemoryCache(key: string, value: any) {
  * @param {*} value
  */
 export function setLocalStorage(key: string, value: any) {
+  keylist.addCacheKey(key);
   localStorage.setItem(key, JSON.stringify(value));
 }
 

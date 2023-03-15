@@ -37,7 +37,7 @@ export function getShortTextEventBeltline(
         slef: reactive({}),
       })
         .addFilter(filter)
-        .addStaff(createLocalStorageStaff(300))
+        .addStaff(createLocalStorageStaff(100))
         .addStaff(createAutoCloseReqByLimit(limit))
         .addStaff(createDoNotRepeatStaff()) // 重复事件过滤器
         .addStaff(createBlackStaff()) // 黑名单过滤器

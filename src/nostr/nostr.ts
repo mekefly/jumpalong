@@ -12,7 +12,7 @@ export let rootEventBeltline: EventBeltline = null as any;
 export let relayConfigurator: RelayConfigurator = null as any;
 
 export let config: ConfigType = {
-  localStorage: { kind10002: 500 },
+  localStorage: { kind10002: 500, duration: 1000 * 60 * 60 * 24 * 7 },
 
   pullRelayConfig: {
     interval: 1000 * 60 * 60 * 24, // 24 hour
@@ -32,6 +32,7 @@ export let config: ConfigType = {
 type ConfigType = {
   localStorage: {
     kind10002: number;
+    duration: number;
   };
   pullRelayConfig: {
     // interval: (1000 * 60 * 60 * 24)

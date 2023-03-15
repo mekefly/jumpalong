@@ -30,14 +30,17 @@ export class RelayPool {
     return seft;
   }
   async listen() {
-    console.log("listen");
-
     this.relayEmiter.onRequest("req", async ({ url, subId, filters }) => {
       const relay = await this.getRelay(url);
       relay.req(filters, subId);
     });
     this.relayEmiter.onRequest("closeReq", async ({ url, subId }) => {
-      const relay = await this.getRelay(url);
+      this.allSubIds.delete(subId);
+
+      const relay = this.getRelayFromPool(url);
+      if (!relay) {
+        return;
+      }
       relay.closeReq(subId);
     });
     this.relayEmiter.onRequest("publish", async ({ url, event }) => {
@@ -45,7 +48,10 @@ export class RelayPool {
       relay.publish(event);
     });
     this.relayEmiter.onRequest("close", async ({ url }) => {
-      const relay = await this.getRelay(url);
+      const relay = this.getRelayFromPool(url);
+      if (!relay) {
+        return;
+      }
       relay.close();
     });
   }
@@ -71,9 +77,11 @@ export class RelayPool {
       ws.onerror = (e) => {
         this.pool.get(url)?.close();
         this.pool.delete(url);
+        this.getRelayFromPool(url)?.close();
       };
       ws.onclose = () => {
         this.pool.delete(url);
+        this.getRelayFromPool(url)?.close();
       };
 
       const relay = new Relay(ws, relayEmiter, this);

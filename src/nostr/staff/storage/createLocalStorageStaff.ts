@@ -1,3 +1,11 @@
+import { config } from "@/nostr/nostr";
+import {
+  defaultCacheOptions,
+  deleteLocalStorageCache,
+  getCache,
+  setCache,
+} from "@/utils/cache";
+import { AsyncReCacheOptions } from "@/utils/cache/types";
 import { arrayRemove } from "@/utils/utils";
 import { utils } from "@noble/secp256k1";
 import { Event, Filter } from "nostr-tools";
@@ -5,11 +13,16 @@ import { createStaffFactory, FeatType, StaffThisType } from "..";
 import PopLimit from "../PopLimit";
 
 const prefix = "event-id:";
+const cache = new Map<string, Event>();
 class LocalStorageFilter {
   filters: Filter[];
   filtersKey: string;
   eventIdList: string[];
   list: null | Event[] = null;
+  cacheOptions: AsyncReCacheOptions = {
+    ...defaultCacheOptions,
+    duration: config.localStorage.duration,
+  };
   constructor(filters: Filter[]) {
     this.filters = filters;
     let k = JSON.stringify(filters);
@@ -35,9 +48,8 @@ class LocalStorageFilter {
 
     for (const eventId of this.eventIdList) {
       try {
-        const str = localStorage.getItem(this.createKey(eventId));
-        if (!str) break;
-        const event = JSON.parse(str);
+        const event = this.getItem(eventId);
+        if (!event) break;
         list.push(event);
       } catch (error) {}
     }
@@ -76,15 +88,23 @@ class LocalStorageFilter {
     return `${prefix}${eventId}`;
   }
   setItem(e: Event) {
-    localStorage.setItem(this.createKey(e.id as string), JSON.stringify(e));
+    const key = this.createKey(e.id as string);
+
+    setCache(key, e, this.cacheOptions);
     this.eventIdList.push(e.id as string);
     this.updateList();
   }
-  getItem(eventId: string) {
-    localStorage.getItem(this.createKey(eventId));
+  getItem(eventId: string): Event | undefined {
+    try {
+      const cache = getCache(this.createKey(eventId), this.cacheOptions);
+      return cache;
+    } catch (error) {
+      //缓存不存在或过期清楚
+      this.removeItem(eventId);
+    }
   }
   removeItem(eventId: string) {
-    localStorage.removeItem(this.createKey(eventId));
+    deleteLocalStorageCache(this.createKey(eventId));
     arrayRemove(this.eventIdList, eventId);
     this.updateList();
   }
@@ -99,16 +119,18 @@ export type CreateLocalStorageStaffType = {
 };
 export type CreateLocalStorageStaffFeatType = {
   removeItem(this: FeatType<object>, eventId: string): void;
+  getItem(eventId: string): Event | undefined;
 };
 
 export default createStaffFactory()(
   (limit: number = 1000): CreateLocalStorageStaffType => {
-    let localStorageFilter: LocalStorageFilter | null = null as any;
+    let localStorageFilter: LocalStorageFilter = null as any;
     return {
       initialization() {
-        const localStorageFilter = new LocalStorageFilter(
-          this.beltline.getFilters()
-        );
+        localStorageFilter = new LocalStorageFilter(this.beltline.getFilters());
+        if (limit === 0) {
+          return;
+        }
 
         const list = localStorageFilter.getWholeEvent();
         for (const event of list) {
@@ -133,6 +155,18 @@ export default createStaffFactory()(
       feat: {
         removeItem(eventId: string) {
           localStorageFilter?.removeItem(eventId);
+        },
+        getItem(eventId: string) {
+          console.debug(
+            "getItem",
+            eventId,
+            "localStorageFilter",
+            localStorageFilter,
+            "event",
+            localStorageFilter?.getItem(eventId)
+          );
+
+          return localStorageFilter?.getItem(eventId);
         },
       },
     };

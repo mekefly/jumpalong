@@ -1,7 +1,7 @@
 import { withDefault } from "../utils";
 import { defaultCacheOptions } from "./defaultCacheOptions";
-import { autoReCache, getCache, setCache } from "./index";
 import { AsyncReCacheOptions } from "./types";
+import { autoReCache, getCache, setCache } from "./useCache";
 
 export function useCallbackCache<E, REST extends any[], C extends object>(
   key: string,

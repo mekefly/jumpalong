@@ -1,17 +1,38 @@
 import { checkCache, isCache } from ".";
+import keylist from "./keylist";
 
-intelligentCleaning();
+setTimeout(() => {
+  intelligentCleaning();
+});
 export function intelligentCleaning() {
+  const localStorage = window.localStorage;
+
+  const list = keylist.getCacheList();
+  for (const key of list) {
+    const cacheString = localStorage.getItem(key);
+    if (!cacheString) {
+      continue;
+    }
+    const cache: any = JSON.parse(cacheString);
+    if (!isCache(cache)) {
+      continue;
+    }
+
+    try {
+      checkCache(cache);
+    } catch (err) {
+      localStorage.removeItem(key);
+    }
+  }
+}
+(window as any).clearCache = clearCache;
+export function clearCache() {
   const localStorage = window.localStorage;
   const len = localStorage.length;
 
-  for (let i = 0; i < len; i++) {
+  const list = keylist.getCacheList();
+  for (const key of list) {
     try {
-      const key = localStorage.key(i);
-      if (!key) {
-        continue;
-      }
-
       const cacheString = localStorage.getItem(key);
       if (!cacheString) {
         continue;
@@ -21,16 +42,13 @@ export function intelligentCleaning() {
         continue;
       }
 
-      try {
-        checkCache(cache);
-      } catch (err) {
-        localStorage.removeItem(key);
-      }
+      localStorage.removeItem(key);
     } catch (error) {}
   }
 }
-(window as any).clearCache = clearCache;
-export function clearCache() {
+
+(window as any).clearCacheAll = clearCacheAll;
+export function clearCacheAll() {
   const localStorage = window.localStorage;
   const len = localStorage.length;
 
