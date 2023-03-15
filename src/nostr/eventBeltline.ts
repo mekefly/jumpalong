@@ -1,15 +1,14 @@
-import relayConfigurator from "@/api/relayConfigurator";
+import { type RelayConfigurator } from "@/nostr/relayConfigurator";
 import { EventEmitter } from "events";
 import { Event, Filter } from "nostr-tools";
 import {
   arrayRemove,
-  createId,
   getSetIncrement,
-  objectSet,
   reverseSearchInsertOnObjectList,
   searchInsertOnObjectList,
 } from "../utils/utils";
 import { createEvent } from "./event";
+import { IdGenerator } from "./IdGenerator";
 import { type SubOptions } from "./relay";
 import { RelayEmiter } from "./RelayEmiter";
 import {
@@ -18,7 +17,7 @@ import {
   Staff,
   StaffState,
 } from "./staff";
-import { createFilterStaff, toFilters } from "./staff/createFilterStaff";
+import { createFilterStaff } from "./staff/createFilterStaff";
 
 const EventBeltlineSetSlef: new (slef: any) => {} = function (
   this: any,
@@ -32,30 +31,41 @@ let id = 0;
 export class EventBeltline<
   FEAT extends object = {}
 > extends EventBeltlineSetSlef {
+  relayConfigurator: RelayConfigurator | undefined;
   static isEventBeltlin(o: unknown): o is EventBeltline {
     return typeof o === "object" && Boolean((o as any).__EventBeltline__);
   }
+  // flag
   public __EventBeltline__: true = true;
 
+  // describe
   public id = id++;
   public name = String(id);
 
+  // plugin
   private staffs: (Staff<any> & { beltline: EventBeltline<FEAT> })[] = [];
+  public feat: FeatType<FEAT>;
+
+  // data
+  private subidMap: Map<string, string> = new Map();
+  private options: EventBeltlineOptions;
   private urls = new Set<string>();
   private filters: Filter[] = [];
   private eventList: Event[] = [];
+
+  // relation
   private parent: EventBeltline | null = null;
   private children: Set<EventBeltline> = new Set();
-  private options: EventBeltlineOptions;
-  private subidMap: Map<string, string> = new Map();
-  private eventEmitter = new EventEmitter().setMaxListeners(200);
-  private relayEmiter: RelayEmiter;
-  private root: EventBeltline;
-
-  public feat: FeatType<FEAT>;
-
   private extends: Set<EventBeltline> = new Set();
   private extendTo: Set<EventBeltline> = new Set();
+  private root: EventBeltline;
+
+  // inject
+  private idGenerator: IdGenerator;
+  private relayEmiter: RelayEmiter;
+
+  // event
+  private eventEmitter = new EventEmitter().setMaxListeners(200);
 
   constructor(options?: EventBeltlineOptions) {
     //注入self，比如reactive，然后让整个功能都可响应运转
@@ -70,8 +80,12 @@ export class EventBeltline<
     this.relayEmiter = options?.relayEmiter ?? new RelayEmiter();
     this.root = options?.root ?? this;
     this.parent = options?.parent ?? null;
+    this.relayConfigurator = options?.relayConfigurator;
+    this.idGenerator = options?.idGenerator ?? new IdGenerator();
 
     options?.preventCircularReferences && this.addPreventCircularReferences();
+
+    this.addFiltersStaff(this.filters, { unshift: true });
 
     for (const staff of this.staffs) {
       staff?.initialization?.();
@@ -98,10 +112,9 @@ export class EventBeltline<
   }
 
   public pushEvent(event: Event, subId?: string) {
-    if (!toFilters(event, this.filters, this.eventList.length)) {
-      return;
-    }
-
+    // if (!toFilters(event, this.filters, this.eventList.length)) {
+    //   return;
+    // }
     for (const staff of this.staffs) {
       staff.beforePush?.(event, this.eventList);
     }
@@ -113,6 +126,7 @@ export class EventBeltline<
         StaffState.NEXT;
 
       state = _state;
+
       if (_state !== StaffState.NEXT) {
         break;
       }
@@ -133,7 +147,9 @@ export class EventBeltline<
     return this.urls;
   }
   public addReadUrl() {
-    this.addRelayUrls(relayConfigurator.getReadList() as any);
+    console.debug("addReadUrl", this.relayConfigurator);
+    this.relayConfigurator &&
+      this.addRelayUrls(this.relayConfigurator.getReadList() as any);
 
     return this;
   }
@@ -171,20 +187,21 @@ export class EventBeltline<
     staff: STAFF,
     opt?: AddStaffOpt
   ): EventBeltline<FEAT & STAFF["feat"]> {
+    this.initializationStaff(staff);
+
     if (opt?.unshift) {
       this.staffs.unshift(staff as any);
     } else {
       this.staffs.push(staff as any);
     }
 
-    this.initializationStaff(staff);
-
     return this as any;
   }
   private initializationStaff(staff: Staff<any>) {
     staff.feat && Object.assign(this.feat, staff.feat);
 
-    objectSet(staff, "beltline", this).initialization?.();
+    (staff as any)["beltline"] = this as any;
+    (staff as any).initialization?.();
   }
   public addFilterStaff(filter: Filter, opt?: AddStaffOpt) {
     this.addFiltersStaff([filter], opt);
@@ -209,22 +226,26 @@ export class EventBeltline<
       addExtendsFormRoot?: boolean;
     }
   ) {
-    const line = new EventBeltline(
+    const childLine = new EventBeltline(
       Object.assign(
-        this.options,
+        {},
         {
+          relayEmiter: this.relayEmiter,
+          idGenerator: this.idGenerator,
+          relayConfigurator: this.relayConfigurator,
           root: this.root,
           parent: this,
+          slef: {},
         },
         opt
-      )
+      ) as any
     );
 
-    this.addChild(line);
+    this.addChild(childLine);
 
     //等待准备好了之后再准备继承数据
 
-    return line;
+    return childLine;
   }
   /**
    * close Req
@@ -315,13 +336,26 @@ export class EventBeltline<
     }
   }
   private req(url: string, filters: Filter[]) {
-    const subId = createId();
+    const subId = this.idGenerator.createId();
+    this.onReceiveEvent(subId);
+
     this.subidMap.set(subId, url);
     this.relayEmiter.emitRequest("req", {
       subId,
       url,
       filters,
     });
+  }
+  /**
+   *
+   * @param subId
+   * @param set
+   * @returns
+   */
+  onReceiveEvent(subId: string, set = new WeakSet()) {
+    //防止循环引用
+    if (set.has(this)) return;
+    set.add(this);
 
     this.relayEmiter.on("event", subId, ({ event }) => {
       this.pushEvent(event);
@@ -329,7 +363,12 @@ export class EventBeltline<
     this.relayEmiter.once("eose", subId, () => {
       this.relayEmiter.removeAllListener(subId);
     });
+
+    // for (const line of this.extendTo) {
+    //   line.onReceiveEvent(subId, set);
+    // }
   }
+
   private async toPublish(url: string, event: Event) {
     this.relayEmiter.emitRequest("publish", {
       event,
@@ -359,6 +398,8 @@ export type EventBeltlineOptions = {
   relayEmiter?: RelayEmiter;
   root?: EventBeltline;
   parent?: EventBeltline;
+  relayConfigurator?: RelayConfigurator;
+  idGenerator?: IdGenerator;
 };
 // & SubOptions;
 

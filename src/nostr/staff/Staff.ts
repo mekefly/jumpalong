@@ -1,5 +1,5 @@
-import { Event } from "nostr-tools";
-import { EventBeltline } from "../eventBeltline";
+import { type Event } from "nostr-tools";
+import { type EventBeltline } from "../eventBeltline";
 
 export enum StaffState {
   NEXT,

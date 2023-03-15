@@ -1,7 +1,7 @@
 <script lang="ts" setup>
+import { userKey } from "@/nostr/user";
 import { nip19 } from "nostr-tools";
-import { relayConfigurator } from "../api/relays";
-import { userKey } from "../api/user";
+import { relayConfigurator } from "../nostr/nostr";
 import { renderIcon, useClipboard } from "../utils/naiveUi";
 import PencilVue from "./icon/Pencil.vue";
 import ShareSocialVue from "./icon/ShareSocial.vue";

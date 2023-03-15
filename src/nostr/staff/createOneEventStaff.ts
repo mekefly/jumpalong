@@ -24,7 +24,7 @@ export default function createOneEventStaff(): OneEventStaff {
     initialization() {},
     push(e, list) {
       if (num === 0) {
-        this.beltline.close();
+        this.beltline.closeReq();
         this.beltline.offLine();
         num++;
         list[0] = e;

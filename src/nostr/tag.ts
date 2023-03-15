@@ -1,8 +1,5 @@
-import {
-  readListKey,
-  RelayConfiguration,
-  writeListKey,
-} from "@/api/relayConfigurator";
+import { type RelayConfiguration } from "./relayConfigurator";
+import { readListKey, writeListKey } from "./relayConfiguratorKeys";
 
 export function deserializeTagR(serializedArray: string[][]): Set<string> {
   const url = new Set<string>();

@@ -1,4 +1,9 @@
-import { createStaff, StaffThisType } from ".";
+import { createOneEventStaff, createStaff, StaffThisType } from ".";
+import { rootEventBeltline } from "../nostr";
+import { deserializeTagR } from "../tag";
+import autoAddRelayurlByPubkeyStaff from "./autoAddRelayurlByPubkeyStaff";
+import createEoseUnSubStaff from "./createEoseUnSubStaff";
+import createLocalStorageStaff from "./storage/createLocalStorageStaff";
 
 export type AddRelayurlByEventIdStaff = {
   initialization(this: StaffThisType<{}>): void;
@@ -16,18 +21,31 @@ export default function autoAddRelayurlByEventIdStaff(
 
   return createStaff({
     initialization() {
+      let stop = false;
       const slef = this;
-      // const line = getEventLineById(eventId);
-      // line.feat.onHasEventOnce((e) => {
-      //   console.log("onHasEventOnce");
+      const line = rootEventBeltline
+        .createChild({
+          describe: "获取id通过id",
+        })
+        .addFilter({ ids: [eventId], limit: 1 })
+        .addStaff(createEoseUnSubStaff())
+        .addStaff(createLocalStorageStaff(1))
+        .addStaff(createOneEventStaff());
 
-      //   //tag推荐url
-      //   const urls = deserializeTagR(e.tags);
-      //   slef.beltline.addRelayUrls(urls);
+      line.feat.onHasEventOnce((e) => {
+        if (stop) return;
+        //tag推荐url
+        const urls = deserializeTagR(e.tags);
+        slef.beltline.addRelayUrls(urls);
 
-      //   //用户配置列表推荐读取url
-      //   slef.beltline.addStaff(autoAddRelayurlByPubkeyStaff(e.pubkey));
-      // });
+        //用户配置列表推荐读取url
+        slef.beltline.addStaff(autoAddRelayurlByPubkeyStaff(e.pubkey));
+
+        stop = true;
+      });
+
+      if (stop) return;
+      line.addReadUrl(); //当前连接搜索事件
     },
   });
 }

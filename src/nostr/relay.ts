@@ -1,4 +1,4 @@
-import relayConfigurator from "@/api/relayConfigurator";
+import { relayConfigurator } from "@/nostr/nostr";
 import {
   Event,
   Filter,

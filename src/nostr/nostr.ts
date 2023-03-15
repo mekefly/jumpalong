@@ -1,40 +1,66 @@
-import { EventBeltline } from "./eventBeltline";
-import { RelayEmiter } from "./RelayEmiter";
-import { RelayPool } from "./RelayPool";
+import { type EventBeltline } from "./eventBeltline";
+import { type RelayConfigurator } from "./relayConfigurator";
+import { type RelayEmiter } from "./RelayEmiter";
+import { type RelayPool } from "./RelayPool";
 
-export function initializeCore() {
-  const relayEmiter = new RelayEmiter();
-  const relayPool = new RelayPool();
-  const eventBeltline = new EventBeltline({
-    preventCircularReferences: true,
-    relayEmiter,
-  });
-  // .addStaff(createLocalStorageStaff())
-  // .addStaff(
-  //   UseStorageStaff(
-  //     [
-  //       {
-  //         kinds: [1, 42],
-  //       },
-  //     ],
-  //     300
-  //   )
-  // )
-  // .addStaff(
-  //   UseStorageStaff(
-  //     [
-  //       {
-  //         kinds: [0, 40, 41],
-  //       },
-  //     ],
-  //     500
-  //   )
-  // );
+export let relayEmiter: RelayEmiter = null as any;
+export let relayPool: RelayPool = null as any;
+export let rootEventBeltline: EventBeltline = null as any;
+/**
+ * 中继配置器
+ */
+export let relayConfigurator: RelayConfigurator = null as any;
 
-  relayEmiter.onEvent(({ subId, event }) => {
-    eventBeltline.pushEvent(event, subId);
-  });
+export let config: ConfigType = {
+  localStorage: { kind10002: 500 },
 
-  return { relayEmiter, relayPool, eventBeltline };
+  pullRelayConfig: {
+    interval: 1000 * 60 * 60 * 24, // 24 hour
+    debounce: 1000,
+  },
+  syncInterval: 1000 * 60,
+  syncInterval1: 1000 * 60 * 5,
+  syncInterval2: 1000 * 60 * 15,
+  syncInterval3: 1000 * 60 * 45,
+  syncInterval4: 1000 * 60 * 60, // 1hour
+  syncInterval5: 1000 * 60 * 60 * 3,
+  syncInterval6: 1000 * 60 * 60 * 8,
+  syncInterval7: 1000 * 60 * 60 * 24,
+  syncInterval8: 1000 * 60 * 60 * 24 * 3,
+  syncInterval9: 1000 * 60 * 60 * 24 * 7,
+};
+type ConfigType = {
+  localStorage: {
+    kind10002: number;
+  };
+  pullRelayConfig: {
+    // interval: (1000 * 60 * 60 * 24)
+    interval: number;
+    debounce: number;
+  };
+  userMetadata: {};
+  syncInterval: number;
+  syncInterval1: number;
+  syncInterval2: number;
+  syncInterval3: number;
+  syncInterval4: number;
+  syncInterval5: number;
+  syncInterval6: number;
+  syncInterval7: number;
+  syncInterval8: number;
+  syncInterval9: number;
+};
+
+export function injectNostrApi(options: {
+  relayEmiter?: RelayEmiter;
+  relayPool?: RelayPool;
+  rootEventBeltline?: EventBeltline;
+  relayConfigurator?: RelayConfigurator;
+  config?: Partial<ConfigType>;
+}) {
+  options.relayEmiter && (relayEmiter = options.relayEmiter);
+  options.relayPool && (relayPool = options.relayPool);
+  options.rootEventBeltline && (rootEventBeltline = options.rootEventBeltline);
+  options.relayConfigurator && (relayConfigurator = options.relayConfigurator);
+  options.config && Object.assign(config, options.config);
 }
-export const { relayEmiter, relayPool, eventBeltline } = initializeCore();

@@ -1,39 +1,50 @@
-import { createEventBeltline } from "@/nostr/createEventBeltline";
+import { EventBeltlineOptions } from "@/nostr/eventBeltline";
+import { rootEventBeltline } from "@/nostr/nostr";
 import { timeout } from "@/utils/utils";
-import { blockRequest } from "@/utils/vitest";
+import { initializeTesttime, set } from "../../nostrTesttime";
 import createAutomaticRandomRequestStaff, {
   autoRandomRequestStaff,
 } from "../automaticRandomRequestStaff";
+export function assignRootOption(opt: EventBeltlineOptions) {
+  Object.assign((rootEventBeltline as any).options, opt);
+}
+const { relayEmiter, testOption } = initializeTesttime({});
 
 it("autoRandomRequestStaff", async () => {
-  const arr: any[] = [];
-  const urls: any[] = [];
-  blockRequest(
-    {
-      req(filter) {
-        arr.push(filter);
-        return "testId";
-      },
-    },
-    undefined,
-    (url) => {
-      urls.push(url);
-    }
-  );
+  const opt = testOption();
 
-  autoRandomRequestStaff.interval = 1;
+  autoRandomRequestStaff.interval = 0;
   autoRandomRequestStaff.maximumTimes = 3;
 
-  autoRandomRequestStaff.setToBeAdded = new Set(
-    Array.from({ length: 100 }, (v, index) => `wss://${index}.com`)
-  );
-  createEventBeltline()
+  set({
+    relayConfigurator: {
+      getOtherList() {
+        return new Set(
+          Array.from({ length: 100 }, (v, index) => `wss://${index}.com`)
+        );
+      },
+    } as any,
+  });
+
+  const subIds = ["subid1", "2", "3", "4"];
+
+  assignRootOption({
+    idGenerator: {
+      createId() {
+        return subIds.pop() ?? "333";
+      },
+    },
+  });
+
+  rootEventBeltline
+    .createChild({})
     .addFilter({ kinds: [10002] })
     .addStaff(createAutomaticRandomRequestStaff());
 
-  await timeout(1000);
-  expect(urls.length).toMatchInlineSnapshot("3");
-  expect(arr).toMatchInlineSnapshot(`
+  await timeout(100);
+
+  expect(opt.req.length).toMatchInlineSnapshot("3");
+  expect(opt.req.map((item: any) => item.filters)).toMatchInlineSnapshot(`
     [
       [
         {
@@ -60,35 +71,51 @@ it("autoRandomRequestStaff", async () => {
   `);
 });
 
-it("autoRandomRequestStaff", async () => {
-  const arr: any[] = [];
-  const urls: any[] = [];
-  blockRequest(
-    {
-      req(filter) {
-        arr.push(filter);
-        return "testId";
+it("autoRandomRequestStaff:stop", async () => {
+  relayEmiter.removeRequestAllListener("req");
+
+  const opt = testOption();
+
+  autoRandomRequestStaff.interval = 0;
+  autoRandomRequestStaff.maximumTimes = 3;
+
+  set({
+    relayConfigurator: {
+      getOtherList() {
+        return new Set(
+          Array.from({ length: 100 }, (v, index) => `wss://${index}.com`)
+        );
+      },
+    } as any,
+  });
+
+  const subIds = ["subid1", "2", "3", "4"];
+
+  assignRootOption({
+    idGenerator: {
+      createId() {
+        return subIds.pop() ?? "333";
       },
     },
-    undefined,
-    (url) => {
-      urls.push(url);
-    }
-  );
+  });
 
-  autoRandomRequestStaff.interval = 1;
-  autoRandomRequestStaff.maximumTimes = 2;
-
-  autoRandomRequestStaff.setToBeAdded = new Set(
-    Array.from({ length: 100 }, (v, index) => `wss://${index}.com`)
-  );
-  createEventBeltline()
+  const line = rootEventBeltline
+    .createChild({})
     .addFilter({ kinds: [10002] })
     .addStaff(createAutomaticRandomRequestStaff());
 
+  let num = 0;
+  relayEmiter.onRequest("req", () => {
+    if (num === 1) {
+      line.feat.stopAutomaticRandomRequestStaff();
+    }
+
+    num++;
+  });
   await timeout(100);
-  expect(urls.length).toMatchInlineSnapshot("2");
-  expect(arr).toMatchInlineSnapshot(`
+
+  expect(opt.req.length).toMatchInlineSnapshot("2");
+  expect(opt.req.map((item: any) => item.filters)).toMatchInlineSnapshot(`
     [
       [
         {
@@ -101,55 +128,6 @@ it("autoRandomRequestStaff", async () => {
         {
           "kinds": [
             10002,
-          ],
-        },
-      ],
-    ]
-  `);
-
-  createEventBeltline()
-    .addFilter({ kinds: [0] })
-    .addStaff(createAutomaticRandomRequestStaff());
-
-  await timeout(100);
-
-  expect(arr).toMatchInlineSnapshot(`
-    [
-      [
-        {
-          "kinds": [
-            10002,
-          ],
-        },
-      ],
-      [
-        {
-          "kinds": [
-            10002,
-          ],
-        },
-      ],
-      [
-        {
-          "kinds": [
-            10002,
-          ],
-        },
-        {
-          "kinds": [
-            0,
-          ],
-        },
-      ],
-      [
-        {
-          "kinds": [
-            10002,
-          ],
-        },
-        {
-          "kinds": [
-            0,
           ],
         },
       ],

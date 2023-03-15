@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import { NSpace } from "naive-ui";
-import { relayConfigurator } from "../api/relays";
+import { relayConfigurator } from "../nostr/nostr";
 import AddButton from "./AddButton.vue";
-import Ellipsis from "./Ellipsis.vue";
+import EllipsisVue from "./Ellipsis.vue";
 import RelayFailedFlay from "./RelayFailedFlay.vue";
+import RelayUrlShowVue from "./RelayUrlShow.vue";
 
 const other = computed(() => relayConfigurator.getOtherList());
 </script>
@@ -14,12 +15,14 @@ const other = computed(() => relayConfigurator.getOtherList());
       <tbody>
         <tr class="flex" v-for="(url, index) in other">
           <td class="flex-grow">
-            <Ellipsis>{{ url }}</Ellipsis>
+            <RelayUrlShowVue :url="url">
+              <EllipsisVue>{{ url }}</EllipsisVue>
+            </RelayUrlShowVue>
           </td>
           <td class="shrink-0">
             <n-space justify="end" align="center">
               <AddButton @click="() => relayConfigurator.addWriteRead(url)" />
-              <RelayFailedFlay url="url" />
+              <RelayFailedFlay :url="url" />
             </n-space>
           </td>
         </tr>

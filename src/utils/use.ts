@@ -1,7 +1,8 @@
 import type { MaybeRef } from "@vueuse/core";
-import type { Event, Filter, SubscriptionOptions } from "nostr-tools";
+import type { Event } from "nostr-tools";
 import {
   computed,
+  ComputedGetter,
   onUpdated,
   ref,
   unref,
@@ -11,14 +12,11 @@ import {
 } from "vue";
 import { useRouter } from "vue-router";
 import { eventDeletion } from "../api/event";
-import { sub, type SubEventOptions } from "../api/relays";
 import { type CallBackT } from "./types";
+import { debounce } from "./utils";
 
 export function useNextUpdate() {
   const callBacks: any[] = [];
-  window.addEventListener("load", () => {
-    console.log("load");
-  });
   onUpdated(() => {
     callBacks.forEach((e) => {
       e();
@@ -158,45 +156,125 @@ export function useEvent() {
     on,
   };
 }
-export function userGetEvent(
-  options: {
-    relayUrls?: Set<string>;
-    filters: Filter[];
-  } & SubscriptionOptions &
-    SubEventOptions
-) {
-  const eventRef = useEvent();
-  const set = new Set();
-  sub(
-    options.filters,
-    Object.assign(
-      {
-        even(e) {
-          set.add(e.id);
-          eventRef.pushEvent(e);
-        },
-        alreadyHaveEvent(id, relay) {
-          set.has(id);
-        },
-      },
-      options
-    )
-  );
-  return eventRef;
-}
+// export function userGetEvent(
+//   options: {
+//     relayUrls?: Set<string>;
+//     filters: Filter[];
+//   } & SubscriptionOptions &
+//     SubEventOptions
+// ) {
+//   const eventRef = useEvent();
+//   const set = new Set();
+//   sub(
+//     options.filters,
+//     Object.assign(
+//       {
+//         even(e) {
+//           set.add(e.id);
+//           eventRef.pushEvent(e);
+//         },
+//         alreadyHaveEvent(id, relay) {
+//           set.has(id);
+//         },
+//       },
+//       options
+//     )
+//   );
+//   return eventRef;
+// }
 
-export function useNewestEvent(
-  filters: Filter[],
-  opts?: SubscriptionOptions & SubEventOptions
-) {
-  const newestEvent = ref<Event | null>(null);
-  sub(filters, {
-    even(e) {
-      // 更新的将放到 newestEvent变量里
-      (!newestEvent.value || e.created_at > newestEvent.value.created_at) &&
-        (newestEvent.value = e);
-    },
-    ...opts,
+// export function useNewestEvent(
+//   filters: Filter[],
+//   opts?: SubscriptionOptions & SubEventOptions
+// ) {
+//   const newestEvent = ref<Event | null>(null);
+//   sub(filters, {
+//     even(e) {
+//       // 更新的将放到 newestEvent变量里
+//       (!newestEvent.value || e.created_at > newestEvent.value.created_at) &&
+//         (newestEvent.value = e);
+//     },
+//     ...opts,
+//   });
+//   return newestEvent;
+// }
+export function useAsyncData<E>(cb: () => Promise<E>): Ref<E | undefined> {
+  const data = ref<undefined | E>(undefined);
+
+  cb().then((v) => {
+    data.value = v as any;
   });
-  return newestEvent;
+
+  return data as any;
+}
+export function useLazyComponent<E>(
+  getter: ComputedGetter<E>
+): [globalThis.ComputedRef<E | null>, Ref<any>] {
+  const target = ref<any>();
+  const isIntoScreen = useElementIntoScreen(target);
+
+  let cache: any = null;
+  const data: ComputedRef<E | null> = computed(() => {
+    if (cache) return cache;
+    if (!isIntoScreen.value) return null;
+    return (cache = getter());
+  });
+
+  return [data, target];
+}
+export function useLazyData<E>(
+  cb: () => Promise<E>
+): [Ref<E | undefined>, Ref<any>] {
+  const target = ref<any>();
+  const data = ref<any>();
+
+  const isIntoScreen = useElementIntoScreen(target);
+
+  let isRun = false;
+  watch(isIntoScreen, () => {
+    if (isRun || !isIntoScreen.value) return;
+    isRun = true;
+
+    cb().then((v) => {
+      data.value = v;
+    });
+  });
+  return [data, target];
+}
+export function useElementIntoScreen(target: Ref<HTMLDivElement | null>) {
+  const active = ref(true);
+
+  const isIntoScreen = ref(false);
+
+  const call = function () {
+    if (!active.value) return;
+
+    if (
+      target.value &&
+      target.value?.getBoundingClientRect().y <= window.innerHeight &&
+      target.value?.getBoundingClientRect().y >= 0
+    ) {
+      isIntoScreen.value = true;
+    } else {
+      isIntoScreen.value = false;
+    }
+  };
+  const debounceCall = debounce(call, 600);
+  debounceCall();
+
+  window.addEventListener("mousewheel", debounceCall);
+  window.addEventListener("resize", debounceCall);
+
+  onActivated(() => {
+    active.value = true;
+  });
+  onDeactivated(() => {
+    active.value = false;
+    isIntoScreen.value = false;
+  });
+  onUnmounted(() => {
+    window.removeEventListener("mousewheel", debounceCall);
+    window.removeEventListener("resize", debounceCall);
+  });
+  return isIntoScreen;
 }

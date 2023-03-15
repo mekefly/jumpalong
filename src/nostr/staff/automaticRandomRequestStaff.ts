@@ -1,7 +1,7 @@
-import { relayConfigurator } from "@/api/relayConfigurator";
 import { Filter } from "nostr-tools";
 import { createStaff, StaffThisType } from ".";
-import root from "../eventBeltline";
+import { EventBeltline } from "../eventBeltline";
+import { relayConfigurator, rootEventBeltline } from "../nostr";
 import createEoseUnSubStaff from "./createEoseUnSubStaff";
 
 export type AutomaticRandomRequestStaff = {
@@ -19,16 +19,27 @@ class AutoRandomRequestStaff {
   added = new Set();
   count = 0;
   timer: NodeJS.Timer | undefined = undefined;
-
+  private eventBeltline!: EventBeltline;
   filterMap = new Map<string, Filter>();
 
+  constructor() {}
   stop() {
     clearInterval(this.timer);
     this.timer = undefined;
   }
-
+  getIndex() {
+    return Math.floor(Math.random() * this.setToBeAdded.size);
+  }
+  init() {}
+  getEventBeltline() {
+    return (
+      this.eventBeltline ??
+      (this.eventBeltline = rootEventBeltline.createChild())
+    );
+  }
   startProcessing() {
     this.count = 0;
+    this.init();
 
     //已经运行阻止再次运行
     if (this.timer) return;
@@ -53,7 +64,7 @@ class AutoRandomRequestStaff {
       }
 
       //随机index
-      const index = Math.floor(Math.random() * size);
+      const index = this.getIndex();
       const randomUrl = Array.from(this.setToBeAdded)[index];
 
       // 维护已添加列表和等待添加的列表
@@ -63,10 +74,13 @@ class AutoRandomRequestStaff {
       const filters = Array.from(this.filterMap, ([k, v]) => v);
 
       // 请求数据
-      root
+      const child = this.eventBeltline
+        .createChild()
         .addFilters(filters)
         .addStaff(createEoseUnSubStaff())
         .addRelayUrls(new Set<string>().add(randomUrl));
+
+      this.getEventBeltline().addExtends(child);
     }, this.interval);
   }
 
@@ -95,21 +109,33 @@ export const autoRandomRequestStaff = new AutoRandomRequestStaff();
  */
 export default function createAutomaticRandomRequestStaff() {
   let filters: Filter[] | null = null;
+  let isStop = false;
 
   function stopAutomaticRandomRequestStaff() {
+    isStop = true;
     if (!filters) return;
     autoRandomRequestStaff.removeFilters(filters);
+  }
+  function startAutomaticRandomRequestStaff(this: { beltline: EventBeltline }) {
+    isStop = false;
+    filters = this.beltline.getFilters();
+    const line = this.beltline
+      .createChild()
+      .addFilters(filters)
+      .addExtends(autoRandomRequestStaff.getEventBeltline());
+
+    this.beltline.addExtends(line);
+
+    if (isStop) return; //执行上面代码可能已经有需要的数据了,如果已经符合停止条件，就会立刻停止
+    autoRandomRequestStaff.addFilter(filters);
   }
 
   return createStaff({
     initialization() {
-      (this.beltline.feat as any).startAutomaticRandomRequestStaff();
+      startAutomaticRandomRequestStaff.apply(this);
     },
     feat: {
-      startAutomaticRandomRequestStaff() {
-        const filters = this.beltline.getFilters();
-        autoRandomRequestStaff.addFilter(filters);
-      },
+      startAutomaticRandomRequestStaff,
       stopAutomaticRandomRequestStaff,
     },
     onClose() {

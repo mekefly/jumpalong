@@ -1,4 +1,5 @@
-import { EventBeltline, EventBeltlineOptions } from "./eventBeltline";
+import { type EventBeltline, type EventBeltlineOptions } from "./eventBeltline";
+import { rootEventBeltline } from "./nostr";
 
 export function createEventBeltline(
   options?: EventBeltlineOptions & {
@@ -6,7 +7,7 @@ export function createEventBeltline(
     addExtendsFormRoot?: boolean;
   }
 ): EventBeltline<{}> {
-  return EventBeltline.root.createChild(Object.assign({}, options));
+  return rootEventBeltline.createChild(Object.assign({}, options));
 }
 export function createEventBeltlineReactive(
   options?: EventBeltlineOptions & {
@@ -14,7 +15,7 @@ export function createEventBeltlineReactive(
     addExtendsFormRoot?: boolean;
   }
 ): EventBeltline<{}> {
-  return EventBeltline.root.createChild(
+  return rootEventBeltline.createChild(
     Object.assign({ slef: reactive({}) }, options)
   );
 }

@@ -9,6 +9,7 @@ import { AsyncReCacheOptions, Cache, CacheOptions } from "./types";
 let memoryCacheDate: { [key: string]: any } = {};
 /** promise合并事件对象 */
 const promiseMergeEventEmitter = new EventEmitter();
+promiseMergeEventEmitter.setMaxListeners(1000);
 
 /**
  * 异步缓存
@@ -271,6 +272,17 @@ function setMemoryCache(key: string, value: any) {
  */
 export function setLocalStorage(key: string, value: any) {
   localStorage.setItem(key, JSON.stringify(value));
+}
+
+export function removeCache(key: string) {
+  removeMemoryCache(key);
+  removeLocalStorage(key);
+}
+export function removeMemoryCache(key: string) {
+  delete memoryCacheDate[key];
+}
+export function removeLocalStorage(key: string) {
+  localStorage.removeItem(key);
 }
 /**
  * 验证本地缓存

@@ -1,38 +1,55 @@
 <script lang="ts" setup>
 import { NSkeleton, NSpace } from "naive-ui";
-import { ref } from "vue";
-import { getGlobalShortTextEvent } from "../api/event";
-import {
-  getUserMetadataByPubkey,
-  userKey,
-  type UserMetaData,
-} from "../api/user";
-import profile from "../assets/profile-2-400x400.png";
-import { nowSecondTimestamp } from "../utils/utils";
-import Content from "./Content.vue";
+import { Filter } from "nostr-tools";
+import { eventDeletion } from "../api/event";
+import { getShortTextEventBeltline } from "../api/shortTextEventBeltline";
+import PapawVue from "./Papaw.vue";
 
-const { pubkey } = defineProps<{ pubkey?: string[] }>();
+logger.for("home.vue").for("PostList.vue").info("进入PostList.vue");
 
-const {
-  events: posts,
-  pushEvent,
-  deleteEvent,
-  on,
-} = getGlobalShortTextEvent(pubkey);
+const props = defineProps<{ pubkey?: string[]; filter?: Filter }>();
+const { pubkey, filter } = toRefs(props);
 
-const v = ref({} as Record<string, UserMetaData>);
-on("push", async (e) => {
-  v.value[e.pubkey] = { name: e.pubkey.slice(0, 10) };
-  const data = await getUserMetadataByPubkey(e.pubkey);
+logger
+  .for("home.vue")
+  .for("PostList.vue")
+  .debug("defineProps > pubkey:", pubkey);
 
-  if (!data) return;
-  v.value[e.pubkey] = data;
+const beltline = computed(() => {
+  const opt: any = {};
+
+  filter?.value && (opt.filter = filter.value);
+
+  return getShortTextEventBeltline(pubkey?.value, opt);
 });
+onUnmounted(() => {
+  beltline.value.closeReq();
+});
+
+const postEvents = computed(() => beltline.value.getList());
+
+// const v = ref({} as Record<string, UserMetaData>);
+// const userMetaDataMap = reactive(new WeakMap<object, UserMetaData>());
+// beltline.addStaff({
+//   push: (e) => {
+//     v.value[e.pubkey] = { name: e.pubkey.slice(0, 10) };
+//     getUserMetadataByPubkey(e.pubkey).then((data) => {
+//       if (!data) return;
+//       v.value[e.pubkey] = data;
+//       userMetaDataMap.set(e, data);
+//     });
+//   },
+//   feat: {
+//     getUserMetaData(e: Event) {
+//       return userMetaDataMap.get(e);
+//     },
+//   },
+// });
 </script>
 
 <template>
   <div>
-    <div class="p-6" v-if="!posts.length">
+    <div class="p-6" v-if="!postEvents.length">
       <n-space vertical>
         <n-card class="" v-for="_ in Array(10)">
           <n-space vertical class="p-8">
@@ -45,67 +62,14 @@ on("push", async (e) => {
         </n-card>
       </n-space>
     </div>
-    <n-empty v-if="!posts.length" description="你什么也找不到"> </n-empty>
+    <n-empty v-if="!postEvents.length" description="你什么也找不到"> </n-empty>
 
-    <div
-      class="w-max-full bg-[#dfe4ea55] rounded-2xl mb-6 mr-6 ml-6"
-      v-for="post in posts"
-    >
-      <div class="p-3 flex justify-between items-center">
-        <div
-          class="flex items-center cursor-pointer"
-          @click="$router.push(`/profile/${post.pubkey}`)"
-        >
-          <img
-            class="h-12 w-12 bg-white rounded-full"
-            :src="v?.[post.pubkey]?.picture ?? profile"
-          />
-          <div class="font-bold ml-2">
-            {{ v?.[post.pubkey]?.name }}
-          </div>
-          <span class="ml-4" v-if="nowSecondTimestamp() - post.created_at < 60">
-            {{ nowSecondTimestamp() - post.created_at }}秒前
-          </span>
-          <span
-            class="ml-4"
-            v-else-if="nowSecondTimestamp() - post.created_at < 3600"
-          >
-            {{
-              Math.floor((nowSecondTimestamp() - post.created_at) / 60)
-            }}分钟前
-          </span>
-          <span
-            class="ml-4"
-            v-else-if="nowSecondTimestamp() - post.created_at < 60 * 60 * 24"
-          >
-            {{
-              Math.floor((nowSecondTimestamp() - post.created_at) / 60 / 60)
-            }}小时前
-          </span>
-          <span v-else>
-            {{
-              `${new Date(post.created_at * 1000).getFullYear()}.` +
-              `${new Date(post.created_at * 1000).getMonth()}.` +
-              `${new Date(post.created_at * 1000).getDay()}`
-            }}
-          </span>
-        </div>
-        <n-button
-          quaternary
-          circle
-          type="error"
-          v-if="post.pubkey === userKey.publicKey"
-          @click="() => deleteEvent(post.id as any)"
-        >
-          <template #icon>
-            <Delete28Regular />
-          </template>
-        </n-button>
-      </div>
-      <div class="p-5 font">
-        <Content :content="post.content" />
-      </div>
-    </div>
+    <PapawVue
+      v-for="event in postEvents"
+      :key="event.id"
+      :event="event"
+      :deleteEvent="(id) => eventDeletion([id])"
+    />
   </div>
 </template>
 

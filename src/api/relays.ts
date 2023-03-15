@@ -1,25 +1,13 @@
-import {
-  relayInit,
-  type Event,
-  type Filter,
-  type Relay,
-  type SubscriptionOptions,
-} from "nostr-tools";
+import { createEvent } from "@/nostr/event";
+import { relayInit, type Event, type Relay } from "nostr-tools";
 import { reactive } from "vue";
-import { relayQuery } from "../nostr";
-import { unSub } from "../nostr/relay";
+// import { relayQuery } from "../nostr";
+import { relayConfigurator } from "../nostr/nostr";
+import { defaultUrls } from "../nostr/relayConfigurator";
+import { userKey } from "../nostr/user";
 import { useAsyncCache } from "../utils/cache";
 import { type CallBackT } from "../utils/types";
-import { createEvent, publishEvent } from "./event";
-import { generateReadWriteList, RelayConfigurator } from "./relayConfigurator";
-import { userKey } from "./user";
-
-export const defaultUrls = [
-  "wss://no.str.cr",
-  "wss://no-str.org",
-  "wss://nos.lol",
-  "wss://nostr.com.de",
-];
+import { publishEvent } from "./event";
 
 /**
  * 连接池
@@ -30,11 +18,6 @@ export const relayPool: Record<string, Relay | undefined> = reactive({});
  * 出错连接
  */
 export const failedUrl = reactive(new Set<string>([]));
-
-/**
- * 中继配置器
- */
-export const relayConfigurator = new RelayConfigurator();
 
 async function getRelay(url: string): Promise<Relay> {
   if (failedUrl.has(url)) {
@@ -111,23 +94,23 @@ export function getRecommendRelay(even: CallBackT<Event>) {
   });
 }
 
-export async function getRelayListMetadataByPubkey(pubkey: string) {
-  return new Promise<[Set<string>, Set<string>]>(async (resolve, reject) => {
-    const subIdList = await (
-      await relayQuery
-    ).send("sub", [{ kinds: [10002], authors: [pubkey] }], {
-      describe: "获取用户的中继配置信息",
-      useCache: true,
-      even(e, { subId }) {
-        resolve(generateReadWriteList(e));
-        unSub(subIdList);
-      },
-      eose({ subId }) {
-        unSub(subId);
-      },
-    });
-  });
-}
+// export async function getRelayListMetadataByPubkey(pubkey: string) {
+//   return new Promise<[Set<string>, Set<string>]>(async (resolve, reject) => {
+//     const subIdList = await (
+//       await relayQuery
+//     ).send("sub", [{ kinds: [10002], authors: [pubkey] }], {
+//       describe: "获取用户的中继配置信息",
+//       useCache: true,
+//       even(e, { subId }) {
+//         resolve(generateReadWriteList(e));
+//         unSub(subIdList);
+//       },
+//       eose({ subId }) {
+//         unSub(subId);
+//       },
+//     });
+//   });
+// }
 
 export function sendRelayListMetadata(urls: string[]) {
   const event = createEvent({
@@ -159,20 +142,21 @@ export interface PublishEventOptions extends TaskEventOptions {
   ok?: CallBackT<void>;
   failed?: CallBackT<void>;
 }
-export const defaultSubEvent: SubEventOptions = {
-  eoseAutoUnSub: true,
-  blockAlreadyHaveEvent: true,
-  relayUrls: getDefaultRelay(),
-};
-export async function sub(
-  filters: Filter[],
-  opts: SubscriptionOptions & SubEventOptions = {}
-) {
-  return await (await relayQuery).send("sub", filters, opts);
-}
+// export async function sub(
+//   filters: Filter[],
+//   opts: SubscriptionOptions & SubEventOptions = {}
+// ) {
+//   return await (await relayQuery).send("sub", filters, opts);
+// }
 
 export function getDefaultRelay() {
   return relayConfigurator.getReadList().size
     ? relayConfigurator.getReadList()
     : new Set(defaultUrls);
 }
+
+export const defaultSubEvent: SubEventOptions = {
+  eoseAutoUnSub: true,
+  blockAlreadyHaveEvent: true,
+  relayUrls: new Set(),
+};

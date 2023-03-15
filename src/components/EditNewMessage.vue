@@ -1,6 +1,6 @@
 <script lang="ts" setup>
+import { sendShortTextNote } from "@/api/shortTextEventBeltline";
 import { computed, ref, StyleValue } from "vue";
-import { sendShortTextNote } from "../api/event";
 import { useIfTransition } from "../utils/use";
 
 const { show, hidden, safeActive, active, transitionActive, duration } =

@@ -27,7 +27,8 @@ const router = createRouter({
           component: () => import("../views/ChannelsView.vue"),
         },
         {
-          path: "/channel/message/:id",
+          path: "/channel/message/:eventId",
+          name: "channel-message",
           component: () => import("../views/ChannelMessageView.vue"),
         },
         {
@@ -41,6 +42,34 @@ const router = createRouter({
         {
           path: "/task",
           component: () => import("../views/TaskView.vue"),
+        },
+        {
+          path: "/settings",
+          component: () => import("../views/SettingsView.vue"),
+        },
+        {
+          path: "/about",
+          component: () => import("../views/AboutView.vue"),
+        },
+        {
+          path: "/content/blacklist",
+          name: "content-blacklist-view",
+          component: () => import("../views/ContentBlacklistView.vue"),
+        },
+        {
+          path: "/relay/info/:url",
+          name: "relay-info-view",
+          component: () => import("../views/RelayInfoView.vue"),
+        },
+        {
+          path: "/short/text/note/:eventId",
+          name: "short-text-note",
+          component: () => import("../views/ShortTextNoteView.vue"),
+        },
+        {
+          path: "/search/:value",
+          name: "search",
+          component: () => import("../views/SearchView.vue"),
         },
       ],
     },

@@ -1,16 +1,37 @@
-import { Event, Filter, validateEvent, verifySignature } from "nostr-tools";
-import relayEmiter, { RelayEmiter } from "./RelayEmiter";
+import {
+  validateEvent,
+  verifySignature,
+  type Event,
+  type Filter,
+} from "nostr-tools";
+import { relayEmiter } from "./nostr";
+import { type RelayEmiter } from "./RelayEmiter";
 import { createWebsocket } from "./websocket";
 
 export class RelayPool {
-  private pool = new Map<string, Relay>();
-  private relayEmiter: RelayEmiter;
-  constructor(relayEmiter: RelayEmiter) {
-    this.relayEmiter = relayEmiter;
+  private pool!: Map<string, Relay>;
+  private relayEmiter!: RelayEmiter;
+  public allSubIds!: Set<string>;
+  constructor(
+    relayEmiter: RelayEmiter,
+    opt?: {
+      self?: any;
+    }
+  ) {
+    const seft = opt?.self ?? {};
+    seft.__proto__ = (this as any).__proto__;
 
-    this.listen();
+    seft.relayEmiter = relayEmiter;
+    seft.allSubIds = new Set();
+    seft.pool = new Map<string, Relay>();
+
+    seft.listen();
+
+    return seft;
   }
   async listen() {
+    console.log("listen");
+
     this.relayEmiter.onRequest("req", async ({ url, subId, filters }) => {
       const relay = await this.getRelay(url);
       relay.req(filters, subId);
@@ -55,7 +76,7 @@ export class RelayPool {
         this.pool.delete(url);
       };
 
-      const relay = new Relay(ws, relayEmiter);
+      const relay = new Relay(ws, relayEmiter, this);
       this.pool.set(url, relay);
 
       res(relay);
@@ -65,20 +86,22 @@ export class RelayPool {
 
 export class Relay {
   ws: WebSocket;
+  pool: RelayPool;
   subIds: Set<string> = new Set();
   private timeout: any = undefined;
   private isClose: boolean = false;
   private relayEmiter: RelayEmiter;
 
-  constructor(ws: WebSocket, relayEmiter: RelayEmiter) {
+  constructor(ws: WebSocket, relayEmiter: RelayEmiter, pool: RelayPool) {
     this.ws = ws;
     this.ws.onmessage = this.handleMessage.bind(this);
     this.relayEmiter = relayEmiter;
+    this.pool = pool;
   }
   handleMessage(ev: MessageEvent<string>) {
     try {
       const data = JSON.parse(ev.data);
-      console.log(data);
+      console.debug(data);
       logger.for("Relay:onMessage:data").debug(data);
 
       let subId = "";
@@ -136,7 +159,7 @@ export class Relay {
     return Math.random().toString().slice(2);
   }
   req(filters: Filter[], subId = this.createSubId()) {
-    console.log("websocket:req:", filters, this.ws.url);
+    console.debug("websocket:req:", filters, this.ws.url);
 
     this.send(["REQ", subId, ...filters]);
 
@@ -155,13 +178,14 @@ export class Relay {
 
   addSubId(subId: string) {
     this.subIds.add(subId);
-    this.subIds.add(subId);
+    this.pool.allSubIds.add(subId);
 
     this.clearAutoClose();
   }
   deleteSubId(subId: string) {
     this.subIds.delete(subId);
-    this.subIds.delete(subId);
+    this.pool.allSubIds.delete(subId);
+
     this.relayEmiter.removeAllListener(subId);
 
     this.autoClose();

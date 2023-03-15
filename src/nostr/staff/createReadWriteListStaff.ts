@@ -1,5 +1,8 @@
-import { deserializeTagRToReadWriteList, WritableReadableList } from "../tag";
-import { LatestEventStaffFeat } from "./createLatestEventStaff";
+import {
+  deserializeTagRToReadWriteList,
+  type WritableReadableList,
+} from "../tag";
+import { type LatestEventStaffFeat } from "./createLatestEventStaff";
 import { createStaffFactory, FeatType } from "./Staff";
 type ReadWriteListStaff = { feat: ReadWriteListStaffFeat };
 export type ReadWriteListStaffFeat = {

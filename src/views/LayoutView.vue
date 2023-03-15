@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import { lightTheme } from "naive-ui";
 import { ref } from "vue";
-import { switchTheme, theme } from "../App";
+import { switchTheme, theme } from "../app";
+import SearchFormVue from "../components/SearchForm.vue";
 import Sidebar from "../components/Sidebar.vue";
 
 const collapsed = ref(true);
@@ -14,9 +15,7 @@ const collapsed = ref(true);
       bordered
     >
       <span class="text-xl font-bold"> Jumpalong </span>
-      <div>
-        <n-input placeholder="搜索"></n-input>
-      </div>
+      <SearchFormVue></SearchFormVue>
       <n-space>
         <n-button quaternary @click="switchTheme">
           {{ theme === lightTheme ? "浅色" : "深色" }}
@@ -37,8 +36,14 @@ const collapsed = ref(true);
       >
         <Sidebar :collapsed="collapsed" />
       </n-layout-sider>
-      <n-layout content-style="padding: 24px;" :native-scrollbar="false">
-        <RouterView />
+      <n-layout content-style="padding: 24px;">
+        <div class="h-[100%]">
+          <router-view v-slot="{ Component }">
+            <keep-alive>
+              <component :is="Component" />
+            </keep-alive>
+          </router-view>
+        </div>
       </n-layout>
     </n-layout>
     <n-layout-footer position="absolute" style="height: 64px" bordered>

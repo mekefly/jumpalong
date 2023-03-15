@@ -4,14 +4,26 @@ import { fileURLToPath, URL } from "node:url";
 import AutoImport from "unplugin-auto-import/vite";
 import { NaiveUiResolver } from "unplugin-vue-components/resolvers";
 import Components from "unplugin-vue-components/vite";
-import { defineConfig } from "vite";
+import { DirResolverHelper } from "vite-auto-import-resolvers";
+import { defineConfig } from "vitest/config";
+
+// @ts-ignore
 import packageJson from "./package.json";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  test: {
+    globals: true,
+    environment: "happy-dom",
+  },
+  server: {
+    proxy: {},
+  },
+
   plugins: [
     vue(),
     createReplacePlugin(),
+    DirResolverHelper(),
     AutoImport({
       include: [
         /\.[tj]sx?$/, // .ts, .tsx, .js, .jsx

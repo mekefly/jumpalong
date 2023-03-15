@@ -8,7 +8,7 @@ interface RelayEmiterResponseEventMap {
   notice: { url: string; message: string };
   event: { url: string; event: Event; subId: string };
 }
-interface RelayEmiterRequestEventMap {
+export interface RelayEmiterRequestEventMap {
   req: {
     subId: string;
     filters: Filter[];
@@ -97,6 +97,27 @@ export class RelayEmiter {
   ) {
     this.eventEmiter.emit(type, v);
   }
+  removeRequestListener(
+    type: keyof RelayEmiterRequestEventMap,
+    callBack: (...rest: any) => any
+  ) {
+    this.eventEmiter.removeListener(type, callBack);
+  }
+  /**
+   * 去除某类型的监听，一般是relay pool监听这些事件
+   * @param type
+   */
+  removeRequestAllListener(type: keyof RelayEmiterRequestEventMap) {
+    this.eventEmiter.removeAllListeners(type);
+  }
+  /**
+   * 去除客户向relay请求的所有事件坚听
+   */
+  removeRequestAllTypeListener() {
+    for (const type of ["req", "closeReq", "publish", "close"]) {
+      this.removeRequestAllListener(type as any);
+    }
+  }
   removeAllListener(subId: string) {
     ["eose", "event", "notice", "ok"].forEach((key) =>
       this.eventEmiter.removeAllListeners(
@@ -108,6 +129,3 @@ export class RelayEmiter {
     return `${type}:${subId}`;
   }
 }
-const relayEmiter = new RelayEmiter();
-
-export default relayEmiter;

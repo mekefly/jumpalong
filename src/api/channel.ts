@@ -1,133 +1,164 @@
-import { type Event } from "nostr-tools";
-import { ref, watchEffect } from "vue";
-import { type CallBackT } from "../utils/types";
-import { userGetEvent } from "../utils/use";
-import { interceptTheLastSixDigits } from "../utils/utils";
-import { createEvent, publishEvent } from "./event";
-import { sub } from "./relays";
-import { userKey } from "./user";
+import { createEventBeltlineReactive } from "@/nostr/createEventBeltline";
+import { createEvent } from "@/nostr/event";
+import { rootEventBeltline } from "@/nostr/nostr";
+import relayConfigurator from "@/nostr/relayConfigurator";
+import { createFilterGreaterThanTheCurrenttimeStaff } from "@/nostr/staff";
+import autoAddRelayurlByEventIdStaff from "@/nostr/staff/autoAddRelayurlByEventIdStaff";
+import createChannelLikeDataStaff from "@/nostr/staff/createChannelLikeDataStaff";
+import { createGarbageFilter } from "@/nostr/staff/createGarbageFilter";
+import createInfiniteScrolling from "@/nostr/staff/createInfiniteScrollingStaff";
+import { createLatestEventStaff } from "@/nostr/staff/createLatestEventStaff";
+import createUseChannelMetadata from "@/nostr/staff/createUseChannelMetadata";
+import { createTagArray } from "../nostr/tag";
+import { useCache } from "../utils/cache";
+import { noUndefinedInTheArray } from "../utils/utils";
+import { createBlackStaff } from "../views/ContentBlacklistView";
+import { eventDeletion } from "./event";
 
-export function getChannels(options: {
-  relayUrls?: Set<string>;
-  even: CallBackT<Event>;
-}) {
-  const { relayUrls, even } = options;
-  sub(
-    [
-      {
-        ids: [
-          "b4d6926dd0428f0bd36012f0721a70b4c38140d141bfa5efc2167b551a0d9ff2",
-        ],
-        kinds: [42],
-        // authors: [key.value.publicKey],
-        "#e": [
-          "b4d6926dd0428f0bd36012f0721a70b4c38140d141bfa5efc2167b551a0d9ff2",
-        ],
-      },
-    ],
-    {
-      relayUrls,
-      even,
-    }
-  );
-}
+export const JOIN_CHANNEL_CONTENT = "+";
 
-export function getChannelMetadata(id: string, relayUrls: Set<string>) {
-  const channelMetadata = ref({
-    id,
-    name: interceptTheLastSixDigits(id),
-    about: "",
-    picture: "",
-    recommendRelay: "",
-    createdAt: 0,
-    updateAt: 0,
-  });
-
-  sub([{ ids: [id], kinds: [40] }], {
-    relayUrls,
-    even(event) {
-      channelMetadata.value.createdAt = event.created_at;
-      if (event.created_at <= channelMetadata.value.updateAt) return;
-
-      Object.assign(channelMetadata.value, parseMetadata(event));
-    },
-  });
-  sub([{ "#e": [id], kinds: [41] }], {
-    relayUrls,
-    even(event) {
-      if (event.created_at <= channelMetadata.value.updateAt) return;
-      console.log("parseMetadata", parseMetadata(event), event);
-      Object.assign(channelMetadata.value, parseMetadata(event));
-
-      channelMetadata.value.recommendRelay = getRecommendRelay(event);
-    },
-  });
-  return channelMetadata;
-}
-function parseMetadata(event: Event) {
-  let data: any = {};
-  try {
-    data = JSON.parse(event.content);
-  } catch (error) {}
-  return data;
-}
-
-function getRecommendRelay(event: Event) {
-  let recommendRelay = "";
-  event.tags.forEach((v) => {
-    const tag = v[0];
-    if (tag === "e") {
-      recommendRelay = tag[2];
-    }
-  });
-  return recommendRelay;
-}
-
-export function getChannelMessage(
-  id: string,
-  urls: Set<string>
+/**
+ * 加入群聊
+ * @param channelId
+ * @param pubkey
+ * @param relayUrl
+ */
+export function joinChannel(
+  channelId: string,
+  pubkey?: string,
+  relayUrl?: string
 ) {
-  return userGetEvent({
-    relayUrls: urls,
-    filters: [
-      {
-        kinds: [40, 41, 42],
-        "#e": [id],
-      },
-    ],
+  const event = createEvent({
+    kind: 7,
+    content: JOIN_CHANNEL_CONTENT,
+    tags: noUndefinedInTheArray([
+      createTagArray("e", channelId, relayUrl),
+      pubkey ? createTagArray("p", pubkey, relayUrl) : undefined,
+    ]),
   });
+  rootEventBeltline
+    .createChild()
+    .publish(event, relayConfigurator.getWriteList());
 }
-export function joinChannel(id: string, pubkey?: string) {
-  publishEvent(
-    createEvent({
-      kind: 7,
-      content: "+",
-      tags: [["e", id], ...(pubkey ? [["p", pubkey]] : [])],
-    }),
+
+/**
+ * 离开群聊
+ * @param joinId
+ * @param pubkey
+ */
+export function leaveChannelByjoinId(joinId: string, pubkey?: string) {
+  eventDeletion([joinId]);
+}
+
+/**
+ * 获取喜欢的channel列表
+ *
+ * @param urls
+ * @returns
+ */
+export function getLikeChannelBeltline(urls?: Set<string>) {
+  return useCache(
+    `getLikeChannelBeltline`,
+    () => {
+      const line = createEventBeltlineReactive().addStaff(
+        createChannelLikeDataStaff()
+      );
+
+      useCache(
+        `getLikeChannelBeltline${urls}`,
+        () => {
+          urls ? line.addRelayUrls(urls) : line.addReadUrl();
+          return true;
+        },
+        {
+          duration: 100000, // 100秒
+        }
+      );
+      return line;
+    },
     {
-      ok() {
-        console.log("添加群聊成功");
-      },
+      useLocalStorage: false,
+      useMemoryCache: true,
     }
   );
 }
-export function leaveChannel(id: string, pubkey?: string) {
-  publishEvent(
-    createEvent({
-      kind: 7,
-      content: "-",
-      tags: [["e", id], ...(pubkey ? [["p", pubkey]] : [])],
-    })
+
+/**
+ * 获取元数据
+ *
+ * @param eventId
+ * @returns
+ */
+export function getChannelMetadataBeltlineByChannelId(eventId: string) {
+  return useCache(
+    `getChannelMetadataBeltlineByChannelId:${eventId}`,
+    () => {
+      const metadataLine = createEventBeltlineReactive({
+        describe: "getChannelMetadataBeltlineByChannelId",
+      })
+        .addFilter({ ids: [eventId], kinds: [40] })
+        .addFilter({ kinds: [41], "#e": [eventId] })
+
+        .addStaff(createLatestEventStaff())
+        .addStaff(createUseChannelMetadata())
+
+        .addStaff(autoAddRelayurlByEventIdStaff(eventId))
+        .addReadUrl();
+
+      return metadataLine;
+    },
+    {
+      useMemoryCache: true,
+      useLocalStorage: false,
+    }
   );
 }
-export function getChannelEvent(urls?: Set<string>) {
-  return userGetEvent({
-    relayUrls: urls,
-    filters: [
-      {
-        authors: [userKey.value.publicKey],
-        kinds: [7],
-      },
-    ],
-  });
+
+/**
+ * 获取messages
+ *
+ * @param eventId
+ * @param urls
+ * @returns
+ */
+export function getChannelMessageBeltline(eventId: string, urls?: Set<string>) {
+  console.log("getChannelMessageBeltline", eventId);
+
+  return useCache(
+    `etChannelMessageBeltline:${eventId}`,
+    () => {
+      const line = createEventBeltlineReactive({
+        describe: "getChannelMessageBeltline",
+      })
+        .addFilter({
+          ids: [eventId],
+          kinds: [40],
+          limit: 30,
+        })
+        .addFilter({
+          kinds: [41, 42],
+          "#e": [eventId],
+          limit: 30,
+        })
+        .addStaff(createInfiniteScrolling()) //无限滚动
+
+        .addStaff(createFilterGreaterThanTheCurrenttimeStaff()) //非法创建时间
+        .addStaff(createGarbageFilter()) //垃圾过滤器
+        .addStaff(createBlackStaff()) // 文本黑名单
+
+        .addStaffOfSortByCreateAt();
+
+      setTimeout(() => {
+        line
+          .addStaff(autoAddRelayurlByEventIdStaff(eventId))
+          .addReadUrl()
+          .addRelayUrls(urls);
+      }, 100);
+
+      return line;
+    },
+    {
+      useLocalStorage: false,
+    }
+  );
 }

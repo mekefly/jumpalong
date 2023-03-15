@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import { NButton, NInput, NSpace } from "naive-ui";
 import {
-  getUserMetadataByPubkey,
+  getUserMetadataLineByPubkey,
   sendUserMetadataByPubkey,
-  userKey,
   UserMetaData,
 } from "../api/user";
+import { userKey } from "../nostr/user";
 
 const message = useMessage();
 const emit = defineEmits<{
@@ -14,20 +14,16 @@ const emit = defineEmits<{
 
 const userMetadataByPubkey = ref<UserMetaData>({});
 
-const loading = ref(false);
-watch(
-  userKey,
-  async () => {
-    loading.value = true;
-    const userMetadata = await getUserMetadataByPubkey(userKey.value.publicKey);
-
-    loading.value = false;
-    message.success("个人信息更新成功");
-    userMetadataByPubkey.value = userMetadata;
-  },
-  { immediate: true }
+const metadataLine = computed(() =>
+  getUserMetadataLineByPubkey(userKey.value.publicKey)
 );
-async function sub() {
+const metadata = computed(() => metadataLine.value.feat.useMetadata());
+watchEffect(() => {
+  userMetadataByPubkey.value = metadata.value;
+});
+
+const loading = ref(false);
+async function send() {
   loading.value = true;
   await sendUserMetadataByPubkey(userMetadataByPubkey.value).catch(() => {
     message.error("提交失败");
@@ -65,7 +61,7 @@ async function sub() {
       />
       <n-input
         type="text"
-        placeholder="用户认证"
+        placeholder="nip5用户认证"
         v-model:value="userMetadataByPubkey.nip05"
       />
 
@@ -75,7 +71,7 @@ async function sub() {
           <template #trigger>
             <n-button
               type="primary"
-              @click="sub"
+              @click="send"
               :loading="loading"
               :disabled="loading"
             >

@@ -1,10 +1,12 @@
 <script lang="ts" setup>
 import { NIcon, NSpace } from "naive-ui";
-import { relayConfigurator } from "../api/relays";
+import { relayConfigurator } from "../nostr/nostr";
 import ButtonCloseVue from "./ButtonClose.vue";
 import EllipsisVue from "./Ellipsis.vue";
+import RelayUrlShowVue from "./RelayUrlShow.vue";
 
 const urls = computed(() => Object.keys(relayConfigurator.getConfiguration()));
+
 function switchWrite(url: string) {
   relayConfigurator.hasWriteByUrl(url)
     ? relayConfigurator.remoteWrite(url)
@@ -15,6 +17,10 @@ function switchRead(url: string) {
     ? relayConfigurator.remoteRead(url)
     : relayConfigurator.addRead(url);
 }
+const value = ref("");
+function addRelay() {
+  relayConfigurator.addWriteRead(value.value);
+}
 </script>
 
 <template>
@@ -22,9 +28,11 @@ function switchRead(url: string) {
     <n-space vertical>
       <n-table striped>
         <tbody>
-          <tr class="flex" v-for="url in urls">
+          <tr class="flex" v-for="url in urls" :key="url">
             <td class="flex-grow">
-              <EllipsisVue>{{ url }}</EllipsisVue>
+              <RelayUrlShowVue :url="url">
+                <EllipsisVue>{{ url }}</EllipsisVue>
+              </RelayUrlShowVue>
             </td>
             <td class="flex-shrink-0">
               <n-space justify="end" align="center">
@@ -51,6 +59,10 @@ function switchRead(url: string) {
           </tr>
         </tbody>
       </n-table>
+      <n-space>
+        <n-input v-model:value="value" type="text" placeholder="基本的 Input" />
+        <n-button @click="addRelay" type="primary"> 添加 </n-button>
+      </n-space>
       <n-space>
         <n-tooltip trigger="hover">
           <template #trigger>

@@ -23,3 +23,6 @@ export const renderIcon = (icon: Component) => {
     });
   };
 };
+export const renderWithClick = (str: string, click: () => void) => {
+  return () => h("span", { onClick: click }, { default: () => str });
+};

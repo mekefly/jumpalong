@@ -1,5 +1,8 @@
 <script lang="ts" setup>
-const { numOfRows = 1 } = defineProps<{ numOfRows?: number }>();
+const props = withDefaults(defineProps<{ numOfRows?: number }>(), {
+  numOfRows: 1,
+});
+const { numOfRows } = toRefs(props);
 </script>
 
 <template>

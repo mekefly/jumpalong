@@ -1,22 +1,69 @@
 <script lang="ts" setup>
+import { Event, nip19 } from "nostr-tools";
 import { computed } from "vue";
 
-const { content } = defineProps<{ content: string }>();
+const { event } = defineProps<{ event: Event }>();
 const list = computed(() => {
-  return content.split("\n").map((row) => {
-    if (["http://", "https://"].some((v) => row.startsWith(v))) {
-      if ([".jpg", ".png", ".gif"].some((v) => row.endsWith(v))) {
-        return ["img", row];
-      } else {
-        // https://xxx.com 这种不应该预览
-        if (!(row.split(" ").length > 1)) {
-          return ["website", row];
+  return event.content
+    .split("\n")
+    .map((row) => {
+      if (["http://", "https://"].some((v) => row.startsWith(v))) {
+        if ([".jpg", ".png", ".gif"].some((v) => row.endsWith(v))) {
+          return [["img", row]];
+        } else {
+          // https://xxx.com 这种不应该预览
+          if (!(row.split(" ").length > 1)) {
+            return [["website", row]];
+          }
         }
       }
-    }
-    return ["text", row];
-  });
+      let lest = 0;
+      let list: string[] = [];
+      row.replace(/#\[\d+\]/g, ((str: string, index: number) => {
+        list.push(row.slice(lest, index));
+        list.push(str);
+        lest = index + str.length;
+      }) as any);
+      if (list.length === 0) {
+        return [["text", row]];
+      }
+      let ll: [string, string][] = [];
+      list.forEach((item, index) => {
+        if (index % 2 === 0) {
+          if (!item) {
+            return;
+          }
+          ll.push(["text", item]);
+        } else {
+          ll.push(insertTag(item, event.tags) as any);
+        }
+      });
+
+      return ll;
+    })
+    .flat(1);
 });
+function insertTag(mark: string, tags: string[][]) {
+  const i = parseInt(mark.slice(2, 3));
+  if (!i) return ["text", mark];
+  const tag = tags[i];
+  if (!tag) return ["text", mark];
+  const data = tag[1];
+  if (!data) return ["text", mark];
+
+  switch (tag[0]) {
+    case "p":
+      return ["url", `@${nip19.nprofileEncode({ pubkey: data })}`, ""];
+    case "e":
+      return ["url", `&${nip19.neventEncode({ id: data })}`, ""];
+    case "e":
+      return ["url", `#${data}`, ""];
+    default:
+      return ["text", mark];
+  }
+}
+
+// insertTags(item, event.value.tags)
 </script>
 
 <template>
@@ -29,6 +76,7 @@ const list = computed(() => {
     </div>
 
     <a v-else-if="item[0] === 'website'" :href="item[1]">{{ item[1] }}</a>
+    <a v-else-if="item[0] === 'url'" :href="item[2]">{{ item[1] }}</a>
     <div
       class="flex"
       style="table-layout: fixed; word-break: break-all; word-wrap: break-word"

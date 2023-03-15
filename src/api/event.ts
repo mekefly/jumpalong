@@ -1,94 +1,11 @@
-import { getEventHash, signEvent, type Event } from "nostr-tools";
-import { relayQuery } from "../nostr";
-import { unSub } from "../nostr/relay";
-import { type CallBackT } from "../utils/types";
-import { useEvent } from "../utils/use";
-import { sub } from "./relays";
-import { userKey } from "./user";
-
-export async function sendShortTextNote(
-  content: string,
-  options: {
-    relayUrls?: Set<string>;
-    event?: Partial<Event>;
-  } = {}
-) {
-  const event = createEvent({
-    kind: 1,
-    content,
-    ...options?.event,
-  });
-
-  publishEvent(event, {
-    relayUrls: options.relayUrls,
-    ok() {
-      console.log("发送成功");
-    },
-  });
-}
-
-export function getShortTextEvent(options?: { relayUrls?: Set<string> }) {
-  const eventOps = useEvent();
-  sub(
-    [
-      {
-        kinds: [1],
-        authors: [userKey.value.publicKey],
-      },
-    ],
-    { even: eventOps.pushEvent, relayUrls: options?.relayUrls }
-  );
-  return eventOps;
-}
-
-export function getGlobalShortTextEvent(
-  pubkey?: string[],
-  options?: { relayUrls?: Set<string> }
-) {
-  const eventOps = useEvent();
-
-  async function _sub() {
-    const subIds = await sub(
-      [
-        {
-          kinds: [1],
-          authors: pubkey ? pubkey : undefined,
-        },
-      ],
-      {
-        describe: "获取短消息列表",
-        even: (e, { subId }) => {
-          eventOps.pushEvent(e);
-
-          if (eventOps.events.value.length > 20) {
-            unSub(subIds);
-          }
-        },
-        relayUrls: options?.relayUrls,
-      }
-    );
-  }
-  _sub();
-  return eventOps;
-}
-
-export function createEvent(options: Partial<Event>) {
-  const { privateKey, publicKey } = userKey.value;
-  let event: Event = Object.assign(
-    {
-      kind: 1,
-      pubkey: publicKey,
-      created_at: Math.floor(Date.now() / 1000),
-      tags: [],
-      content: "",
-    },
-    options
-  );
-
-  event.id = getEventHash(event);
-  event.sig = signEvent(event, privateKey);
-  return event;
-}
+import { createEvent } from "@/nostr/event";
+import { relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
+import createOneEventStaff from "@/nostr/staff/createOneEventStaff";
+import { userKey } from "@/nostr/user";
+import { useCache } from "@/utils/cache";
+import { Event } from "nostr-tools";
+// import { relayQuery } from "../nostr";
+import { createEventBeltlineReactive } from "../nostr/createEventBeltline";
 
 export async function eventDeletion(
   eventId: string[],
@@ -100,21 +17,53 @@ export async function eventDeletion(
       pubkey: userKey.value.publicKey,
       tags: eventId.map((id) => ["e", id]),
     });
-    publishEvent(event, {
-      relayUrls,
-      ok() {
-        resolve();
-      },
-    });
+    rootEventBeltline
+      .createChild()
+      .publish(event, relayConfigurator.getWriteList());
   });
 }
+
 export async function publishEvent(
-  event: Event,
-  options: {
-    relayUrls?: Set<string>;
-    ok?: CallBackT<Event>;
-    failed?: CallBackT<Event>;
-  } = {}
+  event: Event
+  // options: PublishEventOptions = {}
 ) {
-  await (await relayQuery).send("publishEvent", event, options);
+  rootEventBeltline
+    .createChild()
+    .publish(event, relayConfigurator.getWriteList());
+}
+
+export function getEventLineById(eventId: string) {
+  const line = createEventBeltlineReactive({
+    describe: "获取id通过id",
+  })
+    .addFilter({ ids: [eventId], limit: 1 })
+    .addStaff(createOneEventStaff());
+  // .addStaff(createAutomaticRandomRequestStaff());
+
+  setTimeout(() => {
+    const e = line.feat.useEvent();
+
+    if (e) return;
+
+    useCache(
+      `getEventLineById:${eventId}`,
+      () => {
+        line.addReadUrl();
+        setTimeout(() => {
+          // line.feat.startAutomaticRandomRequestStaff();
+          // //得到结果就关闭
+          // line.feat.onHasEventOnce(() => {
+          //   line.feat.stopAutomaticRandomRequestStaff();
+          //   line.closeReq();
+          // });
+        }, 100);
+        return true;
+      },
+      {
+        duration: 100000, //100秒内只会请求一次
+      }
+    );
+  }, 100);
+
+  return line;
 }

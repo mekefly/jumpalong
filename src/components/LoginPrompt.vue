@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { NSpace } from "naive-ui";
 import { nip19 } from "nostr-tools";
-import { userKey } from "../api/user";
+import { userKey } from "../nostr/user";
 import { useClipboard } from "../utils/naiveUi";
 import Copy16FilledVue from "./icon/Copy16Filled.vue";
 

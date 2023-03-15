@@ -1,10 +1,16 @@
 <script lang="ts" setup>
-import { localContacts } from "../api/Contact";
+import contactConfiguration from "../api/Contact";
 import EditNewMessage from "../components/EditNewMessage.vue";
 import PostList from "../components/PostList.vue";
-const pubkeys = computed(() =>
-  Object.keys(localContacts.value?.contacts ?? {})
-);
+
+logger.for("home.vue").info("home.vue");
+
+const pubkeys = computed(() => {
+  const pubkeys = Object.keys(
+    contactConfiguration.getData().contactConfiguration
+  );
+  return pubkeys;
+});
 </script>
 
 <template>

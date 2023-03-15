@@ -1,17 +1,18 @@
 <script lang="ts" setup>
+import { getUserMetadataLineByPubkey } from "@/api/user";
 import { NButton } from "naive-ui";
 import { getPublicKey, nip19 } from "nostr-tools";
-import { followContact, localContacts, unFollowContact } from "../api/Contact";
-import { getUserMetadataByPubkey, userKey, UserMetaData } from "../api/user";
+import { computed } from "vue";
+import contactConfiguration from "../api/Contact";
 import profile from "../assets/profile-2-400x400.png";
 import ProfileMoreInfo from "../components/ProfileMoreInfo.vue";
 import UserInformationButton from "../components/UserInformationButton.vue";
+import { userKey } from "../nostr/user";
+const route = useRoute();
 
 const hash = computed(
-  () => (useRoute().params.hash ?? userKey.value.publicKey) as string
+  () => (route.params.hash ?? userKey.value.publicKey) as string
 );
-
-const metadata = ref({} as UserMetaData);
 
 const profilePointer = computed(() => {
   try {
@@ -32,41 +33,31 @@ const profilePointer = computed(() => {
     }
   }
 });
+
 const isItMe = computed(
   () => profilePointer.value?.pubkey === userKey.value.publicKey
 );
+const pubkey = computed(() => profilePointer.value?.pubkey);
+
+const metadata = computed(() => {
+  if (!pubkey.value) return null;
+  return getUserMetadataLineByPubkey(pubkey.value).feat.useMetadata();
+});
 
 const isFollow = computed(() => {
-  if (!profilePointer.value?.pubkey || !localContacts.value?.contacts)
-    return false;
-
-  return !!localContacts.value.contacts[profilePointer.value.pubkey];
+  if (!pubkey.value) return false;
+  return contactConfiguration.isFollow(pubkey.value);
 });
-watch(
-  profilePointer,
-  async () => {
-    if (!profilePointer.value) return;
-    metadata.value = await getUserMetadataByPubkey(
-      profilePointer.value.pubkey,
-      profilePointer.value.relays
-        ? {
-            relayUrls: new Set(profilePointer.value.relays),
-          }
-        : undefined
-    );
-  },
-  { immediate: true }
-);
 </script>
 
 <template>
-  <div>
+  <div v-if="pubkey">
     <div class="">
-      <NAvatar round :size="100" :src="metadata.picture ?? profile" />
+      <NAvatar round :size="100" :src="metadata?.picture ?? profile" />
     </div>
 
     <h1 class="flex items-center">
-      {{ metadata.name ?? profilePointer?.pubkey.slice(0, 10) }}
+      {{ metadata?.name ?? profilePointer?.pubkey.slice(0, 10) }}
 
       <n-button
         class="ml-4"
@@ -74,7 +65,7 @@ watch(
         strong
         round
         type="primary"
-        @click="() => followContact(profilePointer?.pubkey)"
+        @click="() => contactConfiguration.follow(profilePointer?.pubkey)"
       >
         Flower
       </n-button>
@@ -84,20 +75,20 @@ watch(
         strong
         round
         type="tertiary"
-        @click="() => unFollowContact(profilePointer?.pubkey)"
+        @click="() => contactConfiguration.unFollow(profilePointer?.pubkey)"
       >
         Unflower
       </n-button>
 
       <div class="ml-4" v-if="profilePointer?.pubkey">
-        <UserInformationButton :pubkey="profilePointer.pubkey" />
+        <UserInformationButton :pubkey="pubkey" />
       </div>
     </h1>
     <div>
-      {{ metadata.about }}
+      {{ metadata?.about }}
     </div>
 
-    <ProfileMoreInfo v-if="profilePointer" :pubkey="profilePointer?.pubkey" />
+    <ProfileMoreInfo v-if="pubkey" :pubkey="pubkey" />
   </div>
 </template>
 

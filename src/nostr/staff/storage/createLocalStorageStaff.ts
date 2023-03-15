@@ -1,111 +1,188 @@
-import { EventBeltline } from "@/nostr/eventBeltline";
+import { arrayRemove } from "@/utils/utils";
+import { utils } from "@noble/secp256k1";
 import { Event, Filter } from "nostr-tools";
-import { createStaff, createStaffFactory } from "..";
+import { createStaffFactory, FeatType, StaffThisType } from "..";
 import PopLimit from "../PopLimit";
 
-const prefix = "event-id";
+const prefix = "event-id:";
+class LocalStorageFilter {
+  filters: Filter[];
+  filtersKey: string;
+  eventIdList: string[];
+  list: null | Event[] = null;
+  constructor(filters: Filter[]) {
+    this.filters = filters;
+    let k = JSON.stringify(filters);
+    if (k.length > 256) {
+      const a = utils.taggedHashSync(k);
 
-export default createStaffFactory()(() => {
-  return {
-    feat: {
-      async setItem(event: Event): Promise<void> {
-        localStorage.setItem(`${prefix}:${event.id}`, JSON.stringify(event));
-      },
-      async getItemById(id: string): Promise<Event> {
-        throw new Error("");
-      },
-      async deleteItemById(id: string): Promise<void> {
-        window.localStorage.removeItem(id);
-      },
-      setByFilters() {
-        throw new Error("");
-      },
-      getByFilters() {
-        throw new Error("");
-      },
-      async useStoreLine(filters: Filter[]): Promise<EventBeltline> {
-        console.log("createLocalStorageStaff");
+      this.filtersKey = `LocalStorageFilter:${utils.sha256(a)}`;
+    } else {
+      this.filtersKey = `LocalStorageFilter:${k}`;
+    }
 
-        const line = this.beltline
-          .createChild({ addExtendsFromParent: false })
-          .addFilters(filters);
+    const str = localStorage.getItem(this.filtersKey);
 
-        const len = localStorage.length;
-        for (let i = 0; i < len; i++) {
-          try {
-            const key = localStorage.key(i);
-            if (!key) {
-              continue;
-            }
-            if (!key.startsWith(`${prefix}:`)) continue;
+    try {
+      this.eventIdList = str ? JSON.parse(str) : [];
+    } catch (error) {
+      this.eventIdList = [];
+    }
+    this.clearAll();
+  }
+  getWholeEvent() {
+    const list: Event[] = [];
 
-            const cacheString = localStorage.getItem(key);
-            if (!cacheString) continue;
-            const cache: any = JSON.parse(cacheString) as Event;
-            console.log("createLocalStorageStaffCache");
+    for (const eventId of this.eventIdList) {
+      try {
+        const str = localStorage.getItem(this.createKey(eventId));
+        if (!str) break;
+        const event = JSON.parse(str);
+        list.push(event);
+      } catch (error) {}
+    }
+    return list;
+  }
+  clearAll() {
+    const localStorage = window.localStorage;
+    const len = localStorage.length;
 
-            this.beltline.pushEvent(cache);
-            //坚挺添加放入存储
-          } catch (error) {}
+    for (let i = 0; i < len; i++) {
+      try {
+        const key = localStorage.key(i);
+        if (key?.startsWith(prefix)) {
+          localStorage.removeItem(key);
+          continue;
+        }
+        if (!key?.startsWith("LocalStorageFilter")) {
+          continue;
         }
 
-        //坚挺添加放入存储
-        line.addStaff({
-          push(e) {
-            localStorage.setItem(`${prefix}:${e.id}`, JSON.stringify(e));
-          },
-        });
-
-        return line;
-      },
-    },
-  };
-});
-
-export function xx(filters: Filter[], limit: number) {
-  return createStaff({
-    initialization() {
-      const len = localStorage.length;
-
-      const line = this.beltline
-        .addFilters(filters)
-        .createChild({})
-        .addStaffOfSortByCreateAt()
-        .addStaff(PopLimit(limit));
-
-      //初始化加载存储
-      for (let i = 0; i < len; i++) {
-        try {
-          const key = localStorage.key(i);
-          if (!key) {
-            continue;
+        const cacheString = localStorage.getItem(key);
+        if (!cacheString) {
+          continue;
+        }
+        const cacheKey: any = JSON.parse(cacheString);
+        if (Array.isArray(cacheKey)) {
+          for (const id of cacheKey) {
+            localStorage.removeItem(this.createKey(id));
           }
-          if (!key.startsWith(`${prefix}:`)) continue;
-
-          const cacheString = localStorage.getItem(key);
-          if (!cacheString) return;
-          const cache: any = JSON.parse(cacheString) as Event;
-
-          line.pushEvent(cache);
-          //坚挺添加放入存储
-        } catch (error) {}
-      }
-
-      const list = line.getList();
-
-      for (let i = list.length - 1; i >= 0; i--) {
-        this.beltline.pushEvent(list[i]);
-      }
-
-      //坚挺添加放入存储
-      this.beltline
-        .createChild({})
-        .addFilters(filters)
-        .addStaff({
-          push(e) {
-            localStorage.setItem(`${prefix}:${e.id}`, JSON.stringify(e));
-          },
-        });
-    },
-  });
+          localStorage.removeItem(key);
+        }
+      } catch (error) {}
+    }
+  }
+  createKey(eventId: string) {
+    return `${prefix}${eventId}`;
+  }
+  setItem(e: Event) {
+    localStorage.setItem(this.createKey(e.id as string), JSON.stringify(e));
+    this.eventIdList.push(e.id as string);
+    this.updateList();
+  }
+  getItem(eventId: string) {
+    localStorage.getItem(this.createKey(eventId));
+  }
+  removeItem(eventId: string) {
+    localStorage.removeItem(this.createKey(eventId));
+    arrayRemove(this.eventIdList, eventId);
+    this.updateList();
+  }
+  updateList() {
+    localStorage.setItem(this.filtersKey, JSON.stringify(this.eventIdList));
+  }
 }
+
+export type CreateLocalStorageStaffType = {
+  initialization(this: StaffThisType<object>): void;
+  feat: CreateLocalStorageStaffFeatType;
+};
+export type CreateLocalStorageStaffFeatType = {
+  removeItem(this: FeatType<object>, eventId: string): void;
+};
+
+export default createStaffFactory()(
+  (limit: number = 1000): CreateLocalStorageStaffType => {
+    let localStorageFilter: LocalStorageFilter | null = null as any;
+    return {
+      initialization() {
+        const localStorageFilter = new LocalStorageFilter(
+          this.beltline.getFilters()
+        );
+
+        const list = localStorageFilter.getWholeEvent();
+        for (const event of list) {
+          this.beltline.pushEvent(event);
+        }
+
+        const line = this.beltline
+          .createChild({})
+          .addStaff({
+            push(e) {
+              localStorageFilter.setItem(e);
+            },
+          })
+          .addStaffOfReverseSortByCreateAt()
+          .addStaff(PopLimit(limit))
+          .addExtends(this.beltline);
+
+        line.feat.onLimitPop((e) => {
+          localStorageFilter.removeItem(e.id as string);
+        });
+      },
+      feat: {
+        removeItem(eventId: string) {
+          localStorageFilter?.removeItem(eventId);
+        },
+      },
+    };
+  }
+);
+
+// export function xx(filters: Filter[], limit: number) {
+//   return createStaff({
+//     initialization() {
+//       const len = LocalStorageFilter.length;
+
+//       const line = this.beltline
+//         .addFilters(filters)
+//         .createChild({})
+//         .addStaffOfSortByCreateAt()
+//         .addStaff(PopLimit(limit));
+
+//       //初始化加载存储
+//       for (let i = 0; i < len; i++) {
+//         try {
+//           const key = LocalStorageFilter.key(i);
+//           if (!key) {
+//             continue;
+//           }
+//           if (!key.startsWith(`${prefix}:`)) continue;
+
+//           const cacheString = LocalStorageFilter.getItem(key);
+//           if (!cacheString) return;
+//           const cache: any = JSON.parse(cacheString) as Event;
+
+//           line.pushEvent(cache);
+//           //坚挺添加放入存储
+//         } catch (error) {}
+//       }
+
+//       const list = line.getList();
+
+//       for (let i = list.length - 1; i >= 0; i--) {
+//         this.beltline.pushEvent(list[i]);
+//       }
+
+//       //坚挺添加放入存储
+//       this.beltline
+//         .createChild({})
+//         .addFilters(filters)
+//         .addStaff({
+//           push(e) {
+//             LocalStorageFilter.setItem(`${prefix}:${e.id}`, JSON.stringify(e));
+//           },
+//         });
+//     },
+//   });
+// }

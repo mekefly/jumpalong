@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { relayConfigurator } from "../api/relays";
+import { relayConfigurator } from "../nostr/nostr";
 const msg = useMessage();
 const optsRef = ref(
   null as null | {
@@ -9,13 +9,21 @@ const optsRef = ref(
   }
 );
 function broadcast() {
-  const opts = relayConfigurator.broadcast();
+  const opts = relayConfigurator.broadcast({ slef: reactive({}) });
   if (!opts) {
     msg.error("请求失败，您可能需要先配置一下列表");
     return;
   }
-  optsRef.value = ref(opts).value;
+
+  optsRef.value = opts;
 }
+
+const isLoading = computed(
+  () =>
+    (optsRef.value?.numberOfSuccesses ?? 0) +
+      (optsRef.value?.numberOfErrors ?? 0) <
+    (optsRef.value?.total ?? 0)
+);
 </script>
 
 <template>
@@ -24,8 +32,8 @@ function broadcast() {
       <n-button
         @click="broadcast"
         type="default"
-        :loading="optsRef"
-        :disabled="optsRef"
+        :loading="isLoading"
+        :disabled="isLoading"
       >
         广播
         <span v-if="optsRef">
