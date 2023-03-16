@@ -80,9 +80,7 @@ export function getUserMetadataLineByPubkey(pubkey: string) {
       console.log("ReplaceableEventMap", event);
 
       if (event) {
-        setTimeout(() => {
-          line.pushEvent(event);
-        }, 1000);
+        line.pushEvent(event);
         return line;
       }
 

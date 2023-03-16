@@ -1,6 +1,6 @@
 import EventEmitter from "events";
 import { Event, Filter } from "nostr-tools";
-interface RelayEmiterResponseEventMap {
+export interface RelayEmiterResponseEventMap {
   eose: {
     url: string;
   };

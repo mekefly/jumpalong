@@ -178,4 +178,174 @@ it("DoublyLinkedList:toArray", () => {
       6,
     ]
   `);
+  expect(linkedList.toArrayOfTraverseBackward()).toMatchInlineSnapshot(`
+    [
+      6,
+      5,
+      4,
+    ]
+  `);
+});
+
+it("DoublyLinkedList:insertBefore:header", () => {
+  const linkedList = DoublyLinkedList.from([4, 5, 6]);
+
+  for (const item of linkedList) {
+    if (item.data === 4) {
+      linkedList.insertBefore(item, 3);
+    }
+  }
+
+  expect(linkedList.toArray()).toMatchInlineSnapshot(`
+    [
+      3,
+      4,
+      5,
+      6,
+    ]
+  `);
+  expect(linkedList.toArrayOfTraverseBackward()).toMatchInlineSnapshot(`
+    [
+      6,
+      5,
+      4,
+      3,
+    ]
+  `);
+});
+
+it("DoublyLinkedList:insertBefore:center", () => {
+  const linkedList = DoublyLinkedList.from([4, 5, 6]);
+
+  for (const item of linkedList) {
+    if (item.data === 5) {
+      console.log("item:", item);
+
+      linkedList.insertBefore(item, 9);
+    }
+  }
+
+  expect(linkedList.toArray()).toMatchInlineSnapshot(`
+    [
+      4,
+      9,
+      5,
+      6,
+    ]
+  `);
+  expect(linkedList.toArrayOfTraverseBackward()).toMatchInlineSnapshot(`
+    [
+      6,
+      5,
+      9,
+      4,
+    ]
+  `);
+});
+it("DoublyLinkedList:insertBefore:tail", () => {
+  const linkedList = DoublyLinkedList.from([4, 5, 6]);
+
+  for (const item of linkedList) {
+    if (item.data === 6) {
+      linkedList.insertBefore(item, 9);
+    }
+  }
+
+  expect(linkedList.toArray()).toMatchInlineSnapshot(`
+    [
+      4,
+      5,
+      9,
+      6,
+    ]
+  `);
+  expect(linkedList.toArrayOfTraverseBackward()).toMatchInlineSnapshot(`
+    [
+      6,
+      9,
+      5,
+      4,
+    ]
+  `);
+});
+it("DoublyLinkedList:insertAfter:tail", () => {
+  const linkedList = DoublyLinkedList.from([4, 5, 6]);
+
+  for (const item of linkedList) {
+    if (item.data === 6) {
+      linkedList.insertAfter(item, 9);
+    }
+  }
+
+  expect(linkedList.toArray()).toMatchInlineSnapshot(`
+    [
+      4,
+      5,
+      6,
+      9,
+    ]
+  `);
+  expect(linkedList.toArrayOfTraverseBackward()).toMatchInlineSnapshot(`
+    [
+      9,
+      6,
+      5,
+      4,
+    ]
+  `);
+});
+
+it("DoublyLinkedList:insertAfter:center", () => {
+  const linkedList = DoublyLinkedList.from([4, 5, 6]);
+
+  for (const item of linkedList) {
+    if (item.data === 5) {
+      linkedList.insertAfter(item, 9);
+    }
+  }
+
+  expect(linkedList.toArray()).toMatchInlineSnapshot(`
+    [
+      4,
+      5,
+      9,
+      6,
+    ]
+  `);
+  expect(linkedList.toArrayOfTraverseBackward()).toMatchInlineSnapshot(`
+    [
+      6,
+      9,
+      5,
+      4,
+    ]
+  `);
+});
+
+it("DoublyLinkedList:insertAfter:header", () => {
+  const linkedList = DoublyLinkedList.from([4, 5, 6]);
+
+  for (const item of linkedList) {
+    if (item.data === 4) {
+      linkedList.insertAfter(item, 9);
+    }
+  }
+
+  expect(linkedList.toArray()).toMatchInlineSnapshot(`
+    [
+      4,
+      9,
+      5,
+      6,
+    ]
+  `);
+
+  expect(linkedList.toArrayOfTraverseBackward()).toMatchInlineSnapshot(`
+    [
+      6,
+      5,
+      9,
+      4,
+    ]
+  `);
 });

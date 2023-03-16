@@ -1,7 +1,7 @@
 import { config } from "@/nostr/nostr";
 import {
   defaultCacheOptions,
-  deleteLocalStorageCache,
+  deleteCache,
   getCache,
   setCache,
 } from "@/utils/cache";
@@ -79,7 +79,7 @@ class LocalStorageFilter {
     }
   }
   removeItem(eventId: string) {
-    deleteLocalStorageCache(this.createKey(eventId));
+    deleteCache(this.createKey(eventId));
     arrayRemove(this.eventIdList, eventId);
     this.updateList();
   }

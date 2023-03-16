@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import ReplaceableEventMap from "@/nostr/ReplaceableEventMap";
+import { parseMetadata } from "@/nostr/staff/createUseChannelMetadata";
 import { getUserMetadataLineByPubkey } from "../api/user";
 import profile from "../assets/profile-2-400x400.png";
 import { useLazyComponent } from "../utils/use";
@@ -6,8 +8,17 @@ import { useLazyComponent } from "../utils/use";
 const props = defineProps<{ pubkey: string; created_at: number }>();
 const { pubkey, created_at } = toRefs(props);
 
-const [metadata, target] = useLazyComponent(() => {
+const [metadata1, target] = useLazyComponent(() => {
   return getUserMetadataLineByPubkey(pubkey.value).feat.useMetadata();
+});
+const metadata = computed(() => {
+  const event = ReplaceableEventMap.kind0.getEvent(pubkey.value);
+
+  if (!event) {
+    return metadata1.value;
+  } else {
+    return parseMetadata(event);
+  }
 });
 
 const router = useRouter();

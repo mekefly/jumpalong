@@ -1,6 +1,7 @@
 import { type RelayConfigurator } from "@/nostr/relayConfigurator";
+import { type RelayEmiterResponseEventMap } from "@/nostr/relayEmiter";
 import { EventEmitter } from "events";
-import { Event, Filter } from "nostr-tools";
+import { Event, Filter, verifySignature } from "nostr-tools";
 import {
   arrayRemove,
   getSetIncrement,
@@ -13,11 +14,12 @@ import { type SubOptions } from "./relay";
 import { RelayEmiter } from "./RelayEmiter";
 import {
   createPreventCircularReferencesStaff,
-  FeatType,
-  Staff,
   StaffState,
+  type FeatType,
+  type Staff,
 } from "./staff";
 import { createFilterStaff } from "./staff/createFilterStaff";
+import { userKey } from "./user";
 
 const EventBeltlineSetSlef: new (slef: any) => {} = function (
   this: any,
@@ -111,12 +113,18 @@ export class EventBeltline<
     return this;
   }
 
-  public pushEvent(event: Event, subId?: string) {
+  public pushEvent(event: Event, subId?: string, set: Set<any> = new Set()) {
+    //防循环事件
+    if (set.has(this)) return;
+    set.add(this);
+
+    //前置处理
     for (const staff of this.staffs) {
       staff.beforePush?.(event, this.eventList);
     }
 
     let state: StaffState = StaffState.NEXT;
+    //push处理
     for (const staff of this.staffs) {
       const _state: StaffState =
         staff.push?.(event, this.eventList, { lastState: state, subId }) ??
@@ -129,14 +137,16 @@ export class EventBeltline<
       }
     }
 
+    // 后置处理
     for (const staff of this.staffs) {
       state = staff.afterPush?.(event, this.eventList, state) ?? state;
     }
     state === StaffState.NEXT && this.eventList.push(event);
 
+    // 继承
     if (state === StaffState.NEXT || state === StaffState.BREAK) {
       this.extendTo.forEach((child) => {
-        child.pushEvent(event, subId);
+        child.pushEvent(event, subId, set);
       });
     }
   }
@@ -325,21 +335,41 @@ export class EventBeltline<
       } catch (error) {}
     });
   }
-  public async publish(eventPart: Partial<Event>, urls: Set<string>, opt?: {}) {
+  public async publish(
+    eventPart: Partial<Event>,
+    urls: Set<string>,
+    opt?: {
+      onOK?: (v: RelayEmiterResponseEventMap["ok"]) => void;
+      addUrl?: boolean;
+    }
+  ) {
     //自动判断是否已签名，如果没有自动添加url
-    if (!eventPart.sig && !eventPart.id && urls.size !== 0) {
+    if ((!eventPart.sig && !eventPart.id && urls.size !== 0) || opt?.addUrl) {
       const tags = eventPart.tags ?? [];
       tags.push(...Array.from(urls, (v: string) => ["r", v]));
       eventPart.tags = tags;
     }
-    const event = createEvent(eventPart);
-    console.log("publishevent", event);
+    let event = eventPart as Event;
+
+    //验证是否是完整的event
+    if (!verifySignature(eventPart as Event)) {
+      if (!event.pubkey || event.pubkey === userKey.value.publicKey) {
+        //不完整但是自己发送的，就从新签名
+        event = createEvent(eventPart);
+      } else {
+        //不完整也不是自己发送的
+        return;
+      }
+    }
 
     this.pushEvent(event);
+    opt?.onOK && this.relayEmiter.on("ok", event.id, opt.onOK);
+
     for (const url of urls) {
       this.toPublish(url, event);
     }
   }
+
   private req(url: string, filters: Filter[]) {
     const subId = this.idGenerator.createId();
     this.onReceiveEvent(subId);
@@ -362,6 +392,7 @@ export class EventBeltline<
     if (set.has(this)) return;
     set.add(this);
 
+    // 监听
     this.relayEmiter.on("event", subId, ({ event }) => {
       this.pushEvent(event);
     });

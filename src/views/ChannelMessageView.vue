@@ -5,12 +5,10 @@ import {
 } from "@/api/channel";
 import contactConfiguration from "@/api/Contact";
 import AutoloadMoreVue from "@/components/AutoloadMore.vue";
-import EditBoxVue from "@/components/EditBox.vue";
 import PapawVue from "@/components/Papaw.vue";
-import { createEvent } from "@/nostr/event";
-import root from "@/nostr/eventBeltline";
-import relayConfigurator from "@/nostr/relayConfiguratoror";
-import relayEmiter from "@/nostr/RelayEmiter";
+import RichTextEditBoxVue from "@/components/RichTextEditBox.vue";
+import { relayConfigurator } from "@/nostr/nostr";
+import { EventTemplate } from "nostr-tools";
 import { computed } from "vue";
 import { useRoute } from "vue-router";
 import {
@@ -21,7 +19,6 @@ import {
 
 const route = useRoute();
 const eventId = computed<string>(() => route.params.eventId as string);
-console.log();
 watchEffect(() => {
   console.log("eventId.value", eventId.value);
 });
@@ -52,37 +49,27 @@ useUnlimitedLoad(handleAutoLoadMore);
 const { handleJoinChannel, handleLeaveChannel } =
   useJoinAndLeaveChannelHandle(eventId);
 const { success, error } = useMessage();
-function handleSend(postMessage: string, { tags }: { tags: string[][] }) {
-  console.log(postMessage, tags);
+function handleSend(event: EventTemplate) {
+  event.kind = 42;
+  event.tags = [...event.tags, ["e", eventId.value, "root"]];
 
-  const event = createEvent({
-    kind: 42,
-    content: postMessage,
-    tags: [
-      ...tags,
-      ...[["r", eventId.value, "root"]],
-      ...Array.from(relayConfigurator.getWriteList(), (r) => ["r", r]),
-    ],
-  });
-  console.log("准备发布消息");
+  messageBeltline.value.publish(event, relayConfigurator.getWriteList(), {
+    addUrl: true,
+    onOK({ ok, message, url }) {
+      console.log("这是怎么");
 
-  root.publish(event, relayConfigurator.getWriteList());
-
-  console.log("发布消息", event);
-  relayEmiter.on("ok", event.id as string, ({ ok, message, url }) => {
-    console.log("这是怎么");
-
-    if (ok) {
-      success(`消息在${url}发布成功了`);
-    } else {
-      error(`消息在${url}发布失败了,${message}`);
-    }
+      if (ok) {
+        success(`消息在${url}发布成功了`);
+      } else {
+        error(`消息在${url}发布失败了,${message}`);
+      }
+    },
   });
 }
 </script>
 
 <template>
-  <div class="flex flex-col h-full overflow-auto 3434">
+  <div class="flex flex-col h-full overflow-auto">
     <n-page-header
       class="mb-8 flex-shrink-0"
       :subtitle="metadata.name"
@@ -132,7 +119,7 @@ function handleSend(postMessage: string, { tags }: { tags: string[][] }) {
         :deleteEvent="() => {}"
       />
     </Scrollbar>
-    <EditBoxVue @send="handleSend" />
+    <RichTextEditBoxVue @send="handleSend" class="flex-shrink-0" />
   </div>
 </template>
 

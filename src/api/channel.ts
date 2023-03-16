@@ -11,7 +11,7 @@ import { createLatestEventStaff } from "@/nostr/staff/createLatestEventStaff";
 import createUseChannelMetadata from "@/nostr/staff/createUseChannelMetadata";
 import { createTagArray } from "../nostr/tag";
 import { useCache } from "../utils/cache";
-import { noUndefinedInTheArray } from "../utils/utils";
+import { noUndefinedInTheArray, nowSecondTimestamp } from "../utils/utils";
 import { createBlackStaff } from "../views/ContentBlacklistView";
 import { eventDeletion } from "./event";
 
@@ -133,12 +133,12 @@ export function getChannelMessageBeltline(eventId: string, urls?: Set<string>) {
         .addFilter({
           ids: [eventId],
           kinds: [40],
-          limit: 30,
+          since: nowSecondTimestamp() - 60 * 60,
         })
         .addFilter({
           kinds: [41, 42],
           "#e": [eventId],
-          limit: 30,
+          since: nowSecondTimestamp() - 60 * 60,
         })
         .addStaff(createInfiniteScrolling()) //无限滚动
 

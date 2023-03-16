@@ -1,6 +1,6 @@
 import { userKey } from "@/nostr/user";
 import * as secp256k1 from "@noble/secp256k1";
-import { Event, getEventHash, signEvent } from "nostr-tools";
+import { Event, getEventHash, signEvent, UnsignedEvent } from "nostr-tools";
 
 export function validateEvent(event: Event): boolean {
   if (typeof event.content !== "string") return false;
@@ -27,9 +27,9 @@ export function verifySignature(event: Event & { sig: string }): boolean {
   );
 }
 
-export function createEvent(options: Partial<Event>) {
+export function createEvent(options: Partial<Event>): Event {
   const { privateKey, publicKey } = userKey.value;
-  let event: Event = Object.assign(
+  let event: UnsignedEvent & Partial<Event> = Object.assign(
     {
       kind: 1,
       pubkey: publicKey,
@@ -42,5 +42,5 @@ export function createEvent(options: Partial<Event>) {
 
   event.id = getEventHash(event);
   event.sig = signEvent(event, privateKey);
-  return event;
+  return event as Event;
 }

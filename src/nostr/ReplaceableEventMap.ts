@@ -26,6 +26,16 @@ export class ReplaceableEventMap {
     duration: 1000 * 60 * 60 * 24 * 3, //3天
     ...defaultCacheOptions,
   };
+  public getAll() {
+    const eventMap: Record<string, Event> = {};
+    const map = this.map;
+    for (const pubkey in map) {
+      const event = this.getEvent(pubkey);
+      if (!event) continue;
+      eventMap[pubkey] = event;
+    }
+    return eventMap;
+  }
   public add(event: Event) {
     const pubkey = event.pubkey;
     const eventId = event.id;
@@ -38,16 +48,21 @@ export class ReplaceableEventMap {
   public deleteEventByPubkey(pubkey: PubkeyId) {
     delete this.map[pubkey];
     deleteCache(pubkey);
+    this.updateMap();
   }
   public getEvent(pubkey: string): Event | undefined {
     return this._getEvent(pubkey);
   }
   private _getEvent(pubkey: string) {
     const eventId = this.map[pubkey];
+
     if (!eventId) return;
     try {
-      return getCache(eventId, this.cacheOption);
+      const e = getCache(eventId, this.cacheOption);
+      return e;
     } catch (error) {
+      //缓存过期后删除
+      this.deleteEventByPubkey(pubkey);
       return;
     }
   }

@@ -91,15 +91,21 @@ export function createId() {
 export function debounce<F extends (...rest: any) => any>(
   f: F,
   delay: number = 1000
-) {
+): F & {
+  clear?: () => void;
+} {
   if (delay <= 0) {
     return f;
   }
   let t: NodeJS.Timeout | undefined;
-  return (...rest: any) => {
+  const ff = (...rest: any) => {
     clearTimeout(t);
     t = setTimeout(() => f(...rest), delay);
   };
+  ff.clear = () => {
+    clearTimeout(t);
+  };
+  return ff as any;
 }
 
 /**
@@ -231,6 +237,13 @@ export function arrayRemove<E>(arr: Array<E>, e: E) {
     return;
   }
   arr.splice(index, 1);
+}
+export function arrayInsert<E>(arr: Array<E>, e: E, v: E) {
+  const index = arr.indexOf(e);
+  if (index === -1) {
+    return;
+  }
+  arr.splice(index, 0, v);
 }
 export function merageSet<T>(set1: Set<T>, set2: Set<T>) {
   const newSet = new Set<T>();

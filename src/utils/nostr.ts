@@ -1,6 +1,5 @@
 import { deserializeTagR } from "@/nostr/tag";
 import { Event, Filter, nip19 } from "nostr-tools";
-import { ProfilePointer } from "nostr-tools/nip19";
 import { setAdds } from "./utils";
 
 export function toProfilePointer(str: string): ProfilePointer | null {
@@ -9,7 +8,7 @@ export function toProfilePointer(str: string): ProfilePointer | null {
 
     switch (v["type"]) {
       case "nprofile":
-        return v.data as ProfilePointer;
+        return v.data as nip19.ProfilePointer;
       case "npub":
         return { pubkey: v.data as string };
       default:
@@ -26,7 +25,7 @@ export function toProfilePointer(str: string): ProfilePointer | null {
 }
 
 export function profilePointerToNprofile(
-  profilePointer: ProfilePointer
+  profilePointer: nip19.ProfilePointer
 ): string {
   return nip19.nprofileEncode(profilePointer);
 }

@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { usePushShortTextNote } from "@/views/ShortTextNoteView";
 import { Event } from "nostr-tools";
 
 import Content from "./Content.vue";
@@ -12,7 +11,6 @@ const props = defineProps<{
   deleteEvent: (id: string) => void;
 }>();
 const { event, deleteEvent } = toRefs(props);
-const pushShortTextNote = usePushShortTextNote();
 </script>
 
 <template>
@@ -27,7 +25,7 @@ const pushShortTextNote = usePushShortTextNote();
         </template>
       </UserInfoVue>
     </div>
-    <div class="p-5 font" @click="() => pushShortTextNote(event)">
+    <div class="p-5 font">
       <Content :event="event" />
     </div>
   </div>

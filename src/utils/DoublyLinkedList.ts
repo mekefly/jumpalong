@@ -1,5 +1,5 @@
 // Node class
-class Node1<T> {
+export class Node1<T> {
   public data: T;
   public prev: Node1<T> | null;
   public next: Node1<T> | null;
@@ -22,6 +22,31 @@ export class DoublyLinkedList<T> {
     this.tail = null;
     this.size = 0;
   }
+
+  [Symbol.iterator](): IterableIterator<Node1<T>> {
+    // throw new Error("Method not implemented.");
+    const slef = this;
+    let current = slef.head;
+    return {
+      [Symbol.iterator](): IterableIterator<Node1<T>> {
+        return this;
+      },
+      next() {
+        if (current) {
+          const value = current;
+          current = current.next;
+          return {
+            value,
+          } as IteratorYieldResult<Node1<T>>;
+        } else {
+          return {
+            value: null as any,
+            done: true as true,
+          } as IteratorReturnResult<null>;
+        }
+      },
+    };
+  }
   // Add a node at the end of the list
   add(data: T) {
     // Create a new node with the given data
@@ -39,6 +64,45 @@ export class DoublyLinkedList<T> {
     }
 
     // Increment the size of the list
+    this.size++;
+  }
+  insertBefore(target: Node1<T>, data: T) {
+    // Create a new node with the given data
+    let dataNode: Node1<T> = new Node1(data);
+
+    // header node
+    if (target.prev == null) {
+      this.head = dataNode;
+      target.prev = dataNode;
+      dataNode.next = target;
+    } else {
+      // Not a header node
+      dataNode.next = target;
+      dataNode.prev = target.prev;
+
+      target.prev.next = dataNode;
+
+      target.prev = dataNode;
+    }
+    this.size++;
+  }
+  insertAfter(target: Node1<T>, data: T) {
+    // Create a new node with the given data
+    let dataNode: Node1<T> = new Node1(data);
+
+    // tail node
+    if (target.next == null) {
+      this.tail = dataNode;
+      target.next = dataNode;
+      dataNode.prev = target;
+    } else {
+      // Not a tail node
+      dataNode.next = target.next;
+      target.next.prev = dataNode;
+
+      dataNode.prev = target;
+      target.next = dataNode;
+    }
     this.size++;
   }
 

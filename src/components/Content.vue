@@ -2,9 +2,11 @@
 import { Event, nip19 } from "nostr-tools";
 import { computed } from "vue";
 
-const { event } = defineProps<{ event: Event }>();
+const props = defineProps<{ event: Event; contenteditable?: boolean }>();
+const { event, contenteditable } = toRefs(props);
+
 const list = computed(() => {
-  return event.content
+  return event.value.content
     .split("\n")
     .map((row) => {
       if (["http://", "https://"].some((v) => row.startsWith(v))) {
@@ -35,7 +37,7 @@ const list = computed(() => {
           }
           ll.push(["text", item]);
         } else {
-          ll.push(insertTag(item, event.tags) as any);
+          ll.push(insertTag(item, event.value.tags) as any);
         }
       });
 
@@ -62,8 +64,6 @@ function insertTag(mark: string, tags: string[][]) {
       return ["text", mark];
   }
 }
-
-// insertTags(item, event.value.tags)
 </script>
 
 <template>
@@ -75,8 +75,12 @@ function insertTag(mark: string, tags: string[][]) {
       <n-image class="img w-full" :src="item[1]" />
     </div>
 
-    <a v-else-if="item[0] === 'website'" :href="item[1]">{{ item[1] }}</a>
-    <a v-else-if="item[0] === 'url'" :href="item[2]">{{ item[1] }}</a>
+    <a class="break-words" v-else-if="item[0] === 'website'" :href="item[1]">{{
+      item[1]
+    }}</a>
+    <a class="break-words" v-else-if="item[0] === 'url'" :href="item[2]">{{
+      item[1]
+    }}</a>
     <div
       class="flex"
       style="table-layout: fixed; word-break: break-all; word-wrap: break-word"
@@ -90,5 +94,8 @@ function insertTag(mark: string, tags: string[][]) {
 <style scoped>
 .img :deep() img {
   width: 100%;
+}
+.break-words {
+  word-wrap: break-word;
 }
 </style>

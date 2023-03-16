@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import FaviconVue from "@/components/icon/Favicon.vue";
 import { relayPool } from "@/nostr/nostr";
 import { lightTheme } from "naive-ui";
 import { ref } from "vue";
@@ -15,7 +16,12 @@ const collapsed = ref(true);
       class="flex justify-between items-center p-4 box-border"
       bordered
     >
-      <span class="text-xl font-bold"> Jumpalong </span>
+      <span class="text-xl font-bold flex justify-center items-center">
+        <n-icon class="ml-1">
+          <FaviconVue />
+        </n-icon>
+        <span class="ml-6"> Jumpalong </span>
+      </span>
       <SearchFormVue></SearchFormVue>
       <n-space>
         <div>订阅:{{ relayPool.allSubIds.size }}</div>

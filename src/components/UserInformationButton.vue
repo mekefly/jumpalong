@@ -1,19 +1,30 @@
 <script lang="ts" setup>
 import { userKey } from "@/nostr/user";
+import {
+  useRecommendEvent,
+  useRecommendUser,
+  useRecommendUserMetadata,
+} from "@/state/nostr";
 import { nip19 } from "nostr-tools";
 import { relayConfigurator } from "../nostr/nostr";
 import { renderIcon, useClipboard } from "../utils/naiveUi";
 import PencilVue from "./icon/Pencil.vue";
 import ShareSocialVue from "./icon/ShareSocial.vue";
 
-const { pubkey } = defineProps<{
+const props = defineProps<{
   pubkey: string;
 }>();
 
+const { pubkey } = toRefs(props);
+
 const clipboard = useClipboard();
 
-const isItMe = computed(() => pubkey === userKey.value.publicKey);
+const isItMe = computed(() => pubkey.value === userKey.value.publicKey);
 const showModal = ref(false);
+
+const recommendEvent = useRecommendEvent();
+const recommendUser = useRecommendUser();
+const recommendUserMetadata = useRecommendUserMetadata();
 
 const options = ref<any>(
   [
@@ -56,7 +67,7 @@ const options = ref<any>(
           },
         },
         isItMe.value && {
-          label: "复制私钥",
+          label: "复制nsec",
           key: "copy-nsec",
           props: {
             onclick() {
@@ -75,6 +86,24 @@ const options = ref<any>(
           },
         },
       ].filter((v) => !!v),
+    },
+    {
+      label: "推荐用户",
+      key: "recommendUser",
+      props: {
+        onclick() {
+          recommendUser(pubkey.value);
+        },
+      },
+    },
+    {
+      label: "推荐用户元数据",
+      key: "recommendUserMetadata",
+      props: {
+        onclick() {
+          recommendUserMetadata(pubkey.value);
+        },
+      },
     },
   ].filter((v) => !!v)
 );
