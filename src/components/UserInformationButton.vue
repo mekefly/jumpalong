@@ -10,6 +10,7 @@ import { relayConfigurator } from "../nostr/nostr";
 import { renderIcon, useClipboard } from "../utils/naiveUi";
 import PencilVue from "./icon/Pencil.vue";
 import ShareSocialVue from "./icon/ShareSocial.vue";
+import UserDataEditingVue from "./UserDataEditing.vue";
 
 const props = defineProps<{
   pubkey: string;
@@ -116,7 +117,7 @@ const options = ref<any>(
     </NButton>
   </NDropdown>
   <n-modal v-model:show="showModal">
-    <UserDataEditing @close="() => (showModal = false)" />
+    <UserDataEditingVue @close="() => (showModal = false)" />
   </n-modal>
 </template>
 

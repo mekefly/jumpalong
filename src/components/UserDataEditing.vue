@@ -1,10 +1,7 @@
 <script lang="ts" setup>
+import relayConfigurator from "@/nostr/relayConfigurator";
 import { NButton, NInput, NSpace } from "naive-ui";
-import {
-  getUserMetadataLineByPubkey,
-  sendUserMetadataByPubkey,
-  UserMetaData,
-} from "../api/user";
+import { getUserMetadataLineByPubkey, UserMetaData } from "../api/user";
 import { userKey } from "../nostr/user";
 
 const message = useMessage();
@@ -25,12 +22,26 @@ watchEffect(() => {
 const loading = ref(false);
 async function send() {
   loading.value = true;
-  await sendUserMetadataByPubkey(userMetadataByPubkey.value).catch(() => {
-    message.error("提交失败");
-    loading.value = false;
-  });
-  message.success("提交成功，已发送到至少一个服务器");
-  loading.value = false;
+  metadataLine.value.publish(
+    {
+      content: JSON.stringify(userMetadataByPubkey.value),
+      kind: 0,
+    },
+    relayConfigurator.getWriteList(),
+    {
+      addUrl: true,
+      onOK({ ok, url }) {
+        loading.value = false;
+        console.log("ok");
+
+        if (ok) {
+          message.success(`已成功提交到${url}`);
+        } else {
+          message.error(`提交到${url}失败`);
+        }
+      },
+    }
+  );
 }
 </script>
 
