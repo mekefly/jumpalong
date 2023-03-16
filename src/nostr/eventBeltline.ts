@@ -103,10 +103,16 @@ export class EventBeltline<
   public getExtendTo() {
     return this.extendTo;
   }
-  public addExtends(line: EventBeltline) {
+  public addExtends(
+    line: EventBeltline,
+    opt?: {
+      preventPushHistory?: boolean;
+    }
+  ) {
     this.extends.add(line);
     line.extendTo.add(this);
 
+    if (opt?.preventPushHistory) return this;
     for (const event of line.getList()) {
       this.pushEvent(event);
     }
@@ -352,7 +358,12 @@ export class EventBeltline<
     let event = eventPart as Event;
 
     //验证是否是完整的event
-    if (!verifySignature(eventPart as Event)) {
+    let verify = false;
+    try {
+      verify = verifySignature(eventPart as Event);
+    } catch (error) {}
+
+    if (!verify) {
       if (!event.pubkey || event.pubkey === userKey.value.publicKey) {
         //不完整但是自己发送的，就从新签名
         event = createEvent(eventPart);

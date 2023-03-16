@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import ReplaceableEventMap from "@/nostr/ReplaceableEventMap";
+import { parseMetadata } from "@/nostr/staff/createUseChannelMetadata";
 import { Event, nip19 } from "nostr-tools";
 import { computed } from "vue";
 
@@ -55,11 +57,21 @@ function insertTag(mark: string, tags: string[][]) {
 
   switch (tag[0]) {
     case "p":
-      return ["url", `@${nip19.nprofileEncode({ pubkey: data })}`, ""];
+      const pubkey = data;
+      const event = ReplaceableEventMap.kind0.getEvent(pubkey);
+      const nprofilte = nip19.nprofileEncode({ pubkey: data });
+      if (event) {
+        const xx = parseMetadata(event);
+
+        return ["p", `@${xx.name}`, nprofilte];
+      }
+
+      return ["p", `@${nprofilte}`, nprofilte];
     case "e":
-      return ["url", `&${nip19.neventEncode({ id: data })}`, ""];
-    case "e":
-      return ["url", `#${data}`, ""];
+      const nevent = nip19.neventEncode({ id: data });
+      return ["e", `&${nevent}`, nevent];
+    case "t":
+      return ["t", `#${data}`, ""];
     default:
       return ["text", mark];
   }
@@ -78,6 +90,19 @@ function insertTag(mark: string, tags: string[][]) {
     <a class="break-words" v-else-if="item[0] === 'website'" :href="item[1]">{{
       item[1]
     }}</a>
+    <a class="break-words" v-else-if="item[0] === 'url'" :href="item[2]">{{
+      item[1]
+    }}</a>
+    <router-link
+      v-if="item[0] === 'p'"
+      :to="{ name: 'profile', params: { value: item[2] } }"
+      >{{ item[1] }}</router-link
+    >
+    <router-link
+      v-if="item[0] === 'e'"
+      :to="{ name: 'short-text-note', params: { value: item[2] } }"
+      >{{ item[1] }}</router-link
+    >
     <a class="break-words" v-else-if="item[0] === 'url'" :href="item[2]">{{
       item[1]
     }}</a>

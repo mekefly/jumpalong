@@ -1,8 +1,9 @@
 import { deserializeTagR } from "@/nostr/tag";
 import { Event, Filter, nip19 } from "nostr-tools";
+import { ProfilePointer } from "nostr-tools/lib/nip19";
 import { setAdds } from "./utils";
 
-export function toProfilePointer(str: string): ProfilePointer | null {
+export function toDeCodeNprofile(str: string): ProfilePointer | null {
   try {
     const v = nip19.decode(str);
 
@@ -30,7 +31,7 @@ export function profilePointerToNprofile(
   return nip19.nprofileEncode(profilePointer);
 }
 export function toNprofile(str: string): string | null {
-  const profilePointer = toProfilePointer(str);
+  const profilePointer = toDeCodeNprofile(str);
   console.log(profilePointer);
 
   if (!profilePointer) return null;

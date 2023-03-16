@@ -120,8 +120,8 @@ export default createStaffFactory()(
             },
           })
           .addStaffOfReverseSortByCreateAt()
-          .addStaff(PopLimit(limit))
-          .addExtends(this.beltline);
+          .addStaff(PopLimit(limit));
+        // .addExtends(this.beltline, { preventPushHistory: true });
 
         line.feat.onLimitPop((e) => {
           localStorageFilter.removeItem(e.id as string);

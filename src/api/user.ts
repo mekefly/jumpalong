@@ -57,7 +57,7 @@ export async function sendUserMetadataByPubkey(userMetaData: UserMetaData) {
 //   }
 //   return toUserMetadataById(relayListMetadataByPubkey[0], author);
 // }
-export function getUserMetadataLineByPubkey(pubkey: string) {
+export function getUserMetadataLineByPubkey(pubkey: string, url?: Set<string>) {
   return useCache(
     `getUserMetadataLineByPubkey:${pubkey}`,
     () => {
@@ -85,7 +85,9 @@ export function getUserMetadataLineByPubkey(pubkey: string) {
       }
 
       const req = () => {
+        line.addRelayUrls(url);
         line.addReadUrl();
+
         line.addStaff(autoAddRelayurlByPubkeyStaff(pubkey));
       };
 

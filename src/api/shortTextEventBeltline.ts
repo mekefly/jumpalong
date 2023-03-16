@@ -8,7 +8,6 @@ import {
 import autoAddRelayUrlByFilter from "@/nostr/staff/autoAddRelayUrlByFilter";
 import createAutoCloseReqByLimit from "@/nostr/staff/createAutoCloseReqByLimit";
 import createEoseUnSubStaff from "@/nostr/staff/createEoseUnSubStaff";
-import createLocalStorageStaff from "@/nostr/staff/storage/createLocalStorageStaff";
 import { Filter } from "nostr-tools";
 import { createGarbageFilter } from "../nostr/staff/createGarbageFilter";
 import { useCache } from "../utils/cache";
@@ -37,7 +36,7 @@ export function getShortTextEventBeltline(
         slef: reactive({}),
       })
         .addFilter(filter)
-        .addStaff(createLocalStorageStaff(100))
+        // .addStaff(createLocalStorageStaff(100))
         .addStaff(createAutoCloseReqByLimit(limit))
         .addStaff(createDoNotRepeatStaff()) // 重复事件过滤器
         .addStaff(createBlackStaff()) // 黑名单过滤器

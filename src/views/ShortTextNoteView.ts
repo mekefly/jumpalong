@@ -5,7 +5,7 @@ import { Event } from "nostr-tools";
 const pushEvent = ref<Event | null>(null);
 export function useEvent() {
   const route = useRoute();
-  const value = computed(() => route.params["eventId"] as string);
+  const value = computed(() => route.params["value"] as string);
 
   const neventOpt = computed(() => {
     return toDeCodeNevent(value.value);

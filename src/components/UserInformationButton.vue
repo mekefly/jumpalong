@@ -1,10 +1,6 @@
 <script lang="ts" setup>
 import { userKey } from "@/nostr/user";
-import {
-  useRecommendEvent,
-  useRecommendUser,
-  useRecommendUserMetadata,
-} from "@/state/nostr";
+import { useRecommendUser, useRecommendUserMetadata } from "@/state/nostr";
 import { nip19 } from "nostr-tools";
 import { relayConfigurator } from "../nostr/nostr";
 import { renderIcon, useClipboard } from "../utils/naiveUi";
@@ -23,7 +19,6 @@ const clipboard = useClipboard();
 const isItMe = computed(() => pubkey.value === userKey.value.publicKey);
 const showModal = ref(false);
 
-const recommendEvent = useRecommendEvent();
 const recommendUser = useRecommendUser();
 const recommendUserMetadata = useRecommendUserMetadata();
 

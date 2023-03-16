@@ -1,37 +1,25 @@
 <script lang="ts" setup>
+import contactConfiguration from "@/api/Contact";
 import { getUserMetadataLineByPubkey } from "@/api/user";
-import { NButton } from "naive-ui";
-import { getPublicKey, nip19 } from "nostr-tools";
+import ProfileMoreInfoVue from "@/components/ProfileMoreInfo.vue";
+import UserInformationButtonVue from "@/components/UserInformationButton.vue";
+import { relayConfigurator } from "@/nostr/nostr";
+import { toDeCodeNprofile } from "@/utils/nostr";
+import { nip19 } from "nostr-tools";
 import { computed } from "vue";
-import contactConfiguration from "../api/Contact";
-import profile from "../assets/profile-2-400x400.png";
-import ProfileMoreInfo from "../components/ProfileMoreInfo.vue";
-import UserInformationButton from "../components/UserInformationButton.vue";
 import { userKey } from "../nostr/user";
 const route = useRoute();
+console.log("route.params", route.params);
+// const router = useRouter();
 
-const hash = computed(
-  () => (route.params.hash ?? userKey.value.publicKey) as string
-);
+const nprofile = nip19.nprofileEncode({
+  pubkey: userKey.value.publicKey,
+  relays: Array.from(relayConfigurator.getWriteList()),
+});
+const hash = computed(() => (route.params.value as string) ?? nprofile);
 
 const profilePointer = computed(() => {
-  try {
-    const decodeValue = nip19.decode(hash.value);
-    switch (decodeValue.type) {
-      case "nprofile":
-        return decodeValue.data as nip19.ProfilePointer;
-      case "npub":
-        return { pubkey: decodeValue.data as string };
-      case "nsec":
-        return { pubkey: getPublicKey(decodeValue.data as string) };
-      default:
-        break;
-    }
-  } catch (error) {
-    if (hash.value.length === 64) {
-      return { pubkey: hash.value };
-    }
-  }
+  return toDeCodeNprofile(hash.value);
 });
 
 const isItMe = computed(
@@ -41,7 +29,10 @@ const pubkey = computed(() => profilePointer.value?.pubkey);
 
 const metadata = computed(() => {
   if (!pubkey.value) return null;
-  return getUserMetadataLineByPubkey(pubkey.value).feat.useMetadata();
+  return getUserMetadataLineByPubkey(
+    pubkey.value,
+    new Set(profilePointer.value?.relays)
+  ).feat.useMetadata();
 });
 
 const isFollow = computed(() => {
@@ -53,7 +44,7 @@ const isFollow = computed(() => {
 <template>
   <div v-if="pubkey">
     <div class="">
-      <NAvatar round :size="100" :src="metadata?.picture ?? profile" />
+      <NAvatar round :size="100" :src="metadata?.picture ?? ''" />
     </div>
 
     <h1 class="flex items-center">
@@ -81,14 +72,14 @@ const isFollow = computed(() => {
       </n-button>
 
       <div class="ml-4" v-if="profilePointer?.pubkey">
-        <UserInformationButton :pubkey="pubkey" />
+        <UserInformationButtonVue :pubkey="pubkey" />
       </div>
     </h1>
     <div>
       {{ metadata?.about }}
     </div>
 
-    <ProfileMoreInfo v-if="pubkey" :pubkey="pubkey" />
+    <ProfileMoreInfoVue v-if="pubkey" :pubkey="pubkey" />
   </div>
 </template>
 

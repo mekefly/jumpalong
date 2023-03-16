@@ -1,5 +1,9 @@
 import { nip19 } from "nostr-tools";
-import { getIncludeMergeByFilters, toDeCodeNevent } from "../nostr";
+import {
+  getIncludeMergeByFilters,
+  toDeCodeNevent,
+  toDeCodeNprofile,
+} from "../nostr";
 
 it("getIncludeMergeByFilters", () => {
   const v = getIncludeMergeByFilters(
@@ -120,6 +124,44 @@ it("neventEncode", () => {
         "relays": [],
       },
       "type": "nevent",
+    }
+  `);
+});
+it("toDeCodeNprofile:nprofile", () => {
+  const xx = toDeCodeNprofile(
+    "nprofile1qqsf6xkkpsrcae4ndg92trgzhqd6fg8nf2jl2kcfg9p4fm9rzm7wgfcpz3mhxue69uhhyetvv9ujuerpd46hxtnfduq36amnwvaz7tmwdaehgu3dwp6kytnhv4kxcmmjv3jhytnwv46qzxrhwden5te0wfjkccte9esh2um5wf5kx6pwdejhgqgdwaehxw309ahx7uewd3hkcfppxqf"
+  );
+  expect(xx).toMatchInlineSnapshot(`
+    {
+      "pubkey": "9d1ad60c078ee6b36a0aa58d02b81ba4a0f34aa5f55b09414354eca316fce427",
+      "relays": [
+        "wss://relay.damus.io",
+        "wss://nostr-pub.wellorder.net",
+        "wss://relay.austrich.net",
+        "wss://nos.lol",
+      ],
+    }
+  `);
+});
+it("toDeCodeNprofile:pubkey", () => {
+  const xx = toDeCodeNprofile(
+    "9d1ad60c078ee6b36a0aa58d02b81ba4a0f34aa5f55b09414354eca316fce427"
+  );
+  expect(xx).toMatchInlineSnapshot(`
+    {
+      "pubkey": "9d1ad60c078ee6b36a0aa58d02b81ba4a0f34aa5f55b09414354eca316fce427",
+    }
+  `);
+});
+
+it("toDeCodeNprofile:npub", () => {
+  const npub = nip19.npubEncode(
+    "9d1ad60c078ee6b36a0aa58d02b81ba4a0f34aa5f55b09414354eca316fce427"
+  );
+  const xx = toDeCodeNprofile(npub);
+  expect(xx).toMatchInlineSnapshot(`
+    {
+      "pubkey": "9d1ad60c078ee6b36a0aa58d02b81ba4a0f34aa5f55b09414354eca316fce427",
     }
   `);
 });

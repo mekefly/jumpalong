@@ -32,7 +32,8 @@ const router = createRouter({
           component: () => import("../views/ChannelMessageView.vue"),
         },
         {
-          path: "/profile/:hash",
+          path: "/profile/:value",
+          name: "profile",
           component: () => import("../views/ProfileView.vue"),
         },
         {
@@ -62,7 +63,7 @@ const router = createRouter({
           component: () => import("../views/RelayInfoView.vue"),
         },
         {
-          path: "/short/text/note/:eventId",
+          path: "/short/text/note/:value",
           name: "short-text-note",
           component: () => import("../views/ShortTextNoteView.vue"),
         },
