@@ -11,8 +11,6 @@ export default createStaffFactory()((type: 10002 | 0) => {
         .addStaff(createLatestEventStaff());
 
       line.feat.onHasLatestEvent((e) => {
-        console.log("onHasLatestEvent,kind", e);
-
         replaceableEventMap[`kind${type}`].add(e);
       });
 

@@ -82,6 +82,7 @@ export const newWeakMap = (() => {
 export function createId() {
   return Math.random().toString().slice(2);
 }
+
 /**
  * 防抖
  * @param f
@@ -347,4 +348,13 @@ export function _new<Args extends any[]>(
     return result;
   }
   return target;
+}
+export function isNaN(v: any) {
+  return v !== v;
+}
+export function isNotANumber(v: any) {
+  return typeof v !== "number" || isNaN(v);
+}
+export function isNumberAndNotNaN(v: any): v is number {
+  return typeof v === "number" && !isNaN(v);
 }

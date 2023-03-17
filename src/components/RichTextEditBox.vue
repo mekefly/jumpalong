@@ -28,7 +28,6 @@ function handleChange(str: string, options: { tags: string[][] }) {
     content: str,
     tags: options.tags,
   });
-  console.log("event", event.value);
 }
 
 function handleSend() {
@@ -80,7 +79,9 @@ function handelBlur() {
       </ScrollbarVue>
     </div>
     <div class="w-full flex-shrink-0 flex justify-end pt-2">
-      <n-button type="primary" @click="handleSend">发送</n-button>
+      <n-button :disabled="!event.content" type="primary" @click="handleSend">
+        发送
+      </n-button>
     </div>
   </div>
 </template>

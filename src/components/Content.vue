@@ -1,56 +1,18 @@
 <script lang="ts" setup>
 import ReplaceableEventMap from "@/nostr/ReplaceableEventMap";
 import { parseMetadata } from "@/nostr/staff/createUseChannelMetadata";
+import { matchTagPlaceholderRegExp, matchUrlRegExp } from "@/utils/RegExpUtils";
+import { isNumberAndNotNaN } from "@/utils/utils";
 import { Event, nip19 } from "nostr-tools";
-import { computed } from "vue";
 
 const props = defineProps<{ event: Event; contenteditable?: boolean }>();
 const { event, contenteditable } = toRefs(props);
 
-const list = computed(() => {
-  return event.value.content
-    .split("\n")
-    .map((row) => {
-      if (["http://", "https://"].some((v) => row.startsWith(v))) {
-        if ([".jpg", ".png", ".gif"].some((v) => row.endsWith(v))) {
-          return [["img", row]];
-        } else {
-          // https://xxx.com 这种不应该预览
-          if (!(row.split(" ").length > 1)) {
-            return [["website", row]];
-          }
-        }
-      }
-      let lest = 0;
-      let list: string[] = [];
-      row.replace(/#\[\d+\]/g, ((str: string, index: number) => {
-        list.push(row.slice(lest, index));
-        list.push(str);
-        lest = index + str.length;
-      }) as any);
-      if (list.length === 0) {
-        return [["text", row]];
-      }
-      let ll: [string, string][] = [];
-      list.forEach((item, index) => {
-        if (index % 2 === 0) {
-          if (!item) {
-            return;
-          }
-          ll.push(["text", item]);
-        } else {
-          ll.push(insertTag(item, event.value.tags) as any);
-        }
-      });
+function parseTag(mark: string, markIndex: string, tags: string[][]) {
+  const index = parseInt(markIndex);
 
-      return ll;
-    })
-    .flat(1);
-});
-function insertTag(mark: string, tags: string[][]) {
-  const i = parseInt(mark.slice(2, 3));
-  if (!i) return ["text", mark];
-  const tag = tags[i];
+  if (!isNumberAndNotNaN(index)) return ["text", mark];
+  const tag = tags[index];
   if (!tag) return ["text", mark];
   const data = tag[1];
   if (!data) return ["text", mark];
@@ -61,9 +23,9 @@ function insertTag(mark: string, tags: string[][]) {
       const event = ReplaceableEventMap.kind0.getEvent(pubkey);
       const nprofilte = nip19.nprofileEncode({ pubkey: data });
       if (event) {
-        const xx = parseMetadata(event);
+        const metadata = parseMetadata(event);
 
-        return ["p", `@${xx.name}`, nprofilte];
+        return ["p", `@${metadata.name}`, nprofilte];
       }
 
       return ["p", `@${nprofilte}`, nprofilte];
@@ -76,43 +38,129 @@ function insertTag(mark: string, tags: string[][]) {
       return ["text", mark];
   }
 }
+function parseText(text: string, cols: Array<[string, string, ...any[]]>) {
+  if (!text) return;
+
+  let last = 0;
+  const regExpStringIterator =
+    matchTagPlaceholderRegExp()[Symbol.matchAll](text);
+  for (const regExpMatchArray of regExpStringIterator) {
+    let index = regExpMatchArray["index"];
+    let mark = regExpMatchArray[0] as string;
+    let markIndex = regExpMatchArray[1] as string;
+
+    //push mark
+    cols.push(parseTag(mark, markIndex, event.value.tags) as any);
+
+    // 判断非数字和nan
+    if (!isNumberAndNotNaN(index)) continue;
+    //间隔部分两个标签之间的文本 #[0]
+    if (index - last > 0) {
+      cols.push(["text", text.slice(last, index)]);
+    }
+
+    last = index + mark.length;
+  }
+
+  //结尾部分
+  if (text.length - last > 0) {
+    cols.push(["text", text.slice(last)]);
+  }
+}
+function parseRow(
+  text: string,
+  rows: Array<Array<[string, string, ...any[]]>>
+) {
+  text.split("\n").forEach((row) => {
+    if (!row) {
+      rows.push([["enter", ""]]);
+      return;
+    }
+    const cols: Array<[string, string, ...any[]]> = [];
+
+    const regExpStringIterator = matchUrlRegExp()[Symbol.matchAll](row);
+    let last = 0;
+    for (const regExpMatchArray of regExpStringIterator) {
+      let index = regExpMatchArray["index"];
+      let url = regExpMatchArray[0] as string;
+
+      //url部分
+      cols.push(["url", url]);
+
+      // 判断非数字和nan
+      if (!isNumberAndNotNaN(index)) continue;
+      //间隔部分
+      if (index - last > 0) {
+        parseText(row.slice(last, index), cols);
+      }
+
+      // url last更新
+      last = index + url.length;
+    }
+
+    //间隔部分
+    if (row.length - last > 0) {
+      parseText(row.slice(last), cols);
+    }
+
+    rows.push(cols);
+  });
+}
+
+const rows = computed(() => {
+  const rows: any[] = [];
+  parseRow(event.value.content, rows);
+  return rows;
+});
 </script>
 
 <template>
-  <div v-for="item in list">
-    <div
-      class="flex w-full items-center max-h-screen rounded-2xl overflow-hidden"
-      v-if="item[0] === 'img'"
-    >
-      <n-image class="img w-full" :src="item[1]" />
-    </div>
+  <div v-for="row in rows" class="flex">
+    <span v-for="item in row" class="flex">
+      <div
+        v-if="item[0] === 'img'"
+        class="flex w-full items-center max-h-screen rounded-2xl overflow-hidden"
+      >
+        <n-image class="img w-full" :src="item[1]" />
+      </div>
 
-    <a class="break-words" v-else-if="item[0] === 'website'" :href="item[1]">{{
-      item[1]
-    }}</a>
-    <a class="break-words" v-else-if="item[0] === 'url'" :href="item[2]">{{
-      item[1]
-    }}</a>
-    <router-link
-      v-if="item[0] === 'p'"
-      :to="{ name: 'profile', params: { value: item[2] } }"
-      >{{ item[1] }}</router-link
-    >
-    <router-link
-      v-if="item[0] === 'e'"
-      :to="{ name: 'short-text-note', params: { value: item[2] } }"
-      >{{ item[1] }}</router-link
-    >
-    <a class="break-words" v-else-if="item[0] === 'url'" :href="item[2]">{{
-      item[1]
-    }}</a>
-    <div
-      class="flex"
-      style="table-layout: fixed; word-break: break-all; word-wrap: break-word"
-      v-else
-    >
-      {{ item[1] }}
-    </div>
+      <a v-else-if="item[0] === 'website'" class="break-words" :href="item[1]">
+        {{ item[1] }}
+      </a>
+      <a v-else-if="item[0] === 'url'" class="break-words" :href="item[2]">
+        {{ item[1] }}
+      </a>
+      <router-link
+        v-else-if="item[0] === 'p'"
+        :to="{ name: 'profile', params: { value: item[2] } }"
+      >
+        {{ item[1] }}
+      </router-link>
+      <router-link
+        v-else-if="item[0] === 'e'"
+        :to="{ name: 'short-text-note', params: { value: item[2] } }"
+      >
+        {{ item[1] }}
+      </router-link>
+      <a
+        v-else-if="item[0] === 'url'"
+        class="break-words block"
+        :href="item[2]"
+      >
+        {{ item[1] }}
+      </a>
+      <br v-else-if="item[0] === 'enter'" class="break-words block" />
+      <span
+        v-else
+        class="flex"
+        style="
+          table-layout: fixed;
+          word-break: break-all;
+          word-wrap: break-word;
+        "
+        v-text="item[1].replace(' ', '&nbsp')"
+      />
+    </span>
   </div>
 </template>
 

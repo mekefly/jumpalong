@@ -38,18 +38,15 @@ watch(value, () => {
 });
 const options = ref<MentionOption[]>([]);
 function handleSearch(value: string, prefix: string) {
-  console.log("handleSearch", value);
-
   if (prefix === "@") {
     options.value = userRef;
   } else {
   }
 }
-const tags: string[][] = [];
-function handleChange() {
-  const v = value.value;
-
-  const postMessage = v.replace(/@\S+|#\S+|&\S+/g, (str) => {
+const tags = computed(() => {});
+function parseTags(text: string) {
+  const tags: string[][] = [];
+  const postMessage = text.replace(/@\S+|#\S+|&\S+/g, (str) => {
     const prefix = str[0];
     const name = str.slice(1);
     switch (prefix) {
@@ -71,6 +68,16 @@ function handleChange() {
         return str;
     }
   });
+  return [postMessage, tags] as const;
+}
+let lastChange = "";
+function handleChange() {
+  const v = value.value;
+  if (lastChange === v) return;
+  lastChange = v;
+
+  const [postMessage, tags] = parseTags(v);
+  console.log("postMessage", postMessage, "tags", tags);
 
   emit("change", postMessage, { tags });
 }

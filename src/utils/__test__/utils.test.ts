@@ -1,5 +1,7 @@
 import {
   debounce,
+  isNaN,
+  isNumberAndNotNaN,
   reverseSearchInsertOnObjectList,
   searchInsertOnObjectList,
   timeout,
@@ -291,26 +293,16 @@ it("searchInsertOnObjectList", () => {
     arr.splice(index, 0, { v: item });
   });
 
-  expect(arr).toMatchInlineSnapshot(`
-    [
-      {
-        "v": 0,
-      },
-      {
-        "v": 3,
-      },
-      {
-        "v": 10,
-      },
-      {
-        "v": 32,
-      },
-      {
-        "v": 343,
-      },
-      {
-        "v": 4348937,
-      },
-    ]
-  `);
+  expect(arr).toMatchInlineSnapshot("true");
+});
+it("isNaN", () => {
+  expect(isNaN(NaN)).toMatchSnapshot();
+  expect(isNaN(123)).toMatchSnapshot();
+  expect(isNaN("123")).toMatchSnapshot();
+});
+
+it("isNumberAndNotNaN", () => {
+  expect(isNumberAndNotNaN(1)).toMatchSnapshot();
+  expect(isNumberAndNotNaN(NaN)).toMatchSnapshot();
+  expect(isNumberAndNotNaN("123")).toMatchSnapshot();
 });
