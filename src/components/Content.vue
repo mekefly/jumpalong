@@ -115,12 +115,12 @@ const rows = computed(() => {
 </script>
 
 <template>
-  <div v-for="row in rows" class="flex">
-    <span v-for="item in row" class="flex">
-      <div
-        v-if="item[0] === 'img'"
-        class="flex w-full items-center max-h-screen rounded-2xl overflow-hidden"
-      >
+  <div
+    v-for="row in rows"
+    class="w-full flex flex-wrap justify-start items-start"
+  >
+    <span v-for="item in row" class="flex justify-start items-start">
+      <div v-if="item[0] === 'img'">
         <n-image class="img w-full" :src="item[1]" />
       </div>
 
