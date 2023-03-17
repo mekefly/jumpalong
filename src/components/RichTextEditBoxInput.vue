@@ -12,8 +12,6 @@ const emit = defineEmits<{
   (e: "blur"): void;
 }>();
 
-// const localUser = getLocalKind0();
-
 const value = ref("");
 const userMap = new Map<string, { event: Event; metadata: ChannelMetadata }>();
 const eventMap = new Map<string, { event: Event }>();
@@ -77,7 +75,6 @@ function handleChange() {
   lastChange = v;
 
   const [postMessage, tags] = parseTags(v);
-  console.log("postMessage", postMessage, "tags", tags);
 
   emit("change", postMessage, { tags });
 }
