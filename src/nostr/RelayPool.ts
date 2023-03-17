@@ -7,7 +7,7 @@ import {
 import { relayEmiter } from "./nostr";
 import { type RelayEmiter } from "./RelayEmiter";
 import { createWebsocket } from "./websocket";
-
+(window as any).sendCount = 0;
 export class RelayPool {
   private pool!: Map<string, Relay>;
   private relayEmiter!: RelayEmiter;
@@ -160,7 +160,7 @@ export class Relay {
     }
   }
   send(v: [string, ...any]) {
-    (window as any).reqCount++;
+    (window as any).sendCount++;
     this.ws.send(JSON.stringify(v));
   }
   createSubId() {
@@ -175,6 +175,7 @@ export class Relay {
     return subId;
   }
   publish(e: Event) {
+    console.debug("websocket:publish", this.ws.url, e);
     this.send(["EVENT", e]);
   }
   closeReq(subId: string) {
