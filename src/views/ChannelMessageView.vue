@@ -7,6 +7,7 @@ import contactConfiguration from "@/api/Contact";
 import AutoloadMoreVue from "@/components/AutoloadMore.vue";
 import PapawVue from "@/components/Papaw.vue";
 import RichTextEditBoxVue from "@/components/RichTextEditBox.vue";
+import ScrollbarVue from "@/components/Scrollbar.vue";
 import { relayConfigurator } from "@/nostr/nostr";
 import { EventTemplate } from "nostr-tools";
 import { computed } from "vue";
@@ -108,7 +109,7 @@ function handleSend(event: EventTemplate) {
       </template>
     </n-page-header>
 
-    <Scrollbar>
+    <ScrollbarVue class="flex-shrink flex-1">
       <div ref="autoloadMoreVueRef">
         <AutoloadMoreVue @loadMore="handleAutoLoadMore" />
       </div>
@@ -118,8 +119,8 @@ function handleSend(event: EventTemplate) {
         :key="event.id"
         :deleteEvent="() => {}"
       />
-    </Scrollbar>
-    <RichTextEditBoxVue @send="handleSend" class="flex-shrink-0" />
+    </ScrollbarVue>
+    <RichTextEditBoxVue @send="handleSend" />
   </div>
 </template>
 

@@ -25,6 +25,7 @@ const isEdit = ref(false);
 
 const target = ref(null);
 onClickOutside(target, (event) => {
+  if (isEnter.value) return;
   isEdit.value = false;
 });
 
@@ -55,9 +56,8 @@ const isShowEmojiBox = ref(false);
 </script>
 
 <template>
-  <!-- <n-space vertical> -->
   <div
-    class="w-full h-max box-border flex flex-col overflow-hidden"
+    class="w-full h-max box-border flex flex-col overflow-hidden flex-shrink-1"
     ref="target"
     :style="{
       maxHeight: isShowEmojiBox
@@ -65,14 +65,13 @@ const isShowEmojiBox = ref(false);
         : isEnter || isShowEmojiBox
         ? '30em'
         : '10em',
-      // minHeight: isEnter && !isEdit ? '20em' : '8em',
       transition: 'max-height 300ms,min-height 300ms',
     }"
     @dblclick="() => (isEdit = true)"
     @mouseenter="handleEnter"
     @mouseleave="handelLeave"
   >
-    <div class="w-full flex-shrink-0 flex flex-col justify-between pb-2">
+    <div class="w-full flex-shrink-0 flex flex-col justify-between">
       <EmojiBoxVue :show="isShowEmojiBox" @click="handelClick" />
       <n-divider
         class="flex-shrink-0"
@@ -94,6 +93,13 @@ const isShowEmojiBox = ref(false);
         </n-button>
       </div>
     </div>
+    <n-divider
+      class="flex-shrink-0"
+      :style="{
+        marginBottom: '0.5em',
+        marginTop: '0.5em',
+      }"
+    />
     <div class="flex-1 flex-shrink relative h-0">
       <ScrollbarVue>
         <div v-show="!isEdit && event.content">

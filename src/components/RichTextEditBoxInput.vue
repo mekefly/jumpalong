@@ -17,6 +17,10 @@ const emit = defineEmits<{
   (e: "update:rawValue", v: string): void;
 }>();
 
+watch(rawValue, () => {
+  handleChange();
+});
+
 const value = computed({
   get() {
     return rawValue.value;

@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import FaviconVue from "@/components/icon/Favicon.vue";
 import { relayPool } from "@/nostr/nostr";
+import { createDynamicColor } from "@/utils/utils";
 import { lightTheme } from "naive-ui";
 import { ref } from "vue";
 import { switchTheme, theme } from "../app";
@@ -8,6 +9,8 @@ import SearchFormVue from "../components/SearchForm.vue";
 import Sidebar from "../components/Sidebar.vue";
 
 const collapsed = ref(true);
+const poolSize = computed(() => relayPool.getPool().size);
+const subIdSize = computed(() => relayPool.allSubIds.size);
 </script>
 <template>
   <n-layout style="height: 100vh">
@@ -23,9 +26,33 @@ const collapsed = ref(true);
         <span class="ml-6"> Jumpalong </span>
       </span>
       <SearchFormVue></SearchFormVue>
-      <n-space>
-        <div>订阅:{{ relayPool.allSubIds.size }}</div>
-        <div>连接:{{ relayPool.getPool().size }}</div>
+      <n-space class="flex justify-center items-center">
+        <n-tooltip trigger="hover">
+          <template #trigger>
+            <span
+              :style="{
+                color: createDynamicColor(subIdSize, 20, 400),
+              }"
+            >
+              {{ subIdSize }}
+            </span>
+          </template>
+          当前订阅数，包括临时订阅
+        </n-tooltip>
+        |
+        <n-tooltip trigger="hover">
+          <template #trigger>
+            <span
+              :style="{
+                color: createDynamicColor(poolSize, 5, 30),
+              }"
+            >
+              {{ poolSize }}
+            </span>
+          </template>
+          当前与中续的连接数量
+        </n-tooltip>
+
         <n-button quaternary @click="switchTheme">
           {{ theme === lightTheme ? "浅色" : "深色" }}
         </n-button>

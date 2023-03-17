@@ -1,4 +1,6 @@
 import {
+  createDynamicColor,
+  createDynamicRelativeValue,
   debounce,
   isNaN,
   isNumberAndNotNaN,
@@ -305,4 +307,10 @@ it("isNumberAndNotNaN", () => {
   expect(isNumberAndNotNaN(1)).toMatchSnapshot();
   expect(isNumberAndNotNaN(NaN)).toMatchSnapshot();
   expect(isNumberAndNotNaN("123")).toMatchSnapshot();
+});
+it("createDynamicColor", () => {
+  expect(createDynamicColor(100, 0, 200)).toMatchSnapshot();
+});
+it("createDynamicRelativeValue", () => {
+  expect(createDynamicRelativeValue(100, 0, 200)).toMatchSnapshot();
 });

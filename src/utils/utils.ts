@@ -358,3 +358,22 @@ export function isNotANumber(v: any) {
 export function isNumberAndNotNaN(v: any): v is number {
   return typeof v === "number" && !isNaN(v);
 }
+
+export function createDynamicColor(n: number, min: number, max: number) {
+  const x = createDynamicRelativeValue(n, min, max);
+  return `rgb(${x * 255},${255 - x * 255},${255})`;
+}
+export function createDynamicRelativeValue(
+  n: number,
+  min: number,
+  max: number
+) {
+  if (n >= max) {
+    return 1;
+  }
+  if (n <= min) {
+    return 0;
+  }
+
+  return n / (max - min);
+}

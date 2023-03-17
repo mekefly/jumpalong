@@ -35,7 +35,7 @@ function handleSendEvent(event: EventTemplate) {
 
 <template>
   <div class="flex flex-col h-full overflow-auto">
-    <ScrollbarVue>
+    <ScrollbarVue class="flex-shrink flex-1 h-0">
       <n-tabs
         default-value="MyFeed"
         justify-content="space-evenly"
@@ -56,7 +56,7 @@ function handleSendEvent(event: EventTemplate) {
       </n-tabs>
     </ScrollbarVue>
     <!-- <EditNewMessage /> -->
-    <RichTextEditBoxVue @send="handleSendEvent" class="flex-shrink-0" />
+    <RichTextEditBoxVue @send="handleSendEvent" class="flex-shrink-1" />
   </div>
 </template>
 
