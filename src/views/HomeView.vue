@@ -25,8 +25,7 @@ function handleSendEvent(event: EventTemplate) {
     onOK({ ok, url }) {
       if (ok) {
         success(`已发布到${url}`);
-      }
-      {
+      } else {
         error(`没有发布到${url}`);
       }
     },
