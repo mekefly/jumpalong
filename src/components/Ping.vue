@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { config } from "@/nostr/nostr";
 import { removeLocalStorage, useCache } from "@/utils/cache";
 import { useElementIntoScreen } from "@/utils/use";
 import { debounce, ping } from "@/utils/utils";
@@ -50,11 +51,11 @@ function toPing(noCache = false) {
   }
 }
 const debounceToPng = debounce(toPing);
-const isAutoPingKey = Symbol() as InjectionKey<boolean>;
-const isAutoPing = inject(isAutoPingKey, false);
+const isAutoPingKey = Symbol() as InjectionKey<Ref<boolean>>;
+const isAutoPing = inject(isAutoPingKey);
 
 watchEffect(() => {
-  if (!intoScreen.value && isAutoPing) return;
+  if (!(intoScreen.value && (isAutoPing?.value ?? config.autoPing))) return;
   debounceToPng();
 });
 
@@ -97,22 +98,33 @@ function rePing() {
         :style="{
           color: `rgb(${statusColor},${255 - statusColor},0)`,
         }"
-        >{{ delay }}
+      >
+        {{ delay }}
       </span>
       <span
-        v-else-if="!delay && !isOvertime && !wrongUrl"
-        :style="{
-          color: '#3742fa',
-        }"
-        >ping</span
-      >
-      <span
-        v-else
+        v-else-if="wrongUrl"
         :style="{
           color: 'red',
         }"
-        >!</span
       >
+        !
+      </span>
+      <span
+        v-else-if="isOvertime"
+        :style="{
+          color: 'orange',
+        }"
+      >
+        {{ overtime }}
+      </span>
+      <span
+        v-else
+        :style="{
+          color: '#3742fa',
+        }"
+      >
+        ping
+      </span>
     </div>
   </n-button>
 </template>

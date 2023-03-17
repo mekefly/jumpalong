@@ -58,5 +58,5 @@ it("matchTagPlaceholderRegExp", () => {
 it("matchTagPlaceholderRegExp", () => {
   expect(
     matchTagPlaceholderRegExp().test("#[##[0#[1]]]")
-  ).toMatchInlineSnapshot('true');
+  ).toMatchInlineSnapshot("true");
 });
