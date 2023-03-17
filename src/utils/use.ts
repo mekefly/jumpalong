@@ -207,20 +207,26 @@ export function useAsyncData<E>(cb: () => Promise<E>): Ref<E | undefined> {
 
   return data as any;
 }
-export function useLazyComponent<E>(
-  getter: ComputedGetter<E>
-): [globalThis.ComputedRef<E | null>, Ref<any>] {
+export function useLazyComponent<E>(getter: ComputedGetter<E>) {
   const target = ref<any>();
   const isIntoScreen = useElementIntoScreen(target);
 
-  let cache: any = null;
-  const data: ComputedRef<E | null> = computed(() => {
-    if (cache) return cache;
-    if (!isIntoScreen.value) return null;
-    return (cache = getter());
+  //懒加载进入屏幕
+  let isShow = ref(isIntoScreen.value);
+  const unwatch = watch(isIntoScreen, () => {
+    if (isIntoScreen.value) {
+      isShow.value = true;
+      unwatch();
+    }
   });
 
-  return [data, target];
+  let cache: any = null;
+  const data: ComputedRef<E | null> = computed(() => {
+    if (!isShow.value) return null;
+    return cache || (cache = getter());
+  });
+
+  return [data, target, isShow] as const;
 }
 export function useLazyData<E>(
   cb: () => Promise<E>
