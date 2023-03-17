@@ -6,13 +6,26 @@ import {
 } from "@/nostr/staff/createUseChannelMetadata";
 import { MentionOption } from "naive-ui";
 import { Event } from "nostr-tools";
+const props = defineProps<{
+  rawValue: string;
+}>();
+const { rawValue } = toRefs(props);
 
 const emit = defineEmits<{
   (e: "change", str: string, options: { tags: string[][] }): void;
   (e: "blur"): void;
+  (e: "update:rawValue", v: string): void;
 }>();
 
-const value = ref("");
+const value = computed({
+  get() {
+    return rawValue.value;
+  },
+  set(v) {
+    emit("update:rawValue", v);
+  },
+});
+
 const userMap = new Map<string, { event: Event; metadata: ChannelMetadata }>();
 const eventMap = new Map<string, { event: Event }>();
 
@@ -31,9 +44,6 @@ for (const pubkey in Kind0eventMap) {
   userRef.push({ label: name, value: name, key: event.pubkey });
 }
 
-watch(value, () => {
-  console.log(value.value);
-});
 const options = ref<MentionOption[]>([]);
 function handleSearch(value: string, prefix: string) {
   if (prefix === "@") {

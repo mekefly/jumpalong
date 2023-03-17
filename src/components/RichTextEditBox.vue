@@ -3,12 +3,17 @@ import { createEvent } from "@/nostr/event";
 import { debounce } from "@/utils/utils";
 import { Event, EventTemplate } from "nostr-tools";
 import ContentVue from "./Content.vue";
+import EmojiBoxVue from "./EmojiBox.vue";
+import { usePrivateRichTextEditBoxEmiterEmiter } from "./RichTextEditBox";
 import RichTextEditBoxInputVue from "./RichTextEditBoxInput.vue";
 import ScrollbarVue from "./Scrollbar.vue";
 
 const emit = defineEmits<{
   (e: "send", event: EventTemplate): void;
 }>();
+const emiter = usePrivateRichTextEditBoxEmiterEmiter();
+
+const rawValue = ref("");
 
 const event = ref<Event>(
   createEvent({
@@ -35,7 +40,7 @@ function handleSend() {
 }
 const handelLeave = debounce(() => {
   isEnter.value = false;
-}, 200);
+}, 500);
 const handleEnter = () => {
   handelLeave.clear?.();
   isEnter.value = true;
@@ -43,6 +48,10 @@ const handleEnter = () => {
 function handelBlur() {
   isEdit.value = false;
 }
+function handelClick(emoji: string) {
+  rawValue.value += emoji;
+}
+const isShowEmojiBox = ref(false);
 </script>
 
 <template>
@@ -51,7 +60,11 @@ function handelBlur() {
     class="w-full h-max box-border flex flex-col overflow-hidden"
     ref="target"
     :style="{
-      maxHeight: isEnter ? '30em' : '10em',
+      maxHeight: isShowEmojiBox
+        ? '100%'
+        : isEnter || isShowEmojiBox
+        ? '30em'
+        : '10em',
       // minHeight: isEnter && !isEdit ? '20em' : '8em',
       transition: 'max-height 300ms,min-height 300ms',
     }"
@@ -59,29 +72,40 @@ function handelBlur() {
     @mouseenter="handleEnter"
     @mouseleave="handelLeave"
   >
-    <n-divider
-      class="flex-shrink-0"
-      :style="{
-        marginBottom: '0.5em',
-        marginTop: '0.5em',
-      }"
-    />
+    <div class="w-full flex-shrink-0 flex flex-col justify-between pb-2">
+      <EmojiBoxVue :show="isShowEmojiBox" @click="handelClick" />
+      <n-divider
+        class="flex-shrink-0"
+        :style="{
+          marginBottom: '0.5em',
+          marginTop: '0.5em',
+        }"
+      />
+      <div class="flex justify-between">
+        <n-button
+          class="text-xl"
+          quaternary
+          @click="() => (isShowEmojiBox = !isShowEmojiBox)"
+        >
+          😁
+        </n-button>
+        <n-button :disabled="!event.content" type="primary" @click="handleSend">
+          发送
+        </n-button>
+      </div>
+    </div>
     <div class="flex-1 flex-shrink relative h-0">
       <ScrollbarVue>
         <div v-show="!isEdit && event.content">
           <ContentVue :event="event" />
         </div>
         <RichTextEditBoxInputVue
+          v-model:rawValue="rawValue"
           v-show="isEdit || !event.content"
           @blur="handelBlur"
           @change="handleChange"
         />
       </ScrollbarVue>
-    </div>
-    <div class="w-full flex-shrink-0 flex justify-end pt-2">
-      <n-button :disabled="!event.content" type="primary" @click="handleSend">
-        发送
-      </n-button>
     </div>
   </div>
 </template>

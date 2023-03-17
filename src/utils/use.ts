@@ -247,7 +247,10 @@ export function useLazyData<E>(
   });
   return [data, target];
 }
-export function useElementIntoScreen(target: Ref<HTMLDivElement | null>) {
+export function useElementIntoScreen(
+  target: Ref<HTMLDivElement | null>,
+  opt?: { delay?: number }
+) {
   const active = ref(true);
 
   const isIntoScreen = ref(false);
@@ -265,7 +268,7 @@ export function useElementIntoScreen(target: Ref<HTMLDivElement | null>) {
       isIntoScreen.value = false;
     }
   };
-  const debounceCall = debounce(call, 500);
+  const debounceCall = debounce(call, opt?.delay ?? 500);
   debounceCall();
 
   window.addEventListener("mousewheel", debounceCall);
