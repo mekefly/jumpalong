@@ -52,7 +52,7 @@ function toPing(noCache = false) {
 }
 const debounceToPng = debounce(toPing);
 const isAutoPingKey = Symbol() as InjectionKey<Ref<boolean>>;
-const isAutoPing = inject(isAutoPingKey);
+const isAutoPing = inject(isAutoPingKey, () => null, true);
 
 watchEffect(() => {
   if (!(intoScreen.value && (isAutoPing?.value ?? config.autoPing))) return;
