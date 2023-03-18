@@ -86,7 +86,13 @@ function parseRow(
       let url = regExpMatchArray[0] as string;
 
       //url部分
-      cols.push(["url", url]);
+      if (
+        [".jpg", ".jpeg", ".png", ".gif"].some((suffix) => url.endsWith(suffix))
+      ) {
+        cols.push(["img", url, url]);
+      } else {
+        cols.push(["url", url, url]);
+      }
 
       // 判断非数字和nan
       if (!isNumberAndNotNaN(index)) continue;
