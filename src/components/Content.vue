@@ -92,6 +92,10 @@ function parseRow(
         [".jpg", ".jpeg", ".png", ".gif"].some((suffix) => url.endsWith(suffix))
       ) {
         cols.push(["img", url, url]);
+      } else if (
+        [".mov", ".mp4", ".av1"].some((suffix) => url.endsWith(suffix))
+      ) {
+        cols.push(["video", url, url]);
       } else {
         if (row === url) {
           cols.push(["website", url, url]);
@@ -138,13 +142,24 @@ const [target, isShow] = useLazyShow(200);
       >
         <span
           v-for="item in row"
+          :key="item[1]"
           class="flex justify-start items-start"
           :class="{
-            'w-full': ['e', 'website', 'img'].some((v) => item[0] === v),
+            'w-full': ['e', 'website', 'img', 'video'].some(
+              (v) => item[0] === v
+            ),
           }"
         >
           <div v-if="item[0] === 'img'">
             <n-image class="img w-full" :src="item[1]" />
+          </div>
+          <div v-else-if="item[0] === 'video'" class="p-0 m-0 w-full h-auto">
+            <video
+              controls
+              class="overflow-hidden rounded-2xl w-full m-0 p-0 h-auto"
+            >
+              <source :src="item[1]" />
+            </video>
           </div>
           <ContentWebsiteVue
             v-else-if="item[0] === 'website'"
