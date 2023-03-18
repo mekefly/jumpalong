@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { NSkeleton, NSpace } from "naive-ui";
-import { Filter } from "nostr-tools";
+import { Event, Filter } from "nostr-tools";
 import { eventDeletion } from "../api/event";
 import { getShortTextEventBeltline } from "../api/shortTextEventBeltline";
 import PapawVue from "./Papaw.vue";
@@ -11,6 +11,10 @@ const props = defineProps<{
   url?: Set<string>;
   pubkey?: string[];
   filter?: Filter;
+  pushEvent?: (e: Event) => void;
+}>();
+const emit = defineEmits<{
+  (e: "update:pushEvent", v: (e: Event) => void): void;
 }>();
 const { pubkey, filter, url } = toRefs(props);
 
@@ -32,6 +36,10 @@ onUnmounted(() => {
 });
 
 const postEvents = computed(() => beltline.value.getList());
+
+emit("update:pushEvent", (e: Event) => {
+  beltline.value.pushEvent(e);
+});
 </script>
 
 <template>

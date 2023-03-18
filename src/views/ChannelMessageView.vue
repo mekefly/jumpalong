@@ -6,9 +6,10 @@ import {
 import contactConfiguration from "@/api/Contact";
 import AutoloadMoreVue from "@/components/AutoloadMore.vue";
 import PapawVue from "@/components/Papaw.vue";
+import { useRichTextEditBoxOpt } from "@/components/RichTextEditBox";
 import RichTextEditBoxVue from "@/components/RichTextEditBox.vue";
 import ScrollbarVue from "@/components/Scrollbar.vue";
-import { relayConfigurator } from "@/nostr/nostr";
+import { useHandleSendMessage } from "@/utils/use";
 import { EventTemplate } from "nostr-tools";
 import { computed } from "vue";
 import { useRoute } from "vue-router";
@@ -20,17 +21,14 @@ import {
 
 const route = useRoute();
 const eventId = computed<string>(() => route.params.eventId as string);
+
+//需要为显示区域和编辑区域架设一个隧道
 watchEffect(() => {
-  console.log("eventId.value", eventId.value);
+  useRichTextEditBoxOpt(eventId.value);
 });
 
 const messageBeltline = computed(() => {
-  console.log("messageBeltline", eventId.value);
-
   return getChannelMessageBeltline(eventId.value as string);
-});
-watchEffect(() => {
-  console.log(messageBeltline.value);
 });
 const messageList = computed(() => messageBeltline.value.getList());
 
@@ -43,29 +41,16 @@ const autoloadMoreVueRef = ref<null | HTMLElement>(null);
 const message = useMessage();
 function handleAutoLoadMore() {
   messageBeltline.value.feat.getMore();
-  message.info("已请求更多页面");
 }
 
 useUnlimitedLoad(handleAutoLoadMore);
 const { handleJoinChannel, handleLeaveChannel } =
   useJoinAndLeaveChannelHandle(eventId);
-const { success, error } = useMessage();
+const send = useHandleSendMessage(42, messageBeltline);
+
 function handleSend(event: EventTemplate) {
-  event.kind = 42;
   event.tags = [...event.tags, ["e", eventId.value, "root"]];
-
-  messageBeltline.value.publish(event, relayConfigurator.getWriteList(), {
-    addUrl: true,
-    onOK({ ok, message, url }) {
-      console.log("这是怎么");
-
-      if (ok) {
-        success(`消息在${url}发布成功了`);
-      } else {
-        error(`消息在${url}发布失败了,${message}`);
-      }
-    },
-  });
+  send(event);
 }
 </script>
 

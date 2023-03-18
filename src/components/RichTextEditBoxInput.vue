@@ -1,15 +1,22 @@
 <script lang="ts" setup>
-import ReplaceableEventMap from "@/nostr/ReplaceableEventMap";
-import {
-  ChannelMetadata,
-  parseMetadata,
-} from "@/nostr/staff/createUseChannelMetadata";
+import { useModelBind } from "@/utils/use";
 import { MentionOption } from "naive-ui";
-import { Event } from "nostr-tools";
+import { useRichTextEditBoxOpt } from "./RichTextEditBox";
+import {
+  useEventRef,
+  useParseTagsFunction,
+  useUserOpt,
+} from "./RichTextEditBoxInput";
+
 const props = defineProps<{
   rawValue: string;
 }>();
 const { rawValue } = toRefs(props);
+let lastChange = "";
+
+const richTextEditBoxOpt = useRichTextEditBoxOpt();
+
+console.log("RichTextEditBoxInput:隧道编号", richTextEditBoxOpt.id);
 
 const emit = defineEmits<{
   (e: "change", str: string, options: { tags: string[][] }): void;
@@ -17,72 +24,38 @@ const emit = defineEmits<{
   (e: "update:rawValue", v: string): void;
 }>();
 
-watch(rawValue, () => {
-  handleChange();
-});
+const value = useModelBind(props, "rawValue");
 
-const value = computed({
-  get() {
-    return rawValue.value;
+const { userRefMentionOption, userMap } = useUserOpt();
+const { eventMap, eventMentionOption, addEvent, replyEvent } =
+  useEventRef(value);
+const parseTags = useParseTagsFunction(userMap, eventMap);
+
+watch(
+  rawValue,
+  () => {
+    handleChange();
   },
-  set(v) {
-    emit("update:rawValue", v);
-  },
+  {
+    immediate: true,
+  }
+);
+
+richTextEditBoxOpt.onRichTextEditBox("reply", (e) => {
+  replyEvent(e);
 });
-
-const userMap = new Map<string, { event: Event; metadata: ChannelMetadata }>();
-const eventMap = new Map<string, { event: Event }>();
-
-const Kind0eventMap = ReplaceableEventMap.kind0.getAll();
-const userRef: MentionOption[] = reactive([]);
-
-for (const pubkey in Kind0eventMap) {
-  const event = Kind0eventMap[pubkey];
-  const metadata = parseMetadata(event);
-
-  const name = metadata.name ?? (event.pubkey?.slice(8) as string);
-  userMap.set(name, {
-    event,
-    metadata: metadata,
-  });
-  userRef.push({ label: name, value: name, key: event.pubkey });
-}
 
 const options = ref<MentionOption[]>([]);
 function handleSearch(value: string, prefix: string) {
+  console.log("prefix", prefix);
   if (prefix === "@") {
-    options.value = userRef;
-  } else {
+    options.value = userRefMentionOption;
+  } else if (prefix === "&") {
+    console.log("eventMentionOption", eventMentionOption);
+
+    options.value = eventMentionOption;
   }
 }
-const tags = computed(() => {});
-function parseTags(text: string) {
-  const tags: string[][] = [];
-  const postMessage = text.replace(/@\S+|#\S+|&\S+/g, (str) => {
-    const prefix = str[0];
-    const name = str.slice(1);
-    switch (prefix) {
-      case "@":
-        //人
-        const data = userMap.get(name);
-        if (!data) return str;
-        tags.push(["p", data.event.pubkey]);
-        return `#[${tags.length - 1}]`;
-      case "#":
-        tags.push(["t", name]);
-        return `#[${tags.length - 1}]`;
-      case "&":
-        const data1 = eventMap.get(name);
-        if (!data1) return str;
-        tags.push(["e", data1.event.id as string]);
-        return `#[${tags.length - 1}]`;
-      default:
-        return str;
-    }
-  });
-  return [postMessage, tags] as const;
-}
-let lastChange = "";
 function handleChange() {
   const v = value.value;
   if (lastChange === v) return;
@@ -105,7 +78,7 @@ function handleChange() {
     show-count
     :maxlength="3000"
     v-model:value="value"
-    :options="userRef"
+    :options="options"
     :prefix="['@', '&']"
     @search="handleSearch"
   />

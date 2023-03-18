@@ -7,6 +7,7 @@ import {
   getSetIncrement,
   reverseSearchInsertOnObjectList,
   searchInsertOnObjectList,
+  setAdds,
 } from "../utils/utils";
 import { createEvent } from "./event";
 import { IdGenerator } from "./IdGenerator";
@@ -19,6 +20,7 @@ import {
   type Staff,
 } from "./staff";
 import { createFilterStaff } from "./staff/createFilterStaff";
+import { deserializeTagR } from "./tag";
 import { userKey } from "./user";
 
 const EventBeltlineSetSlef: new (slef: any) => {} = function (
@@ -341,7 +343,7 @@ export class EventBeltline<
       } catch (error) {}
     });
   }
-  public async publish(
+  public publish(
     eventPart: Partial<Event>,
     urls: Set<string>,
     opt?: {
@@ -349,36 +351,60 @@ export class EventBeltline<
       addUrl?: boolean;
     }
   ) {
-    //自动判断是否已签名，如果没有自动添加url
-    if ((!eventPart.sig && !eventPart.id && urls.size !== 0) || opt?.addUrl) {
+    const publishToUrls = new Set(urls);
+
+    //签名是否正确的标志
+    let isReSig = false;
+
+    //验证签名
+    try {
+      //签名错误从新签名
+      !verifySignature(eventPart as Event) && (isReSig = true);
+    } catch (error) {
+      //签名检查报错，代表签名错误
+      isReSig = true;
+    }
+
+    //如果没有签名，自动添加一些内容
+    if (isReSig || opt?.addUrl) {
+      //从新签名
+      isReSig = true;
+
       const tags = eventPart.tags ?? [];
-      tags.push(...Array.from(urls, (v: string) => ["r", v]));
+      const relays = deserializeTagR(tags);
+
+      for (const url of publishToUrls) {
+        // 防止添加重复url
+        if (relays.has(url)) continue;
+        tags.push(["r", url]);
+      }
+      //将此event发布到回复者的url上去
+      setAdds(publishToUrls, relays);
+
       eventPart.tags = tags;
     }
+
     let event = eventPart as Event;
-
-    //验证是否是完整的event
-    let verify = false;
-    try {
-      verify = verifySignature(eventPart as Event);
-    } catch (error) {}
-
-    if (!verify) {
-      if (!event.pubkey || event.pubkey === userKey.value.publicKey) {
-        //不完整但是自己发送的，就从新签名
-        event = createEvent(eventPart);
-      } else {
-        //不完整也不是自己发送的
+    if (isReSig) {
+      //如果公钥存在，并且不是自己的话，认为是非法信息不发布
+      if (eventPart.pubkey && eventPart.pubkey !== userKey.value.publicKey)
         return;
-      }
+
+      //不完整但是自己发送的，就从新签名
+      event = createEvent(eventPart);
     }
 
+    // push到本地
     this.pushEvent(event);
+
+    //设置监听
     opt?.onOK && this.relayEmiter.on("ok", event.id, opt.onOK);
 
+    // pushEvent
     for (const url of urls) {
       this.toPublish(url, event);
     }
+    return event;
   }
 
   private req(url: string, filters: Filter[]) {

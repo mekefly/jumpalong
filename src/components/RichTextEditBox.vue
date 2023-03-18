@@ -1,25 +1,24 @@
 <script lang="ts" setup>
 import { createEvent } from "@/nostr/event";
 import { debounce } from "@/utils/utils";
-import { Event, EventTemplate } from "nostr-tools";
+import { EventTemplate } from "nostr-tools";
 import ContentVue from "./Content.vue";
 import EmojiBoxVue from "./EmojiBox.vue";
-import { usePrivateRichTextEditBoxEmiterEmiter } from "./RichTextEditBox";
+import { useCacheTextValue, useRichTextEditBoxOpt } from "./RichTextEditBox";
 import RichTextEditBoxInputVue from "./RichTextEditBoxInput.vue";
 import ScrollbarVue from "./Scrollbar.vue";
+
+const richTextEditBoxOpt = useRichTextEditBoxOpt();
+
+console.debug("RichTextEditBox:隧道编号", richTextEditBoxOpt.id);
 
 const emit = defineEmits<{
   (e: "send", event: EventTemplate): void;
 }>();
-const emiter = usePrivateRichTextEditBoxEmiterEmiter();
 
 const rawValue = ref("");
+const event = useCacheTextValue(toRef(richTextEditBoxOpt, "id"));
 
-const event = ref<Event>(
-  createEvent({
-    kind: 1,
-  })
-);
 const isEnter = ref(false);
 const isEdit = ref(false);
 

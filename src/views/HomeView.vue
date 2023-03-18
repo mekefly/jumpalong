@@ -1,15 +1,16 @@
 <script lang="ts" setup>
+import { useRichTextEditBoxOpt } from "@/components/RichTextEditBox";
 import RichTextEditBoxVue from "@/components/RichTextEditBox.vue";
 import ScrollbarVue from "@/components/Scrollbar.vue";
-import { rootEventBeltline } from "@/nostr/nostr";
-import relayConfigurator from "@/nostr/relayConfigurator";
-import { EventTemplate } from "nostr-tools";
+import { useHandleSendMessage } from "@/utils/use";
 import contactConfiguration from "../api/Contact";
 import PostList from "../components/PostList.vue";
 
 logger.for("home.vue").info("home.vue");
 
-const { success, error } = useMessage();
+//需要为显示区域和编辑区域架设一个隧道
+const v = useRichTextEditBoxOpt("home");
+console.debug("HomeView:useRichTextEditBoxOpt", v.id);
 
 const pubkeys = computed(() => {
   const pubkeys = Object.keys(
@@ -18,19 +19,7 @@ const pubkeys = computed(() => {
   return pubkeys;
 });
 
-function handleSendEvent(event: EventTemplate) {
-  event.kind = 1;
-  rootEventBeltline.publish(event, relayConfigurator.getWriteList(), {
-    addUrl: true,
-    onOK({ ok, url }) {
-      if (ok) {
-        success(`已发布到${url}`);
-      } else {
-        error(`没有发布到${url}`);
-      }
-    },
-  });
-}
+const handleSendEvent = useHandleSendMessage(1);
 </script>
 
 <template>

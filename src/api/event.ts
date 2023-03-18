@@ -1,9 +1,10 @@
 import { createEvent } from "@/nostr/event";
 import { relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
 import createOneEventStaff from "@/nostr/staff/createOneEventStaff";
+import getCacheStaff from "@/nostr/staff/storage/getCacheStaff";
 import setCacheStaff from "@/nostr/staff/storage/setCacheStaff";
 import { userKey } from "@/nostr/user";
-import { getCache, useCache } from "@/utils/cache";
+import { useCache } from "@/utils/cache";
 import { syncInterval } from "@/utils/utils";
 import { Event } from "nostr-tools";
 // import { relayQuery } from "../nostr";
@@ -35,56 +36,47 @@ export async function publishEvent(
 }
 
 export function getEventLineById(eventId: string, opt?: { url?: Set<string> }) {
-  return useCache("getEventLineById" + eventId, () => {
-    const line = createEventBeltlineReactive({
-      describe: "获取id通过id",
-    })
-      .addFilter({ ids: [eventId], limit: 1 })
-      .addStaff(setCacheStaff())
-      .addStaff(createOneEventStaff());
-    // .addStaff(createAutomaticRandomRequestStaff());
+  return useCache(
+    "getEventLineById" + eventId,
+    () => {
+      const line = createEventBeltlineReactive({
+        describe: "获取Event通过id",
+      })
+        .addFilter({ ids: [eventId], limit: 1 })
+        .addStaff(createOneEventStaff())
+        .addStaff(getCacheStaff(eventId));
 
-    if (hasEvent()) return line;
+      if (hasEvent()) return line;
+      line.addStaff(setCacheStaff()).addExtends(rootEventBeltline);
 
-    const req = () => {
-      if (hasEvent()) return;
+      if (hasEvent()) return line;
 
-      if (opt?.url) {
-        line.addRelayUrls(opt.url);
+      const req = () => {
+        if (hasEvent()) return;
 
-        setTimeout(() => {
-          const e = line.feat.useEvent();
-          if (e) return;
+        if (opt?.url && opt.url.size > 0) {
+          line.addRelayUrls(opt.url);
+          setTimeout(() => {
+            if (hasEvent()) return;
+            line.addReadUrl();
+          }, 2000);
+        } else {
           line.addReadUrl();
-        }, 2000);
-      } else {
-        line.addReadUrl();
+        }
+      };
+
+      syncInterval(`getEventLineById:${eventId}`, () => {
+        req();
+      });
+
+      function hasEvent() {
+        return Boolean(line.feat.useEvent());
       }
 
-      // line.feat.startAutomaticRandomRequestStaff();
-      // //得到结果就关闭
-      // line.feat.onHasEventOnce(() => {
-      //   line.feat.stopAutomaticRandomRequestStaff();
-      //   line.closeReq();
-      // });
-    };
-
-    syncInterval(`getEventLineById:${eventId}`, () => {
-      req();
-    });
-
-    function hasEvent() {
-      if (Boolean(line.feat.useEvent())) {
-        return true;
-      }
-      const cacheEvent: Event = getCache(eventId, {});
-      if (cacheEvent) {
-        line.pushEvent(cacheEvent);
-        return true;
-      }
-      return false;
+      return line;
+    },
+    {
+      useLocalStorage: false,
     }
-
-    return line;
-  });
+  );
 }

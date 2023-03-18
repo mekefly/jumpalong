@@ -34,7 +34,7 @@ export function usePushShortTextNote() {
     pushEvent.value = event;
     router.push({
       name: "short-text-note",
-      params: { eventId: neventEncodeByEvent(event) },
+      params: { value: neventEncodeByEvent(event) },
     });
   };
 }

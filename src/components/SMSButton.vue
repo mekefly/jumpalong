@@ -13,6 +13,8 @@ import { userKey } from "../nostr/user";
 import { useBlackData } from "../views/ContentBlacklistView";
 
 import MoreIconVue from "./icon/MoreIcon.vue";
+import { useRichTextEditBoxOpt } from "./RichTextEditBox";
+const richTextEditBoxOpt = useRichTextEditBoxOpt();
 
 const { success, info, error } = useMessage();
 const props = defineProps<{
@@ -59,6 +61,9 @@ const handleMap = {
   pushShortTextNote() {
     pushShortTextNote(event.value);
   },
+  reply() {
+    richTextEditBoxOpt.emitRichTextEditBox("reply", event.value);
+  },
 };
 const runOperate = (key: string) => {
   (handleMap as any)[key]?.();
@@ -79,8 +84,12 @@ const options = ref<SelectMixedOption[]>([
     ? [{ label: "屏蔽这条消息", value: "joinTheBlacklist" }]
     : []),
   {
-    label: "回复详情",
+    label: "详情",
     value: "pushShortTextNote",
+  },
+  {
+    label: "回复",
+    value: "reply",
   },
   {
     label: "复制Nevent",

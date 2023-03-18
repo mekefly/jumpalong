@@ -299,6 +299,7 @@ export function setAdds<T>(set: Set<T>, iterable: Iterable<T>) {
   for (const item of iterable) {
     set.add(item);
   }
+  return set;
 }
 
 /**

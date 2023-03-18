@@ -11,6 +11,13 @@ export function deserializeTagR(serializedArray: string[][]): Set<string> {
   url.delete("");
   return url;
 }
+export function getRootTagE(serializedArray: string[][]): string[] | undefined {
+  for (const item of serializedArray) {
+    if (item[0] === "e" && item[3] === "root") {
+      return item;
+    }
+  }
+}
 
 export type WritableReadableList = {
   readUrl: Set<string>;

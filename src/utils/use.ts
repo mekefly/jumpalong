@@ -1,8 +1,11 @@
+import { EventBeltline } from "@/nostr/eventBeltline";
+import { relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
 import type { MaybeRef } from "@vueuse/core";
-import type { Event } from "nostr-tools";
+import type { Event, EventTemplate } from "nostr-tools";
 import {
   computed,
   ComputedGetter,
+  getCurrentInstance,
   onUpdated,
   ref,
   unref,
@@ -13,7 +16,7 @@ import {
 import { useRouter } from "vue-router";
 import { eventDeletion } from "../api/event";
 import { type CallBackT } from "./types";
-import { debounce } from "./utils";
+import { debounce, setAdds } from "./utils";
 
 export function useNextUpdate() {
   const callBacks: any[] = [];
@@ -286,4 +289,53 @@ export function useElementIntoScreen(
     window.removeEventListener("resize", debounceCall);
   });
   return isIntoScreen;
+}
+
+export function useHandleSendMessage(
+  kind: number,
+  line: MaybeRef<EventBeltline<any> | undefined> = rootEventBeltline,
+  pushEvent?: Ref<((e: Event) => void) | undefined>,
+  opt?: {
+    urls?: MaybeRef<Set<string>>;
+  }
+) {
+  const { urls = new Set<string>() } = opt ?? {};
+  const { success, error } = useMessage();
+
+  return function handleSendEvent(event: EventTemplate) {
+    event.kind = kind;
+    const l = unref(line) ?? rootEventBeltline;
+    const newEvent = l.publish(
+      event,
+      setAdds(unref(urls), relayConfigurator.getWriteList()),
+      {
+        addUrl: true,
+        onOK({ ok, url }) {
+          if (ok) {
+            success(`已发布到${url}`);
+          } else {
+            error(`没有发布到${url}`);
+          }
+        },
+      }
+    );
+    newEvent && pushEvent?.value?.(newEvent);
+  };
+}
+export function useModelBind<
+  T extends {},
+  P extends Exclude<keyof T, symbol | number>
+>(props: T, name: P): Ref<T[P]> {
+  const instance = getCurrentInstance();
+  if (!instance) {
+    throw new Error("只能在setup里使用");
+  }
+  return computed({
+    get() {
+      return props[name];
+    },
+    set(v) {
+      instance.emit(`update:${name}`, v);
+    },
+  });
 }

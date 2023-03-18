@@ -6,7 +6,8 @@ export const scrollbarInstKey: InjectionKey<{
   scrollbarInst: Ref<ScrollbarInst | null>;
   onScroll: (handle: (e: Event) => void) => void;
   removeScrollListener: (handle: (e: Event) => void) => void;
-}> = Symbol();
+}> = Symbol("scrollbarInstKey");
+
 const eventEmitter = new EventEmitter();
 export const useProviteScrollbarInstRef = () => {
   const scrollbarInstRef = ref<ScrollbarInst | null>(null);
@@ -25,5 +26,5 @@ export const useProviteScrollbarInstRef = () => {
   return { scrollbarInstRef, handleOnScroll };
 };
 export const useInjectScrollbarInstRef = () => {
-  return inject(scrollbarInstKey);
+  return inject(scrollbarInstKey, () => undefined, true);
 };
