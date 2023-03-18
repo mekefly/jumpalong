@@ -67,9 +67,9 @@ export function useEventRef(value: Ref<string>) {
 export function useParseTagsFunction(userMap: UserMap, eventMap: EventMap) {
   function parseTags(text: string) {
     const tags: string[][] = [];
-    const postMessage = text.replace(/@\S+|#\S+|&\S+/g, (str) => {
+    const postMessage = text.replace(/@\S+|(\s|^)#\S+|&\S+/g, (str) => {
       const prefix = str[0];
-      const name = str.slice(1);
+      let name = str.slice(1);
       switch (prefix) {
         case "@":
           //人
@@ -78,6 +78,9 @@ export function useParseTagsFunction(userMap: UserMap, eventMap: EventMap) {
           const s = deserializeTagR(data.event.tags);
           tags.push(["p", data.event.pubkey, [...s][0]]);
           return `#[${tags.length - 1}]`;
+        case "\n":
+        case " ":
+          name = name.slice(1);
         case "#":
           tags.push(["t", name]);
           return `#[${tags.length - 1}]`;

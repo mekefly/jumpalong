@@ -2,9 +2,11 @@
 import ReplaceableEventMap from "@/nostr/ReplaceableEventMap";
 import { parseMetadata } from "@/nostr/staff/createUseChannelMetadata";
 import { matchTagPlaceholderRegExp, matchUrlRegExp } from "@/utils/RegExpUtils";
+import { useLazyShow } from "@/utils/use";
 import { isNumberAndNotNaN } from "@/utils/utils";
 import { Event, nip19 } from "nostr-tools";
 import ContentReplyItemVue from "./ContentReplyItem.vue";
+import ContentWebsiteVue from "./ContentWebsite.vue";
 
 const props = defineProps<{ event: Event; contenteditable?: boolean }>();
 const { event, contenteditable } = toRefs(props);
@@ -91,7 +93,11 @@ function parseRow(
       ) {
         cols.push(["img", url, url]);
       } else {
-        cols.push(["url", url, url]);
+        if (row === url) {
+          cols.push(["website", url, url]);
+        } else {
+          cols.push(["url", url, url]);
+        }
       }
 
       // 判断非数字和nan
@@ -119,66 +125,67 @@ const rows = computed(() => {
   parseRow(event.value.content, rows);
   return rows;
 });
+const [target, isShow] = useLazyShow(200);
 </script>
 
 <template>
-  <div class="w-full">
-    <div
-      v-for="row in rows"
-      class="w-full flex flex-wrap justify-start items-start"
-    >
-      <span
-        v-for="item in row"
-        class="flex justify-start items-start"
-        :class="{
-          'w-full': item[0] === 'e',
-        }"
+  <div class="w-full" ref="target">
+    <n-spin v-if="!isShow" class="w-full h-64" />
+    <div v-else>
+      <div
+        v-for="row in rows"
+        class="w-full flex flex-wrap justify-start items-start"
       >
-        <div v-if="item[0] === 'img'">
-          <n-image class="img w-full" :src="item[1]" />
-        </div>
-
-        <a
-          v-else-if="item[0] === 'website'"
-          class="break-words"
-          :href="item[1]"
-        >
-          {{ item[1] }}
-        </a>
-        <a v-else-if="item[0] === 'url'" class="break-words" :href="item[2]">
-          {{ item[1] }}
-        </a>
-        <router-link
-          v-else-if="item[0] === 'p'"
-          :to="{ name: 'profile', params: { value: item[2] } }"
-        >
-          {{ item[1] }}
-        </router-link>
-        <ContentReplyItemVue
-          v-else-if="item[0] === 'e'"
-          :event="event"
-          :nevent="item[1]"
-          :tag="item[2]"
-        />
-        <a
-          v-else-if="item[0] === 'url'"
-          class="break-words block"
-          :href="item[2]"
-        >
-          {{ item[1] }}
-        </a>
-        <br v-else-if="item[0] === 'enter'" class="break-words block" />
         <span
-          v-else
-          class="flex"
-          style="
-            table-layout: fixed;
-            word-break: break-all;
-            word-wrap: break-word;
-          "
-          v-text="item[1].replace(' ', '&nbsp')"
-        />
-      </span>
+          v-for="item in row"
+          class="flex justify-start items-start"
+          :class="{
+            'w-full': ['e', 'website', 'img'].some((v) => item[0] === v),
+          }"
+        >
+          <div v-if="item[0] === 'img'">
+            <n-image class="img w-full" :src="item[1]" />
+          </div>
+          <ContentWebsiteVue
+            v-else-if="item[0] === 'website'"
+            :key="item[1]"
+            :src="item[1]"
+          />
+          <a v-else-if="item[0] === 'url'" class="break-words" :href="item[2]">
+            {{ item[1] }}
+          </a>
+          <router-link
+            v-else-if="item[0] === 'p'"
+            :to="{ name: 'profile', params: { value: item[2] } }"
+          >
+            {{ item[1] }}
+          </router-link>
+          <ContentReplyItemVue
+            v-else-if="item[0] === 'e'"
+            :event="event"
+            :nevent="item[1]"
+            :tag="item[2]"
+          />
+          <a
+            v-else-if="item[0] === 'url'"
+            class="break-words block"
+            :href="item[2]"
+          >
+            {{ item[1] }}
+          </a>
+          <br v-else-if="item[0] === 'enter'" class="break-words block" />
+          <span
+            v-else
+            class="flex"
+            style="
+              table-layout: fixed;
+              word-break: break-all;
+              word-wrap: break-word;
+            "
+            v-text="item[1].replace(' ', '&nbsp')"
+          />
+        </span>
+      </div>
     </div>
   </div>
 </template>

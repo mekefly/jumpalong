@@ -101,13 +101,13 @@ export function useIfTransition(duration: MaybeRef<number> = 500) {
   }
 
   return {
-    show,
-    hidden,
+    show, //显示
+    hidden, //隐藏
     active,
-    transitionActive,
-    safeActive,
-    transitioning,
-    duration: ref(duration),
+    transitionActive, //动画
+    safeActive, //v-if
+    transitioning, // 动画进行中
+    duration: ref(duration), //动画持续时间
   };
 }
 
@@ -250,6 +250,19 @@ export function useLazyData<E>(
   });
   return [data, target];
 }
+export function useLazyShow(delay?: number) {
+  const target = ref(null);
+  const isIntoScreen = useElementIntoScreen(target, { delay });
+
+  let isShow = ref(isIntoScreen.value);
+  const unwatch = watch(isIntoScreen, () => {
+    if (isIntoScreen.value) {
+      isShow.value = true;
+      unwatch();
+    }
+  });
+  return [target, isShow];
+}
 export function useElementIntoScreen(
   target: Ref<HTMLDivElement | null>,
   opt?: { delay?: number }
@@ -338,4 +351,20 @@ export function useModelBind<
       instance.emit(`update:${name}`, v);
     },
   });
+}
+export function useScale(scale = 0.5625) {
+  const target = ref<HTMLElement | null>(null);
+
+  onMounted(() => {
+    setupHeight();
+  });
+  useEventListener(window, "resize", () => {
+    setupHeight();
+  });
+
+  function setupHeight() {
+    if (!target.value) return;
+    target.value.style.height = target.value.scrollWidth * scale + "px";
+  }
+  return [target];
 }
