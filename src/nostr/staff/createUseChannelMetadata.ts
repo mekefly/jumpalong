@@ -54,4 +54,7 @@ export type ChannelMetadata = {
   about?: string; //- Channel description
   picture?: string; //- URL of channel picture
   relayUrls?: string[];
+  display_name?: string;
+  displayName?: string;
+  username?: string;
 };

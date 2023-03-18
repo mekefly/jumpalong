@@ -7,6 +7,7 @@ import { isNumberAndNotNaN } from "@/utils/utils";
 import { Event, nip19 } from "nostr-tools";
 import ContentReplyItemVue from "./ContentReplyItem.vue";
 import ContentWebsiteVue from "./ContentWebsite.vue";
+import UserLinkVue from "./UserLink.vue";
 
 const props = defineProps<{ event: Event; contenteditable?: boolean }>();
 const { event, contenteditable } = toRefs(props);
@@ -129,7 +130,7 @@ const rows = computed(() => {
   parseRow(event.value.content, rows);
   return rows;
 });
-const [target, isShow] = useLazyShow(200);
+const [target, isShow] = useLazyShow(400);
 </script>
 
 <template>
@@ -169,12 +170,8 @@ const [target, isShow] = useLazyShow(200);
           <a v-else-if="item[0] === 'url'" class="break-words" :href="item[2]">
             {{ item[1] }}
           </a>
-          <router-link
-            v-else-if="item[0] === 'p'"
-            :to="{ name: 'profile', params: { value: item[2] } }"
-          >
-            {{ item[1] }}
-          </router-link>
+
+          <UserLinkVue v-else-if="item[0] === 'p'" :value="item[2]" />
           <ContentReplyItemVue
             v-else-if="item[0] === 'e'"
             :event="event"
