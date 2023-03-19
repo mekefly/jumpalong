@@ -26,7 +26,7 @@ const isEdit = ref(false);
 
 const target = ref(null);
 onClickOutside(target, (event) => {
-  if (isEnter.value) return;
+  isEnter.value = false;
   isEdit.value = false;
 });
 
@@ -42,7 +42,7 @@ function handleSend() {
 }
 const handelLeave = debounce(() => {
   isEnter.value = false;
-}, 500);
+}, 5000);
 const handleEnter = () => {
   handelLeave.clear?.();
   isEnter.value = true;
@@ -118,7 +118,6 @@ const customRequest = async ({
       transition: 'max-height 300ms,min-height 300ms',
     }"
     @dblclick="() => (isEdit = true)"
-    @mouseenter="handleEnter"
     @mouseleave="handelLeave"
   >
     <div class="w-full flex-shrink-0 flex flex-col justify-between">
@@ -153,7 +152,7 @@ const customRequest = async ({
         marginTop: '0.5em',
       }"
     />
-    <div class="flex-1 flex-shrink relative h-0">
+    <div class="flex-1 flex-shrink relative h-0" @mouseenter="handleEnter">
       <ScrollbarVue>
         <div v-show="!isEdit && event.content">
           <ContentVue :event="event" />

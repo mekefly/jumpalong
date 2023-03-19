@@ -23,11 +23,16 @@ export function useUserOpt() {
     const metadata = parseMetadata(event);
 
     const name = metadata.name ?? (event.pubkey?.slice(8) as string);
-    userMap.set(name, {
+    const encodeName = encodeURI(name);
+    userMap.set(encodeName, {
       event,
       metadata: metadata,
     });
-    userRefMentionOption.push({ label: name, value: name, key: event.pubkey });
+    userRefMentionOption.push({
+      label: name,
+      value: encodeName,
+      key: event.pubkey,
+    });
   }
   return { userRefMentionOption, userMap };
 }
