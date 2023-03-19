@@ -5,6 +5,7 @@ import ProfileMoreInfoVue from "@/components/ProfileMoreInfo.vue";
 import UserInformationButtonVue from "@/components/UserInformationButton.vue";
 import { relayConfigurator } from "@/nostr/nostr";
 import { toDeCodeNprofile } from "@/utils/nostr";
+import { useScale } from "@/utils/use";
 import { nip19 } from "nostr-tools";
 import { computed } from "vue";
 import { userKey } from "../nostr/user";
@@ -39,48 +40,75 @@ const isFollow = computed(() => {
   if (!pubkey.value) return false;
   return contactConfiguration.isFollow(pubkey.value);
 });
+watchEffect(() => {
+  console.log("metadata", metadata.value);
+});
+function handelClick() {
+  if (!pubkey.value) {
+    return;
+  }
+  if (isFollow.value) {
+    contactConfiguration.unFollow(pubkey.value);
+  } else {
+    contactConfiguration.follow(pubkey.value);
+  }
+}
+const [target] = useScale(0.3);
 </script>
 
 <template>
-  <div v-if="pubkey">
-    <div class="">
-      <NAvatar round :size="100" :src="metadata?.picture ?? ''" />
+  <div v-if="pubkey" class="w-full h-full">
+    <div ref="target" class="h-0 w-full relative" :style="{}">
+      <n-image
+        :src="metadata?.banner ?? metadata?.picture"
+        object-fit="cover"
+        class="w-full h-full banner"
+      />
+      <NAvatar
+        class="absolute bottom-0 left-2"
+        :style="{
+          transform: `translate(0,50%)`,
+        }"
+        round
+        :size="100"
+        :src="metadata?.picture ?? ''"
+      />
     </div>
-
-    <h1 class="flex items-center">
-      {{ metadata?.name ?? profilePointer?.pubkey.slice(0, 10) }}
-
-      <n-button
-        class="ml-4"
-        v-if="!isFollow && !isItMe"
-        strong
-        round
-        type="primary"
-        @click="() => contactConfiguration.follow(profilePointer?.pubkey)"
-      >
-        Flower
-      </n-button>
-      <n-button
-        class="ml-4"
-        v-if="isFollow && !isItMe"
-        strong
-        round
-        type="tertiary"
-        @click="() => contactConfiguration.unFollow(profilePointer?.pubkey)"
-      >
-        Unflower
-      </n-button>
-
-      <div class="ml-4" v-if="profilePointer?.pubkey">
-        <UserInformationButtonVue :pubkey="pubkey" />
-      </div>
-    </h1>
     <div>
-      {{ metadata?.about }}
+      <div class="flex items-center justify-end px-8 mt-4">
+        <n-space>
+          <n-button
+            class="ml-4"
+            v-if="!isItMe"
+            strong
+            round
+            :type="isFollow ? 'warning' : 'primary'"
+            @click="handelClick"
+          >
+            {{ isFollow ? "UnFollow" : "Follow" }}
+          </n-button>
+
+          <div v-if="pubkey">
+            <UserInformationButtonVue :pubkey="pubkey" />
+          </div>
+        </n-space>
+      </div>
+
+      <h1 class="flex items-center">
+        {{ metadata?.name ?? profilePointer?.pubkey.slice(0, 10) }}
+      </h1>
+      <div>
+        {{ metadata?.about }}
+      </div>
     </div>
 
     <ProfileMoreInfoVue v-if="pubkey" :pubkey="pubkey" />
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.banner >>> img {
+  height: 100%;
+  width: 100%;
+}
+</style>

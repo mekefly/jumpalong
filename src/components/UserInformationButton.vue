@@ -4,6 +4,7 @@ import { useRecommendUser, useRecommendUserMetadata } from "@/state/nostr";
 import { nip19 } from "nostr-tools";
 import { relayConfigurator } from "../nostr/nostr";
 import { renderIcon, useClipboard } from "../utils/naiveUi";
+import MoreIconVue from "./icon/MoreIcon.vue";
 import PencilVue from "./icon/Pencil.vue";
 import ShareSocialVue from "./icon/ShareSocial.vue";
 import UserDataEditingVue from "./UserDataEditing.vue";
@@ -107,8 +108,8 @@ const options = ref<any>(
 
 <template>
   <NDropdown placement="bottom-start" trigger="click" :options="options">
-    <NButton tertiary circle>
-      <MoreIcon />
+    <NButton circle type="info">
+      <MoreIconVue />
     </NButton>
   </NDropdown>
   <n-modal v-model:show="showModal">

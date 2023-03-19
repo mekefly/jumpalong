@@ -11,7 +11,7 @@ logger.for("app.vue").info("进入app.vue");
   <n-config-provider :theme="theme">
     <n-dialog-provider>
       <n-message-provider>
-        <div class="w-full h-screen">
+        <div class="w-full h-screen overflow-hidden">
           <router-view v-slot="{ Component }">
             <keep-alive>
               <component :is="Component" />

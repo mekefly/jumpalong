@@ -1,14 +1,18 @@
 <script lang="ts" setup>
 import { createEvent } from "@/nostr/event";
-import { matchNostrBuildResponseText } from "@/utils/RegExpUtils";
-import { createId, debounce, myRequest } from "@/utils/utils";
-import { UploadCustomRequestOptions } from "naive-ui";
+import { createId, debounce } from "@/utils/utils";
 import { Event, EventTemplate } from "nostr-tools";
 import ContentVue from "./Content.vue";
 import EmojiBoxVue from "./EmojiBox.vue";
-import { useRichTextEditBoxOpt } from "./RichTextEditBox";
+import {
+  useDragFileUpload,
+  usePasteFile,
+  useRichTextEditBoxOpt,
+} from "./RichTextEditBox";
 import RichTextEditBoxInputVue from "./RichTextEditBoxInput.vue";
 import ScrollbarVue from "./Scrollbar.vue";
+import { useUpload } from "./Upload";
+import UploadButtonVue from "./UploadButton.vue";
 
 const richTextEditBoxOpt = useRichTextEditBoxOpt();
 
@@ -24,7 +28,7 @@ const event = ref<Event>(createEvent({}));
 const isEnter = ref(false);
 const isEdit = ref(false);
 
-const target = ref(null);
+const target = ref(null as HTMLElement | null);
 onClickOutside(target, (event) => {
   isEnter.value = false;
   isEdit.value = false;
@@ -54,55 +58,23 @@ function handelClick(emoji: string) {
   rawValue.value += emoji;
 }
 const isShowEmojiBox = ref(false);
-const message = useMessage();
-const customRequest = async ({
-  file,
-  data,
-  headers,
-  withCredentials,
-  action,
-  onFinish,
-  onError,
-  onProgress,
-}: UploadCustomRequestOptions) => {
+const upload = useUpload();
+async function uploadFile(file: File) {
   const key = `$$${createId()}$$`;
   if (rawValue.value.length === 0) {
     rawValue.value += `${key}\n`;
   } else {
     rawValue.value += `\n${key}\n`;
   }
-  const formData = new FormData();
 
-  formData.append("fileToUpload", file.file as File);
-  const formurl = "https://nostr.build/upload.php";
+  const opt = await upload(file);
 
-  myRequest(formurl, {
-    method: "post",
-    body: formData,
-    onProgress,
-  })
-    .then(({ text }) => {
-      const responseText = text;
+  rawValue.value = rawValue.value.replace(key, opt.url);
+}
 
-      const regExpMatchArray =
-        matchNostrBuildResponseText()[Symbol.match](responseText);
+usePasteFile(target, uploadFile);
 
-      if (!regExpMatchArray) return Promise.reject();
-      const url = regExpMatchArray[0];
-      if (!url) return Promise.reject();
-
-      file.url = url;
-
-      rawValue.value = rawValue.value.replace(key, url);
-
-      onFinish();
-      message.success("上传成功");
-    })
-    .catch(() => {
-      message.error("上传失败");
-      onError();
-    });
-};
+useDragFileUpload(target, uploadFile, {});
 </script>
 
 <template>
@@ -130,16 +102,20 @@ const customRequest = async ({
         }"
       />
       <div class="flex justify-between">
-        <n-button
-          class="text-xl"
-          quaternary
-          @click="() => (isShowEmojiBox = !isShowEmojiBox)"
-        >
-          😁
-        </n-button>
-        <n-upload :customRequest="customRequest">
-          <n-button>上传文件</n-button>
-        </n-upload>
+        <div>
+          <n-space>
+            <n-button
+              class="text-xl"
+              quaternary
+              @click="() => (isShowEmojiBox = !isShowEmojiBox)"
+            >
+              😁
+            </n-button>
+
+            <UploadButtonVue :upload="uploadFile" />
+          </n-space>
+        </div>
+
         <n-button :disabled="!event.content" type="primary" @click="handleSend">
           发送
         </n-button>

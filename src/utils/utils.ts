@@ -343,7 +343,6 @@ export function _new<Args extends any[]>(
 
   //3将构造函数的属性和方法添加到这个新对象中
   let result = constructor.apply(target, args) as any;
-  console.log(result);
 
   if (result && (typeof result == "object" || typeof result == "function")) {
     return result;

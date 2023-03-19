@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import FaviconVue from "@/components/icon/Favicon.vue";
+import UploadVue from "@/components/Upload.vue";
 import { relayPool } from "@/nostr/nostr";
 import { createDynamicColor } from "@/utils/utils";
 import { lightTheme } from "naive-ui";
@@ -27,6 +28,7 @@ const subIdSize = computed(() => relayPool.allSubIds.size);
       </span>
       <SearchFormVue></SearchFormVue>
       <n-space class="flex justify-center items-center">
+        <UploadVue />
         <n-tooltip trigger="hover">
           <template #trigger>
             <span
@@ -73,7 +75,7 @@ const subIdSize = computed(() => relayPool.allSubIds.size);
         <Sidebar :collapsed="collapsed" />
       </n-layout-sider>
       <n-layout content-style="padding: 24px;">
-        <div class="h-[100%]">
+        <div class="h-full overflow-x-hidden">
           <router-view v-slot="{ Component }">
             <keep-alive>
               <component :is="Component" />

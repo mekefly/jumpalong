@@ -3,6 +3,7 @@ import relayConfigurator from "@/nostr/relayConfigurator";
 import { NButton, NInput, NSpace } from "naive-ui";
 import { getUserMetadataLineByPubkey, UserMetaData } from "../api/user";
 import { userKey } from "../nostr/user";
+import UploadButtonVue from "./UploadButton.vue";
 
 const message = useMessage();
 const emit = defineEmits<{
@@ -47,7 +48,7 @@ async function send() {
 
 <template>
   <n-card
-    style="width: 600px"
+    class="w-[600px] max-w-full max-h-full"
     title="编辑用户信息"
     :bordered="false"
     size="huge"
@@ -65,11 +66,36 @@ async function send() {
         placeholder="介绍"
         v-model:value="userMetadataByPubkey.about"
       />
-      <n-input
-        type="text"
-        placeholder="profileUrl"
-        v-model:value="userMetadataByPubkey.picture"
-      />
+      <div class="flex">
+        <n-input
+          type="text"
+          placeholder="profileUrl"
+          v-model:value="userMetadataByPubkey.picture"
+        />
+        <UploadButtonVue
+          class="ml-2"
+          @upload-result="
+            ({ url }) => {
+              userMetadataByPubkey.picture = url;
+            }
+          "
+        />
+      </div>
+      <div class="flex">
+        <n-input
+          type="text"
+          placeholder="banner"
+          v-model:value="userMetadataByPubkey.banner"
+        />
+        <UploadButtonVue
+          class="ml-2"
+          @upload-result="
+            ({ url }) => {
+              userMetadataByPubkey.banner = url;
+            }
+          "
+        />
+      </div>
       <n-input
         type="text"
         placeholder="nip5用户认证"

@@ -90,7 +90,9 @@ function parseRow(
 
       //url部分
       if (
-        [".jpg", ".jpeg", ".png", ".gif"].some((suffix) => url.endsWith(suffix))
+        [".jpg", ".jpeg", ".png", ".gif", ".bmp"].some((suffix) =>
+          url.endsWith(suffix)
+        )
       ) {
         cols.push(["img", url, url]);
       } else if (

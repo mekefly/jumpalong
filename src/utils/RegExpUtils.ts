@@ -18,5 +18,5 @@ export function matchTagPlaceholderRegExp() {
   return /#\[(\d+)\]/g;
 }
 export function matchNostrBuildResponseText() {
-  return /https:\/\/nostr.build\/i\/nostr.build_df[a-zA-Z0-9]*(.[a-zA-Z]+)?/;
+  return /https:\/\/nostr.build\/i\/nostr.build_[a-zA-Z0-9]*(.[a-zA-Z]+)?/;
 }

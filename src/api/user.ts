@@ -173,4 +173,5 @@ export interface UserMetaData {
   about?: string;
   picture?: string;
   nip05?: string;
+  banner?: string;
 }

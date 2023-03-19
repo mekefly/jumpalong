@@ -57,4 +57,5 @@ export type ChannelMetadata = {
   display_name?: string;
   displayName?: string;
   username?: string;
+  banner?: string;
 };
