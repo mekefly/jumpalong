@@ -3,10 +3,10 @@ import { createEvent } from "@/nostr/event";
 import { matchNostrBuildResponseText } from "@/utils/RegExpUtils";
 import { createId, debounce, myRequest } from "@/utils/utils";
 import { UploadCustomRequestOptions } from "naive-ui";
-import { EventTemplate } from "nostr-tools";
+import { Event, EventTemplate } from "nostr-tools";
 import ContentVue from "./Content.vue";
 import EmojiBoxVue from "./EmojiBox.vue";
-import { useCacheTextValue, useRichTextEditBoxOpt } from "./RichTextEditBox";
+import { useRichTextEditBoxOpt } from "./RichTextEditBox";
 import RichTextEditBoxInputVue from "./RichTextEditBoxInput.vue";
 import ScrollbarVue from "./Scrollbar.vue";
 
@@ -19,7 +19,7 @@ const emit = defineEmits<{
 }>();
 
 const rawValue = ref("");
-const event = useCacheTextValue(toRef(richTextEditBoxOpt, "id"));
+const event = ref<Event>(createEvent({}));
 
 const isEnter = ref(false);
 const isEdit = ref(false);

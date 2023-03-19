@@ -1,6 +1,3 @@
-import { createEvent } from "@/nostr/event";
-import { defaultCacheOptions, getCache, setCache } from "@/utils/cache";
-import { CacheOptions } from "@/utils/cache/types";
 import { createId } from "@/utils/utils";
 import { MaybeRef } from "@vueuse/core";
 import { EventEmitter } from "events";
@@ -46,33 +43,4 @@ export function useRichTextEditBoxOpt(id: MaybeRef<string> = createId()) {
     },
     true
   );
-}
-const cacheOptions: CacheOptions = {
-  ...defaultCacheOptions,
-  duration: 1000 * 60 * 60,
-};
-export function useCacheTextValue(id: Ref<string>) {
-  const event = ref<Event>(
-    createEvent({
-      kind: 1,
-    })
-  );
-  watch(
-    id,
-    () => {
-      try {
-        const c = getCache(`RichTextEditBox:${id.value}`, cacheOptions);
-        console.log("获取到缓存了", c);
-
-        event.value = c;
-      } catch (error) {}
-    },
-    {
-      immediate: true,
-    }
-  );
-  watch(event, () => {
-    setCache(`RichTextEditBox:${id.value}`, event.value, cacheOptions);
-  });
-  return event;
 }

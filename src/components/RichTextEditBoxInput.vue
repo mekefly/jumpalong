@@ -3,6 +3,8 @@ import { useModelBind } from "@/utils/use";
 import { MentionOption } from "naive-ui";
 import { useRichTextEditBoxOpt } from "./RichTextEditBox";
 import {
+  SourceOptions,
+  useCacheTextValue,
   useEventRef,
   useParseTagsFunction,
   useUserOpt,
@@ -19,7 +21,11 @@ const richTextEditBoxOpt = useRichTextEditBoxOpt();
 console.log("RichTextEditBoxInput:隧道编号", richTextEditBoxOpt.id);
 
 const emit = defineEmits<{
-  (e: "change", str: string, options: { tags: string[][] }): void;
+  (
+    e: "change",
+    str: string,
+    options: { tags: string[][]; sourceOptions: SourceOptions }
+  ): void;
   (e: "blur"): void;
   (e: "update:rawValue", v: string): void;
 }>();
@@ -56,14 +62,16 @@ function handleSearch(value: string, prefix: string) {
     options.value = eventMentionOption;
   }
 }
+const { changeSourceCache } = useCacheTextValue(userMap, eventMap, value);
 function handleChange() {
   const v = value.value;
   if (lastChange === v) return;
   lastChange = v;
 
-  const [postMessage, tags] = parseTags(v);
+  const [postMessage, tags, sourceOptions] = parseTags(v);
+  changeSourceCache(sourceOptions);
 
-  emit("change", postMessage, { tags });
+  emit("change", postMessage, { tags, sourceOptions });
 }
 </script>
 
