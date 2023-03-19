@@ -378,3 +378,38 @@ export function createDynamicRelativeValue(
 
   return n / (max - min);
 }
+export async function myRequest(
+  url: string,
+  opt: {
+    method: "put" | "post";
+    body: FormData;
+    onProgress: (e: { percent: number }) => void;
+  }
+) {
+  return new Promise<{ text: string; event: ProgressEvent<EventTarget> }>(
+    (resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open(opt.method, url);
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          opt.onProgress({ percent: (event.loaded / event.total) * 100 });
+        }
+      };
+      xhr.onerror = (e) => {
+        reject(e);
+      };
+      xhr.onabort = () => {
+        reject("已取消上传");
+      };
+      xhr.upload.onabort = () => {
+        reject("已取消上传");
+      };
+      xhr.onload = (e) => {
+        if (xhr.status === 200) {
+          resolve({ text: (e as any).target.responseText, event: e });
+        }
+      };
+      xhr.send(opt.body);
+    }
+  );
+}
