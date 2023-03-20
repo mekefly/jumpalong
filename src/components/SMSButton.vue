@@ -125,9 +125,9 @@ const options = ref<SelectMixedOption[]>([
     :options="options"
     trigger="click"
   >
-    <n-button quaternary circle
-      ><n-icon><MoreIconVue /></n-icon
-    ></n-button>
+    <n-button quaternary circle>
+      <n-icon> <MoreIconVue /> </n-icon>
+    </n-button>
   </n-popselect>
 </template>
 

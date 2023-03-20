@@ -10,7 +10,6 @@ const url = computed(() => {
   }
 
   const u = slots.default?.()[0] as any;
-  console.log("u", u);
   if (u && typeof u.children === "string") {
     return u.children;
   }

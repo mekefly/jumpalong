@@ -26,8 +26,12 @@ export function toFilters(event: Event, filters: Filter[], length: number) {
   });
 }
 
-export function toFilter(event: Event, filter: Filter, length: number) {
-  const { ids, kinds, authors, since, until, limit } = filter;
+export function toFilter(
+  event: Event,
+  filter: Filter & { search?: string },
+  length: number
+) {
+  const { ids, kinds, authors, since, until, limit, search } = filter;
 
   if (ids && !ids.includes(event.id as any)) {
     return false;
@@ -42,6 +46,11 @@ export function toFilter(event: Event, filter: Filter, length: number) {
   } else if (limit && !(length < limit)) {
     return false;
   } else if (!filterTags(filter, event.tags)) {
+    return false;
+  } else if (
+    search &&
+    !JSON.stringify(event).toLowerCase().includes(search.toLowerCase())
+  ) {
     return false;
   } else {
     return true;

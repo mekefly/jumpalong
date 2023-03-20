@@ -77,7 +77,6 @@ export function getUserMetadataLineByPubkey(pubkey: string, url?: Set<string>) {
         .addStaff(createEoseUnSubStaff());
 
       const event = ReplaceableEventMap.kind0.getEvent(pubkey);
-      console.log("ReplaceableEventMap", event);
 
       if (event) {
         line.pushEvent(event);

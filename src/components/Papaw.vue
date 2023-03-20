@@ -8,9 +8,12 @@ import UserInfoVue from "./UserInfo.vue";
 
 const props = defineProps<{
   event: Event;
-  deleteEvent: (id: string) => void;
+  deleteEvent?: (id: string) => void;
 }>();
 const { event, deleteEvent } = toRefs(props);
+function handelDeleteEvent(e: string) {
+  deleteEvent?.value?.(e);
+}
 </script>
 
 <template>
@@ -21,7 +24,7 @@ const { event, deleteEvent } = toRefs(props);
           <DateTimeVue :secondTimestamp="event.created_at" />
         </template>
         <template #right>
-          <SMSButtonVue :event="event" :deleteEvent="deleteEvent" />
+          <SMSButtonVue :event="event" :deleteEvent="handelDeleteEvent" />
         </template>
       </UserInfoVue>
     </div>

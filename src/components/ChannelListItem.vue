@@ -15,7 +15,16 @@ watchEffect(() => {
 </script>
 
 <template>
-  <div class="flex flex-col">
+  <div
+    class="flex flex-col"
+    @click="
+      () =>
+        $router.push({
+          name: 'channel-message',
+          params: { eventId: metadata.eventId },
+        })
+    "
+  >
     <div class="font-bold">
       <EllipsisVue>{{
         metadata.name ?? metadata.eventId.slice(0, 6)

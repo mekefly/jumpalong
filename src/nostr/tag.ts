@@ -18,6 +18,14 @@ export function getRootTagE(serializedArray: string[][]): string[] | undefined {
     }
   }
 }
+export function getTagEOfFirst(tags: string[][]): string[] | void {
+  for (const tag of tags) {
+    if (tag[0] === "e") {
+      return tag;
+    }
+  }
+  return;
+}
 
 export type WritableReadableList = {
   readUrl: Set<string>;

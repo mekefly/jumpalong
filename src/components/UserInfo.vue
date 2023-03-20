@@ -28,6 +28,17 @@ const router = useRouter();
 function routerPush(pubkey: string) {
   router.push(`/profile/${pubkey}`);
 }
+
+const name = computed(() => {
+  if (!metadata.value) return pubkey.value.slice(0, 10);
+  for (const key of ["name", "display_name", "displayName", "username"]) {
+    const n = (metadata.value as any)[key];
+    if (n?.length ?? 0 > 0) {
+      return n;
+    }
+  }
+  return pubkey.value.slice(0, 10);
+});
 </script>
 
 <template>
@@ -39,7 +50,7 @@ function routerPush(pubkey: string) {
     />
     <div class="flex-grow flex-shrink">
       <div class="font-bold ml-4" @click="() => routerPush(pubkey)">
-        {{ metadata?.name ?? pubkey.slice(0, 6) }}
+        {{ name }}
       </div>
       <div class="ml-4">
         <slot name="bottom" :userInfo="metadata"></slot>
