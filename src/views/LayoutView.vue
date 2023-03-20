@@ -1,67 +1,32 @@
 <script lang="ts" setup>
-import FaviconVue from "@/components/icon/Favicon.vue";
-import UploadVue from "@/components/Upload.vue";
-import { relayPool } from "@/nostr/nostr";
-import { createDynamicColor } from "@/utils/utils";
-import { lightTheme } from "naive-ui";
+import LayoutHeaderVue from "@/components/LayoutHeader.vue";
+import { useThemeVars } from "naive-ui";
 import { ref } from "vue";
-import { switchTheme, theme } from "../app";
-import SearchFormVue from "../components/SearchForm.vue";
 import Sidebar from "../components/Sidebar.vue";
 
 const collapsed = ref(true);
-const poolSize = computed(() => relayPool.getPool().size);
-const subIdSize = computed(() => relayPool.allSubIds.size);
+const themeVars = useThemeVars();
 </script>
 <template>
   <n-layout style="height: 100vh">
     <n-layout-header
-      style="height: 64px"
-      class="flex justify-between items-center p-4 box-border"
+      class="h-14 md:h-20 flex justify-between items-center px-3"
+      :style="{
+        transition: 'height 0.5s',
+      }"
       bordered
     >
-      <span class="text-xl font-bold flex justify-center items-center">
-        <n-icon class="ml-1">
-          <FaviconVue />
-        </n-icon>
-        <span class="ml-6"> Jumpalong </span>
-      </span>
-      <SearchFormVue></SearchFormVue>
-      <n-space class="flex justify-center items-center">
-        <UploadVue />
-        <n-tooltip trigger="hover">
-          <template #trigger>
-            <span
-              :style="{
-                color: createDynamicColor(subIdSize, 20, 400),
-              }"
-            >
-              {{ subIdSize }}
-            </span>
-          </template>
-          当前订阅数，包括临时订阅
-        </n-tooltip>
-        |
-        <n-tooltip trigger="hover">
-          <template #trigger>
-            <span
-              :style="{
-                color: createDynamicColor(poolSize, 5, 30),
-              }"
-            >
-              {{ poolSize }}
-            </span>
-          </template>
-          当前与中续的连接数量
-        </n-tooltip>
-
-        <n-button quaternary @click="switchTheme">
-          {{ theme === lightTheme ? "浅色" : "深色" }}
-        </n-button>
-      </n-space>
+      <LayoutHeaderVue />
     </n-layout-header>
-    <n-layout position="absolute" style="top: 64px; bottom: 64px" has-sider>
+    <n-layout
+      class="absolute w-full top-14 md:top-20 bottom-5 md:bottom-7"
+      has-sider
+      :style="{
+        transition: 'top 0.5s, bottoom 0.5s',
+      }"
+    >
       <n-layout-sider
+        class="hidden md:flex"
         :native-scrollbar="false"
         bordered
         collapse-mode="width"
@@ -74,7 +39,7 @@ const subIdSize = computed(() => relayPool.allSubIds.size);
       >
         <Sidebar :collapsed="collapsed" />
       </n-layout-sider>
-      <n-layout content-style="padding: 24px;">
+      <n-layout content-style="padding: 8px;">
         <div class="h-full overflow-x-hidden">
           <router-view v-slot="{ Component }">
             <keep-alive>
@@ -84,8 +49,21 @@ const subIdSize = computed(() => relayPool.allSubIds.size);
         </div>
       </n-layout>
     </n-layout>
-    <n-layout-footer position="absolute" style="height: 64px" bordered>
-      <span class="flex items-center justify-center h-full w-full text-xs">
+    <n-layout-footer
+      class="h-5 md:h-7"
+      position="absolute"
+      bordered
+      :style="{
+        transition: 'height 0.5s',
+      }"
+    >
+      <span
+        class="flex items-center justify-center h-full w-full text-xs"
+        :style="{
+          color: themeVars.textColor3,
+          opacity: themeVars.opacity3,
+        }"
+      >
         {{ "Jumpalong __VERSION__ · Made by mekefly" }}
       </span>
     </n-layout-footer>

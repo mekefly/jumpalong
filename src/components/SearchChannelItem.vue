@@ -2,6 +2,7 @@
 import { parseMetadata } from "@/nostr/staff/createUseChannelMetadata";
 import { getTagEOfFirst } from "@/nostr/tag";
 import { Event } from "nostr-tools";
+import EllipsisVue from "./Ellipsis.vue";
 
 const props = defineProps<{
   event: Event;

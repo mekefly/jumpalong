@@ -107,7 +107,7 @@ const [target] = useScale(0.3);
 </template>
 
 <style scoped>
-.banner >>> img {
+.banner :deep() img {
   height: 100%;
   width: 100%;
 }

@@ -3,18 +3,7 @@
 @tailwind utilities;
 
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-  background-color: #ecf0f1;
 }
 
 #app {
-  width: 1280px;
-  max-width: 100%;
-  margin: 0 auto;
-  padding: 0rem;
-  overflow: hidden;
 }

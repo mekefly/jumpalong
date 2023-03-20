@@ -368,3 +368,10 @@ export function useScale(scale = 0.5625) {
   }
   return [target];
 }
+export function useDelayedLoading(number?: number) {
+  const show = ref(false);
+  setTimeout(() => {
+    show.value = true;
+  }, 0);
+  return show;
+}

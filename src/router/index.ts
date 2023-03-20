@@ -68,7 +68,7 @@ const router = createRouter({
           component: () => import("../views/ShortTextNoteView.vue"),
         },
         {
-          path: "/search/:value",
+          path: "/search/:value?",
           name: "search",
           component: () => import("../views/SearchView.vue"),
         },

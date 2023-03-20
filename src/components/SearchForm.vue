@@ -1,15 +1,15 @@
 <script lang="ts" setup>
-import { defaultCacheOptions } from "@/utils/cache";
+import { useDelayedLoading } from "@/utils/use";
 import { setAdds } from "@/utils/utils";
 import { DropdownMixedOption } from "naive-ui/es/dropdown/src/interface";
 import MdSearchVue from "./icon/MdSearch.vue";
+import { usePageViewTeleport } from "./SearchForm";
 
 const router = useRouter();
+const route = useRoute();
+
 const searchValue = ref("");
 
-const cacheOption = {
-  ...defaultCacheOptions,
-};
 const history = useLocalStorage<string[]>("search-history", []);
 const dropdownMixedOption = computed<DropdownMixedOption[]>(() => {
   const dropdownMixedOption: DropdownMixedOption[] = [];
@@ -17,22 +17,29 @@ const dropdownMixedOption = computed<DropdownMixedOption[]>(() => {
     dropdownMixedOption.push({
       label: item,
       value: item,
+      key: item,
     });
   }
 
   return dropdownMixedOption;
 });
-const message = useMessage();
+function pushToSearch() {
+  router.push({
+    name: "search",
+  });
+}
 function search() {
   const searchV = searchValue.value.trim();
+
   if (!searchV) {
-    message.info("请输入一些内容再搜索吧！");
+    pushToSearch();
     return;
   }
   const set = new Set<string>();
   set.add(searchV);
   setAdds(set, history.value);
   history.value = [...set].slice(0, 10);
+
   router.push({
     name: "search",
     params: {
@@ -41,38 +48,67 @@ function search() {
   });
 }
 const show = ref(false);
+
+const delayedLoadingTeleport = useDelayedLoading();
+
+const { teleportDisabled, isView: isSearchView } =
+  usePageViewTeleport("search");
+
+function hanedleSelect(value: string) {
+  show.value = false;
+  searchValue.value = value;
+  search();
+}
 </script>
 
 <template>
-  <div class="flex-shrink flex-1 max-w-xs">
-    <n-select
-      class="w-full"
-      v-model:value="searchValue"
-      v-model:show="show"
-      @keyup.enter="search"
-      placeholder="Search"
-      filterable
-      tag
-      :options="dropdownMixedOption"
+  <div v-if="!isSearchView" id="search-input"></div>
+  <Teleport
+    v-if="delayedLoadingTeleport"
+    :disabled="teleportDisabled"
+    to="#search-input"
+  >
+    <div
+      class="flex-shrink flex-1 max-w-xs"
+      :class="{
+        'hidden md:block': !isSearchView,
+      }"
     >
-      <template #arrow>
-        <div class="h-full w-full flex justify-center items-center">
-          <NButton
-            class="absolute"
-            size="tiny"
-            quaternary
-            circle
-            @click="search"
-          >
-            <template #icon>
-              <n-icon>
-                <MdSearchVue />
-              </n-icon>
-            </template>
-          </NButton>
-        </div>
+      <n-dropdown
+        :show="show"
+        @clickoutside="() => (show = false)"
+        :options="dropdownMixedOption"
+        @select="hanedleSelect"
+      >
+        <n-input
+          clearable
+          round
+          @keyup.enter="search"
+          v-model:value="searchValue"
+          @focus="() => (show = true)"
+          placeholder="Search"
+        >
+          <template #suffix>
+            <NButton class="ml-1" size="tiny" quaternary circle @click="search">
+              <template #icon>
+                <n-icon>
+                  <MdSearchVue />
+                </n-icon>
+              </template>
+            </NButton>
+          </template>
+        </n-input>
+      </n-dropdown>
+    </div>
+  </Teleport>
+  <div v-if="!isSearchView" class="md:hidden">
+    <NButton quaternary circle @click="pushToSearch">
+      <template #icon>
+        <n-icon>
+          <MdSearchVue />
+        </n-icon>
       </template>
-    </n-select>
+    </NButton>
   </div>
 </template>
 

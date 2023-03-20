@@ -46,13 +46,17 @@ emit("update:pushEvent", (e: Event) => {
   <div>
     <div class="p-6" v-if="!postEvents.length">
       <n-space vertical>
-        <n-card class="" v-for="_ in Array(10)">
+        <n-card class="" v-for="_ in Array(5)">
           <n-space vertical class="p-8">
-            <n-space class="flex" align="center">
-              <NSkeleton circle class="w-12 h-12"></NSkeleton>
-              <NSkeleton text class="w-80 h-6" :sharp="false"></NSkeleton>
-            </n-space>
-            <n-skeleton text :repeat="4" round />
+            <div class="flex items-center">
+              <NSkeleton circle class="w-12 h-12 flex-shrink-0"></NSkeleton>
+              <NSkeleton
+                text
+                class="w-80 flex-shrink h-6 ml-3"
+                :sharp="false"
+              ></NSkeleton>
+            </div>
+            <n-skeleton text :repeat="5" round />
           </n-space>
         </n-card>
       </n-space>

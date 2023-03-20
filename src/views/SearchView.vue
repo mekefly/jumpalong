@@ -2,6 +2,7 @@
 import { getEventLineById } from "@/api/event";
 import { getUserMetadataLineByPubkey } from "@/api/user";
 import PapawVue from "@/components/Papaw.vue";
+import RelayUrlShowVue from "@/components/RelayUrlShow.vue";
 import SearchChannelItemVue from "@/components/SearchChannelItem.vue";
 import UserInfoVue from "@/components/UserInfo.vue";
 import { EventBeltline } from "@/nostr/eventBeltline";
@@ -110,6 +111,9 @@ function classify<E extends GroupEvents>(e: Event, groupEvents: E) {
 
 <template>
   <n-space vertical>
+    <div class="flex items-center justify-center">
+      <div id="search-input"></div>
+    </div>
     <n-card class="w-full" title="群聊" v-if="groupEvents['channel']">
       <n-list class="w-full" hoverable clickable>
         <n-list-item
@@ -130,7 +134,7 @@ function classify<E extends GroupEvents>(e: Event, groupEvents: E) {
       </UserInfoVue>
     </n-card>
     <n-card title="relay" v-if="groupEvents[2]">
-      <RelayUrlShow
+      <RelayUrlShowVue
         v-for="event in groupEvents[2].getList()"
         :key="event.id"
         :url="event.content"

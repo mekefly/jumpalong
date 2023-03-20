@@ -16,11 +16,11 @@ const uploadingNumber = computed(
     <n-popover v-model:show="isShow" display-directive="show" trigger="manual">
       <template #trigger>
         <n-button quaternary @click="isShow = !isShow">
-          <n-icon>
+          <n-icon :size="20">
             <CloudUploadVue />
           </n-icon>
-          <span class="ml-1">
-            {{ uploadingNumber > 0 ? uploadingNumber : "" }}
+          <span v-if="uploadingNumber > 0" class="ml-1">
+            {{ uploadingNumber }}
           </span>
         </n-button>
       </template>

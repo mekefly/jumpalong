@@ -116,9 +116,25 @@ useDragFileUpload(target, uploadFile, {});
           </n-space>
         </div>
 
-        <n-button :disabled="!event.content" type="primary" @click="handleSend">
-          发送
-        </n-button>
+        <div>
+          <n-button
+            class="mr-2"
+            :disabled="!event.content"
+            @click="() => (isEdit = !isEdit)"
+          >
+            <n-icon>
+              <ReadOutlined v-if="isEdit" />
+              <Edit16Filled v-else />
+            </n-icon>
+          </n-button>
+          <n-button
+            :disabled="!event.content"
+            type="primary"
+            @click="handleSend"
+          >
+            发送
+          </n-button>
+        </div>
       </div>
     </div>
     <n-divider
@@ -130,7 +146,7 @@ useDragFileUpload(target, uploadFile, {});
     />
     <div class="flex-1 flex-shrink relative h-0" @mouseenter="handleEnter">
       <ScrollbarVue>
-        <div v-show="!isEdit && event.content">
+        <div class="px-3 py-2" v-show="!isEdit && event.content">
           <ContentVue :event="event" />
         </div>
         <RichTextEditBoxInputVue

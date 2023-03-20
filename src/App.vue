@@ -2,8 +2,8 @@
 import { NMessageProvider } from "naive-ui";
 // let's query for an event that exists
 import { NConfigProvider } from "naive-ui";
-
 import { theme } from "./app";
+import Main from "./Main.vue";
 logger.for("app.vue").info("进入app.vue");
 </script>
 
@@ -11,20 +11,10 @@ logger.for("app.vue").info("进入app.vue");
   <n-config-provider :theme="theme">
     <n-dialog-provider>
       <n-message-provider>
-        <div class="w-full h-screen overflow-hidden">
-          <router-view v-slot="{ Component }">
-            <keep-alive>
-              <component :is="Component" />
-            </keep-alive>
-          </router-view>
-        </div>
+        <Main></Main>
       </n-message-provider>
     </n-dialog-provider>
   </n-config-provider>
 </template>
 
-<style scoped>
-.box-shadow {
-  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
-}
-</style>
+<style scoped></style>
