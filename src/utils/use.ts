@@ -289,6 +289,7 @@ export function useElementIntoScreen(
 
   window.addEventListener("mousewheel", debounceCall);
   window.addEventListener("resize", debounceCall);
+  window.addEventListener("touchend", debounceCall);
 
   onActivated(() => {
     active.value = true;
@@ -300,6 +301,7 @@ export function useElementIntoScreen(
   onUnmounted(() => {
     window.removeEventListener("mousewheel", debounceCall);
     window.removeEventListener("resize", debounceCall);
+    window.removeEventListener("touchend", debounceCall);
   });
   return isIntoScreen;
 }
