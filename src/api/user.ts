@@ -30,33 +30,10 @@ export async function sendUserMetadataByPubkey(userMetaData: UserMetaData) {
       content: JSON.stringify(userMetaData),
     });
     setTimeout(reject, 20000);
-    publishEvent(event, {
-      ok() {
-        resolve();
-      },
-    });
+    publishEvent(event);
   });
 }
 
-// export async function getUserMetadataByPubkey(
-//   author: string,
-//   options?: { relayUrls?: ReadonlySet<string> }
-// ) {
-//   return Promise.race([
-//     getUserMetadataByRelayListMetadata(author),
-//     toUserMetadataById(
-//       options?.relayUrls ?? (relayConfigurator.getReadList() as any),
-//       author
-//     ),
-//   ]);
-// }
-// async function getUserMetadataByRelayListMetadata(author: string) {
-//   const relayListMetadataByPubkey = await getRelayListMetadataByPubkey(author);
-//   if (!relayListMetadataByPubkey) {
-//     throw new Error("出错了");
-//   }
-//   return toUserMetadataById(relayListMetadataByPubkey[0], author);
-// }
 export function getUserMetadataLineByPubkey(pubkey: string, url?: Set<string>) {
   return useCache(
     `getUserMetadataLineByPubkey:${pubkey}`,
@@ -143,24 +120,6 @@ export function getLocalKind0() {
   //   }
   // );
 }
-
-// function toUserMetadataById(url: Set<string>, author: string) {
-//   return new Promise<UserMetaData>(async (resolve, reject) => {
-//     const subIds = await sub([{ kinds: [0], authors: [author] }], {
-//       describe: "获取用户详细信息",
-//       useCache: true,
-//       relayUrls: url,
-//       even(e) {
-//         let metadata: UserMetaData = {};
-//         try {
-//           metadata = JSON.parse(e.content);
-//         } catch (error) {}
-//         unSub(subIds);
-//         resolve(metadata);
-//       },
-//     });
-//   });
-// }
 
 export interface userKey {
   privateKey: string;

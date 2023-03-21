@@ -1,4 +1,3 @@
-import { useLocalStorage } from "@vueuse/core";
 import { getPublicKey, nip19 } from "nostr-tools";
 import { computed, type Ref } from "vue";
 import { createPrikey, PRIVATE_KEY } from "../api/login";
@@ -6,9 +5,17 @@ import { createPrikey, PRIVATE_KEY } from "../api/login";
 /**
  *  私钥
  */
-export const privateKey: Ref<string> = useLocalStorage(
-  PRIVATE_KEY,
-  createPrikey
+export const privateKey: Ref<string> = ref(
+  (() => {
+    const prikey = localStorage.getItem(PRIVATE_KEY);
+    if (prikey) return prikey;
+    const newPrikey = createPrikey();
+    console.log("createPrikey");
+
+    localStorage.setItem(PRIVATE_KEY, newPrikey);
+    localStorage.setItem("newUserFlag", newPrikey);
+    return newPrikey;
+  })()
 );
 
 /**

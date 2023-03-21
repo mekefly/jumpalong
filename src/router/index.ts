@@ -1,5 +1,4 @@
 import { createRouter, createWebHashHistory } from "vue-router";
-import { PRIVATE_KEY } from "../api/login";
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -78,10 +77,11 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const prikey = window.localStorage.getItem(PRIVATE_KEY);
+  const prikey = localStorage.getItem("newUserFlag");
+  const currentPrikey = localStorage.getItem("prikey");
   if (to.name === "login") {
     next();
-  } else if (!prikey) {
+  } else if (prikey && prikey === currentPrikey) {
     next({ name: "login", query: { redirected: to.fullPath } });
   } else {
     next();

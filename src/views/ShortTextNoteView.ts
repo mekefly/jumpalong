@@ -23,7 +23,9 @@ export function useEvent() {
       return pushEvent.value;
     }
 
-    const line = getEventLineById(eventId.value);
+    const line = getEventLineById(eventId.value, {
+      url: new Set(neventOpt.value?.relays),
+    });
     return line?.feat.useEvent();
   });
 }

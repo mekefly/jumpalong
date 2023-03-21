@@ -34,6 +34,9 @@ const value = ref();
     <n-alert title="注意" type="info">
       请妥善保管您的私钥,一旦泄漏，您将被迫放弃此账户，也请注意，浏览器插件的安全性
     </n-alert>
+    <n-alert title="警告" type="warning">
+      如果您是老用户，第二次登录或在其他地方登录，请确保您的数据回归后再执行修改信息操作，否则会遮盖以前的数据，比如添加好友等操作，都会遮盖历史数据，确保您的好友列表加载完成后执行此操作
+    </n-alert>
     <n-checkbox v-model:checked="value"> 我已妥善保存私钥 </n-checkbox>
 
     <n-button

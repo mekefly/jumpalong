@@ -1,23 +1,27 @@
 import { createEvent } from "@/nostr/event";
-import { relayEmiter, rootEventBeltline } from "@/nostr/nostr";
 import {
   deserializeRelayConfiguration,
   deserializeTagRToReadWriteList,
   serializeRelayConfiguration,
 } from "@/nostr/tag";
-import { useCache } from "@/utils/cache";
-import { type Event } from "nostr-tools";
 import { reactive } from "vue";
+import { readListKey, writeListKey } from "./relayConfiguratorKeys";
+import { relayEmiter, rootEventBeltline } from "@/nostr/nostr";
 import { ReplaceableEventSyncAbstract } from "../api/ReplaceableEventSyncAbstract";
 import { timeout } from "../utils/utils";
-import { readListKey, writeListKey } from "./relayConfiguratorKeys";
+import { useCache } from "@/utils/cache";
 import { userKey } from "./user";
+import { type Event } from "nostr-tools";
 
 export const defaultUrls: string[] = (window as any).defaultRelayUrls ?? [
   "wss://no.str.cr",
   "wss://no-str.org",
   "wss://nos.lol",
   "wss://nostr.com.de",
+  "wss://relay.mostr.pub",
+  "wss://relay.nostr.wirednet.jp",
+  "wss://no-str.org",
+  "wss://brb.io",
 ];
 
 /**

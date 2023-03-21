@@ -88,10 +88,10 @@ export function getIncludeMergeByFilters(
   }
   return merageArr;
 }
-export function neventEncodeByEvent(event: Event) {
+export function neventEncodeByEvent(event: Event, moreUrls?: Set<string>) {
   const url = deserializeTagR(event.tags);
   return nip19.neventEncode({
     id: event.id as string,
-    relays: [...url],
+    relays: [...url, ...(moreUrls ?? [])],
   });
 }
