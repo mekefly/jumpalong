@@ -2,39 +2,34 @@
 import { relayConfigurator, relayPool } from "../nostr/nostr";
 import AddButtonVue from "./AddButton.vue";
 import ButtonCloseVue from "./ButtonClose.vue";
-import EllipsisVue from "./Ellipsis.vue";
-import RelayUrlShowVue from "./RelayUrlShow.vue";
+import RelayConnectListVue from "./RelayConnectList.vue";
 const pool = computed(() => {
   return relayPool.getPool();
+});
+const keys = computed(() => {
+  return [...pool.value.keys()];
 });
 </script>
 
 <template>
-  <n-card title="活动中继">
-    <n-table striped>
-      <tbody>
-        <tr class="flex" v-for="[url, relayConnect] in pool">
-          <td class="flex-grow">
-            <RelayUrlShowVue :url="url">
-              <EllipsisVue>
-                {{ url }}
-                ({{ relayConnect.subIds.size }})
-              </EllipsisVue>
-            </RelayUrlShowVue>
-          </td>
-          <td class="shrink-0">
-            <n-space justify="end" align="center">
-              <AddButtonVue
-                @click="() => relayConfigurator.addWriteRead(url as any)"
-              >
-              </AddButtonVue>
-              <ButtonCloseVue @close="() => relayConnect.close()" />
-            </n-space>
-          </td>
-        </tr>
-      </tbody>
-    </n-table>
-  </n-card>
+  <RelayConnectListVue :urls="keys" title="活动中继">
+    <template #right="{ url }">
+      <span class="flex-shrink-0"> ({{ pool.get(url)?.subIds.size }}) </span>
+      <AddButtonVue
+        :disabled="
+          relayConfigurator.hasReadByUrl(url) ||
+          relayConfigurator.hasWriteByUrl(url)
+        "
+        class="ml-2"
+        @click="() => relayConfigurator.addWriteRead(url as any)"
+      />
+      <ButtonCloseVue
+        class="ml-2"
+        @click="() => relayConfigurator.addWriteRead(url as any)"
+        @close="() => pool.get(url)?.close()"
+      />
+    </template>
+  </RelayConnectListVue>
 </template>
 
 <style scoped></style>

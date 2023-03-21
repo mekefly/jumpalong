@@ -7,16 +7,17 @@ const { numOfRows } = toRefs(props);
 
 <template>
   <div
-    class="overflow-hidden relative"
+    class="overflow-hidden relative wraps flex flex-shrink"
     :style="{
       height: `${numOfRows + 0.5}em`,
       fontSize: `${numOfRows}em`,
-      tableLayout: 'fixed',
-      wordBreak: 'break-all',
-      wordWrap: 'break-word',
     }"
   >
-    <span class="relative">
+    <span
+      :style="{
+        whiteSpace: 'nowrap',
+      }"
+    >
       <slot></slot>
       <n-tooltip trigger="hover">
         <template #trigger>
@@ -26,7 +27,16 @@ const { numOfRows } = toRefs(props);
         <slot></slot>
       </n-tooltip>
     </span>
+    <div class="w-4 flex-shrink"></div>
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.wraps {
+  mask-image: -webkit-linear-gradient(
+    left,
+    rgba(0, 0, 0, 1) calc(100% - 1em),
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+</style>

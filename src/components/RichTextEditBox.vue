@@ -4,6 +4,9 @@ import { createId, debounce } from "@/utils/utils";
 import { Event, EventTemplate } from "nostr-tools";
 import ContentVue from "./Content.vue";
 import EmojiBoxVue from "./EmojiBox.vue";
+import CloseVue from "./icon/Close.vue";
+import Edit16FilledVue from "./icon/Edit16Filled.vue";
+import ReadOutlinedVue from "./icon/ReadOutlined.vue";
 import {
   useDragFileUpload,
   usePasteFile,
@@ -119,12 +122,21 @@ useDragFileUpload(target, uploadFile, {});
         <div>
           <n-button
             class="mr-2"
+            @click="() => (rawValue = '')"
+            :disabled="!rawValue"
+          >
+            <n-icon>
+              <CloseVue />
+            </n-icon>
+          </n-button>
+          <n-button
+            class="mr-2"
             :disabled="!event.content"
             @click="() => (isEdit = !isEdit)"
           >
             <n-icon>
-              <ReadOutlined v-if="isEdit" />
-              <Edit16Filled v-else />
+              <ReadOutlinedVue v-if="isEdit" />
+              <Edit16FilledVue v-else />
             </n-icon>
           </n-button>
           <n-button
@@ -145,7 +157,7 @@ useDragFileUpload(target, uploadFile, {});
       }"
     />
     <div class="flex-1 flex-shrink relative h-0" @mouseenter="handleEnter">
-      <ScrollbarVue>
+      <ScrollbarVue class="h-full">
         <div class="px-3 py-2" v-show="!isEdit && event.content">
           <ContentVue :event="event" />
         </div>
@@ -153,6 +165,7 @@ useDragFileUpload(target, uploadFile, {});
           v-model:rawValue="rawValue"
           v-show="isEdit || !event.content"
           @blur="handelBlur"
+          @focus="() => (isEdit = true)"
           @change="handleChange"
         />
       </ScrollbarVue>

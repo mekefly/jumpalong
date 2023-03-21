@@ -1,37 +1,36 @@
 <script lang="ts" setup>
+import { useThemeVars } from "naive-ui";
 import { useToRelayInfo } from "../views/RelayInfoView";
+import EllipsisVue from "./Ellipsis.vue";
 import PingVue from "./Ping.vue";
-const props = defineProps<{ url?: string }>();
+const props = defineProps<{ url: string }>();
 
-const slots = useSlots();
-const url = computed(() => {
-  if (props.url) {
-    return props.url;
-  }
+const { url } = toRefs(props);
 
-  const u = slots.default?.()[0] as any;
-  if (u && typeof u.children === "string") {
-    return u.children;
-  }
-  return;
-});
-
+const themes = useThemeVars();
 const { toRelayInfoView } = useToRelayInfo();
+const active = ref(false);
 </script>
 
 <template>
   <div>
-    <n-button v-if="url" text @click="() => toRelayInfoView(url)">
-      <template #icon>
-        <n-icon> </n-icon>
-      </template>
-      <span class="ml-2 flex">
-        <span>
-          <PingVue :url="url" />
-        </span>
-        {{ url }}
+    <div
+      class="flex w-full button"
+      v-if="url"
+      @click="() => toRelayInfoView(url)"
+      @mouseenter="() => (active = true)"
+      @mouseleave="() => (active = false)"
+      :style="{
+        color: active ? themes.successColorHover : undefined,
+      }"
+    >
+      <span class="flex w-full">
+        <slot class="w-0 flex-1 flex-shrink">
+          <EllipsisVue>{{ url }}</EllipsisVue>
+        </slot>
+        <PingVue class="shrink-0" :url="url" />
       </span>
-    </n-button>
+    </div>
   </div>
 </template>
 

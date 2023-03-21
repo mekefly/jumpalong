@@ -4,6 +4,9 @@ import { removeLocalStorage, useCache } from "@/utils/cache";
 import { useElementIntoScreen } from "@/utils/use";
 import { debounce, ping } from "@/utils/utils";
 import { InjectionKey } from "vue";
+import NetworkCheckRoundVue from "./icon/NetworkCheckRound.vue";
+import WarningAmberRoundVue from "./icon/WarningAmberRound.vue";
+import Timer10SelectTwotone from "./icon/Timer10SelectTwotone.vue";
 
 const props = defineProps<{ url: string }>();
 const url = toRef(props, "url");
@@ -81,52 +84,39 @@ function rePing() {
 </script>
 
 <template>
-  <n-button
-    quaternary
-    round
-    class="mr-2"
-    @click.stop="rePing"
-    :loading="isLoading"
+  <div
+    :key="url"
+    ref="target"
+    class="rounded-full text-center felx items-center justify-center"
   >
-    <div
-      :key="url"
-      ref="target"
-      class="rounded-full w-8 text-center felx items-center justify-center"
+    <n-button
+      text
+      quaternary
+      round
+      @click.stop="rePing"
+      :loading="isLoading"
+      size="tiny"
     >
       <span
         v-if="delay"
         :style="{
+          fontSize: '0.5em',
           color: `rgb(${statusColor},${255 - statusColor},0)`,
         }"
       >
         {{ delay }}
       </span>
-      <span
-        v-else-if="wrongUrl"
-        :style="{
-          color: 'red',
-        }"
-      >
-        !
-      </span>
-      <span
-        v-else-if="isOvertime"
-        :style="{
-          color: 'orange',
-        }"
-      >
-        {{ overtime }}
-      </span>
-      <span
-        v-else
-        :style="{
-          color: '#3742fa',
-        }"
-      >
-        ping
-      </span>
-    </div>
-  </n-button>
+      <n-icon v-else-if="wrongUrl" color="red">
+        <WarningAmberRoundVue />
+      </n-icon>
+      <n-icon v-else-if="isOvertime" color="orange">
+        <Timer10SelectTwotone />
+      </n-icon>
+      <n-icon v-else-if="!isLoading" color="#3742fa">
+        <NetworkCheckRoundVue />
+      </n-icon>
+    </n-button>
+  </div>
 </template>
 
 <style scoped></style>

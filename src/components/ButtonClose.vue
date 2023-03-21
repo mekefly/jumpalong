@@ -9,6 +9,7 @@ const emit = defineEmits<{
 <template>
   <n-button
     quaternary
+    text
     circle
     type="error"
     class="text-[#6c5ce7] hover:text-[#a29bfe]"

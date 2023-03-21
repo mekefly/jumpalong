@@ -1,4 +1,7 @@
 <script lang="ts" setup>
+const props = defineProps<{
+  disabled?: boolean;
+}>();
 const emit = defineEmits<{
   (e: "click", id: number): void;
 }>();
@@ -6,8 +9,10 @@ const emit = defineEmits<{
 
 <template>
   <n-button
+    :disabled="props.disabled"
     quaternary
     circle
+    text
     type="primary"
     class="text-[#6c5ce7] hover:text-[#a29bfe]"
     @click="($event:any)=>emit('click',$event)"

@@ -27,6 +27,7 @@ const emit = defineEmits<{
     options: { tags: string[][]; sourceOptions: SourceOptions }
   ): void;
   (e: "blur"): void;
+  (e: "focus"): void;
   (e: "update:rawValue", v: string): void;
 }>();
 
@@ -81,6 +82,7 @@ function handleChange() {
     autosize
     class="w-full"
     @blur="() => $emit('blur')"
+    @focus="() => $emit('focus')"
     placeholder="你可以输入一些内容"
     @change="handleChange"
     show-count
