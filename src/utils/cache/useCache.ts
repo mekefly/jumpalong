@@ -1,5 +1,6 @@
 import { EventEmitter } from "events";
 import { isPromise, withDefault } from "../utils";
+import { cacheParser, cacheStringify, createCache } from "./cache";
 import { defaultCacheOptions } from "./defaultCacheOptions";
 import keylist from "./keylist";
 import { AsyncReCacheOptions, Cache, CacheOptions } from "./types";
@@ -200,6 +201,17 @@ export function getCache(
     return cache;
   }
 }
+export function getCacheOrNull<T>(
+  key: string,
+  options?: CacheOptions
+): null | T {
+  try {
+    return getCache(key, options);
+  } catch (error) {
+    return null;
+  }
+}
+
 /**
  * 设置缓存
  *
@@ -234,16 +246,15 @@ function getMemoryCache(key: string) {
  */
 export function getLocalStorageCache(key: string) {
   const catchString = getLocalStorageString(key);
-  const cache: Cache<any> = JSON.parse(catchString);
 
   try {
+    const cache: Cache<any> = cacheParser(catchString);
     checkCache(cache);
+    return cache.value;
   } catch (error) {
     keylist.deleteCacheKey(key);
     throw error;
   }
-
-  return cache.value;
 }
 
 export function deleteCache(key: string) {
@@ -284,11 +295,11 @@ function setMemoryCache(key: string, value: any) {
  * 设置LocalStorage缓存
  *
  * @param {string} key
- * @param {*} value
+ * @param {*} cache
  */
-export function setLocalStorage(key: string, value: any) {
+export function setLocalStorage(key: string, cache: any) {
   keylist.addCacheKey(key);
-  localStorage.setItem(key, JSON.stringify(value));
+  localStorage.setItem(key, cacheStringify(cache));
 }
 
 export function removeCache(key: string) {
@@ -324,24 +335,6 @@ export function checkCache<E>(localCache: Cache<E>) {
   } catch (error) {
     throw noCache;
   }
-}
-/**
- * 创建本地缓存
- *
- * @template T
- * @param {T} value
- * @param {number} [duration=3600000]
- * @return {*}  {LocalCache<T>}
- */
-export function createCache<T>(
-  value: T,
-  duration: number = 3600000 /**= 1000 * 60 * 60 1h */
-): Cache<T> {
-  return {
-    value,
-    updateTime: Date.now(),
-    duration,
-  };
 }
 export function isCache(v: any): v is Cache<any> {
   if (!v) {

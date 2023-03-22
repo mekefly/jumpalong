@@ -1,4 +1,5 @@
 import { checkCache, isCache } from ".";
+import { cacheParser } from "./cache";
 import keylist from "./keylist";
 
 setTimeout(() => {
@@ -13,7 +14,7 @@ export function intelligentCleaning() {
     if (!cacheString) {
       continue;
     }
-    const cache: any = JSON.parse(cacheString);
+    const cache: any = cacheParser(cacheString);
     if (!isCache(cache)) {
       continue;
     }
@@ -37,7 +38,7 @@ export function clearCache() {
       if (!cacheString) {
         continue;
       }
-      const cache: any = JSON.parse(cacheString);
+      const cache: any = cacheParser(cacheString);
       if (!isCache(cache)) {
         continue;
       }
@@ -63,7 +64,7 @@ export function clearCacheAll() {
     }
 
     try {
-      const cache: any = JSON.parse(cacheString);
+      const cache: any = cacheParser(cacheString);
 
       if (!isCache(cache)) {
         continue;

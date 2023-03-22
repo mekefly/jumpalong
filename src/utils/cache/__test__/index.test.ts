@@ -1,9 +1,9 @@
 import MockDate from "mockdate";
 import { clearLocalStorage } from "../../vitest";
+import { createCache } from "../cache";
 import {
   checkCache,
   clearMemoryCache,
-  createCache,
   getCache,
   isCache,
   setCache,
