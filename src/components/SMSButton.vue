@@ -30,7 +30,10 @@ const recommendUserMetadata = useRecommendUserMetadata();
 
 const pushShortTextNote = usePushShortTextNote();
 const handleMap = {
-  deleteEvent: () => deleteEvent.value(event.value.id as any),
+  deleteEvent: () => {
+    deleteEvent.value(event.value.id as any);
+    info("您已经发送了删除请求");
+  },
   joinTheBlacklist() {
     addRule({ title: "黑名单", ignoreContent: event.value.content });
   },
