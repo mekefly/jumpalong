@@ -53,9 +53,10 @@ const longPress: Directive = {
     el.addEventListener("click", cancel);
 
     el.addEventListener("mouseout", cancel);
+    el.addEventListener("mousemove", cancel);
 
     el.addEventListener("touchend", cancel);
-
+    el.addEventListener("touchmove", cancel);
     el.addEventListener("touchcancel", cancel);
   },
 };
