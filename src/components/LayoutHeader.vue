@@ -19,7 +19,10 @@ watch(
 </script>
 
 <template>
-  <span class="text-xl font-bold flex justify-center items-center">
+  <span
+    class="text-xl font-bold flex justify-center items-center"
+    @click="() => $router.push('/')"
+  >
     <n-icon size="40">
       <FaviconVue />
     </n-icon>
