@@ -5,6 +5,7 @@ import RelayUrlShowVue from "./RelayUrlShow.vue";
 const props = defineProps<{
   urls: Iterable<string>;
   title: string;
+  loadable?: boolean;
 }>();
 const isEmpty = computed(
   () => props.urls[Symbol.iterator]().next().done === true
@@ -16,7 +17,13 @@ const isEmpty = computed(
     <Scrollbar class="max-h-[40em]">
       <n-table striped>
         <tbody class="w-full">
-          <n-empty v-if="isEmpty" size="large" description="什么都没有">
+          <div
+            class="w-full h-28 flex justify-center items-center"
+            v-if="props.loadable && isEmpty"
+          >
+            <n-spin size="large" />
+          </div>
+          <n-empty v-else-if="isEmpty" size="large" description="什么都没有">
           </n-empty>
           <tr class="flex" v-for="url in props.urls" :key="url">
             <td class="flex-grow w-0 flex-shrink">

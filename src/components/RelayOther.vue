@@ -9,21 +9,22 @@ import RelayConnectListVue from "./RelayConnectList.vue";
 
 const searchValue = ref("");
 const otherList = ref<string[]>([]);
+const list = computed(() => relayConfigurator.getOtherList());
 function filterOtherList() {
-  otherList.value = Array.from(relayConfigurator.getOtherList()).filter(
-    (item) => item.includes(searchValue.value)
+  otherList.value = Array.from(list.value).filter((item) =>
+    item.includes(searchValue.value)
   );
 }
 filterOtherList();
 const filterOtherListDebounce = debounce(filterOtherList, 1000);
 
-watch([searchValue, relayConfigurator.getOtherList()], filterOtherListDebounce);
+watch([searchValue, list], filterOtherListDebounce, { deep: true });
 
 const message = useMessage();
 </script>
 
 <template>
-  <RelayConnectListVue :urls="otherList" title="更多">
+  <RelayConnectListVue loadable :urls="otherList" title="更多">
     <template #header-extra>
       <div class="flex items-center justify-center flex-shrink flex-grow">
         <div class="flex-shrink-0 flex justify-center items-center">

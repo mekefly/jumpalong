@@ -255,7 +255,7 @@ function toGetRelayUrls() {
 
     let index = 0;
 
-    while (otherList.size < config.getOtherUrlsRequestLimitSize ?? 50) {
+    while (otherList.size < (config.getOtherUrlsRequestLimitSize ?? 50)) {
       await timeout(2000);
 
       const url = urls[index];
