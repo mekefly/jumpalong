@@ -58,7 +58,7 @@ const router = createRouter({
         },
         {
           path: "/relay/info/:url",
-          name: "relay-info-view",
+          name: "relay-info",
           component: () => import("../views/RelayInfoView.vue"),
         },
         {
@@ -79,7 +79,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const prikey = localStorage.getItem("newUserFlag");
   const currentPrikey = localStorage.getItem("prikey");
-  if (to.name === "login") {
+  if (["relay-info", "login"].some((nextName) => to.name === nextName)) {
     next();
   } else if (prikey && prikey === currentPrikey) {
     next({ name: "login", query: { redirected: to.fullPath } });

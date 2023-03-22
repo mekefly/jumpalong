@@ -1,6 +1,5 @@
 import { createEventBeltlineReactive } from "@/nostr/createEventBeltline";
-import { rootEventBeltline } from "@/nostr/nostr";
-import relayConfigurator from "@/nostr/relayConfigurator";
+import { relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
 import {
   createDoNotRepeatStaff,
   createFilterGreaterThanTheCurrenttimeStaff,

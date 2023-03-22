@@ -1,5 +1,5 @@
 import { Event } from "nostr-tools";
-import { createStaff, StaffState, StaffThisType } from ".";
+import { createStaff, StaffState, StaffThisType } from "./Staff";
 
 /**
  * extends 防止循环依赖

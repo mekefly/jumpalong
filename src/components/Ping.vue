@@ -89,14 +89,7 @@ function rePing() {
     ref="target"
     class="rounded-full text-center felx items-center justify-center"
   >
-    <n-button
-      text
-      quaternary
-      round
-      @click.stop="rePing"
-      :loading="isLoading"
-      size="tiny"
-    >
+    <n-button text round @click.stop="rePing" :loading="isLoading">
       <span
         v-if="delay"
         :style="{

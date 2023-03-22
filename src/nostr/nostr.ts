@@ -10,6 +10,7 @@ export let rootEventBeltline: EventBeltline = null as any;
 const appConfig = useLocalStorage(
   "app-config",
   () => ({
+    getOtherUrlsRequestLimitSize: 100,
     localStorage: { kind10002: 500, duration: 1000 * 60 * 60 * 24 * 7 },
     eventCacheDuration: 1000 * 60 * 60 * 24,
     pullRelayConfig: {
@@ -39,6 +40,7 @@ export let relayConfigurator: RelayConfigurator = null as any;
 export let config: ConfigType = appConfig.value as any as ConfigType;
 
 type ConfigType = {
+  getOtherUrlsRequestLimitSize: number;
   eventCacheDuration: number;
   localStorage: {
     kind10002: number;

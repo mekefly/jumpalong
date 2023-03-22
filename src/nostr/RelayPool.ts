@@ -80,8 +80,7 @@ export class RelayPool {
         this.getRelayFromPool(url)?.close();
       };
       ws.onclose = () => {
-        this.pool.delete(url);
-        this.getRelayFromPool(url)?.close();
+        this.close(url);
       };
 
       const relay = new Relay(ws, relayEmiter, this);
@@ -89,6 +88,10 @@ export class RelayPool {
 
       res(relay);
     });
+  }
+  close(url: string) {
+    this.getRelayFromPool(url)?.close();
+    this.pool.delete(url);
   }
 }
 
@@ -99,6 +102,7 @@ export class Relay {
   private timeout: any = undefined;
   private isClose: boolean = false;
   private relayEmiter: RelayEmiter;
+  publishIds: Set<string> = new Set();
 
   constructor(ws: WebSocket, relayEmiter: RelayEmiter, pool: RelayPool) {
     this.ws = ws;
@@ -148,6 +152,7 @@ export class Relay {
               message: data[3],
               url: this.ws.url,
             });
+            this.closePublish(eventId);
             break;
           case "AUTH":
             break;
@@ -174,10 +179,23 @@ export class Relay {
     this.addSubId(subId);
     return subId;
   }
+  closePublish(id: string) {
+    if (!this.publishIds.has(id)) return;
+
+    this.publishIds.delete(id);
+    this.autoClose();
+  }
   publish(e: Event) {
     console.debug("websocket:publish", this.ws.url, e);
     this.send(["EVENT", e]);
+    this.publishIds.add(e.id);
+
+    //超时
+    setTimeout(() => {
+      this.closePublish(e.id);
+    }, 60_000);
   }
+
   closeReq(subId: string) {
     if (!this.subIds.has(subId)) return;
 
@@ -207,15 +225,16 @@ export class Relay {
     }
     this.isClose = true;
     this.ws.close();
+    this.pool.close(this.ws.url);
   }
   clearAutoClose() {
     clearTimeout(this.timeout);
     this.timeout = undefined;
   }
   autoClose() {
-    if (this.subIds.size !== 0) return;
+    if (this.subIds.size > 0 || this.publishIds.size > 0) return;
     this.timeout = setTimeout(() => {
-      if (this.subIds.size !== 0) return;
+      if (this.subIds.size > 0 || this.publishIds.size > 0) return;
       this.close();
     }, 10_000);
   }

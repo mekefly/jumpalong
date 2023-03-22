@@ -1,7 +1,6 @@
 import { createEventBeltlineReactive } from "@/nostr/createEventBeltline";
 import { createEvent } from "@/nostr/event";
-import { rootEventBeltline } from "@/nostr/nostr";
-import relayConfigurator from "@/nostr/relayConfigurator";
+import { relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
 import { createFilterGreaterThanTheCurrenttimeStaff } from "@/nostr/staff";
 import autoAddRelayurlByEventIdStaff from "@/nostr/staff/autoAddRelayurlByEventIdStaff";
 import createChannelLikeDataStaff from "@/nostr/staff/createChannelLikeDataStaff";

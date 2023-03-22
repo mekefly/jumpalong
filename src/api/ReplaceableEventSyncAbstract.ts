@@ -1,15 +1,13 @@
 import { createEventBeltline } from "@/nostr/createEventBeltline";
 import { type EventBeltline } from "@/nostr/eventBeltline";
-import { rootEventBeltline } from "@/nostr/nostr";
+import { relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
 import createEoseUnSubStaff from "@/nostr/staff/createEoseUnSubStaff";
 import { createLatestEventStaff } from "@/nostr/staff/createLatestEventStaff";
 import { useCache } from "@/utils/cache";
 import { debounce, nowSecondTimestamp } from "@/utils/utils";
 import { Event, Filter } from "nostr-tools";
-import relayConfigurator from "../nostr/relayConfigurator";
 
 export abstract class ReplaceableEventSyncAbstract<E> {
-  private filter: Filter;
   private name: string;
   private localEvent: Event | null = null;
   private data!: E;
@@ -18,8 +16,7 @@ export abstract class ReplaceableEventSyncAbstract<E> {
   private isSync = false;
   private changeCount: number = 0;
 
-  constructor(filter: Filter, name: string, defaul: E) {
-    this.filter = filter;
+  constructor(name: string, defaul: E) {
     this.name = name;
 
     const event = this.getLocalEvent();
@@ -30,6 +27,7 @@ export abstract class ReplaceableEventSyncAbstract<E> {
     this.setDataByEvent(event);
   }
 
+  abstract getFilter(): Filter[];
   /**
    * 将事件序列化为你所需要的数据
    * @param e
@@ -80,7 +78,7 @@ export abstract class ReplaceableEventSyncAbstract<E> {
    * @returns
    */
   public getUpdateAt() {
-    return this.localEvent?.created_at;
+    return this.getLocalEvent()?.created_at;
   }
 
   /**
@@ -91,13 +89,15 @@ export abstract class ReplaceableEventSyncAbstract<E> {
     this.isChange = true;
     return (this.changeCount += 1);
   }
+  public hasChange() {
+    return this.isChange;
+  }
   public isReChange(changeId: number) {
     return this.changeCount !== changeId;
   }
 
   onSetData: ((data: E) => void) | null = null;
   public setData(data: E) {
-    this.toChanged();
     this.data = data;
 
     this.onSetData?.(data);
@@ -126,24 +126,59 @@ export abstract class ReplaceableEventSyncAbstract<E> {
   /**
    * 同步读写列表
    */
-  public sync() {
+  public sync(opt?: {
+    moreUrls?: Set<string>;
+    onlyUrl?: string;
+    onEvent?(e: Event, url: string): void;
+    onPush?(url: string): void;
+  }) {
     this.isSync = true;
-    const urls = new Set(
-      [
-        ...relayConfigurator.getWriteList(),
-        ...relayConfigurator.getReadList(),
-      ].slice(0, 10)
-    );
+    const urls: Set<string> = opt?.onlyUrl
+      ? new Set<string>().add(opt.onlyUrl)
+      : new Set(
+          [
+            ...(opt?.moreUrls ?? []),
+            ...relayConfigurator.getWriteList(),
+            ...relayConfigurator.getReadList(),
+          ].slice(0, 10)
+        );
 
     useCache(
-      `cache:${this.name}`,
+      `cache:${this.name + [...urls]}`,
       () => {
+        const slef = this;
+        const withEvent = new Set();
         const line = createEventBeltline()
-          .addFilter(this.filter)
+          .addFilters(this.getFilter())
+          .addStaff({
+            push(e, _, { subId }) {
+              if (!subId) return;
+              const url = this.beltline.getUrlBySubId(subId);
+
+              if (!url) return;
+              withEvent.add(url);
+              opt?.onEvent?.(e, url);
+            },
+          })
           .addStaff(createLatestEventStaff())
+          .addStaff({
+            initialization() {
+              this.beltline.onAfterReq(({ subId, url }) => {
+                this.beltline.getRelayEmiter().once("eose", subId, () => {
+                  if (!withEvent.has(url)) {
+                    const localEvent = slef.getLocalEvent();
+                    localEvent &&
+                      line.publish(localEvent, new Set<string>().add(url));
+                    opt?.onPush?.(url);
+                  }
+                });
+              });
+            },
+          })
           .addStaff(createEoseUnSubStaff())
-          .addExtends(rootEventBeltline)
           .addRelayUrls(urls);
+
+        !opt?.onlyUrl && line.addExtends(rootEventBeltline);
         const localEvent = this.getLocalEvent();
 
         localEvent && rootEventBeltline.pushEvent(localEvent);

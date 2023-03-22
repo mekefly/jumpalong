@@ -8,8 +8,6 @@ import ContactListItemVue from "./ContactListItem.vue";
 const props = defineProps<{ pubkey: string }>();
 const { pubkey } = toRefs(props);
 
-// pullMyContacts();
-
 const contactListLine = computed(() =>
   getContactListLineByPubkey(pubkey.value)
 );
@@ -24,7 +22,11 @@ const contactList = computed(() => {
 <template>
   <div class="p-4 box-border">
     <n-list>
-      <ContactListItemVue v-for="contact of contactList" :contact="contact" />
+      <ContactListItemVue
+        v-for="contact of contactList"
+        :key="contact.pubkey"
+        :contact="contact"
+      />
     </n-list>
   </div>
 </template>

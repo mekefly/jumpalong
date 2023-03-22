@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import Add20FilledVue from "./icon/Add20Filled.vue";
+
 const props = defineProps<{
   disabled?: boolean;
 }>();
@@ -10,7 +12,6 @@ const emit = defineEmits<{
 <template>
   <n-button
     :disabled="props.disabled"
-    quaternary
     circle
     text
     type="primary"
@@ -19,7 +20,7 @@ const emit = defineEmits<{
   >
     <template #icon>
       <n-icon>
-        <Add20Filled />
+        <Add20FilledVue />
       </n-icon>
     </template>
   </n-button>

@@ -10,8 +10,6 @@ import { nip19 } from "nostr-tools";
 import { computed } from "vue";
 import { userKey } from "../nostr/user";
 const route = useRoute();
-console.log("route.params", route.params);
-// const router = useRouter();
 
 const nprofile = nip19.nprofileEncode({
   pubkey: userKey.value.publicKey,
@@ -39,9 +37,6 @@ const metadata = computed(() => {
 const isFollow = computed(() => {
   if (!pubkey.value) return false;
   return contactConfiguration.isFollow(pubkey.value);
-});
-watchEffect(() => {
-  console.log("metadata", metadata.value);
 });
 function handelClick() {
   if (!pubkey.value) {

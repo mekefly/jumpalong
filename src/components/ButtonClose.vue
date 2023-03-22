@@ -8,7 +8,6 @@ const emit = defineEmits<{
 
 <template>
   <n-button
-    quaternary
     text
     circle
     type="error"

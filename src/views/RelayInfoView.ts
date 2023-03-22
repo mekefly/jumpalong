@@ -3,7 +3,7 @@ export function useToRelayInfo() {
 
   return {
     toRelayInfoView(url: string) {
-      router.push({ name: "relay-info-view", params: { url } });
+      router.push({ name: "relay-info", params: { url } });
     },
   };
 }

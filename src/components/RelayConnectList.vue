@@ -6,6 +6,9 @@ const props = defineProps<{
   urls: Iterable<string>;
   title: string;
 }>();
+const isEmpty = computed(
+  () => props.urls[Symbol.iterator]().next().done === true
+);
 </script>
 
 <template>
@@ -13,6 +16,8 @@ const props = defineProps<{
     <Scrollbar class="max-h-[40em]">
       <n-table striped>
         <tbody class="w-full">
+          <n-empty v-if="isEmpty" size="large" description="什么都没有">
+          </n-empty>
           <tr class="flex" v-for="url in props.urls" :key="url">
             <td class="flex-grow w-0 flex-shrink">
               <RelayUrlShowVue :url="url"> </RelayUrlShowVue>
@@ -25,6 +30,16 @@ const props = defineProps<{
       </n-table>
     </Scrollbar>
     <slot name="bottom"></slot>
+
+    <template v-if="$slots['header-extra']" #header-extra>
+      <slot name="header-extra"></slot>
+    </template>
+    <template v-if="$slots.footer" #footer>
+      <slot name="footer"></slot>
+    </template>
+    <template v-if="$slots.action" #action>
+      <slot name="action"></slot>
+    </template>
   </n-card>
 </template>
 

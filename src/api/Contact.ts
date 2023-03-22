@@ -14,11 +14,12 @@ import {
 } from "@/nostr/tag";
 import { useCache } from "@/utils/cache";
 import { debounce } from "@/utils/utils";
-import { Event } from "nostr-tools";
+import { Event, Filter } from "nostr-tools";
 import { userKey } from "../nostr/user";
 import { getChannelMetadataBeltlineByChannelId } from "./channel";
 import { ReplaceableEventSyncAbstract } from "./ReplaceableEventSyncAbstract";
 import { getUserMetadataLineByPubkey, UserMetaData } from "./user";
+
 type ContactConfigurationDatas = {
   contactConfiguration: ContactConfigurationType;
   channelConfiguration: ChannelConfigurationType;
@@ -28,11 +29,14 @@ export type ChannelConfigurationData = ChannelMetadata & TagE;
 
 class ContactConfiguration extends ReplaceableEventSyncAbstract<ContactConfigurationDatas> {
   constructor() {
-    super(
-      { kinds: [3], authors: [userKey.value.publicKey] },
-      "ContactConfiguration",
-      { contactConfiguration: {}, channelConfiguration: new Map() }
-    );
+    super("ContactConfiguration", {
+      contactConfiguration: {},
+      channelConfiguration: new Map(),
+    });
+  }
+
+  getFilter(): Filter[] {
+    return [{ kinds: [3], authors: [userKey.value.publicKey] }];
   }
 
   serializeToData(e: Event): ContactConfigurationDatas {
@@ -86,7 +90,7 @@ class ContactConfiguration extends ReplaceableEventSyncAbstract<ContactConfigura
     });
   }
 
-  joinChannel(eventId: string) {
+  joinChannel(eventId: string, relay?: string) {
     if (!eventId) return;
 
     // 每改变一次加一次，如果中间有新的更新，就会强制停止同步
@@ -101,7 +105,7 @@ class ContactConfiguration extends ReplaceableEventSyncAbstract<ContactConfigura
     const channelMetadata: ChannelConfigurationData = {
       eventId,
       marker: "root",
-      relay: "",
+      relay: relay ?? "",
       type: "",
     };
 
@@ -157,7 +161,7 @@ class ContactConfiguration extends ReplaceableEventSyncAbstract<ContactConfigura
     return Array.from(this.getChannelConfiguration()).map(([k, v]) => v);
   }
 
-  follow(pubkey?: string) {
+  follow(pubkey?: string, relayUrl?: string, name?: string) {
     if (!pubkey) return;
 
     // 每改变一次加一次，如果中间有新的更新，就会强制停止同步
@@ -167,8 +171,8 @@ class ContactConfiguration extends ReplaceableEventSyncAbstract<ContactConfigura
 
     const contactMetaData: ContactMetaData = (contactConfiguration[pubkey] = {
       pubkey,
-      name: "",
-      relayUrl: "",
+      name: name ?? "",
+      relayUrl: relayUrl ?? "",
     });
 
     const changeId = this.toChanged();

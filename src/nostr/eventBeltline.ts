@@ -95,6 +95,9 @@ export class EventBeltline<
       staff?.initialization?.();
     }
   }
+  public getRelayEmiter() {
+    return this.relayEmiter;
+  }
   public getRoot() {
     this.root;
   }
@@ -431,7 +434,7 @@ export class EventBeltline<
 
     // 监听
     this.relayEmiter.on("event", subId, ({ event }) => {
-      this.pushEvent(event);
+      this.pushEvent(event, subId);
     });
     this.relayEmiter.once("eose", subId, () => {
       this.relayEmiter.removeAllListener(subId);

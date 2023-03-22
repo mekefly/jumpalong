@@ -1,13 +1,16 @@
 import { EventBeltline } from "./eventBeltline";
+
 import { injectNostrApi } from "./nostr";
-import { RelayConfigurator } from "./relayConfigurator";
+
 import { RelayEmiter } from "./RelayEmiter";
+
 import { RelayPool } from "./RelayPool";
+
+import { RelayConfigurator } from "./relayConfigurator";
 
 export function initializeRuntime() {
   const relayEmiter = new RelayEmiter();
   injectNostrApi({ relayEmiter });
-  console.log("initializeRuntime");
 
   const relayPool = new RelayPool(relayEmiter, { self: reactive({}) });
 
@@ -20,7 +23,7 @@ export function initializeRuntime() {
 
   injectNostrApi({ rootEventBeltline });
 
-  // .addStaff(createLocalStorageStaff())
+  // .addStaf(createLocalStorageStaff())
   // .addStaff(
   //   UseStorageStaff(
   //     [
@@ -46,16 +49,19 @@ export function initializeRuntime() {
     rootEventBeltline.pushEvent(event, subId);
   });
 
-  /**
-   * 中继配置器
-   */
+  // /**
+  //  * 中继配置器
+  //  */
   const relayConfigurator: RelayConfigurator = reactive(
     new RelayConfigurator()
   ) as any;
   rootEventBeltline.relayConfigurator = relayConfigurator;
 
-  relayConfigurator.sync();
   injectNostrApi({ relayConfigurator });
+
+  setTimeout(() => {
+    relayConfigurator.sync();
+  });
 
   return { relayEmiter, relayPool, rootEventBeltline, relayConfigurator };
 }

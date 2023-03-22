@@ -1,17 +1,28 @@
 import { createEvent } from "@/nostr/event";
 import {
+  config,
+  relayConfigurator,
+  relayEmiter,
+  rootEventBeltline,
+} from "@/nostr/nostr";
+import {
   deserializeRelayConfiguration,
   deserializeTagRToReadWriteList,
   serializeRelayConfiguration,
 } from "@/nostr/tag";
+import {
+  defaultCacheOptions,
+  deleteCache,
+  setCache,
+  useCache,
+} from "@/utils/cache";
+import { debounceWatch } from "@/utils/vue";
+import { type Event } from "nostr-tools";
 import { reactive } from "vue";
-import { readListKey, writeListKey } from "./relayConfiguratorKeys";
-import { relayEmiter, rootEventBeltline } from "@/nostr/nostr";
 import { ReplaceableEventSyncAbstract } from "../api/ReplaceableEventSyncAbstract";
 import { timeout } from "../utils/utils";
-import { useCache } from "@/utils/cache";
+import { readListKey, writeListKey } from "./relayConfiguratorKeys";
 import { userKey } from "./user";
-import { type Event } from "nostr-tools";
 
 export const defaultUrls: string[] = (window as any).defaultRelayUrls ?? [
   "wss://no.str.cr",
@@ -37,29 +48,23 @@ export const defaultUrls: string[] = (window as any).defaultRelayUrls ?? [
  * 最高优先级为本地配置
  */
 export class RelayConfigurator extends ReplaceableEventSyncAbstract<RelayConfiguration> {
-  private readList: Set<string>;
-  private writeList: Set<string>;
-
   setLocalEventByEvent(e: Event) {
     this.setLocalEvent(e);
   }
 
   constructor() {
-    super(
+    super("RelayConfigurator", {
+      [readListKey]: new Set(),
+      [writeListKey]: new Set(),
+    });
+  }
+  getFilter() {
+    return [
       {
         kinds: [10002],
         authors: [userKey.value.publicKey],
       },
-      "RelayConfigurator",
-      {
-        [readListKey]: new Set(),
-        [writeListKey]: new Set(),
-      }
-    );
-
-    const data = this.getData();
-    this.readList = data[readListKey];
-    this.writeList = data[readListKey];
+    ];
   }
 
   serializeToData(e: Event): RelayConfiguration {
@@ -82,10 +87,10 @@ export class RelayConfigurator extends ReplaceableEventSyncAbstract<RelayConfigu
     return this.getData();
   }
   public getWriteList() {
-    return this.writeList;
+    return this.getConfiguration()[writeListKey];
   }
   public getReadList() {
-    return this.readList;
+    return this.getConfiguration()[readListKey];
   }
   public getOtherList() {
     return getOtherUrls();
@@ -97,22 +102,31 @@ export class RelayConfigurator extends ReplaceableEventSyncAbstract<RelayConfigu
   public addWrite(url: string) {
     this.toChanged();
     this.getRule(url)["write"] = true;
+    this.getConfiguration()[writeListKey].add(url);
   }
   public remoteWrite(url: string) {
     this.toChanged();
     this.getRule(url)["write"] = false;
+
+    this.getConfiguration()[writeListKey].delete(url);
   }
   public addRead(url: string) {
     this.toChanged();
     this.getRule(url)["read"] = true;
+    this.getConfiguration()[readListKey].add(url);
   }
   public remoteRead(url: string) {
     this.toChanged();
     this.getRule(url)["read"] = false;
+
+    this.getConfiguration()[readListKey].delete(url);
   }
   public remove(url: string) {
     this.toChanged();
     delete this.getData()[url];
+
+    this.getConfiguration()[writeListKey].delete(url);
+    this.getConfiguration()[readListKey].delete(url);
   }
   public setRule(url: string, read?: boolean, write?: boolean) {
     this.toChanged();
@@ -123,6 +137,13 @@ export class RelayConfigurator extends ReplaceableEventSyncAbstract<RelayConfigu
 
       rule["read"] = read;
       rule["write"] = write;
+
+      write
+        ? this.getConfiguration()[writeListKey].add(url)
+        : this.getConfiguration()[writeListKey].delete(url);
+      read
+        ? this.getConfiguration()[readListKey].add(url)
+        : this.getConfiguration()[readListKey].delete(url);
     }
   }
   public getRule(url: string) {
@@ -143,10 +164,13 @@ export class RelayConfigurator extends ReplaceableEventSyncAbstract<RelayConfigu
     const opt = Object.assign(options?.slef ?? {}, {
       numberOfErrors: 0,
       numberOfSuccesses: 0,
+      numberOfOvertime: 0,
       total: url.size,
     });
 
-    relayEmiter.on("ok", localEvent.id as string, ({ ok, message }) => {
+    const halReply = new Set();
+    relayEmiter.on("ok", localEvent.id as string, ({ ok, message, url }) => {
+      halReply.add(url);
       if (ok) {
         opt.numberOfSuccesses += 1;
       } else {
@@ -155,6 +179,14 @@ export class RelayConfigurator extends ReplaceableEventSyncAbstract<RelayConfigu
     });
 
     rootEventBeltline.publish(localEvent, url);
+
+    setTimeout(() => {
+      url.forEach((url) => {
+        if (halReply.has(url)) return;
+
+        opt.numberOfOvertime += 1;
+      });
+    }, 1000 * 30);
 
     return opt;
   }
@@ -169,71 +201,83 @@ export function getEventTagRelayUrl(e: Event) {
   });
   return rs;
 }
-
-/**
- * 中继配置器
- */
-export const relayConfigurator = reactive(new RelayConfigurator());
-setTimeout(() => {
-  relayConfigurator.sync();
-}, 0);
-export default relayConfigurator;
+const getOtherUrlsCacheKey = "__other_urls";
+const getOtherUrlsCacheOptions = {
+  ...defaultCacheOptions,
+  useLocalStorage: true,
+  duration: 1000 * 60,
+};
 
 export function getOtherUrls() {
-  return useCache(
-    "getOtherUrls",
-    () => {
-      const otherList = reactive(new Set<string>());
-      const line = rootEventBeltline
-        .createChild()
-        .addFilter({ kinds: [10002], limit: 20 })
-        .addStaff({
-          push(e) {
-            const { writeUrl, readUrl } = deserializeTagRToReadWriteList(
-              e.tags
-            );
-            for (const url of writeUrl) {
-              otherList.add(url);
-            }
-            for (const url of readUrl) {
-              otherList.add(url);
-            }
-          },
-          feat: {
-            getOtherUrls() {
-              return otherList;
-            },
-          },
-        });
-
-      setTimeout(async () => {
-        const urls = Array.from(
-          new Set(
-            [
-              ...relayConfigurator.getReadList(),
-              ...relayConfigurator.getWriteList(),
-              ...defaultUrls,
-            ].slice(0, 10)
-          )
-        );
-
-        let index = 0;
-
-        while (otherList.size < 50) {
-          await timeout(2000);
-
-          const url = urls[index];
-          if (!url) return;
-
-          line.addRelayUrls(new Set<string>().add(url));
-
-          index++;
-        }
-      }, 500);
-      return line.feat.getOtherUrls.bind(line.feat)();
-    },
-    { useLocalStorage: false }
+  const arr = useCache(
+    getOtherUrlsCacheKey,
+    toGetRelayUrls,
+    getOtherUrlsCacheOptions
   );
+
+  if (Array.isArray(arr)) {
+    return new Set(arr);
+  } else if (arr instanceof Set) {
+    return arr;
+  } else {
+    //这里可能得到了一个对象{}，原因是set在被序列化后就是一个obj，但是后面的更新算法没有执行，没有把obj替换为数组，这可能是加载完成之前就点击了刷新按钮造成的，所以认为需要删除缓存
+    deleteCache(getOtherUrlsCacheKey);
+    return toGetRelayUrls();
+  }
+}
+function toGetRelayUrls() {
+  const otherList = reactive(new Set<string>());
+  const line = rootEventBeltline
+    .createChild()
+    .addFilter({ kinds: [10002], limit: 20 })
+    .addStaff({
+      push(e) {
+        const { writeUrl, readUrl } = deserializeTagRToReadWriteList(e.tags);
+        for (const url of writeUrl) {
+          otherList.add(url);
+        }
+        for (const url of readUrl) {
+          otherList.add(url);
+        }
+      },
+    });
+
+  setTimeout(async () => {
+    const urls = Array.from(
+      new Set(
+        [
+          ...relayConfigurator.getReadList(),
+          ...relayConfigurator.getWriteList(),
+          ...defaultUrls,
+        ].slice(0, 10)
+      )
+    );
+
+    let index = 0;
+
+    while (otherList.size < config.getOtherUrlsRequestLimitSize ?? 50) {
+      await timeout(2000);
+
+      const url = urls[index];
+      if (!url) return;
+
+      line.addRelayUrls(new Set<string>().add(url));
+
+      index++;
+    }
+  }, 0);
+
+  debounceWatch(
+    otherList,
+    () => {
+      setCache(getOtherUrlsCacheKey, [...otherList], getOtherUrlsCacheOptions);
+    },
+    {
+      deep: true,
+    }
+  );
+
+  return otherList;
 }
 
 export type RelayConfiguration = {

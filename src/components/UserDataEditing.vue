@@ -1,23 +1,23 @@
 <script lang="ts" setup>
-import relayConfigurator from "@/nostr/relayConfigurator";
-import { NButton, NInput, NSpace } from "naive-ui";
+import { relayConfigurator } from "@/nostr/nostr";
+import { NButton, NSpace } from "naive-ui";
 import { getUserMetadataLineByPubkey, UserMetaData } from "../api/user";
 import { userKey } from "../nostr/user";
-import UploadButtonVue from "./UploadButton.vue";
+import UserMetadataEditingVue from "./UserMetadataEditing.vue";
 
 const message = useMessage();
 const emit = defineEmits<{
   (e: "close"): void;
 }>();
 
-const userMetadataByPubkey = ref<UserMetaData>({});
+const userMetadata = ref<UserMetaData>({});
 
 const metadataLine = computed(() =>
   getUserMetadataLineByPubkey(userKey.value.publicKey)
 );
 const metadata = computed(() => metadataLine.value.feat.useMetadata());
 watchEffect(() => {
-  userMetadataByPubkey.value = metadata.value;
+  userMetadata.value = metadata.value;
 });
 
 const loading = ref(false);
@@ -25,7 +25,7 @@ async function send() {
   loading.value = true;
   metadataLine.value.publish(
     {
-      content: JSON.stringify(userMetadataByPubkey.value),
+      content: JSON.stringify(userMetadata.value),
       kind: 0,
     },
     relayConfigurator.getWriteList(),
@@ -33,7 +33,6 @@ async function send() {
       addUrl: true,
       onOK({ ok, url }) {
         loading.value = false;
-        console.log("ok");
 
         if (ok) {
           message.success(`已成功提交到${url}`);
@@ -51,56 +50,11 @@ async function send() {
     class="w-[600px] max-w-full max-h-full"
     title="编辑用户信息"
     :bordered="false"
-    size="huge"
     role="dialog"
     aria-modal="true"
   >
     <n-space vertical>
-      <n-input
-        type="text"
-        placeholder="用户名"
-        v-model:value="userMetadataByPubkey.name"
-      />
-      <n-input
-        type="textarea"
-        placeholder="介绍"
-        v-model:value="userMetadataByPubkey.about"
-      />
-      <div class="flex">
-        <n-input
-          type="text"
-          placeholder="profileUrl"
-          v-model:value="userMetadataByPubkey.picture"
-        />
-        <UploadButtonVue
-          class="ml-2"
-          @upload-result="
-            ({ url }) => {
-              userMetadataByPubkey.picture = url;
-            }
-          "
-        />
-      </div>
-      <div class="flex">
-        <n-input
-          type="text"
-          placeholder="banner"
-          v-model:value="userMetadataByPubkey.banner"
-        />
-        <UploadButtonVue
-          class="ml-2"
-          @upload-result="
-            ({ url }) => {
-              userMetadataByPubkey.banner = url;
-            }
-          "
-        />
-      </div>
-      <n-input
-        type="text"
-        placeholder="nip5用户认证"
-        v-model:value="userMetadataByPubkey.nip05"
-      />
+      <UserMetadataEditingVue :userMetadata="userMetadata" />
 
       <n-space center>
         <n-button type="tertiary" @click="() => emit('close')"> 取消 </n-button>
