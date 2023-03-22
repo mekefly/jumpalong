@@ -246,13 +246,12 @@ export function arrayInsert<E>(arr: Array<E>, e: E, v: E) {
   }
   arr.splice(index, 0, v);
 }
-export function merageSet<T>(set1: Set<T>, set2: Set<T>) {
+export function merageSet<T>(...sets: Set<T>[]) {
   const newSet = new Set<T>();
-  for (const item of set1) {
-    newSet.add(item);
-  }
-  for (const item of set2) {
-    newSet.add(item);
+  for (const set of sets) {
+    for (const item of set) {
+      newSet.add(item);
+    }
   }
   return newSet;
 }

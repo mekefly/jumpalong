@@ -1,18 +1,20 @@
 import { createEvent } from "@/nostr/event";
+import { PublishOpt } from "@/nostr/eventBeltline";
 import { relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
 import createOneEventStaff from "@/nostr/staff/createOneEventStaff";
 import getCacheStaff from "@/nostr/staff/storage/getCacheStaff";
 import setCacheStaff from "@/nostr/staff/storage/setCacheStaff";
 import { userKey } from "@/nostr/user";
 import { useCache } from "@/utils/cache";
-import { syncInterval } from "@/utils/utils";
+import { merageSet, syncInterval } from "@/utils/utils";
 import { Event } from "nostr-tools";
 // import { relayQuery } from "../nostr";
 import { createEventBeltlineReactive } from "../nostr/createEventBeltline";
-
+type EventDeletionOptions = {} & PublishOpt;
 export async function eventDeletion(
   eventId: string[],
-  relayUrls?: Set<string>
+  relayUrls?: Set<string>,
+  opt?: EventDeletionOptions
 ) {
   return new Promise<void>((resolve, reject) => {
     const event = createEvent({
@@ -22,8 +24,18 @@ export async function eventDeletion(
     });
     rootEventBeltline
       .createChild()
-      .publish(event, relayConfigurator.getWriteList());
+      .publish(
+        event,
+        merageSet(relayConfigurator.getWriteList(), relayUrls ?? new Set()),
+        opt
+      );
   });
+}
+export function eventDeletionOne(
+  eventId: string,
+  opt?: { urls?: Set<string> } & EventDeletionOptions
+) {
+  eventDeletion([eventId], opt?.urls, opt);
 }
 
 export async function publishEvent(

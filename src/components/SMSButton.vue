@@ -5,6 +5,7 @@ import {
   useRecommendUserMetadata,
 } from "@/state/nostr";
 import { neventEncodeByEvent } from "@/utils/nostr";
+import { useModelBind } from "@/utils/use";
 import { clipboardText } from "@/utils/utils";
 import { usePushShortTextNote } from "@/views/ShortTextNoteView";
 import { SelectMixedOption } from "naive-ui/es/select/src/interface";
@@ -20,9 +21,11 @@ const { success, info, error } = useMessage();
 const props = defineProps<{
   event: Event;
   deleteEvent: (id: string) => void;
+  show?: boolean;
 }>();
 const { event, deleteEvent } = toRefs(props);
 
+const show = useModelBind(props, "show");
 const value = ref("");
 const recommendEvent = useRecommendEvent();
 const recommendUser = useRecommendUser();
@@ -30,6 +33,9 @@ const recommendUserMetadata = useRecommendUserMetadata();
 
 const pushShortTextNote = usePushShortTextNote();
 const handleMap = {
+  close: () => {
+    show.value = false;
+  },
   deleteEvent: () => {
     deleteEvent.value(event.value.id as any);
     info("您已经发送了删除请求");
@@ -75,6 +81,10 @@ const runOperate = (key: string) => {
 const { addRule } = useBlackData();
 
 const options = ref<SelectMixedOption[]>([
+  {
+    label: "关",
+    value: "close",
+  },
   ...(event.value.pubkey === userKey.value.publicKey
     ? [
         {
@@ -126,9 +136,10 @@ const options = ref<SelectMixedOption[]>([
     @updateValue="runOperate"
     v-model:value="value"
     :options="options"
-    trigger="click"
+    trigger="manual"
+    :show="show"
   >
-    <n-button quaternary circle>
+    <n-button quaternary circle @click="() => (show = !show)">
       <n-icon> <MoreIconVue /> </n-icon>
     </n-button>
   </n-popselect>

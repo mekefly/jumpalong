@@ -1,5 +1,6 @@
 import { EventBeltline } from "@/nostr/eventBeltline";
 import { relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
+import { type RelayEmiterResponseEventMap } from "@/nostr/RelayEmiter";
 import type { MaybeRef } from "@vueuse/core";
 import type { Event, EventTemplate } from "nostr-tools";
 import {
@@ -345,12 +346,20 @@ export function useModelBind<
   if (!instance) {
     throw new Error("只能在setup里使用");
   }
+  const prop = toRef(props, name);
+  const v = ref(prop.value);
+
+  watch(prop, () => {
+    v.value = prop.value;
+  });
+
   return computed({
     get() {
-      return props[name];
+      return v.value;
     },
-    set(v) {
-      instance.emit(`update:${name}`, v);
+    set(nv) {
+      v.value = nv;
+      instance.emit(`update:${name}`, nv);
     },
   });
 }
@@ -376,4 +385,15 @@ export function useDelayedLoading(number?: number) {
     show.value = true;
   }, 0);
   return show;
+}
+
+export function useOnOK() {
+  const message = useMessage();
+  return function onOK({ ok, url }) {
+    if (ok) {
+      message.success(`已发布到${url}`);
+    } else {
+      message.error(`没有发布到${url}`);
+    }
+  } as (v: RelayEmiterResponseEventMap["ok"]) => void;
 }

@@ -349,10 +349,7 @@ export class EventBeltline<
   public publish(
     eventPart: Partial<Event>,
     urls: Set<string>,
-    opt?: {
-      onOK?: (v: RelayEmiterResponseEventMap["ok"]) => void;
-      addUrl?: boolean;
-    }
+    opt?: PublishOpt
   ) {
     const publishToUrls = new Set(urls);
 
@@ -481,4 +478,8 @@ export type EventBeltlineOptions = {
 
 export type AddStaffOpt = {
   unshift: boolean;
+};
+export type PublishOpt = {
+  onOK?: (v: RelayEmiterResponseEventMap["ok"]) => void;
+  addUrl?: boolean;
 };
