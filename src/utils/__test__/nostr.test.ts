@@ -1,5 +1,6 @@
 import { nip19 } from "nostr-tools";
 import {
+  decodeToPrikey,
   getIncludeMergeByFilters,
   toDeCodeNevent,
   toDeCodeNprofile,
@@ -164,4 +165,39 @@ it("toDeCodeNprofile:npub", () => {
       "pubkey": "9d1ad60c078ee6b36a0aa58d02b81ba4a0f34aa5f55b09414354eca316fce427",
     }
   `);
+});
+it("decodeToPrikey", () => {
+  const v = decodeToPrikey("");
+  expect(v).toMatchInlineSnapshot("null");
+});
+it("decodeToPrikey:prikey", () => {
+  const v = decodeToPrikey(
+    "939ba311449bd0e79810ff408de4e2c8a5efe8423a73c87d5c75805aae4bad73"
+  );
+  expect(v).toMatchInlineSnapshot(
+    '"939ba311449bd0e79810ff408de4e2c8a5efe8423a73c87d5c75805aae4bad73"'
+  );
+});
+it("decodeToPrikey:nesc", () => {
+  const nesc = nip19.nsecEncode(
+    "939ba311449bd0e79810ff408de4e2c8a5efe8423a73c87d5c75805aae4bad73"
+  );
+  const v = decodeToPrikey(nesc);
+  expect(v).toMatchInlineSnapshot(
+    '"939ba311449bd0e79810ff408de4e2c8a5efe8423a73c87d5c75805aae4bad73"'
+  );
+});
+it("decodeToPrikey:IllegalPrivacy", () => {
+  const v = decodeToPrikey(
+    "1nsec1jwd6xy2yn0gw0xqslaqgme8zezj7l6zz8feusl2uwkq94tjt44ese44gc4"
+  );
+  expect(v).toMatchInlineSnapshot(
+    'null'
+  );
+});
+it("decodeToPrikey:IllegalPrivacy", () => {
+  const v = decodeToPrikey("4348378940322222222222222234387");
+  expect(v).toMatchInlineSnapshot(
+    'null'
+  );
 });

@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { t } from "@/i18n";
 import Scrollbar from "naive-ui/es/scrollbar/src/Scrollbar";
 import RelayUrlShowVue from "./RelayUrlShow.vue";
 
@@ -23,7 +24,11 @@ const isEmpty = computed(
           >
             <n-spin size="large" />
           </div>
-          <n-empty v-else-if="isEmpty" size="large" description="什么都没有">
+          <n-empty
+            v-else-if="isEmpty"
+            size="large"
+            :description="t('empty_text')"
+          >
           </n-empty>
           <tr class="flex" v-for="url in props.urls" :key="url">
             <td class="flex-grow w-0 flex-shrink">

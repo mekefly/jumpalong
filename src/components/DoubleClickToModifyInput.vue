@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { t } from "@/i18n";
+
 const props = defineProps<{ value: string }>();
 const emit = defineEmits<{
   (e: "updateValue", v: string): void;
@@ -21,8 +23,9 @@ function handleDblclick() {
       <span
         v-if="props.value === '' || props.value === undefined"
         class="opacity-0"
-        >{{ "什么都没有" }}</span
       >
+        {{ t("empty_text") }}
+      </span>
       <span v-else>{{ props.value }}</span>
     </div>
     <NInput

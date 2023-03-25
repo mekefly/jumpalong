@@ -2,6 +2,7 @@
 import { useRichTextEditBoxOpt } from "@/components/RichTextEditBox";
 import RichTextEditBoxVue from "@/components/RichTextEditBox.vue";
 import ScrollbarVue from "@/components/Scrollbar.vue";
+import { t } from "@/i18n";
 import { useHandleSendMessage } from "@/utils/use";
 import contactConfiguration from "../api/Contact";
 import PostList from "../components/PostList.vue";
@@ -18,7 +19,6 @@ const pubkeys = computed(() => {
   );
   return pubkeys;
 });
-
 const handleSendEvent = useHandleSendMessage(1);
 </script>
 
@@ -31,20 +31,29 @@ const handleSendEvent = useHandleSendMessage(1);
         type="line"
         animated
       >
-        <n-tab-pane name="MyFeed" tab="我关注的" display-directive="show:lazy">
+        <n-tab-pane
+          name="MyFeed"
+          :tab="t('my_feed')"
+          display-directive="show:lazy"
+        >
           <PostList v-if="pubkeys.length > 0" :pubkey="pubkeys" />
-          <n-empty v-else description="你什么也找不到">
+          <n-empty v-else :description="t(`You can't find anything`)">
             <template #extra>
-              <n-button size="small"> 您没有关注任何人 </n-button>
+              <n-button size="small">
+                {{ t("did_not_follow_anyonew") }}
+              </n-button>
             </template>
           </n-empty>
         </n-tab-pane>
-        <n-tab-pane name="GlobalFeed" tab="全局" display-directive="show:lazy">
+        <n-tab-pane
+          name="GlobalFeed"
+          :tab="t('global')"
+          display-directive="show:lazy"
+        >
           <PostList />
         </n-tab-pane>
       </n-tabs>
     </ScrollbarVue>
-    <!-- <EditNewMessage /> -->
     <RichTextEditBoxVue @send="handleSendEvent" class="flex-shrink-1" />
   </div>
 </template>

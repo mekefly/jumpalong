@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { t } from "@/i18n";
 import { useDelayedLoading } from "@/utils/use";
 import { setAdds } from "@/utils/utils";
 import { DropdownMixedOption } from "naive-ui/es/dropdown/src/interface";
@@ -86,7 +87,7 @@ function hanedleSelect(value: string) {
           @keyup.enter="search"
           v-model:value="searchValue"
           @focus="() => (show = true)"
-          placeholder="Search"
+          :placeholder="t('search')"
         >
           <template #suffix>
             <NButton class="ml-1" size="tiny" quaternary circle @click="search">

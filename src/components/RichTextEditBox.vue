@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { t } from "@/i18n";
 import { createEvent } from "@/nostr/event";
 import { createId, debounce } from "@/utils/utils";
 import { Event, EventTemplate } from "nostr-tools";
@@ -144,7 +145,7 @@ useDragFileUpload(target, uploadFile, {});
             type="primary"
             @click="handleSend"
           >
-            发送
+            {{ t("send") }}
           </n-button>
         </div>
       </div>

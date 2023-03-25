@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { UserMetaData } from "@/api/user";
+import { t } from "@/i18n";
 import UploadButtonVue from "./UploadButton.vue";
 
 const props = defineProps<{
@@ -9,17 +10,21 @@ const { userMetadata } = toRefs(props);
 </script>
 
 <template>
-  <n-input type="text" placeholder="用户名" v-model:value="userMetadata.name" />
+  <n-input
+    type="text"
+    :placeholder="t('username')"
+    v-model:value="userMetadata.name"
+  />
   <n-input
     type="textarea"
-    placeholder="介绍"
+    :placeholder="t('about')"
     v-model:value="userMetadata.about"
     class="mt-2"
   />
   <div class="mt-2 flex">
     <n-input
       type="text"
-      placeholder="profileUrl"
+      :placeholder="t('picture')"
       v-model:value="userMetadata.picture"
     />
     <div class="ml-2">
@@ -35,7 +40,7 @@ const { userMetadata } = toRefs(props);
   <div class="mt-2 flex">
     <n-input
       type="text"
-      placeholder="banner"
+      :placeholder="t('banner')"
       v-model:value="userMetadata.banner"
     />
 
@@ -52,7 +57,7 @@ const { userMetadata } = toRefs(props);
   <n-input
     class="mt-2"
     type="text"
-    placeholder="nip5用户认证"
+    :placeholder="t('nip5')"
     v-model:value="userMetadata.nip05"
   />
 </template>

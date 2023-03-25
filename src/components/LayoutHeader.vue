@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 import FaviconVue from "@/components/icon/Favicon.vue";
 import UploadVue from "@/components/Upload.vue";
-import { lightTheme } from "naive-ui";
 import { ref } from "vue";
-import { switchTheme, theme } from "../app";
 import SearchFormVue from "../components/SearchForm.vue";
 import Sidebar from "../components/Sidebar.vue";
+import I18nSwitchButtonVue from "./I18nSwitchButton.vue";
 import MenuVue from "./icon/Menu.vue";
+import PoolStateNumberVue from "./PoolStateNumber.vue";
+import ThemeButtonVue from "./ThemeButton.vue";
 
 const isShowdrawerMenu = ref(false);
 const route = useRoute();
@@ -39,9 +40,11 @@ watch(
     </div>
 
     <div class="ml-3 hidden sm:block">
-      <n-button quaternary @click="switchTheme">
-        {{ theme === lightTheme ? "浅色" : "深色" }}
-      </n-button>
+      <ThemeButtonVue></ThemeButtonVue>
+    </div>
+
+    <div class="ml-3 hidden sm:block">
+      <I18nSwitchButtonVue />
     </div>
     <div class="ml-3 md:hidden">
       <n-button
@@ -57,10 +60,9 @@ watch(
           <Sidebar :collapsed="false" />
           <template #footer>
             <div class="flex items-center">
-              <n-button quaternary @click="switchTheme">
-                {{ theme === lightTheme ? "浅色" : "深色" }}
-              </n-button>
-              <PoolStateNumber />
+              <I18nSwitchButtonVue />
+              <ThemeButtonVue></ThemeButtonVue>
+              <PoolStateNumberVue />
             </div>
           </template>
         </n-drawer-content>

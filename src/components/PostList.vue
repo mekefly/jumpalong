@@ -8,7 +8,7 @@ import PapawVue from "./Papaw.vue";
 logger.for("home.vue").for("PostList.vue").info("进入PostList.vue");
 
 const props = defineProps<{
-  url?: Set<string>;
+  urls?: Set<string>;
   pubkey?: string[];
   filter?: Filter;
   pushEvent?: (e: Event) => void;
@@ -16,7 +16,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "update:pushEvent", v: (e: Event) => void): void;
 }>();
-const { pubkey, filter, url } = toRefs(props);
+const { pubkey, filter, urls: url } = toRefs(props);
 
 logger
   .for("home.vue")

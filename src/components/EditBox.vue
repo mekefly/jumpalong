@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { t } from "@/i18n";
 import {
   ChannelMetadata,
   parseMetadata,
@@ -20,8 +21,6 @@ const eventMap = new Map<string, { event: Event }>();
 const userRef: MentionOption[] = reactive([]);
 localUser.addStaff({
   push(event) {
-    console.log("3434387");
-
     const metadata = parseMetadata(event);
 
     const name = metadata.name ?? (event.pubkey?.slice(8) as string);
@@ -84,7 +83,7 @@ function handleSend() {
       :prefix="['@', '&']"
       @search="handleSearch"
     />
-    <n-button type="primary" @click="handleSend">发送</n-button>
+    <n-button type="primary" @click="handleSend">{{ t("send") }}</n-button>
   </div>
 </template>
 

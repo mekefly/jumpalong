@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import PubkeyLinkVue from "@/components/PubkeyLink.vue";
+import { t } from "@/i18n";
 import { TreeOption } from "naive-ui";
 import { useCache } from "../utils/cache";
 import { RelayMetaData, useAllNips } from "./RelayInfoView";
@@ -66,11 +67,10 @@ async function req() {
               });
 
               dialog.warning({
-                title: "警告",
-                content:
-                  '代理需要验证，你可以点击确认后，然后点击"Request temporary access to the demo server"按钮完成验证，如果界面发生改变请根据提示操作，或反馈',
-                positiveText: "确认",
-                negativeText: "取消",
+                title: t("warning"),
+                content: t("message.relay_info_view_verified"),
+                positiveText: t("yes"),
+                negativeText: t("no"),
                 onPositiveClick: () => {
                   window.open("https://cors-anywhere.herokuapp.com/corsdemo");
                 },
@@ -141,14 +141,14 @@ function createData(baseKey: any): TreeOption[] | undefined {
     <n-space vertical>
       <n-spin v-if="errorMsg === null && !data" size="large">
         <div class="h-[80vh]"></div>
-        <template #description> 正在加载中 </template>
+        <template #description> {{ t("loading") }} </template>
       </n-spin>
     </n-space>
   </div>
   <n-result
     v-if="errorMsg"
     status="404"
-    title="404 资源不存在"
+    :title="`404 ${t('resource_does_not_exist')}`"
     description="生活总归带点荒谬"
   >
   </n-result>

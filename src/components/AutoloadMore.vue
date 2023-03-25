@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { t } from "@/i18n";
 import { useElementIntoScreen } from "../utils/use";
 import { throttle } from "../utils/utils";
 
@@ -23,12 +24,14 @@ function handleClick() {
 
 <template>
   <div ref="target">
-    <n-empty description="加载中">
+    <n-empty :description="t('loading')">
       <template #icon>
         <NSpin />
       </template>
       <template #extra>
-        <n-button @click="handleClick" size="small"> 加载更多 </n-button>
+        <n-button @click="handleClick" size="small">
+          {{ t("load_more") }}
+        </n-button>
       </template>
     </n-empty>
   </div>

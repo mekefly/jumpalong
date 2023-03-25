@@ -1,24 +1,25 @@
 <script lang="ts" setup>
+import { t } from "@/i18n";
 import Contacts from "./ContactList.vue";
 import PostListVue from "./PostList.vue";
 
-const props = defineProps<{ pubkey: string }>();
+const props = defineProps<{ pubkey: string; urls?: Set<string> }>();
 const { pubkey } = toRefs(props);
 const pubkeys = computed(() => [pubkey.value]);
 </script>
 
 <template>
   <n-tabs type="line" animated>
-    <n-tab-pane display-directive="show" name="主页" tab="主页">
-      <PostListVue :pubkey="pubkeys" />
+    <n-tab-pane display-directive="show" name="homepage" :tab="t('homepage')">
+      <PostListVue :pubkey="pubkeys" :urls="props.urls" />
     </n-tab-pane>
-    <n-tab-pane display-directive="show" name="关注" tab="关注">
+    <n-tab-pane display-directive="show" name="follow" :tab="t('follow')">
       <Contacts :pubkey="pubkey" />
     </n-tab-pane>
-    <n-tab-pane display-directive="show" name="关注者" tab="关注者">
+    <n-tab-pane display-directive="show" name="follower" :tab="t('follower')">
       七里香
     </n-tab-pane>
-    <n-tab-pane display-directive="show" name="中继" tab="中继">
+    <n-tab-pane display-directive="show" name="中继" :tab="t('relay')">
       七里香
     </n-tab-pane>
   </n-tabs>

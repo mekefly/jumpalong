@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { t } from "@/i18n";
 import {
   useRecommendEvent,
   useRecommendUser,
@@ -38,25 +39,25 @@ const handleMap = {
   },
   deleteEvent: () => {
     deleteEvent.value(event.value.id as any);
-    info("您已经发送了删除请求");
+    info(t("message.you_have_sent_a_delete_request"));
   },
   joinTheBlacklist() {
-    addRule({ title: "黑名单", ignoreContent: event.value.content });
+    addRule({ title: t("hide_list"), ignoreContent: event.value.content });
   },
   copyNevent() {
     const text = neventEncodeByEvent(event.value);
     clipboardText(text);
 
-    success(`复制成功:${text}`);
+    success(t("copy_succeeded", { text }));
   },
   copyNote() {
     const text = nip19.noteEncode(event.value.id as string);
     clipboardText(text);
 
-    success(`复制成功:${text}`);
+    success(t("copy_succeeded", { text }));
   },
   copyHexPubkey() {
-    success(`复制成功:${event.value.pubkey}`);
+    success(t("copy_succeeded", { text: event.value.pubkey }));
   },
   recommendUser() {
     recommendUser(event.value.pubkey);
@@ -82,50 +83,50 @@ const { addRule } = useBlackData();
 
 const options = ref<SelectMixedOption[]>([
   {
-    label: "关",
+    label: t("close"),
     value: "close",
   },
   ...(event.value.pubkey === userKey.value.publicKey
     ? [
         {
-          label: "删除消息",
+          label: t("delete_event"),
           value: "deleteEvent",
         },
       ]
     : []),
   ...(event.value.pubkey !== userKey.value.publicKey
-    ? [{ label: "屏蔽这条消息", value: "joinTheBlacklist" }]
+    ? [{ label: t("hide"), value: "joinTheBlacklist" }]
     : []),
   {
-    label: "详情",
+    label: t("open"),
     value: "pushShortTextNote",
   },
   {
-    label: "回复",
+    label: t("reply"),
     value: "reply",
   },
   {
-    label: "复制Nevent",
+    label: `${t("copy")} Nevent`,
     value: "copyNevent",
   },
   {
-    label: "复制Note",
+    label: `${t("copy")} Note`,
     value: "copyNote",
   },
   {
-    label: "复制用户16进制公钥",
+    label: `${t("copy")} Hex pubkey`,
     value: "copyHexPubkey",
   },
   {
-    label: "推荐用户",
+    label: t("recommend_user"),
     value: "recommendUser",
   },
   {
-    label: "推荐消息",
+    label: t("recommend_event"),
     value: "recommendEvent",
   },
   {
-    label: "推荐用户元数据",
+    label: t("recommend_metadata"),
     value: "recommendUserMetadata",
   },
 ]);

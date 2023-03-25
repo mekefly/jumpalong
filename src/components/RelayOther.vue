@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { t } from "@/i18n";
 import { debounce } from "@/utils/utils";
 import { NSpace } from "naive-ui";
 import { relayConfigurator } from "../nostr/nostr";
@@ -11,6 +12,10 @@ const searchValue = ref("");
 const otherList = ref<string[]>([]);
 const list = computed(() => relayConfigurator.getOtherList());
 function filterOtherList() {
+  if (searchValue.value === "") {
+    otherList.value = Array.from(list.value);
+    return;
+  }
   otherList.value = Array.from(list.value).filter((item) =>
     item.includes(searchValue.value)
   );
@@ -24,7 +29,7 @@ const message = useMessage();
 </script>
 
 <template>
-  <RelayConnectListVue loadable :urls="otherList" title="更多">
+  <RelayConnectListVue loadable :urls="otherList" :title="t('more')">
     <template #header-extra>
       <div class="flex items-center justify-center flex-shrink flex-grow">
         <div class="flex-shrink-0 flex justify-center items-center">
@@ -38,7 +43,7 @@ const message = useMessage();
         <div class="flex-shrink ml-2 flex-grow w-32 sm:w-auto">
           <n-input
             round
-            placeholder="搜索"
+            :placeholder="t('search')"
             v-model:value="searchValue"
             @keyup.enter="filterOtherList"
             @change="filterOtherList"

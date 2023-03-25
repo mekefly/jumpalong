@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { t } from "@/i18n";
 import { userKey } from "@/nostr/user";
 import { useRecommendUser, useRecommendUserMetadata } from "@/state/nostr";
 import { nip19 } from "nostr-tools";
@@ -26,7 +27,7 @@ const recommendUserMetadata = useRecommendUserMetadata();
 const options = ref<any>(
   [
     isItMe.value && {
-      label: "编辑用户资料",
+      label: t("edit_user_profile"),
       key: "editProfile",
       icon: renderIcon(PencilVue),
       props: {
@@ -36,12 +37,12 @@ const options = ref<any>(
       },
     },
     {
-      label: "复制",
+      label: t("copy"),
       key: "clipboard",
       icon: renderIcon(ShareSocialVue),
       children: [
         {
-          label: "复制npub",
+          label: `${t("copy")} npub`,
           key: "copy-npub",
           props: {
             onclick() {
@@ -51,7 +52,7 @@ const options = ref<any>(
           },
         },
         {
-          label: "复制nprofile",
+          label: `${t("copy")} nprofile`,
           key: "copy-npro",
           props: {
             onclick() {
@@ -64,7 +65,7 @@ const options = ref<any>(
           },
         },
         isItMe.value && {
-          label: "复制nsec",
+          label: `${t("copy")} nsec`,
           key: "copy-nsec",
           props: {
             onclick() {
@@ -74,7 +75,7 @@ const options = ref<any>(
           },
         },
         {
-          label: "复制publicKey hex",
+          label: `${t("copy")} publicKey hex`,
           key: "copy-hex",
           props: {
             onclick() {
@@ -85,7 +86,7 @@ const options = ref<any>(
       ].filter((v) => !!v),
     },
     {
-      label: "推荐用户",
+      label: t("recommend_user"),
       key: "recommendUser",
       props: {
         onclick() {
@@ -94,7 +95,7 @@ const options = ref<any>(
       },
     },
     {
-      label: "推荐用户元数据",
+      label: t("recommend_metadata"),
       key: "recommendUserMetadata",
       props: {
         onclick() {

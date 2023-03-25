@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { t } from "@/i18n";
 import { relayPool } from "@/nostr/nostr";
 import { createDynamicColor } from "@/utils/utils";
 
@@ -17,7 +18,11 @@ const subIdSize = computed(() => relayPool.allSubIds.size);
         {{ subIdSize }}
       </span>
     </template>
-    当前订阅数，包括临时订阅
+    {{
+      t(
+        `tips.current_number_of_subscriptions_including_temporary_subscriptions`
+      )
+    }}
   </n-tooltip>
   /
   <n-tooltip trigger="hover">
@@ -30,7 +35,7 @@ const subIdSize = computed(() => relayPool.allSubIds.size);
         {{ poolSize }}
       </span>
     </template>
-    当前与中续的连接数量
+    {{ t("tips.number_of_current_and_continued_connections") }}
   </n-tooltip>
 </template>
 

@@ -1,12 +1,15 @@
 import { createEventBeltlineReactive } from "@/nostr/createEventBeltline";
 import { PublishOpt } from "@/nostr/eventBeltline";
 import { relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
+import ReplaceableEventMap from "@/nostr/ReplaceableEventMap";
+import { deserializeTagRToReadWriteList } from "@/nostr/tag";
 import {
   defaultCacheOptions,
   deleteCache,
   getCacheOrNull,
   setCache,
 } from "@/utils/cache";
+import { setAdds } from "@/utils/utils";
 import { Event } from "nostr-tools";
 import { userKey } from "../nostr/user";
 import { eventDeletionOne } from "./event";
@@ -36,10 +39,18 @@ export function sendReactions(
   opt?: SendReactionsOption
 ) {
   let tags: string[][] = targetEvent.tags.filter(
-    (tag) => tag.length >= 2 && (tag[0] == "e" || tag[0] == "p")
+    (tag) =>
+      tag.length >= 2 && (tag[0] == "e" || tag[0] == "p" || tag[0] == "r")
   );
   tags.push(["e", targetEvent.id]);
   tags.push(["p", targetEvent.pubkey]);
+  const urls = new Set(relayConfigurator.getWriteList());
+
+  const event = ReplaceableEventMap.kind10002.getEvent(targetEvent.pubkey);
+  if (event) {
+    const { writeUrl } = deserializeTagRToReadWriteList(event.tags);
+    setAdds(urls, writeUrl);
+  }
 
   const likeEvent = rootEventBeltline.publish(
     {
@@ -47,7 +58,7 @@ export function sendReactions(
       kind: 7,
       tags,
     },
-    relayConfigurator.getWriteList(),
+    urls,
     opt
   );
 

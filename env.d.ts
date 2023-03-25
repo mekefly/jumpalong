@@ -10,5 +10,5 @@ declare module "*.json" {
   const content: any;
   export default content;
 }
-declare module "loadsh";
 
+declare module "loadsh";

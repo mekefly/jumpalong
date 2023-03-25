@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { t } from "@/i18n";
 import { relayConfigurator } from "@/nostr/nostr";
 import { NButton, NSpace } from "naive-ui";
 import { getUserMetadataLineByPubkey, UserMetaData } from "../api/user";
@@ -57,7 +58,9 @@ async function send() {
       <UserMetadataEditingVue :userMetadata="userMetadata" />
 
       <n-space center>
-        <n-button type="tertiary" @click="() => emit('close')"> 取消 </n-button>
+        <n-button type="tertiary" @click="() => emit('close')">
+          {{ t("cancel") }}
+        </n-button>
         <n-tooltip trigger="hover">
           <template #trigger>
             <n-button
@@ -66,7 +69,7 @@ async function send() {
               :loading="loading"
               :disabled="loading"
             >
-              提交
+              {{ t("submit") }}
             </n-button>
           </template>
           如果加载不到合适的信息，那可能是relays设置不对请尝试配置一下

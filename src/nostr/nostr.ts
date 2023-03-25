@@ -10,7 +10,7 @@ export let rootEventBeltline: EventBeltline = null as any;
 const appConfig = useLocalStorage(
   "app-config",
   () => ({
-    getOtherUrlsRequestLimitSize: 100,
+    getOtherUrlsRequestLimitSize: 50,
     localStorage: { kind10002: 500, duration: 1000 * 60 * 60 * 24 * 7 },
     eventCacheDuration: 1000 * 60 * 60 * 24,
     pullRelayConfig: {

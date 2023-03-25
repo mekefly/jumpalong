@@ -17,6 +17,8 @@ export function getShortTextEventBeltline(
   pubkeys?: string[],
   options?: { relayUrls?: Set<string>; filter: Filter }
 ) {
+  console.log("options", options);
+
   logger.for().for("getGlobalShortTextEventBeltline").debug("pubkey", pubkeys);
   return useCache(
     `getGlobalShortTextEventBeltline:${JSON.stringify(pubkeys)}${JSON.stringify(
@@ -51,9 +53,11 @@ export function getShortTextEventBeltline(
 
           .addStaff(autoAddRelayUrlByFilter())
           .addReadUrl()
+          .addRelayUrls(options?.relayUrls)
           .onAfterReq(() => {
             line.feat.stopAutoAddRelayUrlByFilter();
           });
+
         shortTextEventBeltline.addExtends(line);
       }, 1000);
 

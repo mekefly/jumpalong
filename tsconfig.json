@@ -24,7 +24,9 @@
     "src/**/*.vue",
     "components.d.ts",
     "auto-imports.d.ts",
-    "env.d.ts"
+    "env.d.ts",
+    "src/i18n/zh_CN.json",
+    "src/i18n/en_US.json"
   ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

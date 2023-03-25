@@ -1,21 +1,30 @@
 <script lang="ts" setup>
+import { t } from "@/i18n";
 import { config } from "@/nostr/nostr";
 import ArrowForwardIosRoundVue from "../components/icon/ArrowForwardIosRound.vue";
 import { clearCache, intelligentCleaning } from "../utils/cache/index";
 const dialog = useDialog();
+const message = useMessage();
 function handelClearLocalStorage() {
   dialog.warning({
-    title: "警告",
-    content:
-      "您确定要清理localStorage吗？localStorage是浏览器提供的本地存储，您需要备份一下私钥和稍微记忆一下中续，否则此账户将无法登录",
-    positiveText: "确定",
-    negativeText: "不确定",
+    title: t("warning"),
+    content: t("clear_local_storage_warning"),
+    positiveText: t("yes"),
+    negativeText: t("no"),
     onPositiveClick: () => {
       localStorage.clear();
       location.reload();
     },
     onNegativeClick: () => {},
   });
+}
+function handelIntelligentCleaning() {
+  intelligentCleaning();
+  message.success(t("message.cleanup_succeeded"));
+}
+function handelClearCache() {
+  clearCache();
+  message.success(t("message.cleanup_succeeded"));
 }
 </script>
 
@@ -24,16 +33,22 @@ function handelClearLocalStorage() {
     <n-list-item
       @click="() => $router.push({ name: 'content-blacklist-view' })"
     >
-      设置屏蔽规则
+      {{ t("hide_rules") }}
       <template #suffix>
         <n-icon><ArrowForwardIosRoundVue /> </n-icon>
       </template>
     </n-list-item>
-    <n-list-item @click="intelligentCleaning">清楚垃圾缓存</n-list-item>
-    <n-list-item @click="clearCache">清楚缓存</n-list-item>
-    <n-list-item @click="handelClearLocalStorage">清楚本地存储</n-list-item>
+    <n-list-item @click="handelIntelligentCleaning">{{
+      t("clear_expired_cache")
+    }}</n-list-item>
+    <n-list-item @click="handelClearCache">{{
+      t("clear_all_caches")
+    }}</n-list-item>
+    <n-list-item @click="handelClearLocalStorage">{{
+      t("clear_local_storage")
+    }}</n-list-item>
     <n-list-item>
-      中继自动Ping
+      {{ t("automatic_ping") }}
       <template #suffix>
         <n-switch v-model:value="config.autoPing" />
       </template>

@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { t } from "@/i18n";
 import { nowSecondTimestamp } from "../utils/utils";
 
 const props = defineProps<{ secondTimestamp: number }>();
@@ -9,12 +10,14 @@ const comeFromBefore = computed(() => {
 </script>
 
 <template>
-  <span v-if="comeFromBefore < 60"> {{ comeFromBefore }}秒前 </span>
+  <span v-if="comeFromBefore < 60">
+    {{ t("x_seconds_ago", { x: comeFromBefore }) }}
+  </span>
   <span v-else-if="comeFromBefore < 3600">
-    {{ Math.floor(comeFromBefore / 60) }}分钟前
+    {{ t("x_minutes_ago", { x: Math.floor(comeFromBefore / 60) }) }}
   </span>
   <span v-else-if="comeFromBefore < 60 * 60 * 24">
-    {{ Math.floor(comeFromBefore / 60 / 60) }}小时前
+    {{ t("x_hours_ago", { x: Math.floor(comeFromBefore / 60 / 60) }) }}
   </span>
   <span v-else>
     {{

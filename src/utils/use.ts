@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { EventBeltline } from "@/nostr/eventBeltline";
 import { relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
 import { type RelayEmiterResponseEventMap } from "@/nostr/RelayEmiter";
@@ -391,9 +392,49 @@ export function useOnOK() {
   const message = useMessage();
   return function onOK({ ok, url }) {
     if (ok) {
-      message.success(`已发布到${url}`);
+      message.success(t("published_to", { url }));
     } else {
-      message.error(`没有发布到${url}`);
+      message.error(t("not_published_to", { url }));
     }
   } as (v: RelayEmiterResponseEventMap["ok"]) => void;
+}
+export function useFlexibleRange(minWindowWidth = 1060, maxWindowWidth = 2650) {
+  const windowWidth = ref(window.innerWidth);
+  useEventListener("resize", () => {
+    windowWidth.value = window.innerWidth;
+  });
+
+  /**
+   * 当屏幕宽度在 `minWindowWidth` 到 `maxWindowWidth` 之间时，将根据比例输出 `minNumber` 到 `maxNumber` 之间的数
+   *
+   * @export
+   * @param {number} minNumber 当屏幕宽度小于 minWindowWidth 时将输出 minNumber 这个数
+   * @param {number} maxNumber 当屏幕宽度小于 maxWindowWidth 时将输出 maxNumber 这个数
+   * @param {{ floor?: boolean }} [options={}]
+   * @return {*}
+   */
+  return function flexibleRange(
+    minNumber: number,
+    maxNumber: number,
+    options: { floor?: boolean } = {}
+  ) {
+    return computed(() => {
+      const { floor = true } = options;
+      if (windowWidth.value > maxWindowWidth) {
+        return maxNumber;
+      } else if (windowWidth.value < minWindowWidth) {
+        return minNumber;
+      } else {
+        const proportion =
+          (windowWidth.value - minWindowWidth) /
+          (maxWindowWidth - minWindowWidth);
+
+        const flexNum = (maxNumber - minNumber) * proportion + minNumber;
+        if (floor) {
+          return Math.floor(flexNum);
+        }
+        return flexNum;
+      }
+    });
+  };
 }

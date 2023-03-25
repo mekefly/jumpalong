@@ -12,11 +12,10 @@ export function loginPrikey(key: string) {
     privateKey.value = key;
   });
 }
-export function registerPrikey() {
-  const key = createPrikey();
-  localStorage.setItem("newUserFlag", key);
-  loginPrikey(key);
-  return key;
+export function registerPrikey(prikey: string = createPrikey()) {
+  localStorage.setItem("newUserFlag", prikey);
+  loginPrikey(prikey);
+  return prikey;
 }
 export function logout() {
   window.localStorage[PRIVATE_KEY] = "";

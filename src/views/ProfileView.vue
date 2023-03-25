@@ -25,12 +25,15 @@ const isItMe = computed(
   () => profilePointer.value?.pubkey === userKey.value.publicKey
 );
 const pubkey = computed(() => profilePointer.value?.pubkey);
+const urls = computed(
+  () => profilePointer.value?.relays && new Set(profilePointer.value?.relays)
+);
 
 const metadata = computed(() => {
   if (!pubkey.value) return null;
   return getUserMetadataLineByPubkey(
     pubkey.value,
-    new Set(profilePointer.value?.relays)
+    urls.value
   ).feat.useMetadata();
 });
 
@@ -97,7 +100,7 @@ const [target] = useScale(0.3);
       </div>
     </div>
 
-    <ProfileMoreInfoVue v-if="pubkey" :pubkey="pubkey" />
+    <ProfileMoreInfoVue v-if="pubkey" :pubkey="pubkey" :urls="urls" />
   </div>
 </template>
 

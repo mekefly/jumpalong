@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import {
-  getChannelMessageBeltline,
-  getChannelMetadataBeltlineByChannelId,
+getChannelMessageBeltline,
+getChannelMetadataBeltlineByChannelId
 } from "@/api/channel";
 import contactConfiguration from "@/api/Contact";
 import AutoloadMoreVue from "@/components/AutoloadMore.vue";
@@ -9,14 +9,15 @@ import PapawVue from "@/components/Papaw.vue";
 import { useRichTextEditBoxOpt } from "@/components/RichTextEditBox";
 import RichTextEditBoxVue from "@/components/RichTextEditBox.vue";
 import ScrollbarVue from "@/components/Scrollbar.vue";
+import { t } from "@/i18n";
 import { useHandleSendMessage } from "@/utils/use";
 import { EventTemplate } from "nostr-tools";
 import { computed } from "vue";
 import { useRoute } from "vue-router";
 import {
-  useAutoScroll,
-  useJoinAndLeaveChannelHandle,
-  useUnlimitedLoad,
+useAutoScroll,
+useJoinAndLeaveChannelHandle,
+useUnlimitedLoad
 } from "./ChannelMessageView";
 
 const route = useRoute();
@@ -70,16 +71,7 @@ function handleSend(event: EventTemplate) {
             type="primary"
             @click="handleJoinChannel"
           >
-            加入
-          </n-button>
-          <n-button
-            v-if="!contactConfiguration.getChannelConfiguration().has(eventId)"
-            quaternary
-            round
-            type="primary"
-            @click="handleJoinChannel"
-          >
-            加入
+            {{ t("join") }}
           </n-button>
           <n-button
             v-else
@@ -88,7 +80,7 @@ function handleSend(event: EventTemplate) {
             type="primary"
             @click="handleLeaveChannel"
           >
-            离开
+            {{ t("leave") }}
           </n-button>
         </div>
       </template>

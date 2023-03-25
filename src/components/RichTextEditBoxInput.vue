@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { t } from "@/i18n";
 import { useModelBind } from "@/utils/use";
 import { MentionOption } from "naive-ui";
 import { useRichTextEditBoxOpt } from "./RichTextEditBox";
@@ -83,7 +84,7 @@ function handleChange() {
     class="w-full"
     @blur="() => $emit('blur')"
     @focus="() => $emit('focus')"
-    placeholder="你可以输入一些内容"
+    :placeholder="t('rich_text_edit_box_input_placeholder')"
     @change="handleChange"
     show-count
     :maxlength="3000"

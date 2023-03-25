@@ -24,6 +24,30 @@ export function toDeCodeNprofile(str: string): ProfilePointer | null {
     }
   }
 }
+export function decodeToPrikey(anyPrikey: string) {
+  if (!anyPrikey) return null;
+  if (isPrikey(anyPrikey)) {
+    return anyPrikey;
+  }
+  try {
+    const decodeData: any = nip19.decode(anyPrikey);
+    if (decodeData.type === "nsec") {
+      return decodeData.data;
+    } else {
+      return null;
+    }
+  } catch (error) {
+    return null;
+  }
+}
+export function isPrikey(prikey: string): boolean {
+  try {
+    const nsec = nip19.nsecEncode(prikey);
+    return nip19.decode(nsec).data === prikey;
+  } catch (error) {
+    return false;
+  }
+}
 
 export function profilePointerToNprofile(
   profilePointer: nip19.ProfilePointer

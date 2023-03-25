@@ -3,6 +3,7 @@ import RelayConfig from "../components/RelayConfig.vue";
 </script>
 
 <template>
+  <slot></slot>
   <RelayConfig />
 </template>
 

@@ -141,6 +141,7 @@ const [target, isShow] = useLazyShow(400);
     <div v-else>
       <div
         v-for="row in rows"
+        :key="row"
         class="w-full flex flex-wrap justify-start items-start"
       >
         <span

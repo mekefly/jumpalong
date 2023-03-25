@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { t } from "@/i18n";
 import { useThemeVars } from "naive-ui";
 import { relayConfigurator } from "../nostr/nostr";
 import TooltipVue from "./Tooltip.vue";
@@ -14,7 +15,7 @@ const optsRef = ref(
 function broadcast() {
   const opts = relayConfigurator.broadcast({ slef: reactive({}) });
   if (!opts) {
-    msg.error("请求失败，您可能需要先配置一下列表");
+    msg.error(t("message.broadcast_error_message"));
     return;
   }
 
@@ -35,8 +36,8 @@ const theme = useThemeVars();
   <TooltipVue
     :tooltip="
       relayConfigurator.hasChange()
-        ? '当前已有数据更改，您应该点击保存，如果您不希望保存，您应该刷新页面'
-        : '将自己的联系方式广泛发布，可帮助别人更容易找到自己'
+        ? t('tips.broadcast_has_change_tip')
+        : t('tips.broadcast_no_change_tip')
     "
   >
     <n-button
@@ -45,7 +46,7 @@ const theme = useThemeVars();
       :loading="isLoading"
       :disabled="isLoading || relayConfigurator.hasChange()"
     >
-      {{ isLoading ? "成功/超时/失败/总数" : "广播" }}
+      {{ isLoading ? t("success_timeout_failure_total") : t("broadcast") }}
 
       <span v-if="optsRef">
         <span

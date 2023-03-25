@@ -53,7 +53,7 @@ function handleSend(e: EventTemplate) {
       <div>
         <PostListVue
           v-model:pushEvent="pushEvent"
-          :url="urls"
+          :urls="urls"
           :filter="{ '#e': [event.id as string] }"
         />
       </div>

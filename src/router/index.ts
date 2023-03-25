@@ -6,7 +6,46 @@ const router = createRouter({
     {
       path: "/login",
       name: "login",
-      component: () => import("../views/LoginView.vue"),
+      redirect: "/login/language",
+      component: () => import("../views/LoginStepsView.vue"),
+      children: [
+        {
+          path: "/login/language",
+          name: "language",
+          alias: "/login-step-1",
+          meta: {
+            step: 1,
+          },
+          component: () => import("../views/LoginLanguageView.vue"),
+        },
+        {
+          path: "/logon",
+          name: "login-form",
+          alias: "/login-step-2",
+          meta: {
+            step: 2,
+          },
+          component: () => import("../views/logonView.vue"),
+        },
+        {
+          path: "/relay/configuration",
+          name: "relay-configuration",
+          alias: "/login-step-3",
+          meta: {
+            step: 3,
+          },
+          component: () => import("../views/LoginRelaysView.vue"),
+        },
+        {
+          path: "/login/complete",
+          name: "login-complete",
+          alias: "/login-step-4",
+          meta: {
+            step: 4,
+          },
+          component: () => import("../views/LoginCompleteView.vue"),
+        },
+      ],
     },
     {
       path: "/",
@@ -79,7 +118,10 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const prikey = localStorage.getItem("newUserFlag");
   const currentPrikey = localStorage.getItem("prikey");
-  if (["relay-info", "login"].some((nextName) => to.name === nextName)) {
+  if (
+    to.path.startsWith("/login") ||
+    ["relay-info", "login"].some((nextName) => to.name === nextName)
+  ) {
     next();
   } else if (prikey && prikey === currentPrikey) {
     next({ name: "login", query: { redirected: to.fullPath } });

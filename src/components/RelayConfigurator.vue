@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { t } from "@/i18n";
 import { NIcon, NSpace } from "naive-ui";
 import { relayConfigurator } from "../nostr/nostr";
 import BroadcastVue from "./Broadcast.vue";
@@ -30,15 +31,11 @@ function addRelay() {
 const message = useMessage();
 function handleSave() {
   relayConfigurator.save();
-  message.success(
-    "你的中继信息已保存到本地，正在准备上传，您可以继续您的其他操作"
-  );
+  message.success(t("message.relay_configurator_save_message"));
 }
 function handleSync() {
   relayConfigurator.sync();
-  message.success(
-    "同步已经开始了，将试图更新中继中的旧数据和，从中续中找到最新的配置"
-  );
+  message.success(t("message.relay_configurator_sync_message"));
 }
 const updateTime = computed(() => {
   const updateAt = relayConfigurator.getUpdateAt();
@@ -48,7 +45,7 @@ const updateTime = computed(() => {
 </script>
 
 <template>
-  <RelayConnectListVue :urls="urls" title="中继配置">
+  <RelayConnectListVue :urls="urls" :title="t('relay_configuration')">
     <template #header-extra>
       <n-icon class="mr-1"><EditCalendarRound /></n-icon>
       <DateTimeVue v-if="updateTime" :secondTimestamp="updateTime" />
@@ -79,13 +76,13 @@ const updateTime = computed(() => {
           placeholder="eg: wss://nostr.wine"
         />
         <n-button @click="addRelay" type="primary" :disabled="!value">
-          添加
+          {{ t("add") }}
         </n-button>
         <TooltipVue
           :tooltip="
             !relayConfigurator.hasChange()
-              ? '当前没有修改'
-              : '保存是保存修改的意思，有修改行为需要保存，同步不会保存数据'
+              ? t('tips.currently_not_modified')
+              : t('tips.save_changes')
           "
         >
           <n-button
@@ -93,15 +90,15 @@ const updateTime = computed(() => {
             type="primary"
             :disabled="!relayConfigurator.hasChange()"
           >
-            保存
+            {{ t("save") }}
           </n-button>
         </TooltipVue>
 
         <TooltipVue
           :tooltip="
             relayConfigurator.hasChange()
-              ? '当前已有数据更改，您应该点击保存，如果您不希望保存，您应该刷新'
-              : '同步是从云端找到最新的配置信息，同时把云端比当前旧的记录更新为最新'
+              ? t('tips.relay_configurator_sync_has_change_tip')
+              : t('tips.relay_configurator_sync_no_change_tip')
           "
         >
           <n-button
@@ -109,7 +106,7 @@ const updateTime = computed(() => {
             type="primary"
             :disabled="relayConfigurator.hasChange()"
           >
-            同步
+            {{ t("sync") }}
           </n-button>
         </TooltipVue>
         <BroadcastVue />

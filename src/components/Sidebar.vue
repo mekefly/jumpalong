@@ -1,7 +1,8 @@
 <script lang="ts" setup>
+import { t } from "@/i18n";
 import { isFunction } from "@vueuse/core";
 import { NIcon, NMenu, type MenuOption } from "naive-ui";
-import { h, ref } from "vue";
+import { h } from "vue";
 import { RouterLink } from "vue-router";
 import { renderIcon } from "../utils/naiveUi";
 import AlertOutlineVue from "./icon/AlertOutline.vue";
@@ -18,51 +19,59 @@ import LogoutButtonVue from "./LogoutButton.vue";
 
 const { collapsed } = defineProps<{ collapsed: boolean }>();
 
-const menuOptions = ref([
-  { key: "Home", label: "首页", href: "/home", icon: renderIcon(HomeVue) },
-  {
-    key: "Profile",
-    label: "我的",
-    href: "/profile",
-    icon: renderIcon(UserVue),
-  },
-  {
-    key: "Relays",
-    label: "中继",
-    href: "/relays",
-    icon: renderIcon(LinodeVue),
-  },
-  {
-    key: "Channels",
-    label: "频道",
-    href: "/channels",
-    icon: renderIcon(UsersVue),
-  },
-  {
-    key: "Task",
-    label: "任物",
-    href: "/task",
-    icon: renderIcon(ClipboardTaskListLtr20FilledVue),
-  },
-  {
-    key: "Settings",
-    label: "设置",
-    href: "/settings",
-    icon: renderIcon(SettingsVue),
-  },
-  {
-    key: "About",
-    label: "关于",
-    href: "/about",
+const menuOptions = computed(
+  () =>
+    [
+      {
+        key: "Home",
+        label: t("home"),
+        href: "/home",
+        icon: renderIcon(HomeVue),
+      },
+      {
+        key: "Profile",
+        label: t("profile"),
+        href: "/profile",
+        icon: renderIcon(UserVue),
+      },
+      {
+        key: "Relays",
+        label: t("relays"),
+        href: "/relays",
+        icon: renderIcon(LinodeVue),
+      },
+      {
+        key: "Channels",
+        label: t("channel"),
+        href: "/channels",
+        icon: renderIcon(UsersVue),
+      },
+      {
+        key: "Task",
+        label: t("task"),
+        href: "/task",
+        icon: renderIcon(ClipboardTaskListLtr20FilledVue),
+      },
+      {
+        key: "Settings",
+        label: t("settings"),
+        href: "/settings",
+        icon: renderIcon(SettingsVue),
+      },
+      {
+        key: "About",
+        label: t("about"),
+        href: "/about",
 
-    icon: renderIcon(AlertOutlineVue),
-  },
-  {
-    key: "Logout",
-    label: () => h(LogoutButtonVue, {}, { default: () => "退出登录" }),
-    icon: renderIcon(LogOutVue),
-  },
-] as MenuOption[]);
+        icon: renderIcon(AlertOutlineVue),
+      },
+      {
+        key: "Logout",
+        label: () => h(LogoutButtonVue, {}, { default: () => t("logout") }),
+        icon: renderIcon(LogOutVue),
+      },
+    ] as MenuOption[]
+);
 
 function renderMenuLabel(option: MenuOption) {
   if ("href" in option) {

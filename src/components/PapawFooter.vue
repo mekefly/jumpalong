@@ -7,8 +7,10 @@ import {
   sendDislike,
   sendLike,
 } from "@/api/like";
+import { t } from "@/i18n";
 import { useOnOK } from "@/utils/use";
 import { usePushShortTextNote } from "@/views/ShortTextNoteView";
+import { useThemeVars } from "naive-ui";
 import { Event } from "nostr-tools";
 
 const props = defineProps<{
@@ -46,29 +48,31 @@ function handelDislike() {
   }
   isDislike.value = !isDislike.value;
 }
+const theme = useThemeVars();
+const size = ref(20);
 </script>
 
 <template>
   <div class="flex justify-around py-4 box-border">
     <n-button text @click="handelPushShortTextNote">
-      <n-icon :size="30">
+      <n-icon :size="size">
         <MessageOutlined />
       </n-icon>
     </n-button>
     <n-button text @click="handelLike">
-      <n-icon :size="30">
+      <n-icon :size="size" :color="isLike ? theme.successColor : undefined">
         <LikeFilled v-if="isLike" />
         <LikeOutlined v-else />
       </n-icon>
     </n-button>
     <n-button text @click="handelDislike">
-      <n-icon :size="30">
+      <n-icon :size="size" :color="isDislike ? theme.successColor : undefined">
         <DislikeFilled v-if="isDislike" />
         <DislikeOutlined v-else />
       </n-icon>
     </n-button>
-    <n-button text @click="() => message.error('目前没有实现此功能')">
-      <n-icon :size="30">
+    <n-button text @click="() => message.error(t('message.not_implemented'))">
+      <n-icon :size="size">
         <CloudLightning />
       </n-icon>
     </n-button>

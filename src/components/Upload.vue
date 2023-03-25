@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { t } from "@/i18n";
 import CloudUploadVue from "./icon/CloudUpload.vue";
 import { useCustomRequest, useFileList, useShow, useUploadRef } from "./Upload";
 const { isShow, show, hidden } = useShow();
@@ -25,7 +26,7 @@ const uploadingNumber = computed(
         </n-button>
       </template>
 
-      <n-empty v-show="fileList.length === 0" description="你什么也找不到">
+      <n-empty v-show="fileList.length === 0" :description="t('empty_text')">
       </n-empty>
       <n-upload
         abstract

@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { t } from "@/i18n";
 import { relayConfigurator, relayPool } from "../nostr/nostr";
 import AddButtonVue from "./AddButton.vue";
 import ButtonCloseVue from "./ButtonClose.vue";
@@ -27,7 +28,7 @@ function getPublishNumber(url: string) {
 </script>
 
 <template>
-  <RelayConnectListVue :urls="keys" title="活动中继">
+  <RelayConnectListVue :urls="keys" :title="t('active_relay')">
     <template #header-extra>
       <n-icon class="mr-1">
         <AccountTreeRoundVue />
