@@ -24,7 +24,7 @@ const handleSendEvent = useHandleSendMessage(1);
 
 <template>
   <div class="flex flex-col h-full overflow-auto">
-    <ScrollbarVue class="flex-shrink flex-1 h-0">
+    <ScrollbarVue class="flex-shrink flex-1 h-0" refreshable loadable>
       <n-tabs
         default-value="MyFeed"
         justify-content="space-evenly"

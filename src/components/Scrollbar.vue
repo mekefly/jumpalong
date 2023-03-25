@@ -1,17 +1,51 @@
 <script lang="ts" setup>
+import RefreshVue from "./Refresh.vue";
 import { useProviteScrollbarInstRef } from "./Scrollbar";
+
 const { scrollbarInstRef, handleOnScroll } = useProviteScrollbarInstRef();
+const props = withDefaults(
+  defineProps<{
+    refreshable?: boolean;
+    loadable?: boolean;
+    triggerDistance?: number;
+    maxShifting?: number;
+  }>(),
+  {
+    triggerDistance: 70,
+    maxShifting: 100,
+  }
+);
+const { refreshable, loadable } = toRefs(props);
+const emit = defineEmits<{
+  (e: "refresh"): void;
+  (e: "load"): void;
+}>();
+
+const containerRef = computed(
+  () =>
+    (scrollbarInstRef.value as any)?.scrollbarInstRef.containerRef as
+      | HTMLElement
+      | null
+      | undefined
+);
 </script>
 
 <template>
-  <div class="wraps flex flex-col h-full">
-    <n-scrollbar
-      class="w-full flex-shrink flex-1"
-      @scroll="handleOnScroll"
-      ref="scrollbarInstRef"
+  <div class="wraps flex flex-col h-full relative overflow-hidden">
+    <RefreshVue
+      :container-ref="containerRef"
+      v-bind="props"
+      @load="() => emit('load')"
+      @refresh="() => emit('refresh')"
     >
-      <slot></slot>
-    </n-scrollbar>
+      <n-scrollbar
+        class="w-full flex-shrink flex-1"
+        @scroll=""
+        ref="scrollbarInstRef"
+      >
+        <slot></slot>
+      </n-scrollbar>
+    </RefreshVue>
   </div>
 </template>
 

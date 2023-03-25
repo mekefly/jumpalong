@@ -438,3 +438,26 @@ export function useFlexibleRange(minWindowWidth = 1060, maxWindowWidth = 2650) {
     });
   };
 }
+export function useLimitMovement(maxShifting: MaybeRef<number>) {
+  const shifting = ref(0);
+
+  const moveScale = computed(() => {
+    const abs = Math.abs(shifting.value);
+
+    if (abs >= unref(maxShifting)) {
+      return 0;
+    }
+    return (unref(maxShifting) - abs) / unref(maxShifting);
+  });
+
+  return {
+    shifting,
+    moveScale,
+    add(n: number) {
+      shifting.value += n * moveScale.value;
+    },
+    remake() {
+      shifting.value = 0;
+    },
+  };
+}

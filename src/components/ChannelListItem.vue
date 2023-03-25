@@ -26,13 +26,15 @@ watchEffect(() => {
     "
   >
     <div class="font-bold">
-      <EllipsisVue>{{
-        metadata.name ?? metadata.eventId.slice(0, 6)
-      }}</EllipsisVue>
+      <EllipsisVue>
+        {{ metadata.name ?? metadata.eventId.slice(0, 6) }}
+      </EllipsisVue>
     </div>
     <div v-if="metadata.about" class="w-full">
-      <EllipsisVue class="w-full"
-        ><small>{{ metadata.about }}</small>
+      <EllipsisVue class="w-full">
+        <small>
+          {{ metadata.about }}
+        </small>
       </EllipsisVue>
     </div>
   </div>
