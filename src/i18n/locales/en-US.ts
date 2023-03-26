@@ -139,6 +139,7 @@ const defaul = {
   leave: "Leave",
   join: "Join",
   loading: "Loading",
+  refreshing: "Refreshing",
   load_more: "Load more",
 
   resource_does_not_exist: "Resource does not exist",

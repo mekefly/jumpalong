@@ -45,8 +45,8 @@ export function initializeRuntime() {
   //   )
   // );
 
-  relayEmiter.onEvent(({ subId, event }) => {
-    rootEventBeltline.pushEvent(event, subId);
+  relayEmiter.onEvent(({ subId, event, url }) => {
+    rootEventBeltline.pushEvent(event, { subId });
   });
 
   // /**

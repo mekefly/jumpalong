@@ -17,7 +17,7 @@ export function initializeTesttime(options: any) {
   injectNostrApi({ rootEventBeltline });
 
   relayEmiter.onEvent(({ subId, event }) => {
-    rootEventBeltline.pushEvent(event, subId);
+    rootEventBeltline.pushEvent(event, { subId });
   });
 
   function testOption() {

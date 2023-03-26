@@ -1,11 +1,14 @@
-import { relayEmiter } from "../nostr";
 import { createStaff } from "./Staff";
 
+/**
+ * 自动停止订阅
+ * @returns
+ */
 export default function createEoseUnSubStaff() {
   return createStaff({
     initialization() {
       this.beltline.onAfterReq(({ subId }) => {
-        relayEmiter.once("eose", subId, () => {
+        this.beltline.getRelayEmiter().once("eose", subId, () => {
           this.beltline.closeReqBySubid(subId);
         });
       });

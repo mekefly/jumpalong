@@ -4,9 +4,8 @@ import {
   createDoNotRepeatStaff,
   createFilterGreaterThanTheCurrenttimeStaff,
 } from "@/nostr/staff";
-import autoAddRelayUrlByFilter from "@/nostr/staff/autoAddRelayUrlByFilter";
 import createAutoCloseReqByLimit from "@/nostr/staff/createAutoCloseReqByLimit";
-import createEoseUnSubStaff from "@/nostr/staff/createEoseUnSubStaff";
+import createRefreshLoadStaff from "@/nostr/staff/createRefreshLoadStaff";
 import { Filter } from "nostr-tools";
 import { createGarbageFilter } from "../nostr/staff/createGarbageFilter";
 import { useCache } from "../utils/cache";
@@ -36,8 +35,8 @@ export function getShortTextEventBeltline(
         describe: "获取短消息列表",
         slef: reactive({}),
       })
-        .addFilter(filter)
-        // .addStaff(createLocalStorageStaff(100))
+        // .addFilter(filter)
+        .addStaff(createRefreshLoadStaff([filter]))
         .addStaff(createAutoCloseReqByLimit(limit))
         .addStaff(createDoNotRepeatStaff()) // 重复事件过滤器
         .addStaff(createBlackStaff()) // 黑名单过滤器
@@ -45,20 +44,23 @@ export function getShortTextEventBeltline(
         .addStaff(createFilterGreaterThanTheCurrenttimeStaff()) // 解决-n秒前的情况
         .addStaffOfReverseSortByCreateAt(); // 通过创建时间反排序
 
+      if (pubkeys?.length === 0) return shortTextEventBeltline;
+      shortTextEventBeltline.feat.load();
+
       setTimeout(() => {
         const line = shortTextEventBeltline
-          .createChild()
-          .addFilter({ ...filter, limit })
-          .addStaff(createEoseUnSubStaff())
+          // .createChild()
+          // .addFilter({ ...filter, limit })
+          // .addStaff(createEoseUnSubStaff())
 
-          .addStaff(autoAddRelayUrlByFilter())
+          // .addStaff(autoAddRelayUrlByFilter())
           .addReadUrl()
-          .addRelayUrls(options?.relayUrls)
-          .onAfterReq(() => {
-            line.feat.stopAutoAddRelayUrlByFilter();
-          });
+          .addRelayUrls(options?.relayUrls);
+        // .onAfterReq(() => {
+        //   line.feat.stopAutoAddRelayUrlByFilter();
+        // });
 
-        shortTextEventBeltline.addExtends(line);
+        // shortTextEventBeltline.addExtends(line);
       }, 1000);
 
       logger

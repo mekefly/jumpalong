@@ -17,8 +17,9 @@ import {
 } from "vue";
 import { useRouter } from "vue-router";
 import { eventDeletion } from "../api/event";
+import { useCache } from "./cache";
 import { type CallBackT } from "./types";
-import { debounce, setAdds } from "./utils";
+import { debounce, nowSecondTimestamp, setAdds } from "./utils";
 
 export function useNextUpdate() {
   const callBacks: any[] = [];
@@ -460,4 +461,25 @@ export function useLimitMovement(maxShifting: MaybeRef<number>) {
       shifting.value = 0;
     },
   };
+}
+export function useNowSecondTimestamp() {
+  return useCache(
+    "useNowSecondTimestamp",
+    () => {
+      const secondTimestamp = ref(nowSecondTimestamp());
+      let id: any;
+      function calibration() {
+        clearInterval(id);
+        setTimeout(() => {
+          id = setInterval(() => {
+            secondTimestamp.value = nowSecondTimestamp();
+          }, 1000);
+        }, Date.now() % 1000);
+      }
+      calibration();
+      setInterval(calibration, 1000 * 60 * 5);
+      return secondTimestamp;
+    },
+    { useLocalStorage: false, duration: 999999999999999 }
+  );
 }

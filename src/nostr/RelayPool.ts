@@ -236,6 +236,6 @@ export class Relay {
     this.timeout = setTimeout(() => {
       if (this.subIds.size > 0 || this.publishIds.size > 0) return;
       this.close();
-    }, 10_000);
+    }, 60_000); //60秒没有操作就关闭连接
   }
 }

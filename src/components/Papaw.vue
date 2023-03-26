@@ -7,6 +7,7 @@ import SMSButtonVue from "./SMSButton.vue";
 import UserInfoVue from "./UserInfo.vue";
 
 import vLongPress from "@/directive/LongPress";
+import { useLazyShow } from "@/utils/use";
 import PapawFooterVue from "./PapawFooter.vue";
 
 const props = defineProps<{
@@ -19,11 +20,18 @@ function handelDeleteEvent(e: string) {
   deleteEvent?.value?.(e);
 }
 const showSMS = ref(false);
+const [target, show] = useLazyShow();
+const isNewMessage = computed(() => !show.value);
 </script>
 
 <template>
   <div
-    class="w-max-full bg-[#dfe4ea55] rounded-2xl mt-4"
+    ref="target"
+    class="w-max-full rounded-2xl mt-4"
+    :style="{
+      background: isNewMessage ? `#dfe4eaaa` : `#dfe4ea55`,
+      transition: `background 5s`,
+    }"
     v-Long-press="
       (e:MouseEvent) => {
         e.preventDefault()

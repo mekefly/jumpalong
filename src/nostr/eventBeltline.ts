@@ -124,10 +124,16 @@ export class EventBeltline<
     return this;
   }
 
-  public pushEvent(event: Event, subId?: string, set: Set<any> = new Set()) {
+  public pushEvent(
+    event: Event,
+    opt?: { subId?: string; url?: string },
+    set: Set<any> = new Set()
+  ) {
     //防循环事件
     if (set.has(this)) return;
     set.add(this);
+
+    const { subId, url } = opt ?? {};
 
     //前置处理
     for (const staff of this.staffs) {
@@ -138,7 +144,7 @@ export class EventBeltline<
     //push处理
     for (const staff of this.staffs) {
       const _state: StaffState =
-        staff.push?.(event, this.eventList, { lastState: state, subId }) ??
+        staff.push?.(event, this.eventList, { lastState: state, subId, url }) ??
         StaffState.NEXT;
 
       state = _state;
@@ -155,9 +161,9 @@ export class EventBeltline<
     state === StaffState.NEXT && this.eventList.push(event);
 
     // 继承
-    if (state === StaffState.NEXT || state === StaffState.BREAK) {
+    if (state === StaffState.NEXT) {
       this.extendTo.forEach((child) => {
-        child.pushEvent(event, subId, set);
+        child.pushEvent(event, opt, set);
       });
     }
   }
@@ -169,6 +175,10 @@ export class EventBeltline<
     this.relayConfigurator &&
       this.addRelayUrls(this.relayConfigurator.getReadList() as any);
 
+    return this;
+  }
+  public addRelayUrl(url: string) {
+    this.addRelayUrls(new Set<string>().add(url));
     return this;
   }
   public addRelayUrls(urls?: Set<string>) {
@@ -183,7 +193,13 @@ export class EventBeltline<
     }
     // 增加的url和所有的过滤器请求
     this.reqs(incrementUrl, this.filters);
+    this.eventEmitter.emit("add-relay-urls", incrementUrl, urls);
     return this;
+  }
+  public onAddRelayUrlsAfter(
+    listener: (incrementUrl: Set<string>, urls: Set<string>) => void
+  ) {
+    this.eventEmitter.on("add-relay-urls", listener);
   }
   public getFilters() {
     return this.filters;
@@ -409,9 +425,10 @@ export class EventBeltline<
 
   private req(url: string, filters: Filter[]) {
     const subId = this.idGenerator.createId();
-    this.onReceiveEvent(subId);
 
-    this.subidMap.set(subId, url);
+    this.onReceiveEvent(subId);
+    this.setSubidMap(subId, url);
+
     this.relayEmiter.emitRequest("req", {
       subId,
       url,
@@ -430,8 +447,8 @@ export class EventBeltline<
     set.add(this);
 
     // 监听
-    this.relayEmiter.on("event", subId, ({ event }) => {
-      this.pushEvent(event, subId);
+    this.relayEmiter.on("event", subId, ({ event, url }) => {
+      this.pushEvent(event, { subId, url });
     });
     this.relayEmiter.once("eose", subId, () => {
       this.relayEmiter.removeAllListener(subId);

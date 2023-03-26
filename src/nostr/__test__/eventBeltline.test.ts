@@ -11,7 +11,7 @@ function createTestEventBeltlineRoot() {
   });
 
   relayEmiter.onEvent(({ subId, event }) => {
-    eventBeltline.pushEvent(event, subId);
+    eventBeltline.pushEvent(event, { subId });
   });
 
   return { relayEmiter, eventBeltline };

@@ -411,3 +411,17 @@ export async function myRequest(
     }
   );
 }
+export function createCounter(initialValue: number = 0) {
+  return {
+    count: initialValue,
+    reduce() {
+      this.count++;
+    },
+    clear() {
+      this.count = 0;
+    },
+    set(n: number) {
+      this.count = n;
+    },
+  };
+}
