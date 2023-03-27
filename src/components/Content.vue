@@ -24,7 +24,7 @@ function parseTag(mark: string, markIndex: string, tags: string[][]) {
   switch (tag[0]) {
     case "p":
       const pubkey = data;
-      const event = ReplaceableEventMap.kind0.getEvent(pubkey);
+      const event = ReplaceableEventMap.kind0.get(pubkey);
       const nprofilte = nip19.nprofileEncode({ pubkey: data });
       if (event) {
         const metadata = parseMetadata(event);

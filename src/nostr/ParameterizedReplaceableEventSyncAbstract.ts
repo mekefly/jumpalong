@@ -1,4 +1,4 @@
-import { ReplaceableEventSyncAbstract } from "@/api/ReplaceableEventSyncAbstract";
+import { ReplaceableEventSyncAbstract } from "@/nostr/ReplaceableEventSyncAbstract";
 import { Filter } from "nostr-tools";
 import { AddressPointer } from "nostr-tools/lib/nip19";
 

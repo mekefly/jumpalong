@@ -1,12 +1,18 @@
 <script lang="ts" setup>
 import { config } from "@/nostr/nostr";
-import { removeLocalStorage, useCache } from "@/utils/cache";
+import {
+  defaultCacheOptions,
+  getCacheOrNull,
+  removeLocalStorage,
+  setCache,
+  useCache,
+} from "@/utils/cache";
 import { useElementIntoScreen } from "@/utils/use";
 import { debounce, ping } from "@/utils/utils";
 import { InjectionKey } from "vue";
 import NetworkCheckRoundVue from "./icon/NetworkCheckRound.vue";
-import WarningAmberRoundVue from "./icon/WarningAmberRound.vue";
 import Timer10SelectTwotone from "./icon/Timer10SelectTwotone.vue";
+import WarningAmberRoundVue from "./icon/WarningAmberRound.vue";
 
 const props = defineProps<{ url: string }>();
 const url = toRef(props, "url");
@@ -15,7 +21,7 @@ let wrongUrl = ref(false);
 let isOvertime = ref(false);
 let delay = ref<null | number>(null);
 
-const overtime = ref(5000);
+const overtime = ref(10000);
 const min = ref(500);
 
 const target = ref(null);
@@ -31,24 +37,37 @@ function toPing(noCache = false) {
     let u = new URL(url.value).host;
 
     if (noCache) {
-      removeLocalStorage(`ping:${u}`);
+      removeLocalStorage(`p:${u}`);
+      removeLocalStorage(`pe:${u}`);
     }
-    useCache(
-      `ping:${u}`,
-      () => {
-        return ping(u, overtime.value);
-      },
-      {}
+    if (getCacheOrNull(`pe:${u}`, defaultCacheOptions)) {
+      isLoading.value = false;
+      isOvertime.value = true;
+      return;
+    }
+    Promise.resolve(
+      useCache(
+        `p:${u}`,
+        () => {
+          return ping(u, overtime.value);
+        },
+        {
+          cacheError: false,
+        }
+      )
     )
       .then((n) => {
         delay.value = n;
         isLoading.value = false;
       })
       .catch((e) => {
+        setCache(`pe:${u}`, true, defaultCacheOptions);
         isLoading.value = false;
         isOvertime.value = true;
       });
   } catch (error) {
+    console.log("error", error);
+
     wrongUrl.value = true;
     isLoading.value = false;
   }

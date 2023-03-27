@@ -29,9 +29,6 @@ function load() {
   if (!loadable?.value) return;
   emit("load");
 }
-watchEffect(() => {
-  console.log("containerRef", containerRef?.value);
-});
 
 const {
   shifting: totalTravelDistanceY,

@@ -25,7 +25,7 @@ export function createCache<T>(
  * @returns
  */
 export function cacheStringify<T>(cache: Cache<T>): string {
-  return `${cache.updateTime},${cache.duration},${JSON.stringify(cache.value)}`;
+  return `${cache.updateTime},${cache.duration}|${JSON.stringify(cache.value)}`;
 }
 
 /**
@@ -35,14 +35,17 @@ export function cacheStringify<T>(cache: Cache<T>): string {
  */
 export function cacheParser<T>(cacheString: string): Cache<T> {
   // 13 + 21 + 1 === 35
-  const index = searchChar(cacheString, ",", 15, 36);
-  if (index === -1) throw new Error("CacheString:Expecting a ','");
+  const index = searchChar(cacheString, "|", 15, 36);
+  if (index === -1) throw new Error("CacheString:Expecting a '|'");
+  const [updateTimeStr, durationStr] = cacheString.slice(0, index).split(",");
+  const data = cacheString.slice(index + 1);
 
-  const updateTime = parseInt(cacheString.slice(0, 13));
+  const updateTime = parseInt(updateTimeStr);
   //"1679491284606,3000,"value""
   // length=13    |13
-  const duration = parseInt(cacheString.slice(14, index));
-  const value: T = JSON.parse(cacheString.slice(index + 1));
+  const duration = parseInt(durationStr);
+
+  const value: T = JSON.parse(data);
   return {
     updateTime,
     duration,

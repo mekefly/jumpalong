@@ -17,11 +17,8 @@ export default createStaffFactory<StorageInterface>()(
           .createChild({})
           .addStaffOfReverseSortByCreateAt()
           .addStaff(PopLimit(limit));
-        console.log("UseStorageStaff");
 
         line.feat.onLimitPop((e) => {
-          console.log("onLimitPop", e);
-
           this.beltline.feat.deleteItemById(e.id as string);
         });
 
@@ -30,7 +27,6 @@ export default createStaffFactory<StorageInterface>()(
         line.addStaff({
           afterPush(e) {
             storeLine.pushEvent(e);
-            console.log("useStoreLine");
           },
         });
       },

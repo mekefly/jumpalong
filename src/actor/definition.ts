@@ -1,5 +1,5 @@
-import { ActorSystem } from "./actorSystem";
+// import { ActorSystem } from "./actorSystem";
 
-export class Definition {
-  initialize?(actorSystem: ActorSystem<any>): Promise<void>;
-}
+// export class Definition {
+//   initialize?(actorSystem: ActorSystem<any>): Promise<void>;
+// }

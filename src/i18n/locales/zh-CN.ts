@@ -138,6 +138,7 @@ const message: I18nMessages = {
   leave: "离开",
   join: "加入",
   loading: "加载中",
+  refreshing: "刷新中",
   load_more: "加载更多",
 
   resource_does_not_exist: "资源不存在",

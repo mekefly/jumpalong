@@ -19,9 +19,9 @@ import {
 import { debounceWatch } from "@/utils/vue";
 import { type Event } from "nostr-tools";
 import { reactive } from "vue";
-import { ReplaceableEventSyncAbstract } from "../api/ReplaceableEventSyncAbstract";
 import { timeout } from "../utils/utils";
 import { readListKey, writeListKey } from "./relayConfiguratorKeys";
+import { ReplaceableEventSyncAbstract } from "./ReplaceableEventSyncAbstract";
 import { userKey } from "./user";
 
 export const defaultUrls: string[] = (window as any).defaultRelayUrls ?? [

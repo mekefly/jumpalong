@@ -1,21 +1,21 @@
 import replaceableEventMap from "../ReplaceableEventMap";
-import { createLatestEventStaff } from "./createLatestEventStaff";
+import { LatestEventStaffFeat } from "./createLatestEventStaff";
 import { createStaffFactory } from "./Staff";
+export default createStaffFactory<LatestEventStaffFeat>()(
+  (type: 10002 | 0, pubkey: string) => {
+    return {
+      initialization() {
+        const map = replaceableEventMap[`kind${type}`];
+        const event = map.getByPubkey(pubkey);
+        if (event) {
+          this.beltline.pushEvent(event);
+        }
 
-export default createStaffFactory()((type: 10002 | 0) => {
-  return {
-    initialization() {
-      const line = this.beltline
-        .createChild()
-        .addFilter({ kinds: [type] })
-        .addStaff(createLatestEventStaff());
-
-      line.feat.onHasLatestEvent((e) => {
-        replaceableEventMap[`kind${type}`].add(e);
-      });
-
-      line.addExtends(this.beltline);
-    },
-    push() {},
-  };
-});
+        this.beltline.feat.onHasLatestEvent((e) => {
+          map.add(e);
+        });
+      },
+      push() {},
+    };
+  }
+);

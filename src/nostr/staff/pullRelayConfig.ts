@@ -23,11 +23,8 @@ export default createStaffFactory<
       syncInterval(
         this.beltline.getFilters(),
         () => {
-          console.log("1");
-
           const debounceFunction = debounce(
             (readWriteList: WritableReadableList) => {
-              console.log("4");
               //请注意这里的this是initialization的this = 主生产线，而不是子生产线line
               (opts?.read ?? true) &&
                 this.beltline.addRelayUrls(readWriteList.readUrl);

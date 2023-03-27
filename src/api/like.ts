@@ -46,7 +46,7 @@ export function sendReactions(
   tags.push(["p", targetEvent.pubkey]);
   const urls = new Set(relayConfigurator.getWriteList());
 
-  const event = ReplaceableEventMap.kind10002.getEvent(targetEvent.pubkey);
+  const event = ReplaceableEventMap.kind10002.get(targetEvent.pubkey);
   if (event) {
     const { writeUrl } = deserializeTagRToReadWriteList(event.tags);
     setAdds(urls, writeUrl);

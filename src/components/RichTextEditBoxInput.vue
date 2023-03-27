@@ -41,12 +41,9 @@ const parseTags = useParseTagsFunction(userMap, eventMap);
 
 watch(
   rawValue,
-  () => {
-    console.log("handleChange");
-
-    setTimeout(() => {
-      handleChange();
-    });
+  async () => {
+    await nextTick();
+    handleChange();
   },
   {
     immediate: true,

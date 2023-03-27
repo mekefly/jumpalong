@@ -17,7 +17,7 @@ export function useUserOpt() {
     { event: Event; metadata: ChannelMetadata }
   >();
   const userRefMentionOption: MentionOption[] = reactive([]);
-  const Kind0eventMap = ReplaceableEventMap.kind0.getAll();
+  const Kind0eventMap = ReplaceableEventMap.kind0.allMap();
   for (const pubkey in Kind0eventMap) {
     const event = Kind0eventMap[pubkey];
     const metadata = parseMetadata(event);

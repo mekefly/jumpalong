@@ -171,7 +171,6 @@ export class EventBeltline<
     return this.urls;
   }
   public addReadUrl() {
-    console.debug("addReadUrl", this.relayConfigurator);
     this.relayConfigurator &&
       this.addRelayUrls(this.relayConfigurator.getReadList() as any);
 
@@ -182,8 +181,6 @@ export class EventBeltline<
     return this;
   }
   public addRelayUrls(urls?: Set<string>) {
-    console.debug(this.name, urls as any);
-
     if (!urls) return this;
     if (urls.size === 0) return this;
     const incrementUrl = getSetIncrement(this.urls, urls);

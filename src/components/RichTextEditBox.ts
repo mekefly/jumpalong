@@ -22,13 +22,10 @@ export function useRichTextEditBoxOpt(id: MaybeRef<string> = createId()) {
     () => {
       const eventEmiter = new EventEmitter();
       const emit: EmitType = function (e: "reply", event: Event) {
-        console.log("emit", event);
-
         eventEmiter.emit(e, event);
       };
 
       const on: OnType = function on(e, callback) {
-        console.log("on", "监听");
         eventEmiter.on(e, callback);
       };
       const opt: Opt = reactive({

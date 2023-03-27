@@ -3,6 +3,7 @@ import { Event, Filter } from "nostr-tools";
 import { EventBeltline } from "../eventBeltline";
 import { createDoNotRepeatStaff } from "./createDoNotRepeatStaff";
 import createEoseUnSubStaff from "./createEoseUnSubStaff";
+import createTimeoutUnSubStaff from "./createTimeoutUnSubStaff";
 import { createStaffFactory, StaffState } from "./Staff";
 
 type BufferOpt = {
@@ -110,14 +111,6 @@ export default createStaffFactory()((filters: Filter[], limit: number = 20) => {
               return;
             }
           }
-          console.log(
-            "loadOpt.timeIncrement",
-            loadOpt.timeIncrement,
-            "since",
-            new Date(since * 1000).toLocaleString(),
-            "until",
-            new Date(until * 1000).toLocaleString()
-          );
 
           return filters.map((filter) => ({
             ...filter,
@@ -190,7 +183,6 @@ export default createStaffFactory()((filters: Filter[], limit: number = 20) => {
       }
 
       const _filter = createFilters(_clearInterval);
-      console.log("getTimeIncrement()", bufferOpt.timeIncrement, _filter, urls);
       if (!_filter) return;
       if (urls.size === 0) return;
 
@@ -198,15 +190,10 @@ export default createStaffFactory()((filters: Filter[], limit: number = 20) => {
         bufferOpt.bufferLine.addExtends(
           bufferOpt.bufferLine
             .createChild()
-            // .addStaff(createTimeoutUnSubStaff())
+            .addStaff(createTimeoutUnSubStaff())
             .addStaff(createEoseUnSubStaff())
             .addFilters(_filter)
             .addRelayUrl(url)
-            .addStaff({
-              push(e) {
-                console.log("获取到了信息", e);
-              },
-            })
         );
       }
     }

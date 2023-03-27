@@ -15,9 +15,9 @@ import {
 import { useCache } from "@/utils/cache";
 import { debounce } from "@/utils/utils";
 import { Event, Filter } from "nostr-tools";
+import { ReplaceableEventSyncAbstract } from "../nostr/ReplaceableEventSyncAbstract";
 import { userKey } from "../nostr/user";
 import { getChannelMetadataBeltlineByChannelId } from "./channel";
-import { ReplaceableEventSyncAbstract } from "./ReplaceableEventSyncAbstract";
 import { getUserMetadataLineByPubkey, UserMetaData } from "./user";
 
 type ContactConfigurationDatas = {

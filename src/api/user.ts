@@ -6,6 +6,7 @@ import { createDoNotRepeatStaff } from "@/nostr/staff";
 import autoAddRelayurlByPubkeyStaff from "@/nostr/staff/autoAddRelayurlByPubkeyStaff";
 import createEoseUnSubStaff from "@/nostr/staff/createEoseUnSubStaff";
 import { createLatestEventStaff } from "@/nostr/staff/createLatestEventStaff";
+import createTimeoutUnSubStaff from "@/nostr/staff/createTimeoutUnSubStaff";
 import createUseChannelMetadata, {
   ChannelMetadata,
   parseMetadata,
@@ -38,8 +39,6 @@ export function getUserMetadataLineByPubkey(pubkey: string, url?: Set<string>) {
   return useCache(
     `getUserMetadataLineByPubkey:${pubkey}`,
     () => {
-      console.log("getUserMetadataLineByPubkey");
-
       const line = rootEventBeltline
         .createChild({
           slef: reactive({}),
@@ -48,12 +47,13 @@ export function getUserMetadataLineByPubkey(pubkey: string, url?: Set<string>) {
           authors: [pubkey],
           kinds: [0],
         })
-        .addStaff(ReplaceableEventMapStaff(0)) //可替换事件缓存
         .addStaff(createLatestEventStaff())
+        .addStaff(ReplaceableEventMapStaff(0, pubkey)) //可替换事件缓存
         .addStaff(createUseChannelMetadata())
-        .addStaff(createEoseUnSubStaff());
+        .addStaff(createEoseUnSubStaff())
+        .addStaff(createTimeoutUnSubStaff());
 
-      const event = ReplaceableEventMap.kind0.getEvent(pubkey);
+      const event = ReplaceableEventMap.kind0.get(pubkey);
 
       if (event) {
         line.pushEvent(event);

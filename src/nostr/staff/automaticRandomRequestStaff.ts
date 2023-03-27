@@ -1,8 +1,9 @@
 import { Filter } from "nostr-tools";
-import { createStaff, StaffThisType } from ".";
+import { createStaff, createStaffFactory, StaffThisType } from ".";
 import { EventBeltline } from "../eventBeltline";
 import { relayConfigurator, rootEventBeltline } from "../nostr";
 import createEoseUnSubStaff from "./createEoseUnSubStaff";
+import { LatestEventStaffFeat } from "./createLatestEventStaff";
 
 export type AutomaticRandomRequestStaff = {
   initialization(this: StaffThisType<{}>): void;
@@ -148,3 +149,19 @@ export default function createAutomaticRandomRequestStaff() {
     },
   });
 }
+
+/**
+ * 坚听请求到一次就关闭，一般用于可替换事件
+ */
+export const createAutomaticRandomRequestWithEventAutoClose =
+  createStaffFactory<AutomaticRandomRequestStaffFeat & LatestEventStaffFeat>()(
+    () => {
+      return {
+        initialization() {
+          this.beltline.feat.onHasLatestEventOnce(() => {
+            this.beltline.feat.stopAutomaticRandomRequestStaff();
+          });
+        },
+      };
+    }
+  );

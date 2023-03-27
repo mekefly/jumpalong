@@ -71,9 +71,7 @@ type NeventOpt = {
 };
 export function toDeCodeNevent(str: string): NeventOpt | null {
   try {
-    console.log("toDeCodeNevent");
     const v = nip19.decode(str);
-    console.log("toDeCodeNevent", v);
 
     switch (v["type"]) {
       case "nevent":

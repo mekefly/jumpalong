@@ -19,7 +19,7 @@ it("cacheStringify", () => {
   const c = createCache("value", 3000);
 
   expect(cacheStringify(c)).toMatchInlineSnapshot(
-    '"1679491284606,3000,\\"value\\""'
+    '"1679491284606,3000|\\"value\\""'
   );
 });
 

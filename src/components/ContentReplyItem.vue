@@ -26,9 +26,6 @@ const line = computed(() => {
   return getEventLineById(neventOpt.value.id, { url: relayUrls.value });
 });
 const replyEvent = computed(() => line.value?.feat.useEvent());
-watchEffect(() => {
-  console.log("replyEvent.value", replyEvent.value);
-});
 </script>
 
 <template>

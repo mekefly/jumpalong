@@ -13,6 +13,8 @@ import { createLatestEventStaff } from "@/nostr/staff/createLatestEventStaff";
 import createRefreshLoadStaff from "@/nostr/staff/createRefreshLoadStaff";
 import createTimeoutUnSubStaff from "@/nostr/staff/createTimeoutUnSubStaff";
 import createUseChannelMetadata from "@/nostr/staff/createUseChannelMetadata";
+import createWithEvent from "@/nostr/staff/createWithEvent";
+import createChannelMetadataEventMap from "@/nostr/staff/storage/createChannelMetadataEventMap";
 import { createTagArray } from "../nostr/tag";
 import { useCache } from "../utils/cache";
 import { noUndefinedInTheArray, nowSecondTimestamp } from "../utils/utils";
@@ -103,13 +105,18 @@ export function getChannelMetadataBeltlineByChannelId(eventId: string) {
         .addFilter({ ids: [eventId], kinds: [40] })
         .addFilter({ kinds: [41], "#e": [eventId] })
 
-        .addStaff(createLatestEventStaff()) //只获取最后一条
-        .addStaff(createUseChannelMetadata()) //获取metadata
-        .addStaff(createEoseUnSubStaff()) //自动关闭
-        .addStaff(createTimeoutUnSubStaff()) //超时关闭
+        .addStaff(createLatestEventStaff()) //只获取最新的一条
+        .addStaff(createUseChannelMetadata()) //生成metadata
+        .addStaff(createEoseUnSubStaff()) //自动关闭请求
+        .addStaff(createTimeoutUnSubStaff()) //超时关闭请求
+        .addStaff(createChannelMetadataEventMap(eventId)) //临时缓存
+        .addStaff(createWithEvent()); //检查是否具有至少一个事件
 
-        .addStaff(autoAddRelayurlByEventIdStaff(eventId)) //根据事件id获取添加url
-        .addReadUrl();
+      if (!metadataLine.feat.withEvent()) {
+        metadataLine
+          .addStaff(autoAddRelayurlByEventIdStaff(eventId)) //根据事件id获取添加url
+          .addReadUrl();
+      }
 
       return metadataLine;
     },

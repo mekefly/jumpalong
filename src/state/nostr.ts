@@ -24,7 +24,7 @@ export function useRecommendUser() {
   const recommendEvent = useRecommendEvent();
 
   return function recommendUser(pubkey: string) {
-    const e = ReplaceableEventMap.kind10002.getEvent(pubkey);
+    const e = ReplaceableEventMap.kind10002.get(pubkey);
     if (e) {
       recommendEvent(e);
     } else {
@@ -38,7 +38,7 @@ export function useRecommendUserMetadata() {
   const recommendEvent = useRecommendEvent();
 
   return function recommendUserMetadata(pubkey: string) {
-    const e = ReplaceableEventMap.kind0.getEvent(pubkey);
+    const e = ReplaceableEventMap.kind0.get(pubkey);
     if (e) {
       recommendEvent(e);
     } else {

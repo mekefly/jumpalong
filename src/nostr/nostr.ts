@@ -3,10 +3,6 @@ import { type RelayConfigurator } from "./relayConfigurator";
 import { type RelayEmiter } from "./RelayEmiter";
 import { type RelayPool } from "./RelayPool";
 
-export let relayEmiter: RelayEmiter = null as any;
-export let relayPool: RelayPool = null as any;
-export let rootEventBeltline: EventBeltline = null as any;
-
 const appConfig = useLocalStorage(
   "app-config",
   () => ({
@@ -38,6 +34,10 @@ const appConfig = useLocalStorage(
  */
 export let relayConfigurator: RelayConfigurator = null as any;
 export let config: ConfigType = appConfig.value as any as ConfigType;
+
+export let relayEmiter: RelayEmiter = null as any;
+export let relayPool: RelayPool = null as any;
+export let rootEventBeltline: EventBeltline = null as any;
 
 type ConfigType = {
   getOtherUrlsRequestLimitSize: number;

@@ -14,7 +14,7 @@ const [metadata1, target, isShow] = useLazyComponent(() => {
 
 const metadata = computed(() => {
   if (!isShow.value) return;
-  const event = ReplaceableEventMap.kind0.getEvent(pubkey.value);
+  const event = ReplaceableEventMap.kind0.get(pubkey.value);
 
   if (event) {
     return parseMetadata(event);
