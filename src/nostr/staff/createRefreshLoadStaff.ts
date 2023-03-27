@@ -190,8 +190,8 @@ export default createStaffFactory()((filters: Filter[], limit: number = 20) => {
 
     _clearInterval();
 
-    setIntervalId(setInterval(toReq, 3000));
-    toReq();
+    setIntervalId(setInterval(toReq, 2000));
+    setTimeout(() => toReq);
 
     function toReq() {
       if (expectingNewEventCounters.count >= limit) {
