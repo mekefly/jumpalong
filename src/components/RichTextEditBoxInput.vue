@@ -42,7 +42,11 @@ const parseTags = useParseTagsFunction(userMap, eventMap);
 watch(
   rawValue,
   () => {
-    handleChange();
+    console.log("handleChange");
+
+    setTimeout(() => {
+      handleChange();
+    });
   },
   {
     immediate: true,

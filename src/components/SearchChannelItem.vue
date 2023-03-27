@@ -29,7 +29,7 @@ const eventId = computed(() => {
         eventId &&
         $router.push({
           name: 'channel-message',
-          params: { eventId: eventId },
+          params: { value: eventId },
         })
     "
   >

@@ -65,7 +65,7 @@ const router = createRouter({
           component: () => import("../views/ChannelsView.vue"),
         },
         {
-          path: "/channel/message/:eventId",
+          path: "/channel/message/:value",
           name: "channel-message",
           component: () => import("../views/ChannelMessageView.vue"),
         },
@@ -101,14 +101,26 @@ const router = createRouter({
           component: () => import("../views/RelayInfoView.vue"),
         },
         {
-          path: "/short/text/note/:value",
-          name: "short-text-note",
-          component: () => import("../views/ShortTextNoteView.vue"),
-        },
-        {
-          path: "/search/:value?",
-          name: "search",
-          component: () => import("../views/SearchView.vue"),
+          path: "/to-back",
+          name: "to-back",
+          component: () => import("../views/ToBackView.vue"),
+          children: [
+            {
+              path: "/search/:value?",
+              name: "search",
+              component: () => import("../views/SearchView.vue"),
+            },
+            {
+              path: "/short/text/note/:value",
+              name: "short-text-note",
+              component: () => import("../views/ShortTextNoteView.vue"),
+            },
+            {
+              path: "/channel/create",
+              name: "create-channel",
+              component: () => import("../views/CreateChannelView.vue"),
+            },
+          ],
         },
       ],
     },

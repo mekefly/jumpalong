@@ -59,7 +59,9 @@ export function useAutoScroll(messageList: Ref<Event[]>) {
   // return { bottomRef };
 }
 
-export function useJoinAndLeaveChannelHandle(eventId: Ref<string>) {
+export function useJoinAndLeaveChannelHandle(
+  eventId: Ref<string | undefined | null>
+) {
   const message = useMessage();
   function handleJoinChannel() {
     if (!eventId.value) return;

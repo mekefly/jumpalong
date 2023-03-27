@@ -35,7 +35,7 @@ class ContactConfiguration extends ReplaceableEventSyncAbstract<ContactConfigura
     });
   }
 
-  getFilter(): Filter[] {
+  getFilters(): Filter[] {
     return [{ kinds: [3], authors: [userKey.value.publicKey] }];
   }
 

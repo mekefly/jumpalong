@@ -1,5 +1,6 @@
 import contactConfiguration from "@/api/Contact";
 import { testAndVerifyNewUser } from "@/api/login";
+import { getFollowChannelConfiguration } from "@/nostr/FollowChannel";
 
 export const loginOperations: Array<() => void> = [];
 
@@ -11,9 +12,11 @@ loginOperations.push(() => {
       "wss://nos.lol", //作者
       "你好"
     );
-    contactConfiguration.joinChannel(
+    getFollowChannelConfiguration().joinChannel(
       "25e5c82273a271cb1a840d0060391a0bf4965cafeb029d5ab55350b418953fbb", //nostr群
-      "wss://nos.lol"
+      {
+        relays: ["wss://nos.lol"],
+      }
     );
   }
 });

@@ -200,6 +200,7 @@ export class EventBeltline<
     listener: (incrementUrl: Set<string>, urls: Set<string>) => void
   ) {
     this.eventEmitter.on("add-relay-urls", listener);
+    return this;
   }
   public getFilters() {
     return this.filters;

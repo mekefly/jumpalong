@@ -27,7 +27,7 @@ export abstract class ReplaceableEventSyncAbstract<E> {
     this.setDataByEvent(event);
   }
 
-  abstract getFilter(): Filter[];
+  abstract getFilters(): Filter[];
   /**
    * 将事件序列化为你所需要的数据
    * @param e
@@ -149,7 +149,7 @@ export abstract class ReplaceableEventSyncAbstract<E> {
         const slef = this;
         const withEvent = new Set();
         const line = createEventBeltline()
-          .addFilters(this.getFilter())
+          .addFilters(this.getFilters())
           .addStaff({
             push(e, _, { subId }) {
               if (!subId) return;

@@ -1,17 +1,17 @@
 <script lang="ts" setup>
 import { getChannelMetadataBeltlineByChannelId } from "@/api/channel";
-import { ChannelConfigurationData } from "@/api/Contact";
+import { ChannelConfigurationData } from "@/nostr/FollowChannel";
 import EllipsisVue from "./Ellipsis.vue";
 
-const props = defineProps<{ metadata: ChannelConfigurationData }>();
-const { metadata } = toRefs(props);
+const props = defineProps<{
+  channelConfigurationData: ChannelConfigurationData;
+}>();
+const { channelConfigurationData } = toRefs(props);
 
-const metadataLine = getChannelMetadataBeltlineByChannelId(
-  metadata.value.eventId
+const metadataLine = computed(() =>
+  getChannelMetadataBeltlineByChannelId(channelConfigurationData.value.eventId)
 );
-watchEffect(() => {
-  Object.assign(metadata.value, metadataLine.feat.useMetadata());
-});
+const metadata = computed(() => metadataLine.value.feat.useMetadata());
 </script>
 
 <template>
@@ -21,13 +21,13 @@ watchEffect(() => {
       () =>
         $router.push({
           name: 'channel-message',
-          params: { eventId: metadata.eventId },
+          params: { value: channelConfigurationData.eventId },
         })
     "
   >
     <div class="font-bold">
       <EllipsisVue>
-        {{ metadata.name ?? metadata.eventId.slice(0, 6) }}
+        {{ metadata.name ?? channelConfigurationData.eventId.slice(0, 10) }}
       </EllipsisVue>
     </div>
     <div v-if="metadata.about" class="w-full">

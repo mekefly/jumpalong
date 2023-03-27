@@ -58,7 +58,7 @@ export class RelayConfigurator extends ReplaceableEventSyncAbstract<RelayConfigu
       [writeListKey]: new Set(),
     });
   }
-  getFilter() {
+  getFilters() {
     return [
       {
         kinds: [10002],
