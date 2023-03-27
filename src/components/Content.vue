@@ -2,7 +2,6 @@
 import ReplaceableEventMap from "@/nostr/ReplaceableEventMap";
 import { parseMetadata } from "@/nostr/staff/createUseChannelMetadata";
 import { matchTagPlaceholderRegExp, matchUrlRegExp } from "@/utils/RegExpUtils";
-import { useLazyShow } from "@/utils/use";
 import { isNumberAndNotNaN } from "@/utils/utils";
 import { Event, nip19 } from "nostr-tools";
 import ContentReplyItemVue from "./ContentReplyItem.vue";
@@ -132,13 +131,13 @@ const rows = computed(() => {
   parseRow(event.value.content, rows);
   return rows;
 });
-const [target, isShow] = useLazyShow(400);
+// const [target, isShow] = useLazyShow(400);
 </script>
 
 <template>
   <div class="w-full" ref="target">
-    <n-spin v-if="!isShow" class="w-full h-64" />
-    <div v-else>
+    <!-- <n-spin  class="w-full h-64" /> -->
+    <div>
       <div
         v-for="row in rows"
         :key="row"

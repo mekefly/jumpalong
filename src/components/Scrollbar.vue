@@ -2,7 +2,14 @@
 import RefreshVue from "./Refresh.vue";
 import { useProviteScrollbarInstRef } from "./Scrollbar";
 
-const { scrollbarInstRef, handleOnScroll } = useProviteScrollbarInstRef();
+const containerRef = computed(
+  () =>
+    (scrollbarInst.value as any)?.scrollbarInstRef.containerRef as
+      | HTMLElement
+      | null
+      | undefined
+);
+const { scrollbarInst } = useProviteScrollbarInstRef(containerRef);
 const props = withDefaults(
   defineProps<{
     refreshable?: boolean;
@@ -20,14 +27,6 @@ const emit = defineEmits<{
   (e: "refresh"): void;
   (e: "load"): void;
 }>();
-
-const containerRef = computed(
-  () =>
-    (scrollbarInstRef.value as any)?.scrollbarInstRef.containerRef as
-      | HTMLElement
-      | null
-      | undefined
-);
 </script>
 
 <template>
@@ -41,7 +40,7 @@ const containerRef = computed(
       <n-scrollbar
         class="w-full flex-shrink flex-1"
         @scroll=""
-        ref="scrollbarInstRef"
+        ref="scrollbarInst"
       >
         <slot></slot>
       </n-scrollbar>

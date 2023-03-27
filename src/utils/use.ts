@@ -8,6 +8,7 @@ import {
   computed,
   ComputedGetter,
   getCurrentInstance,
+  InjectionKey,
   onUpdated,
   ref,
   unref,
@@ -254,7 +255,7 @@ export function useLazyData<E>(
   return [data, target];
 }
 export function useLazyShow(delay?: number) {
-  const target = ref(null);
+  const target = ref(null as HTMLDivElement | null);
   const isIntoScreen = useElementIntoScreen(target, { delay });
 
   let isShow = ref(isIntoScreen.value);
@@ -482,4 +483,22 @@ export function useNowSecondTimestamp() {
     },
     { useLocalStorage: false, duration: 999999999999999 }
   );
+}
+
+export function createInjectionState<
+  Argv extends any[],
+  Return extends any,
+  F extends (...argv: Argv) => Return
+>(fun: (...argv: Argv) => Return) {
+  const key = Symbol() as InjectionKey<ReturnType<F>>;
+  return [
+    (...argv: Argv) => {
+      const v: Return = fun(...argv);
+      provide(key, v);
+      return v;
+    },
+    () => {
+      return inject(key, () => null, true);
+    },
+  ] as const;
 }
