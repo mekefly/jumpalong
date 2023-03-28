@@ -39,10 +39,12 @@ export default function autoAddRelayurlByPubkeyStaff(
           kinds: [10002],
           authors: [pubkey],
         })
+
+        .addStaff(createTimeoutUnSubStaff()) // 超时关闭
+        .addStaff(createEoseUnSubStaff()) // 自动关闭订阅
+
         .addStaff(createLatestEventStaff()) //创建最新事件
         .addStaff(ReplaceableEventMapStaff(10002, pubkey)) // 本地缓存
-        .addStaff(createEoseUnSubStaff()) // 自动关闭订阅
-        .addStaff(createTimeoutUnSubStaff()) // 超时关闭
         .addStaff(createReadWriteListStaff()) // 创建读写配置列表
         .addStaff(createWithEvent());
 

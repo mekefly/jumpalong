@@ -134,9 +134,10 @@ export function getChannelMetadataBeltlineByChannelId(eventId: string) {
  * @param urls
  * @returns
  */
-export function getChannelMessageBeltline(eventId: string, urls?: Set<string>) {
-  console.log("getChannelMessageBeltline", eventId);
-
+export function getChannelMessageBeltline(
+  eventId: string,
+  opts?: { urls?: Set<string> }
+) {
   return useCache(
     `etChannelMessageBeltline:${eventId}`,
     () => {
@@ -163,7 +164,7 @@ export function getChannelMessageBeltline(eventId: string, urls?: Set<string>) {
         line.addExtends(
           line
             .createChild()
-            .addRelayUrls(urls)
+            .addRelayUrls(opts?.urls)
             .onAddRelayUrlsAfter((set: Set<string>) => {
               line.addRelayUrls(set);
             })

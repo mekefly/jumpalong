@@ -1,12 +1,14 @@
 import { getChannelMetadataBeltlineByChannelId } from "@/api/channel";
+import { getEventLineById } from "@/api/event";
+import { getUserRelayUrlConfigByPubkey } from "@/api/user";
 import { useCache } from "@/utils/cache";
-import { debounce } from "@/utils/utils";
+import { debounce, setAdds } from "@/utils/utils";
 import { Event } from "nostr-tools";
 import { AddressPointer } from "nostr-tools/lib/nip19";
 import { createEvent } from "./event";
 import { ParameterizedReplaceableEventSyncAbstract } from "./ParameterizedReplaceableEventSyncAbstract";
 import { ChannelMetadata } from "./staff/createUseChannelMetadata";
-import { deserializeTagE } from "./tag";
+import { deserializeTagE, deserializeTagR } from "./tag";
 import { userKey } from "./user";
 export function getFollowChannelConfiguration() {
   return useCache(
@@ -28,6 +30,8 @@ export type ChannelConfigurationData = {
   channelMeta: ChannelMetadata;
   channelId: string;
   creator?: string;
+  relayUrls: Set<string>;
+  event?: Event;
 };
 type ChannelConfigurationType = Map<string, ChannelConfigurationData>;
 export class FollowChannel extends ParameterizedReplaceableEventSyncAbstract<ChannelConfigurationType> {
@@ -54,6 +58,7 @@ export class FollowChannel extends ParameterizedReplaceableEventSyncAbstract<Cha
       const channelConfigurationData: ChannelConfigurationData = {
         channelMeta: { relayUrls: [relay] },
         channelId: eventId,
+        relayUrls: new Set(),
       };
       const oldChannelConfigurationData = channelConfiguration.get(eventId);
 
@@ -109,6 +114,7 @@ export class FollowChannel extends ParameterizedReplaceableEventSyncAbstract<Cha
     const channelMetadata: ChannelConfigurationData = {
       channelId: eventId,
       channelMeta: opt?.channelMetadata ?? {},
+      relayUrls: new Set(),
     };
 
     if (!opt?.channelMetadata) {
@@ -120,11 +126,11 @@ export class FollowChannel extends ParameterizedReplaceableEventSyncAbstract<Cha
     this.save();
   }
   private reqMetadata(
-    eventId: string,
-    channelMetadata: ChannelConfigurationData,
+    channelId: string,
+    channelConfigurationData: ChannelConfigurationData,
     changeId?: number
   ) {
-    const line = getChannelMetadataBeltlineByChannelId(eventId);
+    const line = getChannelMetadataBeltlineByChannelId(channelId);
 
     const debounceUpdateMetadata = debounce(
       (metadata: ChannelMetadata, subId?: string) => {
@@ -134,11 +140,43 @@ export class FollowChannel extends ParameterizedReplaceableEventSyncAbstract<Cha
           return;
         }
 
-        Object.assign(channelMetadata.channelMeta, metadata);
+        Object.assign(channelConfigurationData.channelMeta, metadata);
+
+        setAdds(
+          channelConfigurationData.relayUrls,
+          channelConfigurationData.channelMeta.relayUrls ?? []
+        );
       },
       3000
     );
     line.feat.onHasMetadata(debounceUpdateMetadata);
+
+    //获取event
+    const eventLine = getEventLineById(channelId);
+    eventLine.feat.onHasEventOnce((e) => {
+      const pubkey = e.pubkey;
+
+      channelConfigurationData.creator = pubkey;
+      channelConfigurationData.event = e;
+
+      //推荐中继
+      const urls = deserializeTagR(e.tags);
+      setAdds(channelConfigurationData.relayUrls, urls);
+
+      //请求推荐中继
+      getUserRelayUrlConfigByPubkey(pubkey).feat.onHasReadWriteList(
+        (writableReadableList) => {
+          setAdds(
+            channelConfigurationData.relayUrls,
+            writableReadableList.writeUrl
+          );
+          setAdds(
+            channelConfigurationData.relayUrls,
+            writableReadableList.readUrl
+          );
+        }
+      );
+    });
   }
 
   leaveChannel(eventId: string) {

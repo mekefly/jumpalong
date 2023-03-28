@@ -3,7 +3,6 @@ import {
   getChannelMessageBeltline,
   getChannelMetadataBeltlineByChannelId,
 } from "@/api/channel";
-import { getEventLineById } from "@/api/event";
 import ChannelMessageListVue from "@/components/ChannelMessageList.vue";
 import { useRichTextEditBoxOpt } from "@/components/RichTextEditBox";
 import RichTextEditBoxVue from "@/components/RichTextEditBox.vue";
@@ -22,35 +21,44 @@ import { useJoinAndLeaveChannelHandle } from "./ChannelMessageView";
 
 const route = useRoute();
 const neventOpt = computed(() => toDeCodeNevent(route.params.value as string));
-const eventId = computed<string | null | undefined>(() => neventOpt.value?.id);
-console.log("eventId", eventId.value);
+const channelId = computed<string | null | undefined>(
+  () => neventOpt.value?.id
+);
 const followChannelConfiguration = getFollowChannelConfiguration();
 
 //需要为显示区域和编辑区域架设一个隧道
 watchEffect(() => {
-  if (!eventId.value) return;
-  useRichTextEditBoxOpt(eventId.value);
+  if (!channelId.value) return;
+  useRichTextEditBoxOpt(channelId.value);
+});
+const channelConfigurationData = computed(() =>
+  channelId.value
+    ? followChannelConfiguration.getData().get(channelId.value)
+    : undefined
+);
+
+const relayUrls = computed(() => channelConfigurationData.value?.relayUrls);
+const messageBeltline = computed(() => {
+  if (!channelId.value) return;
+  return getChannelMessageBeltline(channelId.value, {
+    urls: relayUrls.value,
+  });
 });
 
-const messageBeltline = computed(() => {
-  if (!eventId.value) return;
-  return getChannelMessageBeltline(eventId.value);
-});
 const messageList = computed(
   () => messageBeltline.value && messageBeltline.value.getList()
 );
 
 const metadataLine = computed(
-  () => eventId.value && getChannelMetadataBeltlineByChannelId(eventId.value)
+  () =>
+    channelId.value && getChannelMetadataBeltlineByChannelId(channelId.value)
 );
 const metadata = computed(
   () => metadataLine.value && metadataLine.value.feat.useMetadata()
 );
 const channelEvent = computed(() => {
-  if (!eventId.value) return;
-  const line = getEventLineById(eventId.value);
-  metadataLine.value && line.addExtends(metadataLine.value);
-  return line.feat.useEvent();
+  if (!channelId.value) return;
+  return channelConfigurationData.value?.event;
 });
 
 const message = useMessage();
@@ -59,17 +67,13 @@ function handleLoad() {
   messageBeltline.value?.feat.refresh();
   message.info(t("refreshing"));
 }
-//轮寻的去订阅新消息
-setInterval(() => {
-  messageBeltline.value?.feat.refresh();
-}, 8 * 1000);
 function handleRefresh() {
   messageBeltline.value?.feat.load();
   message.info(t("loading"));
 }
 
 const { handleJoinChannel, handleLeaveChannel } =
-  useJoinAndLeaveChannelHandle(eventId);
+  useJoinAndLeaveChannelHandle(channelId);
 function switchJoinChannel() {
   if (isJoin.value) {
     handleLeaveChannel();
@@ -80,24 +84,29 @@ function switchJoinChannel() {
 const send = useHandleSendMessage(42, messageBeltline);
 
 function handleSend(event: EventTemplate) {
-  if (!eventId.value) return;
+  if (!channelId.value) return;
 
-  event.tags = [...event.tags, ["e", eventId.value, "root"]];
+  event.tags = [...event.tags, ["e", channelId.value, "root"]];
+
+  for (const url of relayUrls.value ?? []) {
+    event.tags.push(["r", url]);
+  }
+
   send(event);
 }
 const isJoin = computed(() => {
-  if (!eventId.value) return false;
-  return followChannelConfiguration.hasJoin(eventId.value);
+  if (!channelId.value) return false;
+  return followChannelConfiguration.hasJoin(channelId.value);
 });
 
 const clipboard = useClipboard();
 function createNevent() {
-  if (!eventId.value) {
+  if (!channelId.value) {
     return;
   }
   return nip19.neventEncode({
-    id: eventId.value,
-    relays: [...(messageBeltline.value?.getRelayUrls() ?? [])],
+    id: channelId.value,
+    relays: [...(relayUrls.value ?? [])],
   });
 }
 function handleShareChannel() {
@@ -113,7 +122,7 @@ function handleEditChannel() {
 </script>
 
 <template>
-  <div v-if="eventId" class="flex flex-col h-full overflow-auto">
+  <div v-if="channelId" class="flex flex-col h-full overflow-auto">
     <n-page-header
       v-if="metadata"
       class="flex-shrink-0"

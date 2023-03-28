@@ -6,11 +6,13 @@ import { createDoNotRepeatStaff } from "@/nostr/staff";
 import autoAddRelayurlByPubkeyStaff from "@/nostr/staff/autoAddRelayurlByPubkeyStaff";
 import createEoseUnSubStaff from "@/nostr/staff/createEoseUnSubStaff";
 import { createLatestEventStaff } from "@/nostr/staff/createLatestEventStaff";
+import createReadWriteListStaff from "@/nostr/staff/createReadWriteListStaff";
 import createTimeoutUnSubStaff from "@/nostr/staff/createTimeoutUnSubStaff";
 import createUseChannelMetadata, {
   ChannelMetadata,
   parseMetadata,
 } from "@/nostr/staff/createUseChannelMetadata";
+import createWithEvent from "@/nostr/staff/createWithEvent";
 import ReplaceableEventMapStaff from "@/nostr/staff/ReplaceableEventMapStaff";
 import createLocalStorageStaff from "@/nostr/staff/storage/createLocalStorageStaff";
 import UserUniqueEventStaff from "@/nostr/staff/UserUniqueEventStaff";
@@ -33,6 +35,37 @@ export async function sendUserMetadataByPubkey(userMetaData: UserMetaData) {
     setTimeout(reject, 20000);
     publishEvent(event);
   });
+}
+export function getUserRelayUrlConfigByPubkey(pubkey: string) {
+  return useCache(
+    `getUserRelayUrlConfigByPubkey:${pubkey}`,
+    () => {
+      const kind10002line = rootEventBeltline
+        .createChild()
+        .addFilter({
+          kinds: [10002],
+          authors: [pubkey],
+        })
+        .addStaff(createLatestEventStaff())
+        .addStaff(ReplaceableEventMapStaff(10002, pubkey)) // 本地缓存
+        .addStaff(createReadWriteListStaff()) // 创建读写配置列表
+        .addStaff(createWithEvent())
+        .addExtends(rootEventBeltline); //请求到的结果从root中也可取到取到
+
+      if (kind10002line.feat.withEvent()) {
+        return kind10002line;
+      }
+
+      //请求10002
+      kind10002line
+        .createChild()
+        .addStaff(autoAddRelayurlByPubkeyStaff(pubkey));
+      return kind10002line;
+    },
+    {
+      useLocalStorage: false,
+    }
+  );
 }
 
 export function getUserMetadataLineByPubkey(pubkey: string, url?: Set<string>) {

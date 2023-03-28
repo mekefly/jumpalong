@@ -415,7 +415,7 @@ export class EventBeltline<
     opt?.onOK && this.relayEmiter.on("ok", event.id, opt.onOK);
 
     // pushEvent
-    for (const url of urls) {
+    for (const url of publishToUrls) {
       this.toPublish(url, event);
     }
     return event;

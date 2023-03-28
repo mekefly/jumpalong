@@ -46,6 +46,13 @@ function handleSave() {
   }
 
   const relay = [...relayConfigurator.getWriteList()][0];
+
+  channelMetadata.value.relayUrls = [
+    ...new Set([
+      ...relayConfigurator.getReadList(),
+      ...relayConfigurator.getWriteList(),
+    ]),
+  ];
   const event = channelLine.value.publish(
     {
       kind: 41,

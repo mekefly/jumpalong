@@ -320,6 +320,7 @@ export function useHandleSendMessage(
 ) {
   const { urls = new Set<string>() } = opt ?? {};
   const { success, error } = useMessage();
+  const onOK = useOnOK();
 
   return function handleSendEvent(event: EventTemplate) {
     event.kind = kind;
@@ -329,13 +330,7 @@ export function useHandleSendMessage(
       setAdds(unref(urls), relayConfigurator.getWriteList()),
       {
         addUrl: true,
-        onOK({ ok, url }) {
-          if (ok) {
-            success(`已发布到${url}`);
-          } else {
-            error(`没有发布到${url}`);
-          }
-        },
+        onOK,
       }
     );
     newEvent && pushEvent?.value?.(newEvent);
