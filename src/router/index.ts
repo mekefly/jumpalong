@@ -120,6 +120,11 @@ const router = createRouter({
               name: "create-channel",
               component: () => import("../views/CreateChannelView.vue"),
             },
+            {
+              path: "/channel/edit/:value",
+              name: "edit-channel",
+              component: () => import("../views/EditChannelView.vue"),
+            },
           ],
         },
       ],

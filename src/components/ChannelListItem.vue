@@ -9,7 +9,9 @@ const props = defineProps<{
 const { channelConfigurationData } = toRefs(props);
 
 const metadataLine = computed(() =>
-  getChannelMetadataBeltlineByChannelId(channelConfigurationData.value.eventId)
+  getChannelMetadataBeltlineByChannelId(
+    channelConfigurationData.value.channelId
+  )
 );
 const metadata = computed(() => metadataLine.value.feat.useMetadata());
 </script>
@@ -21,13 +23,13 @@ const metadata = computed(() => metadataLine.value.feat.useMetadata());
       () =>
         $router.push({
           name: 'channel-message',
-          params: { value: channelConfigurationData.eventId },
+          params: { value: channelConfigurationData.channelId },
         })
     "
   >
     <div class="font-bold">
       <EllipsisVue>
-        {{ metadata.name ?? channelConfigurationData.eventId.slice(0, 10) }}
+        {{ metadata.name ?? channelConfigurationData.channelId.slice(0, 10) }}
       </EllipsisVue>
     </div>
     <div v-if="metadata.about" class="w-full">

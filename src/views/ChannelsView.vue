@@ -18,7 +18,7 @@ function handleCreate() {
   <div>
     <n-button @click="handleCreate">{{ t("create") }}</n-button>
   </div>
-  <n-list hoverable clickable>
+  <n-list class="mt-4" hoverable clickable>
     <n-list-item v-for="[key, value] in channelList">
       <ChannelListItemVue :channel-configuration-data="value" />
     </n-list-item>

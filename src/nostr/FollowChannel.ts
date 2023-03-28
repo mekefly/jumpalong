@@ -26,7 +26,8 @@ export function getFollowChannelConfiguration() {
 
 export type ChannelConfigurationData = {
   channelMeta: ChannelMetadata;
-  eventId: string;
+  channelId: string;
+  creator?: string;
 };
 type ChannelConfigurationType = Map<string, ChannelConfigurationData>;
 export class FollowChannel extends ParameterizedReplaceableEventSyncAbstract<ChannelConfigurationType> {
@@ -52,7 +53,7 @@ export class FollowChannel extends ParameterizedReplaceableEventSyncAbstract<Cha
       const data = this.getData();
       const channelConfigurationData: ChannelConfigurationData = {
         channelMeta: { relayUrls: [relay] },
-        eventId,
+        channelId: eventId,
       };
       const oldChannelConfigurationData = channelConfiguration.get(eventId);
 
@@ -87,6 +88,11 @@ export class FollowChannel extends ParameterizedReplaceableEventSyncAbstract<Cha
   hasJoin(eventId: string) {
     return this.getData().has(eventId);
   }
+  setChannelmetadata(eventId: string, channelMetadata: ChannelMetadata) {
+    const channelConfigurationData = this.getData().get(eventId);
+    channelConfigurationData &&
+      (channelConfigurationData.channelMeta = channelMetadata);
+  }
   joinChannel(
     eventId: string,
     opt?: { relays?: [string]; channelMetadata?: ChannelMetadata }
@@ -101,7 +107,7 @@ export class FollowChannel extends ParameterizedReplaceableEventSyncAbstract<Cha
     const changeId = this.toChanged();
 
     const channelMetadata: ChannelConfigurationData = {
-      eventId,
+      channelId: eventId,
       channelMeta: opt?.channelMetadata ?? {},
     };
 

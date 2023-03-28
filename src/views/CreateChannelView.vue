@@ -1,13 +1,16 @@
 <script lang="ts" setup>
-import UploadInputVue from "@/components/UploadInput.vue";
 import { t } from "@/i18n";
 import { getFollowChannelConfiguration } from "@/nostr/FollowChannel";
 import { relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
 import { ChannelMetadata } from "@/nostr/staff/createUseChannelMetadata";
+import { useOnOK } from "@/utils/use";
+import ChannelMetadataEditVue from "../components/ChannelMetadataEdit.vue";
 
 const followChannel = getFollowChannelConfiguration();
 
 const message = useMessage();
+const onOK = useOnOK();
+
 const channelMetadata = ref<ChannelMetadata>({});
 function handleCreate() {
   if (!channelMetadata.value.name) {
@@ -19,7 +22,8 @@ function handleCreate() {
       kind: 40,
       content: JSON.stringify(channelMetadata.value),
     },
-    relayConfigurator.getWriteList()
+    relayConfigurator.getWriteList(),
+    { onOK }
   );
   if (event) {
     followChannel.joinChannel(event.id, {
@@ -34,15 +38,7 @@ function handleCreate() {
 
 <template>
   <n-space vertical>
-    <n-input placeholder="name" v-model:value="channelMetadata.name"></n-input>
-    <n-input
-      placeholder="about"
-      v-model:value="channelMetadata.about"
-    ></n-input>
-    <UploadInputVue
-      placeholder="picture"
-      v-model:value="channelMetadata.picture"
-    ></UploadInputVue>
+    <ChannelMetadataEditVue :channelMetadata="channelMetadata" />
     <n-button @click="handleCreate">{{ t("create") }}</n-button>
   </n-space>
 </template>

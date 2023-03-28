@@ -2,8 +2,8 @@ import { createEvent } from "@/nostr/event";
 import { PublishOpt } from "@/nostr/eventBeltline";
 import { relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
 import createOneEventStaff from "@/nostr/staff/createOneEventStaff";
+import createWithEvent from "@/nostr/staff/createWithEvent";
 import getCacheStaff from "@/nostr/staff/storage/getCacheStaff";
-import setCacheStaff from "@/nostr/staff/storage/setCacheStaff";
 import { userKey } from "@/nostr/user";
 import { useCache } from "@/utils/cache";
 import { merageSet, syncInterval } from "@/utils/utils";
@@ -56,20 +56,21 @@ export function getEventLineById(eventId: string, opt?: { url?: Set<string> }) {
       })
         .addFilter({ ids: [eventId], limit: 1 })
         .addStaff(createOneEventStaff())
-        .addStaff(getCacheStaff(eventId));
+        .addStaff(createWithEvent());
 
-      if (hasEvent()) return line;
-      line.addStaff(setCacheStaff()).addExtends(rootEventBeltline);
+      line.addStaff(getCacheStaff(eventId));
+      if (line.feat.withEvent()) return line;
 
-      if (hasEvent()) return line;
+      line.addExtends(rootEventBeltline);
+      if (line.feat.withEvent()) return line;
 
       const req = () => {
-        if (hasEvent()) return;
+        if (line.feat.withEvent()) return;
 
         if (opt?.url && opt.url.size > 0) {
           line.addRelayUrls(opt.url);
           setTimeout(() => {
-            if (hasEvent()) return;
+            if (line.feat.withEvent()) return;
             line.addReadUrl();
           }, 2000);
         } else {
@@ -80,10 +81,6 @@ export function getEventLineById(eventId: string, opt?: { url?: Set<string> }) {
       syncInterval(`getEventLineById:${eventId}`, () => {
         req();
       });
-
-      function hasEvent() {
-        return Boolean(line.feat.useEvent());
-      }
 
       return line;
     },
