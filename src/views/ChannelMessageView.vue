@@ -55,12 +55,17 @@ const channelEvent = computed(() => {
 
 const message = useMessage();
 function handleLoad() {
-  messageBeltline.value?.feat.load();
-  message.info(t("loading"));
-}
-function handleRefresh() {
+  //频道这里消息的显示顺序向反
   messageBeltline.value?.feat.refresh();
   message.info(t("refreshing"));
+}
+//轮寻的去订阅新消息
+setInterval(() => {
+  messageBeltline.value?.feat.refresh();
+}, 8 * 1000);
+function handleRefresh() {
+  messageBeltline.value?.feat.load();
+  message.info(t("loading"));
 }
 
 const { handleJoinChannel, handleLeaveChannel } =

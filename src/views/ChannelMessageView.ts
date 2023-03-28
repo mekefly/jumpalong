@@ -8,10 +8,9 @@ export function useAutoScroll(messageList: Ref<Event[]>) {
   const autoToBottom = ref(true);
 
   const l = useEventListener(
+    scrollbarInstRef?.containerRef,
     "scroll",
     () => {
-      console.log("scroll");
-
       autoToBottom.value = false;
       l();
     },
