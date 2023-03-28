@@ -1,3 +1,4 @@
+import { ReplaceableEventSyncAbstract } from "@/nostr/ReplaceableEventSyncAbstract";
 import { privateKey } from "@/nostr/user";
 import { generatePrivateKey } from "nostr-tools";
 
@@ -19,6 +20,7 @@ export function registerPrikey(prikey: string = createPrikey()) {
 }
 export function logout() {
   window.localStorage[PRIVATE_KEY] = "";
+  ReplaceableEventSyncAbstract.clearAll();
   location.reload();
 }
 

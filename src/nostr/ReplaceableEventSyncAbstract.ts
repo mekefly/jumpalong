@@ -15,9 +15,16 @@ export abstract class ReplaceableEventSyncAbstract<E> {
   private changeAt: number | null = null;
   private isSync = false;
   private changeCount: number = 0;
+  static cacheList: string[] = [];
+  static clearAll() {
+    for (const item of ReplaceableEventSyncAbstract.cacheList) {
+      localStorage.removeItem(item);
+    }
+  }
 
   constructor(name: string, defaul: E) {
     this.name = name;
+    ReplaceableEventSyncAbstract.cacheList.push(this.name);
 
     const event = this.getLocalEvent();
     if (!event) {
