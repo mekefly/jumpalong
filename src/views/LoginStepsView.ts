@@ -8,12 +8,20 @@ loginOperations.push(() => {
   //对新用户执行的操作
   if (testAndVerifyNewUser()) {
     contactConfiguration.follow(
-      "e0b1ecd7a7fc5f76ac5cf860b38d647db00c8067dabe29565e3ac827297cdda8",
+      "076fae9a020673caf9db66734884aa4a77f49ba394274896e439e1c6ff178289",
       "wss://nos.lol", //作者
       "你好"
     );
+    // Nostr
     getFollowChannelConfiguration().joinChannel(
       "25e5c82273a271cb1a840d0060391a0bf4965cafeb029d5ab55350b418953fbb", //nostr群
+      {
+        relays: ["wss://nos.lol"],
+      }
+    );
+    // Jumpalong
+    getFollowChannelConfiguration().joinChannel(
+      "22dcc0565a6c698199767e80b0526769cf3c04460b7ffc22a4b4cfbfdd642b53", //nostr群
       {
         relays: ["wss://nos.lol"],
       }
