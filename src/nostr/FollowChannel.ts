@@ -9,9 +9,19 @@ import { ChannelMetadata } from "./staff/createUseChannelMetadata";
 import { deserializeTagE } from "./tag";
 import { userKey } from "./user";
 export function getFollowChannelConfiguration() {
-  return useCache("getFollowChannelConfiguration", () => new FollowChannel(), {
-    useLocalStorage: false,
-  });
+  return useCache(
+    "getFollowChannelConfiguration",
+    () => {
+      const followChannel = reactive(new FollowChannel());
+      setTimeout(() => {
+        followChannel.sync();
+      });
+      return followChannel;
+    },
+    {
+      useLocalStorage: false,
+    }
+  );
 }
 
 export type ChannelConfigurationData = {
@@ -73,6 +83,9 @@ export class FollowChannel extends ParameterizedReplaceableEventSyncAbstract<Cha
       kind: this.kind,
       tags,
     });
+  }
+  hasJoin(eventId: string) {
+    return this.getData().has(eventId);
   }
   joinChannel(
     eventId: string,

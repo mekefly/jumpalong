@@ -1,10 +1,9 @@
 <script lang="ts" setup>
+import { eventDeletionOne } from "@/api/event";
+import PapawVueList from "@/components/PapawList.vue";
 import { NSkeleton, NSpace } from "naive-ui";
 import { Event, Filter } from "nostr-tools";
-import { eventDeletion } from "../api/event";
 import { getShortTextEventBeltline } from "../api/shortTextEventBeltline";
-import NewMessageVue from "./NewMessage.vue";
-import PapawVue from "./Papaw.vue";
 
 logger.for("home.vue").for("PostList.vue").info("进入PostList.vue");
 
@@ -61,32 +60,29 @@ emit("update:pushEvent", (e: Event) => {
 
 <template>
   <div>
-    <NewMessageVue>
-      <div class="p-6" v-if="!postEvents || postEvents.length === 0">
-        <n-space vertical>
-          <n-card class="" v-for="_ in Array(5)">
-            <n-space vertical class="p-8">
-              <div class="flex items-center">
-                <NSkeleton circle class="w-12 h-12 flex-shrink-0"></NSkeleton>
-                <NSkeleton
-                  text
-                  class="w-80 flex-shrink h-6 ml-3"
-                  :sharp="false"
-                ></NSkeleton>
-              </div>
-              <n-skeleton text :repeat="5" round />
-            </n-space>
-          </n-card>
-        </n-space>
-      </div>
+    <div class="p-6" v-if="!postEvents || postEvents.length === 0">
+      <n-space vertical>
+        <n-card class="" v-for="_ in Array(5)">
+          <n-space vertical class="p-8">
+            <div class="flex items-center">
+              <NSkeleton circle class="w-12 h-12 flex-shrink-0"></NSkeleton>
+              <NSkeleton
+                text
+                class="w-80 flex-shrink h-6 ml-3"
+                :sharp="false"
+              ></NSkeleton>
+            </div>
+            <n-skeleton text :repeat="5" round />
+          </n-space>
+        </n-card>
+      </n-space>
+    </div>
 
-      <PapawVue
-        v-for="event in postEvents"
-        :key="event.id"
-        :event="event"
-        :deleteEvent="(id) => eventDeletion([id])"
-      />
-    </NewMessageVue>
+    <PapawVueList
+      v-if="postEvents"
+      :eventList="postEvents"
+      @eventDeletion="(id) => eventDeletionOne(id)"
+    />
   </div>
 </template>
 
