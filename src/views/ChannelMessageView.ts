@@ -7,34 +7,33 @@ export function useAutoScroll(messageList: Ref<Event[]>) {
   const scrollbarInstRef = useInjectScrollbarInstRef();
   const autoToBottom = ref(true);
 
-  const l = useEventListener(
-    scrollbarInstRef?.containerRef,
-    "scroll",
-    () => {
-      autoToBottom.value = false;
-      l();
-    },
-    { once: true }
-  );
-  const w = watch(
+  const stopAutoToScrollBottom = () => {
+    autoToBottom.value = false;
+  };
+  for (const item of ["scroll", "touchmove"] as const) {
+    useEventListener(
+      scrollbarInstRef?.containerRef,
+      item,
+      stopAutoToScrollBottom,
+      {
+        once: true,
+      }
+    );
+  }
+
+  const stopWatch = watch(
     () => messageList.value?.length,
     () => {
       if (autoToBottom.value) {
-        setTimeout(() => {
-          scrollbarInstRef?.scrollbarInst.value?.scrollBy({
-            top: 99999,
-            behavior: "smooth",
-          });
-        }, 0);
+        scrollbarInstRef?.scrollbarInst.value?.scrollBy({
+          top: 99999,
+          behavior: "smooth",
+        });
       } else {
-        w();
+        stopWatch();
       }
     }
   );
-  // watch(atTheBottom, () => {
-  //   if (atTheBottom.value) autoToBottom.value = true;
-  // });
-  // return { bottomRef };
 }
 
 export function useJoinAndLeaveChannelHandle(
