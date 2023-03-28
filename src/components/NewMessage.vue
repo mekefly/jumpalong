@@ -9,7 +9,7 @@ const state = useProvideNewMessage({
 const jumpList = computed(() => state.jumpList.value);
 
 function handleJump() {
-  const f = jumpList.value.pop();
+  const f = jumpList.value.shift();
   if (!f) {
     return;
   }
