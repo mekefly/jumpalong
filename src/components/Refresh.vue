@@ -11,15 +11,16 @@ const props = withDefaults(
     containerRef?: HTMLElement | null | undefined;
   }>(),
   {
-    triggerDistance: 70,
-    maxShifting: 100,
+    triggerDistance: 150,
+    maxShifting: 200,
   }
 );
+
 const emit = defineEmits<{
   (e: "refresh"): void;
   (e: "load"): void;
 }>();
-const { refreshable, loadable, containerRef } = toRefs(props);
+const { refreshable, loadable, containerRef, maxShifting } = toRefs(props);
 
 function refresh() {
   if (!refreshable?.value) return;
@@ -35,7 +36,7 @@ const {
   moveScale: workRatio,
   add,
   remake,
-} = useLimitMovement(toRef(props, "maxShifting"));
+} = useLimitMovement(maxShifting);
 let lastY: null | number = null;
 const { x, y, arrivedState } = useScroll(containerRef);
 useEventListener(containerRef, "touchstart", (e: TouchEvent) => {
@@ -45,20 +46,20 @@ useEventListener(containerRef, "touchstart", (e: TouchEvent) => {
 });
 
 const reset = debounce(() => {
-  handel();
+  trigger();
 
   homing();
   transition.value = true;
 }, 500);
 useEventListener(containerRef, "mousewheel", (e: any) => {
-  if (!arrivedState.bottom && !arrivedState.top) return;
+  if (!(arrivedState.bottom || arrivedState.top)) return;
 
   reset();
   add(-e.wheelDeltaY / 3);
   transition.value = true;
 });
 useEventListener(containerRef, "touchmove", (e: TouchEvent) => {
-  if (!arrivedState.bottom && !arrivedState.top) return;
+  if (!(arrivedState.bottom || arrivedState.top)) return;
   const clientY = e.touches[0].clientY;
   if (!clientY) return;
   if (lastY) {
@@ -68,13 +69,19 @@ useEventListener(containerRef, "touchmove", (e: TouchEvent) => {
 });
 useEventListener(containerRef, "touchend", (e: TouchEvent) => {
   //如果不是顶部和底部的话，就忽略
-  if (!arrivedState.bottom && !totalTravelDistanceY.value) return;
-  handel();
+  if (!(arrivedState.bottom || arrivedState.top)) return;
+  trigger();
 
   homing();
   transition.value = true;
 });
-function handel() {
+//自动复原
+watchEffect(() => {
+  if (arrivedState.bottom || arrivedState.top) return;
+  homing();
+  transition.value = true;
+});
+function trigger() {
   if (Math.abs(totalTravelDistanceY.value) > props.triggerDistance) {
     if (totalTravelDistanceY.value > 0) {
       load();
@@ -88,17 +95,34 @@ function homing() {
   lastY = null;
 }
 const transition = ref(false);
+
+// 限制反向拖动
+const shifting = computed(() => {
+  if (arrivedState.bottom) {
+    if (totalTravelDistanceY.value > 0) {
+      return totalTravelDistanceY.value;
+    } else {
+      return 0;
+    }
+  } else {
+    if (totalTravelDistanceY.value < 0) {
+      return totalTravelDistanceY.value;
+    } else {
+      return 0;
+    }
+  }
+});
 </script>
 
 <template>
   <div
     class="w-full h-20 flex items-center justify-center absolute"
-    v-if="arrivedState.top && refreshable"
     :style="{
-      transform: `translate(0,calc(${-totalTravelDistanceY}px + -100%)) rotate(${
-        -totalTravelDistanceY * 10
+      transform: `translate(0,calc(${-shifting}px + -100%)) rotate(${
+        -shifting * 10
       }deg)`,
-      transition: transition ? 'transform 0.3s' : '',
+      transition: transition ? 'transform 0.5s' : '',
+      zIndex: 1,
     }"
   >
     <n-icon :size="50"><ReloadCircleSharp></ReloadCircleSharp></n-icon>
@@ -106,18 +130,17 @@ const transition = ref(false);
   <div
     class="wraps flex flex-col h-full relative overflow-hidden"
     :style="{
-      transform: `translate(0,calc(${-totalTravelDistanceY}px ))`,
-      transition: transition ? 'transform 0.5s' : '',
+      transform: `translate(0,calc(${-shifting / 4}px ))`,
+      transition: transition ? 'transform 0.3s' : '',
     }"
   >
     <slot></slot>
   </div>
   <div
     class="w-full h-20 flex items-center justify-center absolute bottom-0"
-    v-if="arrivedState.bottom && loadable"
     :style="{
-      transform: `translate(0px,calc(${-totalTravelDistanceY}px + 100%)) rotate(${
-        -totalTravelDistanceY * 10
+      transform: `translate(0px,calc(${-shifting}px + 100%)) rotate(${
+        -shifting * 10
       }deg)`,
       transition: transition ? 'transform 0.3s' : '',
     }"

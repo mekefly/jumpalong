@@ -10,18 +10,12 @@ const containerRef = computed(
       | undefined
 );
 const { scrollbarInst } = useProviteScrollbarInstRef(containerRef);
-const props = withDefaults(
-  defineProps<{
-    refreshable?: boolean;
-    loadable?: boolean;
-    triggerDistance?: number;
-    maxShifting?: number;
-  }>(),
-  {
-    triggerDistance: 70,
-    maxShifting: 100,
-  }
-);
+const props = defineProps<{
+  refreshable?: boolean;
+  loadable?: boolean;
+  triggerDistance?: number;
+  maxShifting?: number;
+}>();
 const { refreshable, loadable } = toRefs(props);
 const emit = defineEmits<{
   (e: "refresh"): void;
