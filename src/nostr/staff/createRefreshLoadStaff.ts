@@ -72,16 +72,24 @@ export default createStaffFactory()((filters: Filter[], limit: number = 20) => {
           //从这个时间开始获取
           const since = refreshOpt.until;
           //until获取到这个时间
-          const until = (refreshOpt.until =
-            refreshOpt.until + refreshOpt.timeIncrement);
+          const until = refreshOpt.until + refreshOpt.timeIncrement;
           //截止时间大于当前时间，就停止
           if (until > nowSecondTimestamp()) {
             clearIntervalId();
+
+            //获取到未来，就自动减少获取范围
+            refreshOpt.timeIncrement = refreshOpt.timeIncrement / 2;
+            if (refreshOpt.timeIncrement < 60) {
+              refreshOpt.timeIncrement = 60;
+            }
 
             // 开始时间比现在还大，直接禁止请求
             if (since > nowSecondTimestamp()) {
               return;
             }
+          } else {
+            //如果获取到未来的某个时间，就不应该更新这个属性
+            refreshOpt.until = until;
           }
 
           return filters.map((filter) => ({

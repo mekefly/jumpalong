@@ -72,6 +72,11 @@ function handleRefresh() {
   message.info(t("loading"));
 }
 
+//轮寻新消息
+setInterval(() => {
+  messageBeltline.value?.feat.refresh();
+}, 15000);
+
 const { handleJoinChannel, handleLeaveChannel } =
   useJoinAndLeaveChannelHandle(channelId);
 function switchJoinChannel() {
