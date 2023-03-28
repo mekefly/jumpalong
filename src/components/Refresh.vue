@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useLimitMovement } from "@/utils/use";
 import { debounce } from "@/utils/utils";
+import { useInjectScrollbarInstRef } from "./Scrollbar";
 
 const props = withDefaults(
   defineProps<{
@@ -95,22 +96,26 @@ function homing() {
   lastY = null;
 }
 const transition = ref(false);
+const scrollbarInst = useInjectScrollbarInstRef();
 
 // 限制反向拖动
 const shifting = computed(() => {
-  if (arrivedState.bottom) {
-    if (totalTravelDistanceY.value > 0) {
+  if (totalTravelDistanceY.value < 0) {
+    if (arrivedState.top) {
       return totalTravelDistanceY.value;
-    } else {
-      return 0;
-    }
-  } else {
-    if (totalTravelDistanceY.value < 0) {
-      return totalTravelDistanceY.value;
-    } else {
-      return 0;
     }
   }
+  if (totalTravelDistanceY.value > 0) {
+    const target = scrollbarInst?.containerRef.value;
+
+    if (
+      arrivedState.bottom ||
+      (target && target.offsetHeight === target.scrollHeight) //解决
+    ) {
+      return totalTravelDistanceY.value;
+    }
+  }
+  return 0;
 });
 </script>
 
@@ -132,6 +137,7 @@ const shifting = computed(() => {
     :style="{
       transform: `translate(0,calc(${-shifting / 4}px ))`,
       transition: transition ? 'transform 0.3s' : '',
+      zIndex: 0,
     }"
   >
     <slot></slot>
@@ -143,6 +149,7 @@ const shifting = computed(() => {
         -shifting * 10
       }deg)`,
       transition: transition ? 'transform 0.3s' : '',
+      zIndex: 1,
     }"
   >
     <n-icon :size="50"><ReloadCircleSharp></ReloadCircleSharp></n-icon>
