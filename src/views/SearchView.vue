@@ -23,7 +23,9 @@ const neventOpt = computed(() => {
 type GroupEvents = Partial<Record<0 | 1 | 2 | 3 | "channel", EventBeltline>>;
 const groupEvents = ref<GroupEvents>({});
 
-const searchRootLine = rootEventBeltline.createChild();
+const searchRootLine = rootEventBeltline
+  .createChild()
+  .addStaff(createDoNotRepeatStaff());
 function createListBeltline() {
   return searchRootLine.createChild().addStaff(createDoNotRepeatStaff());
 }
@@ -57,12 +59,12 @@ watch(
       //search any
       const searchLine = rootEventBeltline
         .createChild()
+        .addStaff(createDoNotRepeatStaff()) //去重复
         .addStaff({
           push(e) {
             classify(e, groupEvents.value as any);
           },
-        })
-        .addStaff(createDoNotRepeatStaff()); //去重复
+        });
       searchRootLine.addChild(searchLine); //交给searchRoot去管理
 
       //本地搜索
