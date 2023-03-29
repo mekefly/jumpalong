@@ -5,9 +5,9 @@ import TooltipVue from "@/components/Tooltip.vue";
 import { t } from "@/i18n";
 import { userKey } from "@/nostr/user";
 import { nip19 } from "nostr-tools";
-import { useClipboard } from "../utils/naiveUi";
+import { useClipboardDialog } from "../utils/naiveUi";
 
-const clipboard = useClipboard();
+const clipboard = useClipboardDialog();
 
 const prikey = computed(() => nip19.nsecEncode(userKey.value.privateKey));
 

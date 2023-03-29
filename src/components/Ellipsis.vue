@@ -15,7 +15,9 @@ const { numOfRows } = toRefs(props);
   >
     <span
       :style="{
-        whiteSpace: 'nowrap',
+        'word-break': 'break-all',
+        'text-overflow': 'ellipsis',
+        'word-wrap': 'break-word',
       }"
     >
       <slot></slot>
@@ -27,7 +29,7 @@ const { numOfRows } = toRefs(props);
         <slot></slot>
       </n-tooltip>
     </span>
-    <div class="w-4 flex-shrink"></div>
+    <div class="w-4 flex-shrink-[999]"></div>
   </div>
 </template>
 

@@ -5,34 +5,37 @@ import {
   useRecommendUser,
   useRecommendUserMetadata,
 } from "@/state/nostr";
+import { useClipboardDialog } from "@/utils/naiveUi";
 import { neventEncodeByEvent } from "@/utils/nostr";
 import { useModelBind } from "@/utils/use";
-import { clipboardText } from "@/utils/utils";
 import { usePushShortTextNote } from "@/views/ShortTextNoteView";
 import { SelectMixedOption } from "naive-ui/es/select/src/interface";
 import { Event, nip19 } from "nostr-tools";
 import { userKey } from "../nostr/user";
 import { useBlackData } from "../views/ContentBlacklistView";
-
 import MoreIconVue from "./icon/MoreIcon.vue";
 import { useRichTextEditBoxOpt } from "./RichTextEditBox";
+
 const richTextEditBoxOpt = useRichTextEditBoxOpt();
 
-const { success, info, error } = useMessage();
 const props = defineProps<{
   event: Event;
   deleteEvent: (id: string) => void;
   show?: boolean;
 }>();
+
 const { event, deleteEvent } = toRefs(props);
 
-const show = useModelBind(props, "show");
 const value = ref("");
+
+const { info } = useMessage();
+const clipboard = useClipboardDialog();
+const show = useModelBind(props, "show");
 const recommendEvent = useRecommendEvent();
 const recommendUser = useRecommendUser();
 const recommendUserMetadata = useRecommendUserMetadata();
-
 const pushShortTextNote = usePushShortTextNote();
+
 const handleMap = {
   close: () => {
     show.value = false;
@@ -46,18 +49,14 @@ const handleMap = {
   },
   copyNevent() {
     const text = neventEncodeByEvent(event.value);
-    clipboardText(text);
-
-    success(t("copy_succeeded", { text }));
+    clipboard(text);
   },
   copyNote() {
     const text = nip19.noteEncode(event.value.id as string);
-    clipboardText(text);
-
-    success(t("copy_succeeded", { text }));
+    clipboard(text);
   },
   copyHexPubkey() {
-    success(t("copy_succeeded", { text: event.value.pubkey }));
+    clipboard(event.value.pubkey);
   },
   recommendUser() {
     recommendUser(event.value.pubkey);

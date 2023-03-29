@@ -1,7 +1,11 @@
 <script lang="ts" setup>
 import { useThemeVars } from "naive-ui";
 // let's query for an event that exists
+import { NConfigProvider } from "naive-ui";
+import { theme } from "./app";
+
 const themeVars = useThemeVars();
+
 watchEffect(() => {
   document.body.style.background = themeVars.value.bodyColor;
 });
@@ -16,11 +20,19 @@ watchEffect(() => {
   >
     <div class="container">
       <div class="w-full h-screen overflow-hidden">
-        <router-view v-slot="{ Component }">
-          <keep-alive>
-            <component :is="Component" />
-          </keep-alive>
-        </router-view>
+        <n-config-provider :theme="theme">
+          <n-dialog-provider>
+            <n-message-provider>
+              <n-notification-provider :placement="'bottom'">
+                <router-view v-slot="{ Component }">
+                  <keep-alive>
+                    <component :is="Component" />
+                  </keep-alive>
+                </router-view>
+              </n-notification-provider>
+            </n-message-provider>
+          </n-dialog-provider>
+        </n-config-provider>
       </div>
     </div>
   </div>
@@ -42,5 +54,6 @@ watchEffect(() => {
   margin: 0 auto;
   padding: 0rem;
   overflow: hidden;
+  position: relative;
 }
 </style>

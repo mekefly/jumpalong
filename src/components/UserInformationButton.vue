@@ -4,7 +4,7 @@ import { userKey } from "@/nostr/user";
 import { useRecommendUser, useRecommendUserMetadata } from "@/state/nostr";
 import { nip19 } from "nostr-tools";
 import { relayConfigurator } from "../nostr/nostr";
-import { renderIcon, useClipboard } from "../utils/naiveUi";
+import { renderIcon, useClipboardDialog } from "../utils/naiveUi";
 import MoreIconVue from "./icon/MoreIcon.vue";
 import PencilVue from "./icon/Pencil.vue";
 import ShareSocialVue from "./icon/ShareSocial.vue";
@@ -16,7 +16,7 @@ const props = defineProps<{
 
 const { pubkey } = toRefs(props);
 
-const clipboard = useClipboard();
+const clipboard = useClipboardDialog();
 
 const isItMe = computed(() => pubkey.value === userKey.value.publicKey);
 const showModal = ref(false);

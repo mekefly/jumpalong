@@ -11,7 +11,7 @@ import { t } from "@/i18n";
 import { getFollowChannelConfiguration } from "@/nostr/FollowChannel";
 import { userKey } from "@/nostr/user";
 import router from "@/router";
-import { useClipboard } from "@/utils/naiveUi";
+import { useClipboardDialog } from "@/utils/naiveUi";
 import { toDeCodeNevent } from "@/utils/nostr";
 import { useHandleSendMessage } from "@/utils/use";
 import { EventTemplate, nip19 } from "nostr-tools";
@@ -104,7 +104,7 @@ const isJoin = computed(() => {
   return followChannelConfiguration.hasJoin(channelId.value);
 });
 
-const clipboard = useClipboard();
+const clipboard = useClipboardDialog();
 function createNevent() {
   if (!channelId.value) {
     return;

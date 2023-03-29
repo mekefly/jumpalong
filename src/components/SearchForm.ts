@@ -1,6 +1,10 @@
 import { timeout } from "@/utils/utils";
 
-export function usePageViewTeleport(name: string) {
+export function usePageViewTeleport(
+  name: string,
+  defaultId: string,
+  toViewId: string
+) {
   const route = useRoute();
   const isView = ref(true);
   watch(
@@ -16,25 +20,27 @@ export function usePageViewTeleport(name: string) {
       immediate: true,
     }
   );
-  const teleportDisabled = ref(true);
+
+  const teleportTo = ref(defaultId);
   watch(
     isView,
     async () => {
-      if (!isView.value) {
-        teleportDisabled.value = true;
+      const s = isView.value;
+      if (s) {
+        await timeout(0);
+        teleportTo.value = toViewId;
       } else {
         await timeout(0);
-        if (isView.value) {
-          teleportDisabled.value = false;
-        }
+        teleportTo.value = defaultId;
       }
     },
     {
       immediate: true,
     }
   );
+
   return {
-    teleportDisabled,
+    teleportTo,
     isView,
   };
 }

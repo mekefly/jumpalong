@@ -1,19 +1,31 @@
-import { NIcon, useMessage } from "naive-ui";
+import { t } from "@/i18n";
+import { NIcon, NInput, useMessage } from "naive-ui";
 import { Component, h } from "vue";
 import { clipboardText } from "./utils";
 
-export function useClipboard() {
+export function useClipboardDialog() {
   const message = useMessage();
+  const dialog = useDialog();
   return function clipboard(msg: string) {
+    let type: "success" | "error" = "success";
     try {
       if (!msg) {
-        message.error("复制失败");
+        message.error(t("empty_text"));
+        return;
       }
       clipboardText(msg);
-      message.success("已复制到剪切板!");
+      type = "success";
     } catch (error) {
-      message.error("复制失败");
+      type = "error";
     }
+    dialog[type]({
+      title: t(type),
+      content: () => h(NInput, { value: msg, type: "textarea" }),
+      positiveText: t("yes"),
+      negativeText: t("no"),
+      onPositiveClick: () => {},
+      onNegativeClick: () => {},
+    });
   };
 }
 export const renderIcon = (icon: Component) => {
