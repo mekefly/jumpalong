@@ -47,7 +47,7 @@ watch(isLoading, () => {
     progressState.bufferOpt.value === null
   )
     return;
-  if (current.value === max.value) {
+  if (current.value && max.value && current.value >= max.value) {
     message.success(t("all_loading_completed"));
   }
 
