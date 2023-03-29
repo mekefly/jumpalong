@@ -1,3 +1,4 @@
+import { defaultCacheOptions, getCacheOrNull, setCache } from "@/utils/cache";
 import { createCounter, nowSecondTimestamp } from "@/utils/utils";
 import { Event, Filter } from "nostr-tools";
 import { EventBeltline } from "../eventBeltline";
@@ -34,18 +35,30 @@ export type RefreshLoadStaffFeat = {
   refresh(this: FeatType<object>): void;
   load(this: FeatType<object>): void;
 };
+const createCacheKey = (filters: Filter[]) =>
+  `createRefreshLoadStaff:${JSON.stringify(filters)}`;
+const cacheOptions = { ...defaultCacheOptions, duration: 1000 * 60 * 30 };
 
 export default createStaffFactory()(
   (filters: Filter[], limit: number = 20): RefreshLoadStaff => {
     const pushEventArgv = new WeakMap<Event, EventArg>();
+    const cacheKey = createCacheKey(filters);
+
+    const opt: {
+      loadBufferOpt: BufferOpt;
+      refreshBufferOpt: BufferOpt;
+    } = (getCacheOrNull(cacheKey, cacheOptions) as any) ?? {
+      loadBufferOpt: undefined,
+      refreshBufferOpt: {
+        minSince: nowSecondTimestamp(),
+      },
+    };
 
     //load
-    const loadBufferOpt = createBufferOpt();
+    const loadBufferOpt = createBufferOpt(opt.loadBufferOpt);
 
     //refresh
-    const refreshBufferOpt = createBufferOpt({
-      minSince: nowSecondTimestamp(),
-    });
+    const refreshBufferOpt = createBufferOpt(opt.refreshBufferOpt);
 
     return {
       initialization() {
@@ -109,6 +122,7 @@ export default createStaffFactory()(
 
               // 开始时间比现在还大，直接禁止请求
               if (since > nowSecondTimestamp()) {
+                bufferOpt.until = nowSecondTimestamp();
                 return;
               }
             } else {
@@ -148,7 +162,6 @@ export default createStaffFactory()(
                 return;
               }
             }
-
             return filters.map((filter) => ({
               ...filter,
               since,
@@ -166,10 +179,12 @@ export default createStaffFactory()(
 
     function toPush(
       bufferOpt: BufferOpt,
-      slef: EventBeltline<{ isLoading: boolean; progress: number }>,
+      slef: EventBeltline<{
+        loadBufferOpt: BufferOpt;
+        refreshBufferOpt: BufferOpt;
+      }>,
       createFilters: CreateFilters
     ) {
-      slef.feat.isLoading = true;
       if (filters.length === 0) return;
 
       const urls = slef.getRelayUrls();
@@ -182,10 +197,36 @@ export default createStaffFactory()(
       //等待刷新列表不够本次请求量数据量时
       if (pushList.length < limit) {
         //方案二根据时间刷新，但不必担心任何顺序问题，对方可能发送顺序不一定的，所以此方案将更厉害
-        req(bufferOpt, urls, pushList.length, createFilters);
+        req(bufferOpt, urls, pushList.length, (...rest) => {
+          setOptCache(slef);
+
+          const v = createFilters(...rest);
+          setOptCache(slef);
+          return v;
+        });
       }
       //将等待区的数据放到展示区
       pushToEvent(pushList, slef);
+    }
+
+    function setOptCache(
+      slef: EventBeltline<{
+        loadBufferOpt: BufferOpt;
+        refreshBufferOpt: BufferOpt;
+      }>
+    ) {
+      setCache(
+        cacheKey,
+        {
+          loadBufferOpt: {
+            timeIncrement: slef.feat.loadBufferOpt.timeIncrement,
+          },
+          refreshBufferOpt: {
+            timeIncrement: slef.feat.refreshBufferOpt.timeIncrement,
+          },
+        },
+        cacheOptions
+      );
     }
 
     function req(
@@ -199,9 +240,13 @@ export default createStaffFactory()(
         bufferOpt.isLoading = false;
       };
       //如果获取到的内容太多，就消减时间
-      if (bufferOpt.bufferCounter.count > limit * urls.size) {
-        bufferOpt.timeIncrement = bufferOpt.timeIncrement / 2;
+
+      if (bufferOpt.bufferCounter.count > limit) {
+        bufferOpt.timeIncrement = Math.floor(
+          bufferOpt.timeIncrement / (bufferOpt.bufferCounter.count / limit)
+        );
       }
+
       if (bufferOpt.timeIncrement < 60) {
         bufferOpt.timeIncrement = 60;
       }
@@ -211,17 +256,17 @@ export default createStaffFactory()(
 
       bufferOpt.isLoading = true;
 
-      bufferOpt.intervalId = setInterval(toReq, 2000);
+      bufferOpt.intervalId = setInterval(toReq, 4000);
 
-      setTimeout(() => toReq);
+      setTimeout(() => toReq(true));
 
-      function toReq() {
+      function toReq(stop?: boolean) {
         bufferOpt.isLoading = true;
         if (bufferOpt.bufferCounter.count >= limit) {
           _clearInterval();
           return;
         } else {
-          bufferOpt.timeIncrement = bufferOpt.timeIncrement * 2;
+          if (!stop) bufferOpt.timeIncrement = bufferOpt.timeIncrement * 2;
         }
 
         const _filter = createFilters(_clearInterval, bufferOpt);
