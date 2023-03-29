@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useLimitMovement } from "@/utils/use";
 import { debounce } from "@/utils/utils";
+import { provideRefreshState } from "./Refresh";
 import { useInjectScrollbarInstRef } from "./Scrollbar";
 
 const props = withDefaults(
@@ -23,13 +24,16 @@ const emit = defineEmits<{
 }>();
 const { refreshable, loadable, containerRef, maxShifting } = toRefs(props);
 
+const { emit: injectionEmit } = provideRefreshState();
 function refresh() {
   if (!refreshable?.value) return;
   emit("refresh");
+  injectionEmit?.("refresh");
 }
 function load() {
   if (!loadable?.value) return;
   emit("load");
+  injectionEmit?.("load");
 }
 
 const {

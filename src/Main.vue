@@ -3,6 +3,7 @@ import { useThemeVars } from "naive-ui";
 // let's query for an event that exists
 import { NConfigProvider } from "naive-ui";
 import { theme } from "./app";
+import LoadProgressProvideVue from "./components/LoadProgressProvide.vue";
 
 const themeVars = useThemeVars();
 
@@ -24,11 +25,15 @@ watchEffect(() => {
           <n-dialog-provider>
             <n-message-provider>
               <n-notification-provider :placement="'bottom'">
-                <router-view v-slot="{ Component }">
-                  <keep-alive>
-                    <component :is="Component" />
-                  </keep-alive>
-                </router-view>
+                <n-loading-bar-provider>
+                  <LoadProgressProvideVue>
+                    <router-view v-slot="{ Component }">
+                      <keep-alive>
+                        <component :is="Component" />
+                      </keep-alive>
+                    </router-view>
+                  </LoadProgressProvideVue>
+                </n-loading-bar-provider>
               </n-notification-provider>
             </n-message-provider>
           </n-dialog-provider>

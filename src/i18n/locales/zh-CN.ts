@@ -148,6 +148,8 @@ const message: I18nMessages = {
     "请妥善保管您的私钥,一旦泄漏，您将被迫放弃此账户，也请注意，浏览器插件的安全性",
   tick_prompt: "请确认上方按钮已勾选",
 
+  all_loading_completed: "所有消息已全部加载完成",
+
   message: {
     you_have_sent_a_delete_request: `您已经发送了删除请求`,
     relay_configurator_save_message:

@@ -148,6 +148,7 @@ const defaul = {
   keep_private_key_prompt:
     "Please keep your private key properly. If it is leaked, you will be forced to abandon this account. Please also note the security of the browser plug-in",
   tick_prompt: "Please confirm that the button above is checked",
+  all_loading_completed: "All loading completed",
 
   message: {
     you_have_sent_a_delete_request: `You have sent a delete request`,

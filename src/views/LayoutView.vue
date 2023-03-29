@@ -10,7 +10,7 @@ const themeVars = useThemeVars();
 <template>
   <n-layout style="height: 100vh">
     <n-layout-header
-      class="h-14 md:h-20 flex justify-between items-center px-3"
+      class="h-14 md:h-20 flex justify-between items-center px-3 relative"
       :style="{
         transition: 'height 0.5s',
       }"

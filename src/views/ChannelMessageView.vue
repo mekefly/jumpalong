@@ -4,6 +4,7 @@ import {
   getChannelMetadataBeltlineByChannelId,
 } from "@/api/channel";
 import ChannelMessageListVue from "@/components/ChannelMessageList.vue";
+import { autoSetLoadBuffer } from "@/components/LoadProgress";
 import { useRichTextEditBoxOpt } from "@/components/RichTextEditBox";
 import RichTextEditBoxVue from "@/components/RichTextEditBox.vue";
 import ScrollbarVue from "@/components/Scrollbar.vue";
@@ -44,6 +45,7 @@ const messageBeltline = computed(() => {
     urls: relayUrls.value,
   });
 });
+autoSetLoadBuffer(messageBeltline);
 
 const messageList = computed(
   () => messageBeltline.value && messageBeltline.value.getList()

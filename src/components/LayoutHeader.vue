@@ -6,6 +6,7 @@ import SearchFormVue from "../components/SearchForm.vue";
 import Sidebar from "../components/Sidebar.vue";
 import I18nSwitchButtonVue from "./I18nSwitchButton.vue";
 import MenuVue from "./icon/Menu.vue";
+import LoadProgressVue from "./LoadProgress.vue";
 import PoolStateNumberVue from "./PoolStateNumber.vue";
 import ThemeButtonVue from "./ThemeButton.vue";
 
@@ -39,6 +40,7 @@ watch(
       <PoolStateNumber />
     </div>
 
+    <LoadProgressVue class="ml-3" />
     <div class="ml-3 hidden sm:block">
       <ThemeButtonVue></ThemeButtonVue>
     </div>
@@ -58,6 +60,7 @@ watch(
       <n-drawer v-model:show="isShowdrawerMenu" width="100%" placement="right">
         <n-drawer-content title="Menu" closable>
           <Sidebar :collapsed="false" />
+
           <template #footer>
             <div class="flex items-center">
               <I18nSwitchButtonVue />

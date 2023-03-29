@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { type getShortTextEventBeltline } from "@/api/shortTextEventBeltline";
 import { useRichTextEditBoxOpt } from "@/components/RichTextEditBox";
 import RichTextEditBoxVue from "@/components/RichTextEditBox.vue";
 import ScrollbarVue from "@/components/Scrollbar.vue";
@@ -12,8 +11,7 @@ const message = useMessage();
 logger.for("home.vue").info("home.vue");
 
 //需要为显示区域和编辑区域架设一个隧道
-const v = useRichTextEditBoxOpt("home");
-console.debug("HomeView:useRichTextEditBoxOpt", v.id);
+useRichTextEditBoxOpt("home");
 
 const pubkeys = computed(() => {
   const pubkeys = Object.keys(
@@ -23,30 +21,11 @@ const pubkeys = computed(() => {
 });
 const handleSendEvent = useHandleSendMessage(1);
 const value = ref("MyFeed");
-const beltlineMap = new Map<
-  string | number,
-  ReturnType<typeof getShortTextEventBeltline>
->();
-
-function handelRefresh() {
-  beltlineMap.get(value.value)?.feat.refresh();
-  message.info(t("refreshing"));
-}
-function handelLoad() {
-  beltlineMap.get(value.value)?.feat.load();
-  message.info(t("loading"));
-}
 </script>
 
 <template>
   <div class="flex flex-col h-full overflow-auto">
-    <ScrollbarVue
-      class="flex-shrink flex-1 h-0"
-      refreshable
-      loadable
-      @refresh="handelRefresh"
-      @load="handelLoad"
-    >
+    <ScrollbarVue class="flex-shrink flex-1 h-0" refreshable loadable>
       <n-tabs
         default-value="MyFeed"
         justify-content="space-evenly"
@@ -60,11 +39,7 @@ function handelLoad() {
           display-directive="show:lazy"
         >
           <PostList
-            @update:beltline="
-              (e) => {
-                beltlineMap.set('MyFeed', e);
-              }
-            "
+            :active="value === 'MyFeed'"
             v-if="pubkeys.length > 0"
             :pubkey="pubkeys"
           />
@@ -81,13 +56,7 @@ function handelLoad() {
           :tab="t('global')"
           display-directive="show:lazy"
         >
-          <PostList
-            @update:beltline="
-              (e) => {
-                beltlineMap.set('GlobalFeed', e);
-              }
-            "
-          />
+          <PostList :active="value === 'GlobalFeed'" />
         </n-tab-pane>
       </n-tabs>
     </ScrollbarVue>

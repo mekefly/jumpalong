@@ -6,15 +6,20 @@ import PostListVue from "./PostList.vue";
 const props = defineProps<{ pubkey: string; urls?: Set<string> }>();
 const { pubkey } = toRefs(props);
 const pubkeys = computed(() => [pubkey.value]);
+const activePage = ref("homepage");
 </script>
 
 <template>
-  <n-tabs type="line" animated>
+  <n-tabs type="line" v-model:value="activePage" animated>
     <n-tab-pane display-directive="show" name="homepage" :tab="t('homepage')">
-      <PostListVue :pubkey="pubkeys" :urls="props.urls" />
+      <PostListVue
+        :active="activePage === 'homepage'"
+        :pubkey="pubkeys"
+        :urls="props.urls"
+      />
     </n-tab-pane>
     <n-tab-pane display-directive="show" name="follow" :tab="t('follow')">
-      <Contacts :pubkey="pubkey" />
+      <Contacts :active="activePage === 'homepage'" :pubkey="pubkey" />
     </n-tab-pane>
     <n-tab-pane display-directive="show" name="follower" :tab="t('follower')">
       七里香

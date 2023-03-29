@@ -47,6 +47,7 @@ export type Staff<FEAT extends object = {}> = {
     | object
     | string
     | number
+    | boolean
     | Array<any>
   >;
   onClose?: (this: StaffThisType<FEAT>) => void;

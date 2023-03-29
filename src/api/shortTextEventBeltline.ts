@@ -39,10 +39,8 @@ export function getShortTextEventBeltline(
 
       if (pubkeys?.length === 0) return shortTextEventBeltline;
 
-      shortTextEventBeltline
-        .addReadUrl()
-        .addRelayUrls(options?.relayUrls)
-        .feat.load();
+      shortTextEventBeltline.addReadUrl().addRelayUrls(options?.relayUrls);
+      shortTextEventBeltline.feat.load();
 
       return shortTextEventBeltline;
     },

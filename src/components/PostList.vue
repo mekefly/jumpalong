@@ -1,9 +1,12 @@
 <script lang="ts" setup>
 import { eventDeletionOne } from "@/api/event";
 import PapawVueList from "@/components/PapawList.vue";
+import { t } from "@/i18n";
 import { NSkeleton, NSpace } from "naive-ui";
 import { Event, Filter } from "nostr-tools";
 import { getShortTextEventBeltline } from "../api/shortTextEventBeltline";
+import { autoSetLoadBuffer } from "./LoadProgress";
+import { useRefreshState } from "./Refresh";
 
 logger.for("home.vue").for("PostList.vue").info("进入PostList.vue");
 
@@ -12,13 +15,13 @@ const props = defineProps<{
   pubkey?: string[];
   filter?: Filter;
   pushEvent?: (e: Event) => void;
-  beltline?: ReturnType<typeof getShortTextEventBeltline>;
+  active?: boolean;
 }>();
 const emit = defineEmits<{
   (e: "update:pushEvent", v: (e: Event) => void): void;
-  (e: "update:beltline", v: ReturnType<typeof getShortTextEventBeltline>): void;
 }>();
-const { pubkey, filter, urls: url } = toRefs(props);
+const { pubkey, filter, urls: url, active } = toRefs(props);
+const message = useMessage();
 
 logger
   .for("home.vue")
@@ -34,19 +37,26 @@ const beltline = computed(() => {
 
   return getShortTextEventBeltline(pubkey?.value, opt);
 });
-watch(
-  beltline,
-  () => {
-    if (!beltline.value) {
-      return;
-    }
 
-    emit("update:beltline", beltline.value);
-  },
-  {
-    immediate: true,
+//加载进度条
+autoSetLoadBuffer(beltline);
+//监听加载事件
+const refreshState = useRefreshState();
+refreshState?.on("load", () => {
+  if (!active?.value) {
+    return;
   }
-);
+  beltline.value?.feat.load();
+  message.info(t("loading"));
+});
+refreshState?.on("refresh", () => {
+  if (!active?.value) {
+    return;
+  }
+  beltline.value?.feat.refresh();
+  message.info(t("refreshing"));
+});
+
 onUnmounted(() => {
   beltline.value?.closeReq();
 });
@@ -56,11 +66,16 @@ const postEvents = computed(() => beltline.value?.getList());
 emit("update:pushEvent", (e: Event) => {
   beltline.value?.pushEvent(e);
 });
+const isLoading = computed(
+  () =>
+    beltline.value?.feat.loadBufferOpt.isLoading ||
+    beltline.value?.feat.refreshBufferOpt.isLoading
+);
 </script>
 
 <template>
   <div>
-    <div class="p-6" v-if="!postEvents || postEvents.length === 0">
+    <div class="p-6" v-if="isLoading && postEvents && postEvents.length === 0">
       <n-space vertical>
         <n-card class="" v-for="_ in Array(5)">
           <n-space vertical class="p-8">
@@ -76,6 +91,13 @@ emit("update:pushEvent", (e: Event) => {
           </n-space>
         </n-card>
       </n-space>
+    </div>
+
+    <div
+      v-else-if="!isLoading && postEvents && postEvents.length === 0"
+      class="h-40 flex justify-center items-center"
+    >
+      <n-empty :description="t('empty_text')" size="huge"> </n-empty>
     </div>
 
     <PapawVueList
