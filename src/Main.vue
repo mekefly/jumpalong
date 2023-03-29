@@ -12,15 +12,15 @@ watchEffect(() => {
 </script>
 
 <template>
-  <div
-    class="body"
-    :style="{
-      backgroundColor: themeVars.bodyColor,
-    }"
-  >
-    <div class="container">
-      <div class="w-full h-screen overflow-hidden">
-        <n-config-provider :theme="theme">
+  <n-config-provider :theme="theme">
+    <div
+      class="body"
+      :style="{
+        backgroundColor: themeVars.bodyColor,
+      }"
+    >
+      <div class="container">
+        <div class="w-full h-screen overflow-hidden">
           <n-dialog-provider>
             <n-message-provider>
               <n-notification-provider :placement="'bottom'">
@@ -32,10 +32,10 @@ watchEffect(() => {
               </n-notification-provider>
             </n-message-provider>
           </n-dialog-provider>
-        </n-config-provider>
+        </div>
       </div>
     </div>
-  </div>
+  </n-config-provider>
 </template>
 
 <style scoped>

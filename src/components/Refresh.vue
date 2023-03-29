@@ -121,6 +121,7 @@ const shifting = computed(() => {
 
 <template>
   <div
+    v-if="refreshable"
     class="w-full h-20 flex items-center justify-center absolute"
     :style="{
       transform: `translate(0,calc(${-shifting}px + -100%)) rotate(${
@@ -143,6 +144,7 @@ const shifting = computed(() => {
     <slot></slot>
   </div>
   <div
+    v-if="loadable"
     class="w-full h-20 flex items-center justify-center absolute bottom-0"
     :style="{
       transform: `translate(0px,calc(${-shifting}px + 100%)) rotate(${

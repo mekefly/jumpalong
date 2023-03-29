@@ -37,7 +37,7 @@ function handleSend(e: EventTemplate) {
 </script>
 
 <template>
-  <div v-if="event" class="flex flex-col w-full h-full">
+  <div v-if="event" class="flex flex-col w-full h-full overflow-auto">
     <ScrollbarVue class="w-full h-0 flex-shrink flex-1">
       <UserInfoVue :pubkey="event.pubkey" :created_at="event.created_at">
         <template #bottom>
