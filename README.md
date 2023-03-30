@@ -7,17 +7,17 @@ This program is a web client of Nostr, provides a beautiful interface and intera
 ## Features
 
 - [ ] Multiaccount with simple switching
-- [ ] Registration guide
+- [x] Registration guide
 - [x] Follows
 - [x] Universal Event cache
 - [ ] Integrated webdav storage
 - [ ] Integrated ipfs storage
 - [ ] Upload by Ipfs
-- [ ] Upload media files (uses third-party services nostr.build, void.cat and nostrimg.com)
-- [ ] Display embedded images, videos and audios
-- [ ] Event deletion
-- [ ] Search Event
-- [ ] Channels,Coming soon
+- [x] Upload media files (uses third-party services nostr.build, void.cat and nostrimg.com)
+- [x] Display embedded images, videos and audios
+- [x] Event deletion
+- [x] Search Event
+- [x] Channels
 
 ## [Nips](https://github.com/nostr-protocol/nips)
 
@@ -31,7 +31,7 @@ This program is a web client of Nostr, provides a beautiful interface and intera
 - [ ] NIP-08: Handling Mentions
 - [x] NIP-09: Event Deletion
 - [ ] NIP-10: Conventions for clients' use of e and p tags in text events
-- [ ] NIP-11: Relay Information Document
+- [x] NIP-11: Relay Information Document
 - [ ] NIP-12: Generic Tag Queries
 - [ ] NIP-13: Proof of Work
 - [ ] NIP-14: Subject tag in text events.
@@ -40,7 +40,7 @@ This program is a web client of Nostr, provides a beautiful interface and intera
 - [x] NIP-19: bech32-encoded entities
 - [ ] NIP-20: Command Results
 - [ ] NIP-21: nostr: URL scheme
-- [ ] NIP-22: Event created_at Limits
+- [x] NIP-22: Event created_at Limits
 - [ ] NIP-23: Long-form Content
 - [ ] NIP-25: Reactions
 - [ ] NIP-26: Delegated Event Signing
@@ -60,14 +60,14 @@ This program is a web client of Nostr, provides a beautiful interface and intera
 | :---------: | :------------------------------: | :-----: | :--------: |
 |      0      |             Metadata             |  1, 5   |     ✅     |
 |      1      |         Short Text Note          |    1    |     ✅     |
-|      2      |         Recommend Relay          |    1    |            |
-|      3      |             Contacts             |    2    |            |
+|      2      |         Recommend Relay          |    1    |     ❌     |
+|      3      |             Contacts             |    2    |     ✅     |
 |      4      |    Encrypted Direct Messages     |    4    |            |
-|      5      |          Event Deletion          |    9    |            |
-|      7      |             Reaction             |   25    |            |
-|     40      |         Channel Creation         |   28    |            |
-|     41      |         Channel Metadata         |   28    |            |
-|     42      |         Channel Message          |   28    |            |
+|      5      |          Event Deletion          |    9    |     ✅     |
+|      7      |             Reaction             |   25    |     ✅     |
+|     40      |         Channel Creation         |   28    |     ✅     |
+|     41      |         Channel Metadata         |   28    |     ✅     |
+|     42      |         Channel Message          |   28    |     ✅     |
 |     43      |       Channel Hide Message       |   28    |            |
 |     44      |        Channel Mute User         |   28    |            |
 |    45-49    |       Public Chat Reserved       |   28    |            |
@@ -78,9 +78,9 @@ This program is a web client of Nostr, provides a beautiful interface and intera
 |    22242    |      Client Authentication       |   42    |            |
 |    30023    |        Long-form Content         |   23    |            |
 |  1000-9999  |          Regular Events          |   16    |            |
-| 10000-19999 |        Replaceable Events        |   16    |            |
-| 20000-29999 |         Ephemeral Events         |   16    |            |
-| 30000-39999 | Parameterized Replaceable Events |   33    |            |
+| 10000-19999 |        Replaceable Events        |   16    |     ✅     |
+| 20000-29999 |         Ephemeral Events         |   16    |     ✅     |
+| 30000-39999 | Parameterized Replaceable Events |   33    |     ✅     |
 
 ## 技术
 
