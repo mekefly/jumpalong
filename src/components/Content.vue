@@ -183,6 +183,11 @@ const rows = computed(() => {
           <a
             v-else-if="item[0] === 'url'"
             class="break-words block"
+            :style="{
+              'word-break': 'break-all',
+              'text-overflow': 'ellipsis',
+              'word-wrap': 'break-word',
+            }"
             :href="item[2]"
           >
             {{ item[1] }}
