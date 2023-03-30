@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import contactConfiguration from "@/api/Contact";
 import { getUserMetadataLineByPubkey } from "@/api/user";
+import EllipsisVue from "@/components/Ellipsis.vue";
 import ProfileMoreInfoVue from "@/components/ProfileMoreInfo.vue";
 import ScrollbarVue from "@/components/Scrollbar.vue";
 import UserInformationButtonVue from "@/components/UserInformationButton.vue";
@@ -96,9 +97,18 @@ const [target] = useScale(0.3);
           </div>
 
           <h1 class="flex items-center">
-            {{ metadata?.name ?? profilePointer?.pubkey.slice(0, 10) }}
+            <EllipsisVue>
+              {{ metadata?.name ?? profilePointer?.pubkey.slice(0, 10) }}
+            </EllipsisVue>
           </h1>
-          <div>
+          <div
+            class="w-full"
+            :style="{
+              'word-break': 'break-all',
+              'text-overflow': 'ellipsis',
+              'word-wrap': 'break-word',
+            }"
+          >
             {{ metadata?.about }}
           </div>
         </div>

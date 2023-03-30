@@ -4,6 +4,7 @@ import { parseMetadata } from "@/nostr/staff/createUseChannelMetadata";
 import { getUserMetadataLineByPubkey } from "../api/user";
 import profile from "../assets/profile-2-400x400.png";
 import { useLazyComponent } from "../utils/use";
+import EllipsisVue from "./Ellipsis.vue";
 
 const props = defineProps<{ pubkey: string; created_at: number }>();
 const { pubkey, created_at } = toRefs(props);
@@ -50,7 +51,9 @@ const name = computed(() => {
     />
     <div class="flex-grow flex-shrink">
       <div class="font-bold ml-4" @click="() => routerPush(pubkey)">
-        {{ name }}
+        <EllipsisVue>
+          {{ name }}
+        </EllipsisVue>
       </div>
       <div class="ml-4">
         <slot name="bottom" :userInfo="metadata"></slot>
