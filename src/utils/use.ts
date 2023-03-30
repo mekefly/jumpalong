@@ -1,3 +1,4 @@
+import { useInjectScrollbarInstRef } from "@/components/Scrollbar";
 import { t } from "@/i18n";
 import { EventBeltline } from "@/nostr/eventBeltline";
 import { relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
@@ -496,4 +497,33 @@ export function createInjectionState<
       return inject(key, () => null, true);
     },
   ] as const;
+}
+
+export function autoHidden(
+  target: globalThis.Ref<null>,
+  isLongPress: Ref<boolean | undefined | null>,
+  show: globalThis.Ref<boolean | undefined>
+) {
+  useEventListener("click", () => {
+    show.value = false;
+  });
+  const scrollbarInstRef = useInjectScrollbarInstRef();
+  function hidden() {
+    show.value = false;
+  }
+  watch(show, () => {
+    if (show.value) {
+      scrollbarInstRef?.containerRef.value?.addEventListener("scroll", hidden, {
+        once: true,
+      });
+    } else {
+      scrollbarInstRef?.containerRef.value?.removeEventListener(
+        "scroll",
+        hidden
+      );
+    }
+  });
+  onUnmounted(() => {
+    scrollbarInstRef?.containerRef.value?.removeEventListener("scroll", hidden);
+  });
 }

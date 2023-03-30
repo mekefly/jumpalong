@@ -17,6 +17,7 @@ export default defineConfig({
     environment: "happy-dom",
   },
   server: {
+    host: "0.0.0.0",
     proxy: {},
   },
 

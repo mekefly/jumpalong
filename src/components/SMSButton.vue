@@ -7,7 +7,7 @@ import {
 } from "@/state/nostr";
 import { useClipboardDialog } from "@/utils/naiveUi";
 import { neventEncodeByEvent } from "@/utils/nostr";
-import { useModelBind } from "@/utils/use";
+import { autoHidden, useModelBind } from "@/utils/use";
 import { usePushShortTextNote } from "@/views/ShortTextNoteView";
 import { SelectMixedOption } from "naive-ui/es/select/src/interface";
 import { Event, nip19 } from "nostr-tools";
@@ -18,13 +18,17 @@ import { useRichTextEditBoxOpt } from "./RichTextEditBox";
 
 const richTextEditBoxOpt = useRichTextEditBoxOpt();
 
-const props = defineProps<{
-  event: Event;
-  deleteEvent: (id: string) => void;
-  show?: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    event: Event;
+    deleteEvent: (id: string) => void;
+    show?: boolean;
+    isLongPress?: boolean;
+  }>(),
+  { isLongPress: false }
+);
 
-const { event, deleteEvent } = toRefs(props);
+const { event, deleteEvent, isLongPress } = toRefs(props);
 
 const value = ref("");
 
@@ -129,17 +133,20 @@ const options = ref<SelectMixedOption[]>([
     value: "recommendUserMetadata",
   },
 ]);
+const target = ref(null);
+autoHidden(target, isLongPress, show);
 </script>
 
 <template>
   <n-popselect
+    ref="target"
     @updateValue="runOperate"
     v-model:value="value"
     :options="options"
     trigger="manual"
     :show="show"
   >
-    <n-button quaternary circle @click="() => (show = !show)">
+    <n-button quaternary circle @click.stop="() => (show = !show)">
       <n-icon> <MoreIconVue /> </n-icon>
     </n-button>
   </n-popselect>

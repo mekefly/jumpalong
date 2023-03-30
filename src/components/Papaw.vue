@@ -1,17 +1,15 @@
 <script lang="ts" setup>
-import { Event } from "nostr-tools";
-
-import Content from "./Content.vue";
-import DateTimeVue from "./DateTime.vue";
-import SMSButtonVue from "./SMSButton.vue";
-import UserInfoVue from "./UserInfo.vue";
-
-import vLongPress from "@/directive/LongPress";
 import { useLazyShow } from "@/utils/use";
 import { arrayRemove } from "@/utils/utils";
+import { vOnLongPress } from "@vueuse/components";
+import { Event } from "nostr-tools";
+import Content from "./Content.vue";
+import DateTimeVue from "./DateTime.vue";
 import { useNewMessageState } from "./NewMessage";
 import PapawFooterVue from "./PapawFooter.vue";
 import { useInjectScrollbarInstRef } from "./Scrollbar";
+import SMSButtonVue from "./SMSButton.vue";
+import UserInfoVue from "./UserInfo.vue";
 
 const props = defineProps<{
   event: Event;
@@ -60,6 +58,11 @@ function twinkle() {
     isTwinkle.value = false;
   }, 1000);
 }
+const isLongPress = ref(false);
+function handelLongPress() {
+  showSMS.value = !showSMS.value;
+  isLongPress.value = true;
+}
 </script>
 
 <template>
@@ -69,14 +72,10 @@ function twinkle() {
     :class="{
       twinkle: isTwinkle,
     }"
-    v-Long-press="
-      (e:MouseEvent) => {
-        e.preventDefault()
-        e.stopPropagation()
-
-        showSMS = !showSMS;
-      }
-    "
+    v-on-long-press.prevent="[
+      handelLongPress,
+      { modifiers: { stop: true, prevent: true } },
+    ]"
   >
     <div class="p-3 flex justify-between items-center">
       <UserInfoVue :pubkey="event.pubkey" :created_at="event.created_at">
@@ -88,6 +87,7 @@ function twinkle() {
             :show="showSMS"
             :event="event"
             :deleteEvent="handelDeleteEvent"
+            :isLongPress="isLongPress"
           />
         </template>
       </UserInfoVue>
