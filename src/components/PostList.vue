@@ -5,8 +5,7 @@ import { t } from "@/i18n";
 import { NSkeleton, NSpace } from "naive-ui";
 import { Event, Filter } from "nostr-tools";
 import { getShortTextEventBeltline } from "../api/shortTextEventBeltline";
-import { autoSetLoadBuffer } from "./LoadProgress";
-import { useRefreshState } from "./Refresh";
+import { useLoad } from "./Refresh";
 
 logger.for("home.vue").for("PostList.vue").info("进入PostList.vue");
 
@@ -38,24 +37,7 @@ const beltline = computed(() => {
   return getShortTextEventBeltline(pubkey?.value, opt);
 });
 
-//加载进度条
-autoSetLoadBuffer(beltline);
-//监听加载事件
-const refreshState = useRefreshState();
-refreshState?.on("load", () => {
-  if (!active?.value) {
-    return;
-  }
-  beltline.value?.feat.load();
-  message.info(t("loading"));
-});
-refreshState?.on("refresh", () => {
-  if (!active?.value) {
-    return;
-  }
-  beltline.value?.feat.refresh();
-  message.info(t("refreshing"));
-});
+useLoad(beltline, active);
 
 onUnmounted(() => {
   beltline.value?.closeReq();

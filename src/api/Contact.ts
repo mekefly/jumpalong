@@ -1,8 +1,10 @@
 import { createEventBeltlineReactive } from "@/nostr/createEventBeltline";
 import { createEvent } from "@/nostr/event";
 import { rootEventBeltline } from "@/nostr/nostr";
+import { createDoNotRepeatStaff } from "@/nostr/staff";
 import autoAddRelayurlByPubkeyStaff from "@/nostr/staff/autoAddRelayurlByPubkeyStaff";
 import { createLatestEventStaff } from "@/nostr/staff/createLatestEventStaff";
+import createRefreshLoadStaff from "@/nostr/staff/createRefreshLoadStaff";
 import createUseChannelMetadata, {
   ChannelMetadata,
 } from "@/nostr/staff/createUseChannelMetadata";
@@ -271,123 +273,26 @@ export function getContactListLineByPubkey(pubkey: string) {
     }
   );
 }
+export function getFollowerLineByPubkey(pubkey: string) {
+  return useCache(
+    `getFollowerLineByPubkey:${pubkey}`,
+    () => {
+      const line = createEventBeltlineReactive({
+        name: "getFollowerLineByPubkey",
+      })
+        .addStaff(createRefreshLoadStaff([{ kinds: [3], "#p": [pubkey] }], 100))
+        .addStaff(createDoNotRepeatStaff())
+        .addReadUrl();
 
-/**
- * 更新联系人列表
- *
- * @export
- */
-// export function pullMyContacts() {
-//   const con = getContactList(userKey.value.publicKey);
-//   watch(con, () => {
-//     if (!con.value.createAt) return;
-//     if (
-//       !localContacts.value.createAt ||
-//       con.value.createAt > localContacts.value.createAt
-//     ) {
-//       localContacts.value = con.value;
-//     }
-//   });
-// }
-
-/**
- * 推送联系人列表
- *
- * @export
- * @return {*}
- */
-// export function pushMyContacts() {
-//   if (
-//     !localContacts.value ||
-//     !localContacts.value.contacts ||
-//     !localContacts.value.createAt
-//   )
-//     return;
-
-//   const event = createEvent({
-//     kind: 3,
-//     created_at: localContacts.value.createAt,
-//     tags: Object.keys(localContacts.value.contacts).map((pubkey) => {
-//       const c = (localContacts.value.contacts as any)[pubkey];
-//       return createTagP(pubkey, c.relay, c.name);
-//     }),
-//   });
-//   publishEvent(event);
-// }
-
-/**
- * 关注好友
- *
- * @export
- * @param {string} [pubkey]
- * @return {*}
- */
-// export async function followContact(pubkey?: string) {
-//   if (!pubkey) return;
-
-//   const up = (c: Contact) => {
-//     (localContacts.value.contacts ?? (localContacts.value.contacts = {}))[
-//       pubkey
-//     ] = c;
-//     localContacts.value.createAt = nowSecondTimestamp();
-//     pushMyContacts();
-//   };
-//   createContactByPubkey(pubkey, { reqFull: true, onUp: up });
-// }
-
-/**
- * 取消关注
- *
- * @export
- * @param {string} [pubkey]
- * @return {*}
- */
-// export function unFollowContact(pubkey?: string) {
-//   if (!pubkey) return;
-//   if (!localContacts.value?.contacts) return;
-
-//   const c = localContacts.value.contacts[pubkey];
-//   if (!c) return;
-//   delete localContacts.value.contacts[pubkey];
-//   pushMyContacts();
-// }
-
-// function createContactByPubkey(
-//   pubkey: string,
-//   options?: {
-//     reqFull?: boolean;
-//     onFull?: (c: Contact) => void;
-//     onPart?: (c: Contact) => void;
-//     onUp?: (c: Contact) => void;
-//   }
-// ): Contact {
-//   const contact = {};
-
-//   options?.reqFull &&
-//     getUserMetadataByPubkey(pubkey).then((m) => {
-//       Object.assign(contact, m);
-//       options?.onFull?.(contact);
-//       options?.onUp?.(contact);
-//     });
-//   options?.onPart?.(contact);
-//   options?.onUp?.(contact);
-//   return contact;
-// }
-
-// function tagsToContactList(tags?: string[][]) {
-//   if (!tags) return {};
-//   const contact: ContactList = {};
-//   tags.forEach((tag) => {
-//     if (tag[0] === "p") {
-//       //前一部分初始化，后一部分付值到前
-//       (contact.contacts ?? (contact.contacts = {}))[tag[1]] = {
-//         relay: tag[2],
-//         name: tag[3],
-//       };
-//     }
-//   });
-//   return contact;
-// }
+      line.feat.load();
+      return line;
+    },
+    {
+      useLocalStorage: false,
+      duration: 100_000,
+    }
+  );
+}
 
 type ContactConfigurationType = Record<string, ContactMetaData>;
 

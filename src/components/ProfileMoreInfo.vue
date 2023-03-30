@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { t } from "@/i18n";
-import Contacts from "./ContactList.vue";
+import Follow from "./Follow.vue";
+import FollowerVue from "./Follower.vue";
 import PostListVue from "./PostList.vue";
 
 const props = defineProps<{ pubkey: string; urls?: Set<string> }>();
@@ -19,13 +20,12 @@ const activePage = ref("homepage");
       />
     </n-tab-pane>
     <n-tab-pane display-directive="show" name="follow" :tab="t('follow')">
-      <Contacts :active="activePage === 'homepage'" :pubkey="pubkey" />
+      <Follow :active="activePage === 'follow'" :pubkey="pubkey" />
     </n-tab-pane>
     <n-tab-pane display-directive="show" name="follower" :tab="t('follower')">
-      七里香
+      <FollowerVue :active="activePage === 'follower'" :pubkey="pubkey" />
     </n-tab-pane>
     <n-tab-pane display-directive="show" name="中继" :tab="t('relay')">
-      七里香
     </n-tab-pane>
   </n-tabs>
 </template>

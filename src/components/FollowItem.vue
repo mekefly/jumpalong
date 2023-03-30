@@ -1,13 +1,14 @@
 <script lang="ts" setup>
 import { getUserMetadataLineByPubkey } from "@/api/user";
-import { type PubkeyTag } from "@/nostr/tag";
 import { useLazyComponent } from "@/utils/use";
 import profile from "../assets/profile-2-400x400.png";
 
-const props = defineProps<{ contact: PubkeyTag }>();
-const { contact } = toRefs(props);
-
-const pubkey = computed(() => contact.value.pubkey);
+const props = defineProps<{
+  pubkey: string;
+  name?: string;
+  about?: string;
+}>();
+const { pubkey, name, about } = toRefs(props);
 
 const [metadataLine, target] = useLazyComponent(() => {
   return getUserMetadataLineByPubkey(pubkey.value);
@@ -27,10 +28,10 @@ const metadata = computed(() => metadataLine.value?.feat.useMetadata());
       />
       <div class="flex flex-col ml-4 flex-1 shrink-1 w-full">
         <div class="text-xl" @click="() => $router.push(`/profile/${pubkey}`)">
-          {{ metadata?.name ?? contact.name ?? contact.pubkey.slice(0, 10) }}
+          {{ name ?? metadata?.name ?? pubkey.slice(0, 10) }}
         </div>
         <Ellipsis v-if="metadata?.about" :style="{ fontSize: '10px' }">
-          {{ metadata.about }}
+          {{ about ?? metadata.about }}
         </Ellipsis>
       </div>
     </div>

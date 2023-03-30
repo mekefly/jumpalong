@@ -4,7 +4,7 @@ import { NList } from "naive-ui";
 import contactConfiguration, {
   getContactListLineByPubkey,
 } from "../api/Contact";
-import ContactListItemVue from "./ContactListItem.vue";
+import ContactListItemVue from "./FollowItem.vue";
 const props = defineProps<{ pubkey: string }>();
 const { pubkey } = toRefs(props);
 
@@ -26,6 +26,8 @@ const contactList = computed(() => {
         v-for="contact of contactList"
         :key="contact.pubkey"
         :contact="contact"
+        :pubkey="contact.pubkey"
+        :name="contact.name"
       />
     </n-list>
   </div>
