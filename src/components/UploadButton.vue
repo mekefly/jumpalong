@@ -12,14 +12,31 @@ const emit = defineEmits<{
 }>();
 
 const _upload = useUpload();
+const uploadedSet = new Set<string>();
 
-async function customRequest(opt: CustomRequestOptions) {
-  const file = opt.file.file;
+async function customRequest({
+  file: { file, status, id },
+  onFinish,
+}: CustomRequestOptions) {
+  console.log("status", status, id);
+  if (uploadedSet.has(id)) {
+    return;
+  }
+  console.log("status", status, id);
+
+  if (status !== "pending") {
+    return;
+  }
   if (!file) return;
+
   if (upload?.value) {
     upload.value(file);
+    uploadedSet.add(id);
+    onFinish();
   } else {
     const opt = await _upload(file);
+    onFinish();
+    uploadedSet.add(id);
     emit("uploadResult", opt);
   }
 }

@@ -1,12 +1,10 @@
 <script lang="ts" setup>
 import { t } from "@/i18n";
 import CloudUploadVue from "./icon/CloudUpload.vue";
-import { useCustomRequest, useFileList, useShow, useUploadRef } from "./Upload";
+import { useFileList, useShow } from "./Upload";
 const { isShow, show, hidden } = useShow();
 
-const uploadRef = useUploadRef();
 const fileList = useFileList();
-const customRequest = useCustomRequest();
 const uploadingNumber = computed(
   () => fileList.value.filter((item) => item.status === "uploading").length
 );
@@ -28,18 +26,7 @@ const uploadingNumber = computed(
 
       <n-empty v-show="fileList.length === 0" :description="t('empty_text')">
       </n-empty>
-      <n-upload
-        abstract
-        ref="uploadRef"
-        v-model:fileList="fileList"
-        show-preview-button
-        show-download-button
-        show-cancel-button
-        show-remove-button
-        :customRequest="customRequest"
-      >
-        <n-upload-file-list class="min-w-[25em]" />
-      </n-upload>
+      <n-upload-file-list class="min-w-[25em]" />
     </n-popover>
   </div>
 </template>

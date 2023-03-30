@@ -10,16 +10,16 @@ export function intelligentCleaning() {
 
   const list = keylist.getCacheList();
   for (const key of list) {
-    const cacheString = localStorage.getItem(key);
-    if (!cacheString) {
-      continue;
-    }
-    const cache: any = cacheParser(cacheString);
-    if (!isCache(cache)) {
-      continue;
-    }
-
     try {
+      const cacheString = localStorage.getItem(key);
+      if (!cacheString) {
+        continue;
+      }
+
+      const cache: any = cacheParser(cacheString);
+      if (!isCache(cache)) {
+        continue;
+      }
       checkCache(cache);
     } catch (err) {
       localStorage.removeItem(key);

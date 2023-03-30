@@ -1,5 +1,5 @@
 import { matchNostrBuildResponseText } from "@/utils/RegExpUtils";
-import { createId, myRequest } from "@/utils/utils";
+import { createId, myRequest, timeout } from "@/utils/utils";
 import EventEmitter from "events";
 import {
   UploadCustomRequestOptions,
@@ -9,15 +9,27 @@ import {
 
 const evemtEmiter = new EventEmitter();
 const uploadRef = ref(null as UploadInst | null);
-const fileList = ref<Array<UploadFileInfo>>([]);
+const fileList: Ref<UploadFileInfo[]> = ref<UploadFileInfo[]>([]);
 
 export function useUploadRef() {
   return uploadRef;
 }
-function useSubmit() {
+export function useOpenOpenFileDialog() {
   return () => {
-    uploadRef.value?.submit();
-    console.log("uploadRef", uploadRef.value);
+    console.log("uploadRef.value?.openOpenFileDialog", uploadRef.value);
+
+    (uploadRef.value?.openOpenFileDialog as any)?.();
+  };
+}
+function useSubmit() {
+  return async (uploadFileInfo: UploadFileInfo) => {
+    const l = fileList.value;
+    fileList.value = [uploadFileInfo];
+    await timeout(0);
+    (uploadRef.value?.submit as any)();
+    await timeout(0);
+    fileList.value = l;
+    fileList.value.push(uploadFileInfo);
   };
 }
 const isShow = ref(false);
@@ -34,22 +46,24 @@ export function useShow() {
 }
 
 const id: any = undefined;
-function shortDisplay() {
-  clearTimeout(id);
+export function useShortDisplay() {
   watch(isShow, () => {
-    if (!isShow.value) {
-      clearTimeout(id);
-    }
+    clearTimeout(id);
   });
 
-  isShow.value = true;
-  setTimeout(() => {
-    isShow.value = false;
-  }, 3000);
+  return () => {
+    clearTimeout(id);
+
+    isShow.value = true;
+    setTimeout(() => {
+      isShow.value = false;
+    }, 3000);
+  };
 }
 
 export function useUpload() {
   const submit = useSubmit();
+  const shortDisplay = useShortDisplay();
 
   return async (file: File) => {
     return new Promise<UploadFinishEventOpt>((resolve, reject) => {
@@ -62,12 +76,11 @@ export function useUpload() {
         status: "pending" as const,
       };
 
-      evemtEmiter.once(uploadFileInfo.id, (e) => {
-        resolve(e);
+      evemtEmiter.once(uploadFileInfo.id, (value) => {
+        resolve(value);
       });
 
-      fileList.value.push(uploadFileInfo);
-      submit();
+      submit(uploadFileInfo);
     });
   };
 }
@@ -81,6 +94,7 @@ export type UploadFinishEventOpt = {
 
 export function useCustomRequest() {
   const message = useMessage();
+  const shortDisplay = useShortDisplay();
   const customRequest = async ({
     file,
     data,
@@ -116,10 +130,11 @@ export function useCustomRequest() {
         onFinish();
         evemtEmiter.emit(file.id, { file, url });
         message.success("上传成功");
+        shortDisplay();
       })
       .catch((e) => {
         message.error("上传失败", e);
-        console.log("上传失败", e);
+        console.error("上传失败", e);
 
         onError();
       });

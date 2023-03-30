@@ -4,6 +4,7 @@ import { useThemeVars } from "naive-ui";
 import { NConfigProvider } from "naive-ui";
 import { theme } from "./app";
 import LoadProgressProvideVue from "./components/LoadProgressProvide.vue";
+import UploadProvideVue from "./components/UploadProvide.vue";
 
 const themeVars = useThemeVars();
 
@@ -27,11 +28,13 @@ watchEffect(() => {
               <n-notification-provider :placement="'bottom'">
                 <n-loading-bar-provider>
                   <LoadProgressProvideVue>
-                    <router-view v-slot="{ Component }">
-                      <keep-alive>
-                        <component :is="Component" />
-                      </keep-alive>
-                    </router-view>
+                    <UploadProvideVue>
+                      <router-view v-slot="{ Component }">
+                        <keep-alive>
+                          <component :is="Component" />
+                        </keep-alive>
+                      </router-view>
+                    </UploadProvideVue>
                   </LoadProgressProvideVue>
                 </n-loading-bar-provider>
               </n-notification-provider>
