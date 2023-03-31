@@ -19,7 +19,7 @@ const themeVars = useThemeVars();
       <LayoutHeaderVue />
     </n-layout-header>
     <n-layout
-      class="absolute w-full top-14 md:top-20 bottom-5 md:bottom-7"
+      class="absolute w-full top-14 md:top-20 bottom-0"
       has-sider
       :style="{
         transition: 'top 0.5s, bottoom 0.5s',
@@ -49,23 +49,5 @@ const themeVars = useThemeVars();
         </div>
       </n-layout>
     </n-layout>
-    <n-layout-footer
-      class="h-5 md:h-7"
-      position="absolute"
-      bordered
-      :style="{
-        transition: 'height 0.5s',
-      }"
-    >
-      <span
-        class="flex items-center justify-center h-full w-full text-xs"
-        :style="{
-          color: themeVars.textColor3,
-          opacity: themeVars.opacity3,
-        }"
-      >
-        {{ "Jumpalong __VERSION__ · Made by mekefly" }}
-      </span>
-    </n-layout-footer>
   </n-layout>
 </template>
