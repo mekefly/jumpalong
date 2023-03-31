@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useLazyShow } from "@/utils/use";
-import { arrayRemove } from "@/utils/utils";
+import { arrayRemove, createId } from "@/utils/utils";
 import { vOnLongPress } from "@vueuse/components";
 import { Event } from "nostr-tools";
 import Content from "./Content.vue";
@@ -65,12 +65,15 @@ function handelLongPress() {
   showSMS.value = !showSMS.value;
   isLongPress.value = true;
 }
+const id = `papaw-${createId()}`;
+provide("papaw-id", id);
 </script>
 
 <template>
   <div
+    :id="id"
     ref="target"
-    class="w-max-full rounded-2xl mt-4 bg-[#dfe4ea55] overflow-hidden"
+    class="w-max-full rounded-2xl mt-4 bg-[#dfe4ea55] overflow-hidden relative"
     :class="{
       twinkle: isTwinkle,
     }"
@@ -101,6 +104,7 @@ function handelLongPress() {
       v-if="withPapawOptionsButtons ?? true"
       :event="event"
     />
+
     <PapawSourceUrlVue :event="event" />
   </div>
 </template>

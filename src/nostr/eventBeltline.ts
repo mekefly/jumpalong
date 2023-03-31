@@ -13,13 +13,9 @@ import { createEvent } from "./event";
 import { IdGenerator } from "./IdGenerator";
 import { type SubOptions } from "./relay";
 import { RelayEmiter } from "./RelayEmiter";
-import {
-  createPreventCircularReferencesStaff,
-  StaffState,
-  type FeatType,
-  type Staff,
-} from "./staff";
+import { StaffState, type FeatType, type Staff } from "./staff";
 import { createFilterStaff } from "./staff/createFilterStaff";
+import createPushStaff from "./staff/createPushStaff";
 import { deserializeTagR } from "./tag";
 import { userKey } from "./user";
 
@@ -87,13 +83,12 @@ export class EventBeltline<
     this.relayConfigurator = options?.relayConfigurator;
     this.idGenerator = options?.idGenerator ?? new IdGenerator();
 
-    options?.preventCircularReferences && this.addPreventCircularReferences();
-
     this.addFiltersStaff(this.filters, { unshift: true });
 
     for (const staff of this.staffs) {
       staff?.initialization?.();
     }
+    this.addStaff(createPushStaff());
   }
   public getRelayEmiter() {
     return this.relayEmiter;
@@ -158,7 +153,12 @@ export class EventBeltline<
     for (const staff of this.staffs) {
       state = staff.afterPush?.(event, this.eventList, state) ?? state;
     }
-    state === StaffState.NEXT && this.eventList.push(event);
+    state === StaffState.NEXT &&
+      this.feat.pushEvent(event, this.eventList, {
+        lastState: state,
+        subId,
+        url,
+      });
 
     // 继承
     if (state === StaffState.NEXT) {
@@ -318,39 +318,43 @@ export class EventBeltline<
   public getList() {
     return this.eventList;
   }
-
+  /**
+   * 正序插入
+   * @returns
+   */
   public addStaffOfSortByCreateAt() {
     this.addStaff({
-      push: (event, eventList) => {
-        const searchInsert = searchInsertOnObjectList(
-          this.eventList,
-          event.created_at,
-          "created_at"
-        );
-
-        eventList.splice(searchInsert, 0, event);
-        return StaffState.BREAK;
+      initialization() {
+        this.beltline.feat.pushEvent = function (event, eventList) {
+          const searchInsert = searchInsertOnObjectList(
+            eventList,
+            event.created_at,
+            "created_at"
+          );
+          eventList.splice(searchInsert, 0, event);
+        };
       },
     });
     return this;
   }
+  /**
+   * 反序插入
+   * @returns
+   */
   public addStaffOfReverseSortByCreateAt() {
     this.addStaff({
-      push: (event, eventList) => {
-        const searchInsert = reverseSearchInsertOnObjectList(
-          this.eventList,
-          event.created_at,
-          "created_at"
-        );
-
-        eventList.splice(searchInsert, 0, event);
-        return StaffState.BREAK;
+      initialization() {
+        this.beltline.feat.pushEvent = function (event, eventList) {
+          const searchInsert = reverseSearchInsertOnObjectList(
+            eventList,
+            event.created_at,
+            "created_at"
+          );
+          eventList.splice(searchInsert, 0, event);
+        };
       },
     });
     return this;
-  }
-  private addPreventCircularReferences() {
-    this.addStaff(createPreventCircularReferencesStaff());
   }
 
   private reqs(urls: Set<string>, filters: Filter[]) {

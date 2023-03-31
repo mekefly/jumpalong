@@ -2,6 +2,7 @@ import { createEventBeltlineReactive } from "@/nostr/createEventBeltline";
 import { PublishOpt } from "@/nostr/eventBeltline";
 import { relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
 import ReplaceableEventMap from "@/nostr/ReplaceableEventMap";
+import { getSourceUrls } from "@/nostr/staff/createEventSourceTracers";
 import { deserializeTagRToReadWriteList } from "@/nostr/tag";
 import {
   defaultCacheOptions,
@@ -9,10 +10,14 @@ import {
   getCacheOrNull,
   setCache,
 } from "@/utils/cache";
-import { setAdds } from "@/utils/utils";
+import { setAdds, withDefault } from "@/utils/utils";
 import { Event } from "nostr-tools";
 import { userKey } from "../nostr/user";
 import { eventDeletionOne } from "./event";
+import {
+  createTextEventBeltline,
+  CreateTextEventBeltlineOption,
+} from "./shortTextEventBeltline";
 
 export function getLikeBeltline(urls?: Set<string>) {
   return createEventBeltlineReactive({})
@@ -29,6 +34,10 @@ type SendReactionsOption = {
 } & PublishOpt;
 
 type ReactionsContent = "+" | "-";
+export const reactions = reactive(
+  useLocalStorage("reactions", ["+", "-"]).value
+);
+const reactionsSet = new Set(reactions);
 const ReactionsCacheOptions = {
   ...defaultCacheOptions,
   duration: 1000 * 60 * 60 * 24,
@@ -38,6 +47,10 @@ export function sendReactions(
   targetEvent: Event,
   opt?: SendReactionsOption
 ) {
+  if (!reactionsSet.has(content)) {
+    reactionsSet.add(content);
+    reactions.push(content);
+  }
   let tags: string[][] = targetEvent.tags.filter(
     (tag) =>
       tag.length >= 2 && (tag[0] == "e" || tag[0] == "p" || tag[0] == "r")
@@ -118,4 +131,45 @@ export function hasDislike(eventId: string) {
 
 function createReactionsKey(content: ReactionsContent, eventId: string) {
   return `${content}:${eventId}`;
+}
+type CreateReactionEventLine = Partial<CreateTextEventBeltlineOption> & {
+  event: Event;
+};
+export function createReactionEventLine(opt: CreateReactionEventLine) {
+  const event = opt.event;
+  const urls = getSourceUrls(event.id);
+  const reactionEventLine = createTextEventBeltline(
+    withDefault(opt, {
+      filters: [
+        {
+          "#e": [opt.event.id],
+          kinds: [7],
+        },
+      ],
+      addUrls: new Set(urls),
+      limit: 30,
+    })
+  ).addStaff({
+    initialization() {
+      (this.beltline.feat as any).reactionMap = {};
+    },
+    push(e) {
+      const reactionMap = (this.beltline.feat as any).reactionMap as Record<
+        string,
+        Event[]
+      >;
+      (reactionMap[e.content] ?? (reactionMap[e.content] = [])).push(e);
+      console.log("reactionMap", reactionMap);
+    },
+
+    feat: {
+      getReactionMap() {
+        return (this.beltline.feat as any).reactionMap as Record<
+          string,
+          Event[]
+        >;
+      },
+    },
+  });
+  return reactionEventLine;
 }

@@ -20,21 +20,19 @@ import { createBlackStaff } from "../views/ContentBlacklistView";
 
 const filterKind1: Filter = { kinds: [1] };
 
-export function createTextEventBeltline(
-  opts: CreateEventBeltlineOptions & {
-    filters: Filter[];
-    urls?: Set<string>;
-    addUrls?: Set<string>;
-    limit?: number;
-    pubkeys?: string[];
-  }
-) {
+export type CreateTextEventBeltlineOption = CreateEventBeltlineOptions & {
+  filters: Filter[];
+  urls?: Set<string>;
+  addUrls?: Set<string>;
+  limit?: number;
+  pubkeys?: string[];
+};
+export function createTextEventBeltline(opts: CreateTextEventBeltlineOption) {
   return useCache(
     `createShortTextEventBeltline:${JSON.stringify(opts.filters)}`,
     () => {
       const limit = opts.limit ?? 10;
       const filters = opts.filters;
-      console.log("createShortTextEventBeltline");
 
       const textEventBeltline = createEventBeltlineReactive(
         withDefault(opts, {
@@ -45,9 +43,9 @@ export function createTextEventBeltline(
         .addStaff(createBlackStaff()) // 黑名单过滤器
         .addStaff(createGarbageFilter()) // 垃圾邮件过滤器
         .addStaff(createFilterGreaterThanTheCurrenttimeStaff()) // 过滤掉-n秒前的情况
-        .addStaffOfReverseSortByCreateAt() // 通过创建时间反排序
         .addStaff(createRefreshLoadStaff(filters, limit)) //添加刷新和加载功能
-        .addStaff(createEventSourceTracersForRefreshLoadStaff()); // 给刷新和加载添加源头追踪
+        .addStaff(createEventSourceTracersForRefreshLoadStaff()) // 给刷新和加载添加源头追踪
+        .addStaffOfReverseSortByCreateAt(); // 通过创建时间反排序
 
       textEventBeltline
         .addReadUrl()

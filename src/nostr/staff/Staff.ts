@@ -55,6 +55,16 @@ export type Staff<FEAT extends object = {}> = {
 
 export type FeatType<FEAT extends object = {}> = FEAT & {
   beltline: EventBeltline<FEAT>;
+  pushEvent: (
+    this: FeatType,
+    event: Event,
+    eventList: Event[],
+    context: {
+      lastState: StaffState;
+      subId?: string;
+      url?: string;
+    }
+  ) => void;
 };
 export type StaffThisType<FEAT extends object = {}> = {
   beltline: EventBeltline<FEAT>;
