@@ -50,7 +50,7 @@ function handleSend() {
 }
 const handelLeave = debounce(() => {
   isEnter.value = false;
-}, 5000);
+}, 2000);
 const handleEnter = () => {
   handelLeave.clear?.();
   isEnter.value = true;
@@ -159,7 +159,11 @@ useDragFileUpload(target, uploadFile, {});
     />
     <div class="flex-1 flex-shrink relative h-0" @mouseenter="handleEnter">
       <ScrollbarVue class="h-full">
-        <div class="px-3 py-2" v-show="!isEdit && event.content">
+        <div
+          class="px-3 py-2"
+          v-show="!isEdit && event.content"
+          @click="() => (isEdit = true)"
+        >
           <ContentVue :event="event" />
         </div>
         <RichTextEditBoxInputVue
