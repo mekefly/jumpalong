@@ -1,19 +1,11 @@
 <script lang="ts" setup>
-import { useElementIntoScreen } from "@/utils/use";
+import { useLazyShow } from "@/utils/use";
 import { Emoji } from "./EmojiBox";
 
 const props = defineProps<{ type: string; emojiList: Emoji[] }>();
 const { type, emojiList } = toRefs(props);
-const target = ref(null);
-const isIntoScreen = useElementIntoScreen(target);
 
-let isShow = ref(isIntoScreen.value);
-const unwatch = watch(isIntoScreen, () => {
-  if (isIntoScreen.value) {
-    isShow.value = true;
-    unwatch();
-  }
-});
+const [target, isShow] = useLazyShow(100);
 const emit = defineEmits<{
   (e: "click", emoji: string): void;
 }>();
