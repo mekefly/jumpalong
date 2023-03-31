@@ -40,11 +40,17 @@ const createCacheKey = (filters: Filter[]) =>
 const cacheOptions = { ...defaultCacheOptions, duration: 1000 * 60 * 30 };
 
 export default createStaffFactory()(
-  (filters: Filter[], limit: number = 20): RefreshLoadStaff => {
+  (
+    filters: Filter[],
+    limit: number = 20,
+    opts?: {
+      eventBeltline: EventBeltline<any>;
+    }
+  ): RefreshLoadStaff => {
     const pushEventArgv = new WeakMap<Event, EventArg>();
     const cacheKey = createCacheKey(filters);
 
-    const opt: {
+    const bufferOpt: {
       loadBufferOpt: BufferOpt;
       refreshBufferOpt: BufferOpt;
     } = (getCacheOrNull(cacheKey, cacheOptions) as any) ?? {
@@ -55,15 +61,15 @@ export default createStaffFactory()(
     };
 
     //load
-    const loadBufferOpt = createBufferOpt(opt.loadBufferOpt);
+    const loadBufferOpt = createBufferOpt(bufferOpt.loadBufferOpt);
 
     //refresh
-    const refreshBufferOpt = createBufferOpt(opt.refreshBufferOpt);
+    const refreshBufferOpt = createBufferOpt(bufferOpt.refreshBufferOpt);
 
     return {
       initialization() {
         // const urls = this.beltline.getRelayUrls();
-        const slef = this.beltline;
+        const slef = opts?.eventBeltline ?? this.beltline;
         //刷新
         refreshBufferOpt.bufferLine = slef
           .createChild()

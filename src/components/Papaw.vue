@@ -7,6 +7,7 @@ import Content from "./Content.vue";
 import DateTimeVue from "./DateTime.vue";
 import { useNewMessageState } from "./NewMessage";
 import PapawFooterVue from "./PapawFooter.vue";
+import PapawSourceUrlVue from "./PapawSourceUrl.vue";
 import { useInjectScrollbarInstRef } from "./Scrollbar";
 import SMSButtonVue from "./SMSButton.vue";
 import UserInfoVue from "./UserInfo.vue";
@@ -68,7 +69,7 @@ function handelLongPress() {
 <template>
   <div
     ref="target"
-    class="w-max-full rounded-2xl mt-4 bg-[#dfe4ea55]"
+    class="w-max-full rounded-2xl mt-4 bg-[#dfe4ea55] overflow-hidden"
     :class="{
       twinkle: isTwinkle,
     }"
@@ -96,6 +97,7 @@ function handelLongPress() {
       <Content :event="event" />
     </div>
     <PapawFooterVue :event="event" />
+    <PapawSourceUrlVue :event="event" />
   </div>
 </template>
 

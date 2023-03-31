@@ -5,7 +5,7 @@ import RelayUrlShowVue from "./RelayUrlShow.vue";
 
 const props = defineProps<{
   urls: Iterable<string>;
-  title: string;
+  title?: string;
   loadable?: boolean;
 }>();
 const isEmpty = computed(
