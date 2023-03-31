@@ -3,9 +3,9 @@ import { t } from "@/i18n";
 import { debounce } from "@/utils/utils";
 import { NSpace } from "naive-ui";
 import { relayConfigurator } from "../nostr/nostr";
-import AddButton from "./AddButton.vue";
 import AccountTreeRoundVue from "./icon/AccountTreeRound.vue";
 import SyncAltVue from "./icon/SyncAlt.vue";
+import RelayAddButtonVue from "./RelayAddButton.vue";
 import RelayConnectListVue from "./RelayConnectList.vue";
 
 const searchValue = ref("");
@@ -60,13 +60,7 @@ const message = useMessage();
 
     <template #right="{ url }">
       <n-space justify="end" align="center">
-        <AddButton
-          :disabled="
-            relayConfigurator.hasReadByUrl(url) ||
-            relayConfigurator.hasWriteByUrl(url)
-          "
-          @click="() => relayConfigurator.addWriteRead(url)"
-        />
+        <RelayAddButtonVue :url="url" />
         <n-tooltip trigger="hover">
           <template #trigger>
             <n-button

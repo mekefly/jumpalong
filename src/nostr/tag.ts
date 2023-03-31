@@ -30,6 +30,7 @@ export function getTagEOfFirst(tags: string[][]): string[] | void {
 export type WritableReadableList = {
   readUrl: Set<string>;
   writeUrl: Set<string>;
+  urls: Set<string>;
 };
 export function serializeRelayConfiguration(
   relayConfiguration: RelayConfiguration
@@ -68,9 +69,11 @@ export function deserializeTagRToReadWriteList(
 ): WritableReadableList {
   const readUrl = new Set<string>();
   const writeUrl = new Set<string>();
+  const urls = new Set<string>();
   if (serializedArray) {
     for (const item of serializedArray) {
       if (item[0] === "r") {
+        urls.add(item[1]);
         if (item[2] === "read") {
           readUrl.add(item[1]);
         } else if (item[2] === "write") {
@@ -82,7 +85,7 @@ export function deserializeTagRToReadWriteList(
       }
     }
   }
-  return { readUrl, writeUrl };
+  return { readUrl, writeUrl, urls };
 }
 
 export function deserializeTagEOfEventIds(

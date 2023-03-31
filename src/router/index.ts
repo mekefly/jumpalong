@@ -58,6 +58,7 @@ const router = createRouter({
         },
         {
           path: "/relays",
+          name: "relays",
           component: () => import("../views/RelaysView.vue"),
         },
         {

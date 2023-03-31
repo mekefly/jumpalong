@@ -27,6 +27,7 @@ export default createStaffFactory<LatestEventStaffFeat>()(
         ) {
           this.beltline.feat.onHasLatestEvent((e, subId) => {
             const readWriteList = deserializeTagRToReadWriteList(e.tags);
+
             callback(readWriteList, subId);
           });
         },
@@ -34,3 +35,19 @@ export default createStaffFactory<LatestEventStaffFeat>()(
     };
   }
 );
+export const createGetReadWriteListStaff = createStaffFactory<
+  ReadWriteListStaffFeat & LatestEventStaffFeat
+>()(() => {
+  let isRunning = false;
+  return {
+    feat: {
+      getReadWriteList(): WritableReadableList | undefined {
+        if (isRunning) return (this as any).readWriteList;
+        this.beltline.feat.onHasReadWriteList((readWriteList) => {
+          (this as any).readWriteList = readWriteList;
+        });
+        return (this as any).readWriteList;
+      },
+    },
+  };
+});

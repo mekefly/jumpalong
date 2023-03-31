@@ -6,7 +6,9 @@ import { createDoNotRepeatStaff } from "@/nostr/staff";
 import autoAddRelayurlByPubkeyStaff from "@/nostr/staff/autoAddRelayurlByPubkeyStaff";
 import createEoseUnSubStaff from "@/nostr/staff/createEoseUnSubStaff";
 import { createLatestEventStaff } from "@/nostr/staff/createLatestEventStaff";
-import createReadWriteListStaff from "@/nostr/staff/createReadWriteListStaff";
+import createReadWriteListStaff, {
+  createGetReadWriteListStaff,
+} from "@/nostr/staff/createReadWriteListStaff";
 import createTimeoutUnSubStaff from "@/nostr/staff/createTimeoutUnSubStaff";
 import createUseChannelMetadata, {
   ChannelMetadata,
@@ -40,8 +42,7 @@ export function getUserRelayUrlConfigByPubkey(pubkey: string) {
   return useCache(
     `getUserRelayUrlConfigByPubkey:${pubkey}`,
     () => {
-      const kind10002line = rootEventBeltline
-        .createChild()
+      const kind10002line = reactive(rootEventBeltline.createChild())
         .addFilter({
           kinds: [10002],
           authors: [pubkey],
@@ -49,8 +50,10 @@ export function getUserRelayUrlConfigByPubkey(pubkey: string) {
         .addStaff(createLatestEventStaff())
         .addStaff(ReplaceableEventMapStaff(10002, pubkey)) // 本地缓存
         .addStaff(createReadWriteListStaff()) // 创建读写配置列表
+        .addStaff(createGetReadWriteListStaff()) // 创建读写配置列表
         .addStaff(createWithEvent())
         .addExtends(rootEventBeltline); //请求到的结果从root中也可取到取到
+      console.log("kind10002line", kind10002line);
 
       if (kind10002line.feat.withEvent()) {
         return kind10002line;

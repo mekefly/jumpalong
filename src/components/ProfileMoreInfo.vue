@@ -3,6 +3,7 @@ import { t } from "@/i18n";
 import Follow from "./Follow.vue";
 import FollowerVue from "./Follower.vue";
 import PostListVue from "./PostList.vue";
+import ProfileMoreInfoRelayListVue from "./ProfileMoreInfoRelayList.vue";
 
 const props = defineProps<{ pubkey: string; urls?: Set<string> }>();
 const { pubkey } = toRefs(props);
@@ -22,10 +23,18 @@ const activePage = ref("homepage");
     <n-tab-pane display-directive="show" name="follow" :tab="t('follow')">
       <Follow :active="activePage === 'follow'" :pubkey="pubkey" />
     </n-tab-pane>
-    <n-tab-pane display-directive="show" name="follower" :tab="t('follower')">
+    <n-tab-pane
+      display-directive="show:lazy"
+      name="follower"
+      :tab="t('follower')"
+    >
       <FollowerVue :active="activePage === 'follower'" :pubkey="pubkey" />
     </n-tab-pane>
-    <n-tab-pane display-directive="show" name="中继" :tab="t('relay')">
+    <n-tab-pane display-directive="show:lazy" name="中继" :tab="t('relay')">
+      <ProfileMoreInfoRelayListVue
+        :active="activePage === 'relay'"
+        :pubkey="pubkey"
+      />
     </n-tab-pane>
   </n-tabs>
 </template>

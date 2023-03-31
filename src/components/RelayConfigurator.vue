@@ -6,6 +6,8 @@ import BroadcastVue from "./Broadcast.vue";
 import ButtonCloseVue from "./ButtonClose.vue";
 import DateTimeVue from "./DateTime.vue";
 import RelayConnectListVue from "./RelayConnectList.vue";
+import RelayReadableButtonVue from "./RelayReadableButton.vue";
+import RelayWritableButtonVue from "./RelayWritableButton.vue";
 import TooltipVue from "./Tooltip.vue";
 
 const urls = computed(() => Object.keys(relayConfigurator.getConfiguration()));
@@ -52,20 +54,16 @@ const updateTime = computed(() => {
       <span v-else>null</span>
     </template>
     <template #right="{ url }">
-      <n-icon
+      <RelayWritableButtonVue
+        :active="relayConfigurator.hasWriteByUrl(url)"
         class="mr-1"
-        :color="relayConfigurator.hasWriteByUrl(url) ? '#2ed573' : undefined"
         @click="() => switchWrite(url)"
-      >
-        <ArrowUpload16Filled />
-      </n-icon>
-      <n-icon
+      />
+      <RelayReadableButtonVue
+        :active="relayConfigurator.hasReadByUrl(url)"
         class="mr-2"
-        :color="relayConfigurator.hasReadByUrl(url) ? '#2ed573' : undefined"
         @click="() => switchRead(url)"
-      >
-        <ArrowDownload16Filled />
-      </n-icon>
+      />
       <ButtonCloseVue text @click="() => relayConfigurator.remove(url)" />
     </template>
     <template #action>
