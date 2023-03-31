@@ -9,9 +9,9 @@ import {
 } from "@/api/like";
 import { t } from "@/i18n";
 import { useOnOK } from "@/utils/use";
-import { usePushShortTextNote } from "@/views/ShortTextNoteView";
 import { useThemeVars } from "naive-ui";
 import { Event } from "nostr-tools";
+import PapawReplyButtonVue from "./PapawReplyButton.vue";
 
 const props = defineProps<{
   event: Event;
@@ -20,11 +20,6 @@ const props = defineProps<{
 const { event, deleteEvent } = toRefs(props);
 
 const message = useMessage();
-const pushShortTextNote = usePushShortTextNote();
-
-function handelPushShortTextNote() {
-  pushShortTextNote(event.value);
-}
 
 const isLike = ref(hasLike(event.value.id));
 const isDislike = ref(hasDislike(event.value.id));
@@ -54,11 +49,7 @@ const size = ref(20);
 
 <template>
   <div class="flex justify-around py-4 box-border">
-    <n-button text @click="handelPushShortTextNote">
-      <n-icon :size="size">
-        <MessageOutlined />
-      </n-icon>
-    </n-button>
+    <PapawReplyButtonVue :size="size" :event="event" />
     <n-button text @click="handelLike">
       <n-icon :size="size" :color="isLike ? theme.successColor : undefined">
         <LikeFilled v-if="isLike" />

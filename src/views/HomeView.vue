@@ -41,7 +41,7 @@ const value = ref("MyFeed");
           <PostList
             :active="value === 'MyFeed'"
             v-if="pubkeys.length > 0"
-            :pubkey="pubkeys"
+            :pubkeys="pubkeys"
           />
           <n-empty v-else :description="t(`You can't find anything`)">
             <template #extra>
@@ -56,7 +56,12 @@ const value = ref("MyFeed");
           :tab="t('global')"
           display-directive="show:lazy"
         >
-          <PostList :active="value === 'GlobalFeed'" />
+          <PostList
+            :active="value === 'GlobalFeed'"
+            :filter="{
+              kinds: [1],
+            }"
+          />
         </n-tab-pane>
       </n-tabs>
     </ScrollbarVue>

@@ -54,7 +54,7 @@ function handleSend(e: EventTemplate) {
         <PostListVue
           v-model:pushEvent="pushEvent"
           :urls="urls"
-          :filter="{ '#e': [event.id as string] }"
+          :filter="{ '#e': [event.id], kinds: [1, 30023] }"
         />
       </div>
     </ScrollbarVue>

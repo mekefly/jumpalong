@@ -1,9 +1,12 @@
+import { syncInterval } from "@/utils/utils";
 import { createOneEventStaff, createStaff, StaffThisType } from ".";
 import { rootEventBeltline } from "../nostr";
 import { deserializeTagR } from "../tag";
 import autoAddRelayurlByPubkeyStaff from "./autoAddRelayurlByPubkeyStaff";
 import createEoseUnSubStaff from "./createEoseUnSubStaff";
-import createLocalStorageStaff from "./storage/createLocalStorageStaff";
+import createTimeoutUnSubStaff from "./createTimeoutUnSubStaff";
+import createWithEvent from "./createWithEvent";
+import getCacheStaff from "./storage/getCacheStaff";
 
 export type AddRelayurlByEventIdStaff = {
   initialization(this: StaffThisType<{}>): void;
@@ -28,9 +31,11 @@ export default function autoAddRelayurlByEventIdStaff(
           describe: "获取id通过id",
         })
         .addFilter({ ids: [eventId], limit: 1 })
+        .addStaff(createOneEventStaff())
+        .addStaff(createWithEvent())
+        .addFilter({ ids: [eventId], limit: 1 })
         .addStaff(createEoseUnSubStaff())
-        .addStaff(createLocalStorageStaff(1))
-        .addStaff(createOneEventStaff());
+        .addStaff(createTimeoutUnSubStaff());
 
       line.feat.onHasEventOnce((e) => {
         if (stop) return;
@@ -44,8 +49,20 @@ export default function autoAddRelayurlByEventIdStaff(
         stop = true;
       });
 
-      if (stop) return;
-      line.addReadUrl(); //当前连接搜索事件
+      line.addStaff(getCacheStaff(eventId));
+      if (line.feat.withEvent()) return;
+      line.addExtends(rootEventBeltline);
+      if (line.feat.withEvent()) return;
+
+      const req = () => {
+        if (line.feat.withEvent()) return;
+
+        line.addReadUrl();
+      };
+
+      syncInterval(`getEventLineById:${eventId}`, () => {
+        req();
+      });
     },
   });
 }

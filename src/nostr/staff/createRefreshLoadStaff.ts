@@ -35,6 +35,7 @@ export type RefreshLoadStaffFeat = {
   refreshBufferOpt: BufferOpt;
   refresh(this: FeatType<object>): void;
   load(this: FeatType<object>): void;
+  firstLoad(this: FeatType<object>): void;
 };
 const createCacheKey = (filters: Filter[]) =>
   `createRefreshLoadStaff:${JSON.stringify(filters)}`;
@@ -111,6 +112,33 @@ export default createStaffFactory()(
       feat: {
         loadBufferOpt,
         refreshBufferOpt,
+        firstLoad() {
+          const loadBufferOpt = (this.beltline.feat as any)
+            .loadBufferOpt as BufferOpt;
+          loadBufferOpt.isLoading = true;
+
+          const slef = this.beltline;
+          const prestrainLine = slef
+            .createChild()
+            .addFilters(filters.map((filter) => ({ ...filter, limit })))
+            .addStaff({
+              push() {
+                if (loadBufferOpt.bufferCounter.count + 1 >= limit) {
+                  loadBufferOpt.isLoading = false;
+                }
+              },
+            });
+          setTimeout(() => {
+            loadBufferOpt.isLoading = false;
+          }, 20);
+
+          slef.onAddRelayUrlsAfter((urls) => {
+            prestrainLine.addRelayUrls(urls);
+          });
+          prestrainLine.addRelayUrls(slef.getRelayUrls());
+
+          loadBufferOpt.bufferLine.addExtends(prestrainLine);
+        },
         refresh() {
           const createFilters: CreateFilters = (clearIntervalId, bufferOpt) => {
             //从这个时间开始获取
@@ -318,7 +346,7 @@ export default createStaffFactory()(
       return Object.assign(
         {
           bufferLine: undefined as any as EventBeltline,
-          bufferCounter: createCounter(limit),
+          bufferCounter: createCounter(0),
           timeIncrement: 600,
           until: nowSecondTimestamp(),
           since: nowSecondTimestamp(),

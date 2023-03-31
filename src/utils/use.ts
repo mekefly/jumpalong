@@ -266,7 +266,7 @@ export function useLazyShow(delay?: number) {
       unwatch();
     }
   });
-  return [target, isShow];
+  return [target, isShow] as const;
 }
 export function useElementIntoScreen(
   target: Ref<HTMLDivElement | null>,

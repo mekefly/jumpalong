@@ -1,21 +1,27 @@
 import { type EventBeltline, type EventBeltlineOptions } from "./eventBeltline";
 import { rootEventBeltline } from "./nostr";
 
+export type CreateEventBeltlineOptions = EventBeltlineOptions & {
+  addExtendsFromParent?: boolean;
+  addExtendsFormRoot?: boolean;
+  form?: EventBeltline<any>;
+  targetEventBeltline?: EventBeltline<any>;
+};
 export function createEventBeltline(
-  options?: EventBeltlineOptions & {
-    addExtendsFromParent?: boolean;
-    addExtendsFormRoot?: boolean;
-  }
+  options?: CreateEventBeltlineOptions
 ): EventBeltline<{}> {
-  return rootEventBeltline.createChild(Object.assign({}, options));
+  return (
+    options?.targetEventBeltline ??
+    (options?.form ?? rootEventBeltline).createChild(Object.assign({}, options))
+  );
 }
 export function createEventBeltlineReactive(
-  options?: EventBeltlineOptions & {
-    addExtendsFromParent?: boolean;
-    addExtendsFormRoot?: boolean;
-  }
+  options?: CreateEventBeltlineOptions
 ): EventBeltline<{}> {
-  return rootEventBeltline.createChild(
-    Object.assign({ slef: reactive({}) }, options)
+  return (
+    options?.targetEventBeltline ??
+    (options?.form ?? rootEventBeltline).createChild(
+      Object.assign({ slef: reactive({}) }, options)
+    )
   );
 }

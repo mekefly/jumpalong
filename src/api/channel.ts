@@ -189,8 +189,7 @@ export function getChannelMessageBeltline(
             .addStaff(autoAddRelayurlByEventIdStaff(eventId))
             .addReadUrl()
         );
-
-        line.feat.load();
+        line.feat.firstLoad();
       }, 0);
 
       return line;

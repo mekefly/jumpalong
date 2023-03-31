@@ -191,6 +191,7 @@ export class EventBeltline<
     // 增加的url和所有的过滤器请求
     this.reqs(incrementUrl, this.filters);
     this.eventEmitter.emit("add-relay-urls", incrementUrl, urls);
+
     return this;
   }
   public onAddRelayUrlsAfter(

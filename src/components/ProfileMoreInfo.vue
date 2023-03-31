@@ -16,7 +16,7 @@ const activePage = ref("homepage");
     <n-tab-pane display-directive="show" name="homepage" :tab="t('homepage')">
       <PostListVue
         :active="activePage === 'homepage'"
-        :pubkey="pubkeys"
+        :pubkeys="pubkeys"
         :urls="props.urls"
       />
     </n-tab-pane>

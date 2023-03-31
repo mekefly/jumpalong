@@ -1,5 +1,6 @@
 import { getIncludeMergeByFilters } from "@/utils/nostr";
 import { timeout } from "@/utils/utils";
+import autoAddRelayurlByEventIdStaff from "./autoAddRelayurlByEventIdStaff";
 import autoAddRelayurlByPubkeyStaff from "./autoAddRelayurlByPubkeyStaff";
 import { createStaff } from "./Staff";
 
@@ -39,7 +40,7 @@ export default function autoAddRelayUrlByFilter(
         if (isStop) {
           return;
         }
-        this.beltline.addStaff(autoAddRelayurlByPubkeyStaff(eventId));
+        this.beltline.addStaff(autoAddRelayurlByEventIdStaff(eventId));
       }
     },
     feat: {
