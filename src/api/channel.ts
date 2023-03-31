@@ -10,7 +10,9 @@ import createChannelLikeDataStaff from "@/nostr/staff/createChannelLikeDataStaff
 import createEoseUnSubStaff from "@/nostr/staff/createEoseUnSubStaff";
 import { createGarbageFilter } from "@/nostr/staff/createGarbageFilter";
 import { createLatestEventStaff } from "@/nostr/staff/createLatestEventStaff";
-import createRefreshLoadStaff from "@/nostr/staff/createRefreshLoadStaff";
+import createRefreshLoadStaff, {
+  createEventSourceTracersForRefreshLoadStaff,
+} from "@/nostr/staff/createRefreshLoadStaff";
 import createTimeoutUnSubStaff from "@/nostr/staff/createTimeoutUnSubStaff";
 import createUseChannelMetadata from "@/nostr/staff/createUseChannelMetadata";
 import createWithEvent from "@/nostr/staff/createWithEvent";
@@ -153,6 +155,7 @@ export function getChannelMessageBeltline(
             },
           ])
         )
+        .addStaff(createEventSourceTracersForRefreshLoadStaff()) // 给刷新和加载添加源头追踪
         .addStaff(createDoNotRepeatStaff()) //过滤重复
         .addStaff(createFilterGreaterThanTheCurrenttimeStaff()) //非法创建时间
         .addStaff(createGarbageFilter()) //垃圾过滤器

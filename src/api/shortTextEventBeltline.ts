@@ -4,8 +4,9 @@ import {
   createDoNotRepeatStaff,
   createFilterGreaterThanTheCurrenttimeStaff,
 } from "@/nostr/staff";
-import createEventSourceTracers from "@/nostr/staff/createEventSourceTracers";
-import createRefreshLoadStaff from "@/nostr/staff/createRefreshLoadStaff";
+import createRefreshLoadStaff, {
+  createEventSourceTracersForRefreshLoadStaff,
+} from "@/nostr/staff/createRefreshLoadStaff";
 import { Filter } from "nostr-tools";
 import { createGarbageFilter } from "../nostr/staff/createGarbageFilter";
 import { useCache } from "../utils/cache";
@@ -35,16 +36,10 @@ export function getShortTextEventBeltline(
         .addStaff(createBlackStaff()) // 黑名单过滤器
         .addStaff(createGarbageFilter()) // 垃圾邮件过滤器
         .addStaff(createFilterGreaterThanTheCurrenttimeStaff()) // 过滤掉-n秒前的情况
+
         .addStaff(createRefreshLoadStaff([filter])) //添加刷新和加载功能
+        .addStaff(createEventSourceTracersForRefreshLoadStaff()) // 给刷新和加载添加源头追踪
         .addStaffOfReverseSortByCreateAt(); // 通过创建时间反排序
-      shortTextEventBeltline.feat.loadBufferOpt.bufferLine.addStaff(
-        createEventSourceTracers(),
-        { unshift: true }
-      );
-      shortTextEventBeltline.feat.refreshBufferOpt.bufferLine.addStaff(
-        createEventSourceTracers(),
-        { unshift: true }
-      );
 
       if (pubkeys?.length === 0) return shortTextEventBeltline;
 

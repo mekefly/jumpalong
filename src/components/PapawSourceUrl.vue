@@ -15,7 +15,7 @@ const active = ref(false);
   <div class="flex pb-2 px-4" @click="() => (active = !active)">
     <div
       v-for="url in sourceUrls"
-      class="h-4 w-4 rounded-full mr-2"
+      class="h-2 w-2 rounded-full mr-1"
       :style="{
         backgroundColor: getUrlColor(url),
       }"

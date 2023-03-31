@@ -6,7 +6,7 @@ import { Event } from "nostr-tools";
 import Content from "./Content.vue";
 import DateTimeVue from "./DateTime.vue";
 import { useNewMessageState } from "./NewMessage";
-import PapawFooterVue from "./PapawFooter.vue";
+import PapawOptionsButtons from "./PapawOptionsButtons.vue";
 import PapawSourceUrlVue from "./PapawSourceUrl.vue";
 import { useInjectScrollbarInstRef } from "./Scrollbar";
 import SMSButtonVue from "./SMSButton.vue";
@@ -15,6 +15,7 @@ import UserInfoVue from "./UserInfo.vue";
 const props = defineProps<{
   event: Event;
   deleteEvent?: (id: string) => void;
+  withPapawOptionsButtons?: boolean;
 }>();
 const { event, deleteEvent } = toRefs(props);
 
@@ -96,7 +97,10 @@ function handelLongPress() {
     <div class="p-5 font">
       <Content :event="event" />
     </div>
-    <PapawFooterVue :event="event" />
+    <PapawOptionsButtons
+      v-if="withPapawOptionsButtons ?? true"
+      :event="event"
+    />
     <PapawSourceUrlVue :event="event" />
   </div>
 </template>

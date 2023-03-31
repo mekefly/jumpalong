@@ -4,6 +4,7 @@ import { Event, Filter } from "nostr-tools";
 import { EventBeltline } from "../eventBeltline";
 import { createDoNotRepeatStaff } from "./createDoNotRepeatStaff";
 import createEoseUnSubStaff from "./createEoseUnSubStaff";
+import createEventSourceTracers from "./createEventSourceTracers";
 import createTimeoutUnSubStaff from "./createTimeoutUnSubStaff";
 import {
   createStaffFactory,
@@ -335,3 +336,19 @@ type CreateFilters = (
   clearInterval: () => void,
   bufferOpt: BufferOpt
 ) => Filter[] | void;
+
+export const createEventSourceTracersForRefreshLoadStaff =
+  createStaffFactory<RefreshLoadStaffFeat>()(() => {
+    return {
+      initialization() {
+        this.beltline.feat.loadBufferOpt.bufferLine.addStaff(
+          createEventSourceTracers(),
+          { unshift: true }
+        );
+        this.beltline.feat.refreshBufferOpt.bufferLine.addStaff(
+          createEventSourceTracers(),
+          { unshift: true }
+        );
+      },
+    };
+  });

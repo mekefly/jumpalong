@@ -85,6 +85,7 @@ const isLoading = computed(
     <PapawVueList
       v-if="postEvents"
       :eventList="postEvents"
+      withPapawOptionsButtons
       @eventDeletion="(id) => eventDeletionOne(id)"
     />
   </div>

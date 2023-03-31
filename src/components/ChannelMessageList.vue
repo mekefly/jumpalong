@@ -16,6 +16,7 @@ useAutoScroll(eventList);
 
 <template>
   <PapawVueList
+    :withPapawOptionsButtons="false"
     :eventList="eventList"
     @eventDeletion="(id) => emits('eventDeletion', id)"
   />

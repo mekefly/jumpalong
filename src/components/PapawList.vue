@@ -4,8 +4,8 @@ import NewMessageVue from "./NewMessage.vue";
 import PapawVue from "./Papaw.vue";
 const props = defineProps<{
   eventList: Event[];
+  withPapawOptionsButtons?: boolean;
 }>();
-const { eventList } = toRefs(props);
 const emits = defineEmits<{
   (e: "eventDeletion", id: string): void;
 }>();
@@ -14,10 +14,11 @@ const emits = defineEmits<{
 <template>
   <NewMessageVue>
     <PapawVue
+      :withPapawOptionsButtons="withPapawOptionsButtons"
       v-for="event in eventList"
       :key="event.id"
       :event="event"
-      :deleteEvent="(id) => emits"
+      :deleteEvent="(id) => emits('eventDeletion', id)"
     />
   </NewMessageVue>
 </template>
