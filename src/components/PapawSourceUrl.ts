@@ -1,13 +1,18 @@
+import { defaultCacheOptions, getCacheOrNull, setCache } from "@/utils/cache";
 import { randomColorHex } from "@/utils/utils";
 
-export const colorMap = new Map<string, string>();
+const cacheKey = "__color_map";
+const cacheOptions = { ...defaultCacheOptions };
+export const colorMap =
+  (getCacheOrNull(cacheKey, cacheOptions) as Record<string, string>) ?? {};
 
 export function getUrlColor(url: string) {
-  const color = colorMap.get(url);
+  const color = colorMap[url];
   if (color) {
     return color;
   }
   const color1 = randomColorHex();
-  colorMap.set(url, color1);
+  colorMap[url] = color1;
+  setCache(cacheKey, colorMap, cacheOptions);
   return color1;
 }
