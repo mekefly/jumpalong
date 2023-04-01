@@ -11,7 +11,6 @@ import {
 } from "../utils/utils";
 import { createEvent } from "./event";
 import { IdGenerator } from "./IdGenerator";
-import { type SubOptions } from "./relay";
 import { RelayEmiter } from "./RelayEmiter";
 import { StaffState, type FeatType, type Staff } from "./staff";
 import { createFilterStaff } from "./staff/createFilterStaff";
@@ -485,7 +484,6 @@ type OriginFilter = Filter;
 export type EventBeltlineOptions = {
   name?: string;
   preventCircularReferences?: boolean;
-  sub?: (filters: Filter[], subOptions: SubOptions) => void;
   slef?: object;
   describe?: string;
   relayEmiter?: RelayEmiter;
@@ -494,7 +492,6 @@ export type EventBeltlineOptions = {
   relayConfigurator?: RelayConfigurator;
   idGenerator?: IdGenerator;
 };
-// & SubOptions;
 
 export type AddStaffOpt = {
   unshift: boolean;
