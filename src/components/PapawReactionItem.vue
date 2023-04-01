@@ -8,7 +8,7 @@ import LikeOutlinedVue from "./icon/LikeOutlined.vue";
 defineProps<{
   reaction: string;
   events: Event[];
-  active: boolean;
+  active?: boolean;
   size: number;
 }>();
 defineEmits<{

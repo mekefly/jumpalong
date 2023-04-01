@@ -13,6 +13,8 @@ const appConfig = useLocalStorage(
       interval: 1000 * 60 * 60 * 24, // 24 hour
       debounce: 1000,
     },
+    stopHideLongArticles: false,
+    lazyDelayForPapaw: 0,
     syncInterval: 1000 * 60,
     syncInterval1: 1000 * 60 * 5,
     syncInterval2: 1000 * 60 * 15,
@@ -51,6 +53,8 @@ type ConfigType = {
     interval: number;
     debounce: number;
   };
+  stopHideLongArticles: boolean;
+  lazyDelayForPapaw: number; //0 等于忽略
   syncInterval: number;
   syncInterval1: number;
   syncInterval2: number;

@@ -19,12 +19,30 @@ function handelClearLocalStorage() {
   });
 }
 function handelIntelligentCleaning() {
-  intelligentCleaning();
-  message.success(t("message.cleanup_succeeded"));
+  dialog.info({
+    title: t("info"),
+    content: t("are_you_sure"),
+    positiveText: t("yes"),
+    negativeText: t("no"),
+    onPositiveClick: () => {
+      intelligentCleaning();
+      location.reload();
+    },
+    onNegativeClick: () => {},
+  });
 }
 function handelClearCache() {
-  clearCache();
-  message.success(t("message.cleanup_succeeded"));
+  dialog.info({
+    title: t("info"),
+    content: t("are_you_sure"),
+    positiveText: t("yes"),
+    negativeText: t("no"),
+    onPositiveClick: () => {
+      clearCache();
+      location.reload();
+    },
+    onNegativeClick: () => {},
+  });
 }
 </script>
 
@@ -33,25 +51,43 @@ function handelClearCache() {
     <n-list-item
       @click="() => $router.push({ name: 'content-blacklist-view' })"
     >
-      {{ t("hide_rules") }}
+      <n-thing :title="t('hide_rules')"> </n-thing>
       <template #suffix>
         <n-icon><ArrowForwardIosRoundVue /> </n-icon>
       </template>
     </n-list-item>
-    <n-list-item @click="handelIntelligentCleaning">{{
-      t("clear_expired_cache")
-    }}</n-list-item>
-    <n-list-item @click="handelClearCache">{{
-      t("clear_all_caches")
-    }}</n-list-item>
-    <n-list-item @click="handelClearLocalStorage">{{
-      t("clear_local_storage")
-    }}</n-list-item>
+    <n-list-item @click="handelIntelligentCleaning">
+      <n-thing :title="t('clear_expired_cache')"> </n-thing>
+    </n-list-item>
+    <n-list-item @click="handelClearCache">
+      <n-thing :title="t('clear_all_caches')"> </n-thing>
+    </n-list-item>
+    <n-list-item @click="handelClearLocalStorage">
+      <n-thing :title="t('clear_local_storage')"> </n-thing>
+    </n-list-item>
+
     <n-list-item>
-      {{ t("automatic_ping") }}
+      <n-thing :title="t('automatic_ping')"> </n-thing>
       <template #suffix>
         <n-switch v-model:value="config.autoPing" />
       </template>
+    </n-list-item>
+
+    <n-list-item>
+      <n-thing
+        :description="t('lazy_delay_for_papaw_tip')"
+        :titleExtra="String(config.lazyDelayForPapaw)"
+      >
+        <template #header> {{ t("lazy_delay_for_papaw") }} </template>
+        <template #footer>
+          <n-slider
+            v-model:value="config.lazyDelayForPapaw"
+            :step="50"
+            :min="0"
+            :max="1000"
+          />
+        </template>
+      </n-thing>
     </n-list-item>
   </n-list>
 </template>

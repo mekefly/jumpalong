@@ -21,7 +21,7 @@ import { useRouter } from "vue-router";
 import { eventDeletion } from "../api/event";
 import { useCache } from "./cache";
 import { type CallBackT } from "./types";
-import { debounce, nowSecondTimestamp, setAdds } from "./utils";
+import { debounce, nowSecondTimestamp, setAdds, withDefault } from "./utils";
 
 export function useNextUpdate() {
   const callBacks: any[] = [];
@@ -70,8 +70,13 @@ export function useRouterPath() {
 
   return computed(() => router.currentRoute.value.path);
 }
-export function useIfTransition(duration: MaybeRef<number> = 500) {
-  const active = ref(false);
+export function useIfTransition(
+  duration: MaybeRef<number> = 500,
+  opts?: {
+    active: MaybeRef<boolean>;
+  }
+) {
+  const active = ref(opts?.active ?? false);
   const transitioning = ref(false);
 
   let timeout = null as any;
@@ -255,59 +260,164 @@ export function useLazyData<E>(
   });
   return [data, target];
 }
-export function useLazyShow(delay?: number) {
-  const target = ref(null as HTMLDivElement | null);
-  const isIntoScreen = useElementIntoScreen(target, { delay });
+export function useLazyShow(
+  delay?: number,
+  opt?: {
+    target?: MaybeRef<any>;
+  } & UseElementIntoScreenOpt
+) {
+  const _target = ref(opt?.target as HTMLDivElement | null);
+
+  //false，将主动关闭监听
+  const isListener = ref(true);
+  const isIntoScreen = useElementIntoScreen(_target, {
+    delay,
+    isListener,
+    ...opt,
+  });
 
   let isShow = ref(isIntoScreen.value);
-  const unwatch = watch(isIntoScreen, () => {
-    if (isIntoScreen.value) {
-      isShow.value = true;
-      unwatch();
-    }
-  });
-  return [target, isShow] as const;
+  const unwatch = watch(
+    isIntoScreen,
+    () => {
+      if (isIntoScreen.value) {
+        isShow.value = true;
+        unwatch();
+        isListener.value = false;
+      }
+    },
+    { immediate: true }
+  );
+  return [_target, isShow] as const;
 }
+const [useProvideIntoScreenState, useIntoScreenState] = createInjectionState(
+  () => {
+    return {
+      isIntoScreen: ref(false),
+      active: ref(false),
+    };
+  }
+);
+type UseElementIntoScreenOpt = {
+  delay?: number;
+  isListener?: MaybeRef<boolean>;
+  componentTreeOptimization?: MaybeRef<boolean>; //默认为true，会根据组件树结构优化运行速度
+  preloadDistance?: number;
+};
 export function useElementIntoScreen(
   target: Ref<HTMLDivElement | null>,
-  opt?: { delay?: number }
+  opt?: UseElementIntoScreenOpt
 ) {
-  const active = ref(true);
+  const _opts = withDefault(opt, {
+    isListener: true,
+    componentTreeOptimization: true,
+    preloadDistance: 500,
+  });
+  const { isIntoScreen: parentIsIntoScreen, active: parentActive } =
+    useIntoScreenState() ?? {};
+  const { isIntoScreen, active } = useProvideIntoScreenState();
 
-  const isIntoScreen = ref(false);
-
-  const call = function () {
-    if (!active.value) return;
-
+  const checkUp = function () {
     if (
       target.value &&
-      target.value?.getBoundingClientRect().y <= window.innerHeight &&
-      target.value?.getBoundingClientRect().y >= 0
+      target.value?.getBoundingClientRect().y <=
+        window.innerHeight + _opts.preloadDistance &&
+      target.value?.getBoundingClientRect().bottom >= 0 - _opts.preloadDistance
     ) {
       isIntoScreen.value = true;
     } else {
       isIntoScreen.value = false;
     }
   };
-  const debounceCall = debounce(call, opt?.delay ?? 500);
-  debounceCall();
+  const debounceCheckUp = debounce(checkUp, opt?.delay ?? 500);
+  onMounted(checkUp);
+  debounceCheckUp();
 
-  window.addEventListener("mousewheel", debounceCall);
-  window.addEventListener("resize", debounceCall);
-  window.addEventListener("touchend", debounceCall);
-
-  onActivated(() => {
+  onMounted(handelActive);
+  onUnmounted(handelDeactive);
+  try {
+    onActivated(handelActive);
+    onDeactivated(handelDeactive);
+  } catch (error) {}
+  function handelActive() {
     active.value = true;
-  });
-  onDeactivated(() => {
+  }
+  function handelDeactive() {
     active.value = false;
-    isIntoScreen.value = false;
+  }
+
+  const scrollBarRef = useInjectScrollbarInstRef();
+
+  let lazyRemoveEventListenerId: any;
+  watchEffect(() => {
+    //组件是否进入激活状态
+    if (!active.value) {
+      lazyRemoveEventListener();
+      isIntoScreen.value = false;
+      return;
+    }
+    //目标必须存在
+    if (!target.value) {
+      isIntoScreen.value = false;
+      lazyRemoveEventListener();
+      return;
+    }
+
+    if (
+      !(opt?.componentTreeOptimization && (parentIsIntoScreen?.value ?? true))
+    ) {
+      //根据组件树结构优化
+      lazyRemoveEventListener();
+      return;
+    }
+    //手动停止监听
+    if (!unref(_opts.isListener)) {
+      lazyRemoveEventListener();
+      return;
+    }
+    clearLazyRemoveEventListener();
+    debounceCheckUp();
+    addEventListener();
   });
-  onUnmounted(() => {
-    window.removeEventListener("mousewheel", debounceCall);
-    window.removeEventListener("resize", debounceCall);
-    window.removeEventListener("touchend", debounceCall);
-  });
+
+  function addEventListener() {
+    if (scrollBarRef) {
+      watchEffect((onCleanup) => {
+        const containerRef = scrollBarRef.containerRef.value;
+        if (!containerRef) {
+          return;
+        }
+        containerRef.addEventListener("scroll", debounceCheckUp);
+        onCleanup(() => {
+          containerRef.removeEventListener("scroll", debounceCheckUp);
+        });
+      });
+      window.addEventListener("resize", debounceCheckUp);
+    } else {
+      window.addEventListener("mousewheel", debounceCheckUp);
+      window.addEventListener("resize", debounceCheckUp);
+      window.addEventListener("touchend", debounceCheckUp);
+    }
+  }
+
+  function lazyRemoveEventListener() {
+    lazyRemoveEventListenerId = setTimeout(() => {
+      if (active.value && (parentIsIntoScreen?.value ?? true)) {
+        return;
+      }
+      removeEventListener();
+    }, 1000);
+  }
+
+  function clearLazyRemoveEventListener() {
+    clearTimeout(lazyRemoveEventListenerId);
+  }
+
+  function removeEventListener() {
+    window.removeEventListener("mousewheel", debounceCheckUp);
+    window.removeEventListener("resize", debounceCheckUp);
+    window.removeEventListener("touchend", debounceCheckUp);
+  }
   return isIntoScreen;
 }
 
@@ -320,7 +430,6 @@ export function useHandleSendMessage(
   }
 ) {
   const { urls = new Set<string>() } = opt ?? {};
-  const { success, error } = useMessage();
   const onOK = useOnOK();
 
   return function handleSendEvent(event: EventTemplate) {

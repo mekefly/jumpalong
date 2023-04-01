@@ -20,7 +20,9 @@ export default defineConfig({
     host: "0.0.0.0",
     proxy: {},
   },
-
+  build: {
+    chunkSizeWarningLimit: 512 * 1024,
+  },
   plugins: [
     vue(),
     createReplacePlugin(),

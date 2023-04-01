@@ -38,7 +38,7 @@ function handleSend(e: EventTemplate) {
 
 <template>
   <div v-if="event" class="flex flex-col w-full h-full overflow-auto">
-    <ScrollbarVue class="w-full h-0 flex-shrink flex-1">
+    <ScrollbarVue class="w-full h-0 flex-shrink flex-1" loadable refreshable>
       <UserInfoVue :pubkey="event.pubkey" :created_at="event.created_at">
         <template #bottom>
           <DateTimeVue :secondTimestamp="event.created_at" />
@@ -55,6 +55,7 @@ function handleSend(e: EventTemplate) {
           v-model:pushEvent="pushEvent"
           :urls="urls"
           :filter="{ '#e': [event.id], kinds: [1, 30023] }"
+          :active="true"
         />
       </div>
     </ScrollbarVue>

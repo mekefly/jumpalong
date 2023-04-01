@@ -159,7 +159,6 @@ export function createReactionEventLine(opt: CreateReactionEventLine) {
         Event[]
       >;
       (reactionMap[e.content] ?? (reactionMap[e.content] = [])).push(e);
-      console.log("reactionMap", reactionMap);
     },
 
     feat: {

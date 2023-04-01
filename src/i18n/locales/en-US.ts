@@ -82,6 +82,8 @@ const defaul = {
   nip5: "nip5",
   submit: "Submit",
   cancel: "Cancel",
+  are_you_sure: "Are you sure?",
+
   hide_rules: "Hide Rules",
   clear_expired_cache: "Clear expired cache",
   clear_all_caches: "Clear all caches",
@@ -150,6 +152,8 @@ const defaul = {
   tick_prompt: "Please confirm that the button above is checked",
   all_loading_completed: "All loading completed",
 
+  lazy_delay_for_papaw: "Lazy delay for papaw",
+  lazy_delay_for_papaw_tip: "Set to zero equals disabled",
   message: {
     you_have_sent_a_delete_request: `You have sent a delete request`,
     relay_configurator_save_message:

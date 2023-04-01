@@ -83,6 +83,7 @@ const message: I18nMessages = {
   nip5: "nip5",
   submit: "提交",
   cancel: "取消",
+  are_you_sure: "你确定吗？",
 
   hide_rules: "隐藏规则配置",
   clear_expired_cache: "清楚过期缓存",
@@ -150,6 +151,8 @@ const message: I18nMessages = {
 
   all_loading_completed: "所有消息已全部加载完成",
 
+  lazy_delay_for_papaw: "消息泡泡的懒加载延迟",
+  lazy_delay_for_papaw_tip: "设置为零等于关闭",
   message: {
     you_have_sent_a_delete_request: `您已经发送了删除请求`,
     relay_configurator_save_message:

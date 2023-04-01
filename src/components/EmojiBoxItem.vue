@@ -5,7 +5,7 @@ import { Emoji } from "./EmojiBox";
 const props = defineProps<{ type: string; emojiList: Emoji[] }>();
 const { type, emojiList } = toRefs(props);
 
-const [target, isShow] = useLazyShow(100);
+const [target, isShow] = useLazyShow(10);
 const emit = defineEmits<{
   (e: "click", emoji: string): void;
 }>();

@@ -1,10 +1,13 @@
 <script lang="ts" setup>
+import { config } from "@/nostr/nostr";
 import { useLazyShow } from "@/utils/use";
-import { arrayRemove, createId } from "@/utils/utils";
+import { arrayRemove, createId, timeout } from "@/utils/utils";
 import { vOnLongPress } from "@vueuse/components";
 import { Event } from "nostr-tools";
 import Content from "./Content.vue";
 import DateTimeVue from "./DateTime.vue";
+import LazyItemVue from "./LazyItem.vue";
+import LazyItemDisabledVue from "./LazyItemDisabled.vue";
 import { useNewMessageState } from "./NewMessage";
 import PapawOptionsButtons from "./PapawOptionsButtons.vue";
 import PapawSourceUrlVue from "./PapawSourceUrl.vue";
@@ -12,31 +15,37 @@ import { useInjectScrollbarInstRef } from "./Scrollbar";
 import SMSButtonVue from "./SMSButton.vue";
 import UserInfoVue from "./UserInfo.vue";
 
-const props = defineProps<{
-  event: Event;
-  deleteEvent?: (id: string) => void;
-  withPapawOptionsButtons?: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    event: Event;
+    deleteEvent?: (id: string) => void;
+    withPapawOptionsButtons?: boolean;
+  }>(),
+  {
+    withPapawOptionsButtons: true,
+  }
+);
 const { event, deleteEvent } = toRefs(props);
 
 function handelDeleteEvent(e: string) {
   deleteEvent?.value?.(e);
 }
 const showSMS = ref(false);
-const [target, show] = useLazyShow();
-const isNewMessage = computed(() => !show.value);
+const [target, isShow] = useLazyShow(undefined, { preloadDistance: 0 });
 
 const scrollbarOpt = useInjectScrollbarInstRef();
 
 const jumpList = useNewMessageState()?.jumpList;
 
-const scrollToThis = () => {
+const scrollToThis = async () => {
   const _target = target.value as HTMLElement;
   if (!_target) return;
   if (!scrollbarOpt) return;
 
   const rect = _target.getBoundingClientRect();
 
+  isShow.value = true;
+  await timeout(0);
   scrollbarOpt.scrollbarInst.value?.scrollBy({
     top:
       rect.top -
@@ -46,8 +55,8 @@ const scrollToThis = () => {
   twinkle();
 };
 jumpList?.value.push(scrollToThis);
-watch(show, () => {
-  if (show.value) {
+watch(isShow, () => {
+  if (isShow.value) {
     if (!jumpList?.value) return;
 
     arrayRemove(jumpList.value, scrollToThis);
@@ -70,48 +79,59 @@ provide("papaw-id", id);
 </script>
 
 <template>
-  <div
-    :id="id"
-    ref="target"
-    class="w-max-full rounded-2xl mt-4 bg-[#dfe4ea55] overflow-hidden relative"
-    :class="{
-      twinkle: isTwinkle,
-    }"
-    v-on-long-press.prevent="[
-      handelLongPress,
-      { modifiers: { stop: true, prevent: true } },
-    ]"
-  >
-    <div class="p-3 flex justify-between items-center">
-      <UserInfoVue :pubkey="event.pubkey" :created_at="event.created_at">
-        <template #bottom>
-          <DateTimeVue :secondTimestamp="event.created_at" />
-        </template>
-        <template #right>
-          <SMSButtonVue
-            :show="showSMS"
-            :event="event"
-            :deleteEvent="handelDeleteEvent"
-            :isLongPress="isLongPress"
-          />
-        </template>
-      </UserInfoVue>
-    </div>
-    <div class="p-5 font">
-      <Content :event="event" />
-    </div>
-    <PapawOptionsButtons
-      v-if="withPapawOptionsButtons ?? true"
-      :event="event"
-    />
+  <div ref="target">
+    <LazyItemDisabledVue
+      :delay="config.lazyDelayForPapaw"
+      :disabled="!config.lazyDelayForPapaw"
+      :minHeight="200"
+    >
+      <div
+        :id="id"
+        class="w-max-full rounded-2xl mt-4 bg-[#dfe4ea55] overflow-hidden relative"
+        :class="{
+          twinkle: isTwinkle,
+        }"
+        v-on-long-press.prevent="[
+          handelLongPress,
+          { modifiers: { stop: true, prevent: true } },
+        ]"
+      >
+        <div class="p-3 flex justify-between items-center">
+          <UserInfoVue :pubkey="event.pubkey" :created_at="event.created_at">
+            <template #bottom>
+              <DateTimeVue :secondTimestamp="event.created_at" />
+            </template>
+            <template #right>
+              <SMSButtonVue
+                :show="showSMS"
+                :event="event"
+                :deleteEvent="handelDeleteEvent"
+                :isLongPress="isLongPress"
+              />
+            </template>
+          </UserInfoVue>
+        </div>
+        <div class="p-5 font">
+          <Content :event="event" />
+        </div>
 
-    <PapawSourceUrlVue :event="event" />
+        <LazyItemVue
+          v-if="withPapawOptionsButtons ?? true"
+          :delay="500"
+          :minHeight="20"
+        >
+          <PapawOptionsButtons :event="event" />
+        </LazyItemVue>
+
+        <PapawSourceUrlVue :event="event" />
+      </div>
+    </LazyItemDisabledVue>
   </div>
 </template>
 
 <style scoped>
 .twinkle {
-  animation: twinkle 1s ease;
+  animation: twinkle 2s ease;
 }
 @keyframes twinkle {
   0% {
