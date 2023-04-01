@@ -6,7 +6,6 @@ import { vOnLongPress } from "@vueuse/components";
 import { Event } from "nostr-tools";
 import Content from "./Content.vue";
 import DateTimeVue from "./DateTime.vue";
-import LazyItemVue from "./LazyItem.vue";
 import LazyItemDisabledVue from "./LazyItemDisabled.vue";
 import { useNewMessageState } from "./NewMessage";
 import PapawOptionsButtons from "./PapawOptionsButtons.vue";
@@ -115,13 +114,10 @@ provide("papaw-id", id);
           <Content :event="event" />
         </div>
 
-        <LazyItemVue
+        <PapawOptionsButtons
           v-if="withPapawOptionsButtons ?? true"
-          :delay="500"
-          :minHeight="20"
-        >
-          <PapawOptionsButtons :event="event" />
-        </LazyItemVue>
+          :event="event"
+        />
 
         <PapawSourceUrlVue :event="event" />
       </div>
