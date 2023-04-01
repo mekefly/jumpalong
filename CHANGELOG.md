@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.1](https://github.com/mekefly/jumpalong/compare/v0.4.0...v0.4.1) (2023-04-01)
+
+
+### Bug Fixes
+
+* Removed the time-consuming animation ([ac724f8](https://github.com/mekefly/jumpalong/commit/ac724f8df2cd5b1dbef43214aa8459123cb2b845))
+
 ## [0.4.0](https://github.com/mekefly/jumpalong/compare/v0.3.0...v0.4.0) (2023-03-31)
 
 
