@@ -2,9 +2,9 @@ import { matchNostrBuildResponseText } from "@/utils/RegExpUtils";
 import { createId, myRequest, timeout } from "@/utils/utils";
 import EventEmitter from "events";
 import {
-  UploadCustomRequestOptions,
-  UploadFileInfo,
-  UploadInst,
+  type UploadCustomRequestOptions,
+  type UploadFileInfo,
+  type UploadInst,
 } from "naive-ui";
 
 const evemtEmiter = new EventEmitter();

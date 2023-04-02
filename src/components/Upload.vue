@@ -2,7 +2,7 @@
 import { t } from "@/i18n";
 import CloudUploadVue from "./icon/CloudUpload.vue";
 import { useFileList, useShow } from "./Upload";
-const { isShow, show, hidden } = useShow();
+const { isShow } = useShow();
 
 const fileList = useFileList();
 const uploadingNumber = computed(

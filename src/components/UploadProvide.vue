@@ -1,13 +1,9 @@
 <script lang="ts" setup>
-import { useCustomRequest, useFileList, useShow, useUploadRef } from "./Upload";
-const { isShow, show, hidden } = useShow();
+import { useCustomRequest, useFileList, useUploadRef } from "./Upload";
 
 const uploadRef = useUploadRef();
 const fileList = useFileList();
 const customRequest = useCustomRequest();
-const uploadingNumber = computed(
-  () => fileList.value.filter((item) => item.status === "uploading").length
-);
 </script>
 
 <template>
