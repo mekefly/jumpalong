@@ -83,10 +83,12 @@ export function getShortTextEventBeltline(
 }
 
 export function getReferenceMessage(eventId: string[]) {
-  return getShortTextEventBeltline(undefined, {
-    filter: {
-      "#e": eventId,
-    },
+  return createTextEventBeltline({
+    filters: [
+      {
+        "#e": eventId,
+      },
+    ],
   });
 }
 
