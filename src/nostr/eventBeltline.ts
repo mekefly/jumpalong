@@ -361,7 +361,9 @@ export class EventBeltline<
     urls?.forEach(async (url) => {
       try {
         this.req(url, filters);
-      } catch (error) {}
+      } catch (error) {
+        console.error(error);
+      }
     });
   }
   public publish(
@@ -429,6 +431,7 @@ export class EventBeltline<
     const subId = this.idGenerator.createId();
 
     this.onReceiveEvent(subId);
+
     this.setSubidMap(subId, url);
 
     this.relayEmiter.emitRequest("req", {
