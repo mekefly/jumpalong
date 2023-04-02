@@ -90,10 +90,7 @@ function handelLongPress() {
           :class="{
             twinkle: isTwinkle,
           }"
-          v-on-long-press.prevent="[
-            handelLongPress,
-            { modifiers: { stop: true, prevent: true } },
-          ]"
+          v-on-long-press="[handelLongPress, { modifiers: { stop: true } }]"
         >
           <div class="p-3 flex justify-between items-center">
             <UserInfoVue :pubkey="event.pubkey" :created_at="event.created_at">

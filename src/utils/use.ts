@@ -611,9 +611,6 @@ export function autoHidden(
   isLongPress: Ref<boolean | undefined | null>,
   show: globalThis.Ref<boolean | undefined>
 ) {
-  useEventListener("click", () => {
-    show.value = false;
-  });
   const scrollbarInstRef = useInjectScrollbarInstRef();
   function hidden() {
     show.value = false;
@@ -623,11 +620,7 @@ export function autoHidden(
       scrollbarInstRef?.containerRef.value?.addEventListener("scroll", hidden, {
         once: true,
       });
-    } else {
-      scrollbarInstRef?.containerRef.value?.removeEventListener(
-        "scroll",
-        hidden
-      );
+      document.addEventListener("mousedown", hidden, { once: true });
     }
   });
   onUnmounted(() => {
