@@ -290,14 +290,12 @@ export function useLazyShow(
   );
   return [_target, isShow] as const;
 }
-const [useProvideIntoScreenState, useIntoScreenState] = createInjectionState(
-  () => {
-    return {
-      isIntoScreen: ref(false),
-      active: ref(false),
-    };
-  }
-);
+const [useProvideIntoScreenState, useIntoScreenState] = createInjection(() => {
+  return {
+    isIntoScreen: ref(false),
+    active: ref(false),
+  };
+});
 type UseElementIntoScreenOpt = {
   delay?: number;
   isListener?: MaybeRef<boolean>;
@@ -590,7 +588,7 @@ export function useNowSecondTimestamp() {
   );
 }
 
-export function createInjectionState<
+export function createInjection<
   Argv extends any[],
   Return extends any,
   F extends (...argv: Argv) => Return

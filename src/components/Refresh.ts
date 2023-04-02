@@ -1,25 +1,23 @@
 import { t } from "@/i18n";
 import { EventBeltline } from "@/nostr/eventBeltline";
 import { RefreshLoadStaffFeat } from "@/nostr/staff/createRefreshLoadStaff";
-import { createInjectionState } from "@/utils/use";
+import { createInjection } from "@/utils/use";
 import { MaybeRef } from "@vueuse/core";
 import EventEmitter from "events";
 import { autoSetLoadBuffer } from "./LoadProgress";
 
-export const [provideRefreshState, useRefreshState] = createInjectionState(
-  () => {
-    const eventEmiter = new EventEmitter();
-    type Type = "refresh" | "load";
-    return {
-      on(type: Type, listener: () => void) {
-        eventEmiter.on(type, listener);
-      },
-      emit(type: Type) {
-        eventEmiter.emit(type);
-      },
-    };
-  }
-);
+export const [provideRefreshState, useRefreshState] = createInjection(() => {
+  const eventEmiter = new EventEmitter();
+  type Type = "refresh" | "load";
+  return {
+    on(type: Type, listener: () => void) {
+      eventEmiter.on(type, listener);
+    },
+    emit(type: Type) {
+      eventEmiter.emit(type);
+    },
+  };
+});
 export function useLoad(
   beltline: ComputedRef<EventBeltline<RefreshLoadStaffFeat> | undefined | null>,
   active: MaybeRef<boolean | undefined>
