@@ -97,10 +97,7 @@ function handelClearCache() {
           })
       "
     >
-      <n-thing
-        :description="t('move_house_description')"
-        :titleExtra="String(config.lazyDelayForPapaw)"
-      >
+      <n-thing :description="t('move_house_description')">
         <template #header> {{ t("move_house") }} </template>
       </n-thing>
     </n-list-item>
