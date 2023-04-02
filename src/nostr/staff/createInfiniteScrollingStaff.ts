@@ -25,12 +25,9 @@ export default function createInfiniteScrolling(): InfiniteScrolling {
     feat: {
       getMore() {
         dynamicChangeTime();
-        console.log(`获取了${dynamicAcquisitionTime}秒内的内容`);
 
         const filters = this.beltline.getFilters();
         const newFilter = olderFilter(filters);
-        console.log("filters", filters);
-        console.log("newFilter", newFilter);
 
         const line = createEventBeltline({})
           .addStaff(createEoseUnSubStaff())
@@ -41,10 +38,6 @@ export default function createInfiniteScrolling(): InfiniteScrolling {
           })
           .setParent(this.beltline)
           .addFilters(newFilter);
-        console.log(
-          "this.beltline.getRelayUrls()",
-          this.beltline.getRelayUrls()
-        );
 
         line.addRelayUrls(this.beltline.getRelayUrls());
       },

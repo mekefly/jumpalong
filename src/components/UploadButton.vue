@@ -18,11 +18,9 @@ async function customRequest({
   file: { file, status, id },
   onFinish,
 }: CustomRequestOptions) {
-  console.log("status", status, id);
   if (uploadedSet.has(id)) {
     return;
   }
-  console.log("status", status, id);
 
   if (status !== "pending") {
     return;

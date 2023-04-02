@@ -32,13 +32,8 @@ localUser.addStaff({
     userRef.push({ label: name, value: name, key: event.pubkey });
   },
 });
-watch(value, () => {
-  console.log(value.value);
-});
 const options = ref<MentionOption[]>([]);
 function handleSearch(value: string, prefix: string) {
-  console.log("handleSearch", value);
-
   if (prefix === "@") {
     options.value = userRef;
   } else {

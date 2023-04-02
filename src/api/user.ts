@@ -53,7 +53,6 @@ export function getUserRelayUrlConfigByPubkey(pubkey: string) {
         .addStaff(createGetReadWriteListStaff()) // 创建读写配置列表
         .addStaff(createWithEvent())
         .addExtends(rootEventBeltline); //请求到的结果从root中也可取到取到
-      console.log("kind10002line", kind10002line);
 
       if (kind10002line.feat.withEvent()) {
         return kind10002line;

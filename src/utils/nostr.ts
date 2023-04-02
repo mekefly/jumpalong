@@ -56,7 +56,6 @@ export function profilePointerToNprofile(
 }
 export function toNprofile(str: string): string | null {
   const profilePointer = toDeCodeNprofile(str);
-  console.log(profilePointer);
 
   if (!profilePointer) return null;
   return profilePointerToNprofile(profilePointer);

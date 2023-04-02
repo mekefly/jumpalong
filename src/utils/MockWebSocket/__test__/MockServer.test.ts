@@ -9,9 +9,7 @@ it("MockServer", async () => {
   const x = new WebSocket(url);
   let w: any = null;
   ms.on("reqOpen", (_w) => {
-    console.log(w);
     w = _w;
-    console.log("_w");
 
     fn();
   });

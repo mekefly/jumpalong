@@ -66,8 +66,6 @@ function toPing(noCache = false) {
         isOvertime.value = true;
       });
   } catch (error) {
-    console.log("error", error);
-
     wrongUrl.value = true;
     isLoading.value = false;
   }

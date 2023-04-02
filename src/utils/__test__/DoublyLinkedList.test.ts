@@ -219,8 +219,6 @@ it("DoublyLinkedList:insertBefore:center", () => {
 
   for (const item of linkedList) {
     if (item.data === 5) {
-      console.log("item:", item);
-
       linkedList.insertBefore(item, 9);
     }
   }

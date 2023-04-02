@@ -16,8 +16,6 @@ export function useUploadRef() {
 }
 export function useOpenOpenFileDialog() {
   return () => {
-    console.log("uploadRef.value?.openOpenFileDialog", uploadRef.value);
-
     (uploadRef.value?.openOpenFileDialog as any)?.();
   };
 }

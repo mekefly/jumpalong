@@ -19,8 +19,6 @@ let lastChange = "";
 
 const richTextEditBoxOpt = useRichTextEditBoxOpt();
 
-console.log("RichTextEditBoxInput:隧道编号", richTextEditBoxOpt.id);
-
 const emit = defineEmits<{
   (
     e: "change",
@@ -56,12 +54,9 @@ richTextEditBoxOpt.onRichTextEditBox("reply", (e) => {
 
 const options = ref<MentionOption[]>([]);
 function handleSearch(value: string, prefix: string) {
-  console.log("prefix", prefix);
   if (prefix === "@") {
     options.value = userRefMentionOption;
   } else if (prefix === "&") {
-    console.log("eventMentionOption", eventMentionOption);
-
     options.value = eventMentionOption;
   }
 }
