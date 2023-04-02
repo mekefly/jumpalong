@@ -153,6 +153,12 @@ const message: I18nMessages = {
 
   lazy_delay_for_papaw: "消息泡泡的懒加载延迟",
   lazy_delay_for_papaw_tip: "设置为零等于关闭",
+
+  sync_tooltip: "从此中继同步relay信息",
+  handel_sync_on_push_message: `该中继不存在您的配置，已发布到{url}`,
+  handel_sync_on_event_message: `已从{url}获取到了您的配置`,
+  handel_sync_info: `已经向{url}发起同步`,
+
   message: {
     you_have_sent_a_delete_request: `您已经发送了删除请求`,
     relay_configurator_save_message:

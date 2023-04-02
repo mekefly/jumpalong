@@ -5,7 +5,7 @@ import { relayConfigurator } from "../nostr/nostr";
 import BroadcastVue from "./Broadcast.vue";
 import ButtonCloseVue from "./ButtonClose.vue";
 import DateTimeVue from "./DateTime.vue";
-import RelayConnectListVue from "./RelayConnectList.vue";
+import RelayConnectListVue from "./RelayConnectListCard.vue";
 import RelayReadableButtonVue from "./RelayReadableButton.vue";
 import RelayWritableButtonVue from "./RelayWritableButton.vue";
 import TooltipVue from "./Tooltip.vue";

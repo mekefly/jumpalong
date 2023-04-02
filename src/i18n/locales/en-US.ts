@@ -154,6 +154,12 @@ const defaul = {
 
   lazy_delay_for_papaw: "Lazy delay for papaw",
   lazy_delay_for_papaw_tip: "Set to zero equals disabled",
+
+  sync_tooltip: "Synchronize relay information from this relay",
+  handel_sync_on_push_message: `The relay does not have your configuration and has been published to {url}`,
+  handel_sync_on_event_message: `Your configuration has been obtained from {url}`,
+  handel_sync_info: `Synchronization has been initiated to {url}`,
+
   message: {
     you_have_sent_a_delete_request: `You have sent a delete request`,
     relay_configurator_save_message:

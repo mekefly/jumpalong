@@ -4,7 +4,7 @@ import { relayConfigurator, relayPool } from "../nostr/nostr";
 import AddButtonVue from "./AddButton.vue";
 import ButtonCloseVue from "./ButtonClose.vue";
 import AccountTreeRoundVue from "./icon/AccountTreeRound.vue";
-import RelayConnectListVue from "./RelayConnectList.vue";
+import RelayConnectListVue from "./RelayConnectListCard.vue";
 const pool = computed(() => {
   return relayPool.getPool();
 });

@@ -1,12 +1,11 @@
 <script lang="ts" setup>
 import { t } from "@/i18n";
 import { debounce } from "@/utils/utils";
-import { NSpace } from "naive-ui";
 import { relayConfigurator } from "../nostr/nostr";
 import AccountTreeRoundVue from "./icon/AccountTreeRound.vue";
-import SyncAltVue from "./icon/SyncAlt.vue";
 import RelayAddButtonVue from "./RelayAddButton.vue";
-import RelayConnectListVue from "./RelayConnectList.vue";
+import RelayConnectListVue from "./RelayConnectListCard.vue";
+import SyncButtonVue from "./SyncButton.vue";
 
 const searchValue = ref("");
 const otherList = ref<string[]>([]);
@@ -24,8 +23,6 @@ filterOtherList();
 const filterOtherListDebounce = debounce(filterOtherList, 1000);
 
 watch([searchValue, list], filterOtherListDebounce, { deep: true });
-
-const message = useMessage();
 </script>
 
 <template>
@@ -59,38 +56,8 @@ const message = useMessage();
     </template>
 
     <template #right="{ url }">
-      <n-space justify="end" align="center">
-        <RelayAddButtonVue :url="url" />
-        <n-tooltip trigger="hover">
-          <template #trigger>
-            <n-button
-              text
-              @click="
-                () => {
-                  relayConfigurator.sync({
-                    onlyUrl: url,
-                    onEvent(e, url) {
-                      message.success(`已从${url}获取到了您的配置`, {
-                        duration: 60_000,
-                        closable: true,
-                      });
-                    },
-                    onPush() {
-                      message.success(`该中继不存在您的配置，已发布到${url}`);
-                    },
-                  });
-                  message.info(`已发起请求${url}同步`);
-                }
-              "
-            >
-              <n-icon>
-                <SyncAltVue />
-              </n-icon>
-            </n-button>
-          </template>
-          从此中继同步relay信息
-        </n-tooltip>
-      </n-space>
+      <RelayAddButtonVue class="mr-2" :url="url" />
+      <SyncButtonVue :url="url" />
     </template>
   </RelayConnectListVue>
 </template>
