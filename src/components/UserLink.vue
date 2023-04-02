@@ -2,9 +2,15 @@
 import { getUserMetadataLineByPubkey } from "@/api/user";
 import { toDeCodeNprofile } from "@/utils/nostr";
 
-const props = defineProps<{
-  value: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    value: string;
+    withPrefix?: boolean;
+  }>(),
+  {
+    withPrefix: true,
+  }
+);
 const { value } = toRefs(props);
 
 const profilePointer = computed(() => toDeCodeNprofile(value.value));
@@ -31,7 +37,7 @@ const name = computed(() => {
 
 <template>
   <RouterLink :to="{ name: 'profile', params: { value: value } }">
-    <span> @{{ name ?? value.slice(0, 10) }} </span>
+    <span> {{ withPrefix ? "@" : "" }}{{ name ?? value.slice(0, 10) }} </span>
   </RouterLink>
 </template>
 

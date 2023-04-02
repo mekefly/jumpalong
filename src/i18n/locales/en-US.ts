@@ -160,6 +160,46 @@ const defaul = {
   handel_sync_on_event_message: `Your configuration has been obtained from {url}`,
   handel_sync_info: `Synchronization has been initiated to {url}`,
 
+  kind: "Kind",
+  kind0: "Metadata",
+  kind1: "Short Text Note",
+  kind2: "Recommend Relay",
+  kind3: "Contacts",
+  kind4: "Encrypted Direct Messages",
+  kind5: "Event Deletion",
+  kind6: "Reposts",
+  kind7: "Reaction",
+  kind8: "Badge Award",
+  kind40: "Channel Creation",
+  kind41: "Channel Metadata",
+  kind42: "Channel Message",
+  kind43: "Channel Hide Message",
+  kind44: "Channel Mute User",
+  kind1984: "Reporting",
+  kind9734: "Zap Request",
+  kind9735: "Zap",
+  kind10000: "Mute List",
+  kind10001: "Pin List",
+  kind10002: "Relay List Metadata",
+  kind30000: "Categorized People List",
+  kind30001: "Categorized Bookmark List",
+  kind30008: "Profile Badges",
+  kind30009: "Badge Definition",
+  kind30023: "Long-form Content",
+  kind30078: "Application-specific Data",
+
+  include_user: "Include user",
+
+  pull: "Pull",
+  push: "Push",
+  result: "Result",
+
+  move_house_description: "Migrate data",
+  move_house: "Data migration",
+
+  add_relay: "Add Realy",
+  successfully_added: "Successfully added",
+
   message: {
     you_have_sent_a_delete_request: `You have sent a delete request`,
     relay_configurator_save_message:

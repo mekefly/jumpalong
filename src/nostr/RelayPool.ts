@@ -113,7 +113,7 @@ export class Relay {
   handleMessage(ev: MessageEvent<string>) {
     try {
       const data = JSON.parse(ev.data);
-      console.debug(data);
+      console.debug(this.ws.url, data);
       logger.for("Relay:onMessage:data").debug(data);
 
       let subId = "";

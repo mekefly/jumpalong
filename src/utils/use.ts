@@ -19,7 +19,13 @@ import {
 } from "vue";
 import { useRouter } from "vue-router";
 import { eventDeletion } from "../api/event";
-import { useCache } from "./cache";
+import {
+  defaultCacheOptions,
+  getCacheOrNull,
+  setCache,
+  useCache,
+} from "./cache";
+import { CacheOptions } from "./cache/types";
 import { type CallBackT } from "./types";
 import { debounce, nowSecondTimestamp, setAdds, withDefault } from "./utils";
 
@@ -625,5 +631,25 @@ export function autoHidden(
   });
   onUnmounted(() => {
     scrollbarInstRef?.containerRef.value?.removeEventListener("scroll", hidden);
+  });
+}
+export function useCacheStorage<E>(
+  key: string,
+  defaul?: E,
+  opt?: CacheOptions
+) {
+  const cacheOption = { ...defaultCacheOptions, ...(opt ?? {}) };
+
+  const _value = ref(
+    (getCacheOrNull("checkedKinds", cacheOption) as number[]) ?? defaul
+  );
+  return computed({
+    get() {
+      return _value.value;
+    },
+    set(v) {
+      _value.value = v;
+      setCache("checkedKinds", v, cacheOption);
+    },
   });
 }

@@ -64,9 +64,15 @@ export class RelayEmiter {
   on<E extends keyof RelayEmiterResponseEventMap>(
     type: E,
     subId: string,
-    callBack: (v: RelayEmiterResponseEventMap[E]) => void
+    callBack: (v: RelayEmiterResponseEventMap[E]) => void,
+    opt?: { overtime?: number }
   ) {
     this.eventEmiter.on(this.createEventName(type, subId), callBack);
+
+    opt?.overtime ||
+      setTimeout(() => {
+        this.removeListener(type, subId, callBack);
+      }, opt!.overtime);
   }
   once<E extends keyof RelayEmiterResponseEventMap>(
     type: E,

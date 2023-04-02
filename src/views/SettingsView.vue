@@ -89,6 +89,21 @@ function handelClearCache() {
         </template>
       </n-thing>
     </n-list-item>
+    <n-list-item
+      @click="
+        () =>
+          $router.push({
+            name: 'move-house',
+          })
+      "
+    >
+      <n-thing
+        :description="t('move_house_description')"
+        :titleExtra="String(config.lazyDelayForPapaw)"
+      >
+        <template #header> {{ t("move_house") }} </template>
+      </n-thing>
+    </n-list-item>
   </n-list>
 </template>
 

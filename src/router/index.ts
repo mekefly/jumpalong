@@ -126,6 +126,11 @@ const router = createRouter({
               name: "edit-channel",
               component: () => import("../views/EditChannelView.vue"),
             },
+            {
+              path: "/move/house",
+              name: "move-house",
+              component: () => import("../views/MoveHouseView.vue"),
+            },
           ],
         },
       ],

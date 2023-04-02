@@ -5,7 +5,7 @@ const props = defineProps<{
   disabled?: boolean;
 }>();
 const emit = defineEmits<{
-  (e: "click", id: number): void;
+  (e: "click", v: any): void;
 }>();
 </script>
 

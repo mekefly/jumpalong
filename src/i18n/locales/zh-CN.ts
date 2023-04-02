@@ -159,6 +159,46 @@ const message: I18nMessages = {
   handel_sync_on_event_message: `已从{url}获取到了您的配置`,
   handel_sync_info: `已经向{url}发起同步`,
 
+  kind: "种类",
+  kind0: "用户基本数据",
+  kind1: "短文本",
+  kind2: "推荐继电器",
+  kind3: "联系人",
+  kind4: "加密的直接消息",
+  kind5: "事件删除",
+  kind6: "转发",
+  kind7: "反应",
+  kind8: "勋章",
+  kind40: "频道创建",
+  kind41: "频道元数据",
+  kind42: "频道消息",
+  kind43: "频道隐藏消息",
+  kind44: "频道屏蔽用户",
+  kind1984: "报告",
+  kind9734: "Zap请求",
+  kind9735: "赞",
+  kind10000: "静音列表",
+  kind10001: "引脚列表",
+  kind10002: "中继列表元数据",
+  kind30000: "分类人员列表",
+  kind30001: "分类书签列表",
+  kind30008: "个人资料徽章",
+  kind30009: "徽章定义",
+  kind30023: "长格式内容",
+  kind30078: "应用程序特定数据",
+
+  include_user: "包括用户",
+
+  pull: "拉取",
+  push: "推送",
+  result: "结果",
+
+  move_house_description: "将自己的数据迁移到其他中继，或备份",
+  move_house: "搬家",
+
+  add_relay: "添加中继",
+  successfully_added: "添加成功",
+
   message: {
     you_have_sent_a_delete_request: `您已经发送了删除请求`,
     relay_configurator_save_message:

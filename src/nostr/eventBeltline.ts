@@ -419,7 +419,7 @@ export class EventBeltline<
     opt?.onOK && this.relayEmiter.on("ok", event.id, opt.onOK);
 
     // pushEvent
-    for (const url of publishToUrls) {
+    for (const url of opt?.autoPublishToTagR ?? true ? publishToUrls : urls) {
       this.toPublish(url, event);
     }
     return event;
@@ -499,4 +499,5 @@ export type AddStaffOpt = {
 export type PublishOpt = {
   onOK?: (v: RelayEmiterResponseEventMap["ok"]) => void;
   addUrl?: boolean;
+  autoPublishToTagR?: boolean;
 };

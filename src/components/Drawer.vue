@@ -33,7 +33,7 @@ const { id } = useDrawerState() ?? {};
     :placement="placement"
     :trap-focus="false"
     :block-scroll="false"
-    :to="`#${id}`"
+    :to="id ? `#${id}` : undefined"
   >
     <n-drawer-content :title="title" :closable="closable">
       <slot></slot>

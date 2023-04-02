@@ -431,3 +431,27 @@ export function randomColorHex() {
     .toString(16)
     .padStart(6, "0")}`;
 }
+export function createTaskQueue() {
+  return {
+    isRun: false,
+    queue: [] as Array<() => void>,
+    run() {
+      this.isRun = true;
+      const task = this.queue.pop();
+      if (!task) {
+        this.isRun = false;
+        return;
+      }
+
+      task();
+
+      setTimeout(() => this.run());
+    },
+    unShift(task: () => void) {
+      this.queue.unshift(task);
+
+      if (this.isRun) return;
+      this.run();
+    },
+  };
+}
