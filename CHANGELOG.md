@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.2](https://github.com/mekefly/jumpalong/compare/v0.4.1...v0.4.2) (2023-04-02)
+
+
+### Features
+
+* Add Data Migration ([1534437](https://github.com/mekefly/jumpalong/commit/1534437a836d98f3218af150c959d6755c38d14d))
+* Drawer.vue ([e4292ad](https://github.com/mekefly/jumpalong/commit/e4292ad65e18cd0418a0ceb4398ffdf18a6d2816))
+
+
+### Bug Fixes
+
+* Delete useless code ([d93479c](https://github.com/mekefly/jumpalong/commit/d93479c00ac2a41d0587262e3f893afd5dca660c))
+* Delete useless code ([5f5303c](https://github.com/mekefly/jumpalong/commit/5f5303cd93c1564b43d1c65eeda8532ea548899a))
+* getReferenceMessage ([a6345a5](https://github.com/mekefly/jumpalong/commit/a6345a58d7cb3122d1af7454cc82a2fce56b0f93))
+* Vuei18n Warning ([afaac82](https://github.com/mekefly/jumpalong/commit/afaac827e0e377ad73d476ef26a82fb2b35ba837))
+
 ### [0.4.1](https://github.com/mekefly/jumpalong/compare/v0.4.0...v0.4.1) (2023-04-01)
 
 
