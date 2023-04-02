@@ -4,7 +4,9 @@ import { fileURLToPath, URL } from "node:url";
 import AutoImport from "unplugin-auto-import/vite";
 import { NaiveUiResolver } from "unplugin-vue-components/resolvers";
 import Components from "unplugin-vue-components/vite";
+import { PluginOption } from "vite";
 import { DirResolverHelper } from "vite-auto-import-resolvers";
+import compressPlugin from "vite-plugin-compression";
 import { defineConfig } from "vitest/config";
 
 // @ts-ignore
@@ -61,6 +63,7 @@ export default defineConfig({
     Components({
       resolvers: [NaiveUiResolver()],
     }),
+    configCompressPlugin("gzip", true),
   ],
   resolve: {
     alias: {
@@ -83,4 +86,32 @@ function createReplacePlugin(isProd = true) {
       __VERSION__: packageJson.version,
     },
   });
+}
+
+export function configCompressPlugin(
+  compress: "gzip" | "brotli" | "none",
+  deleteOriginFile = false
+): PluginOption[] {
+  const compressList = compress.split(",");
+
+  const plugins: PluginOption[] = [];
+
+  if (compressList.includes("gzip")) {
+    plugins.push(
+      compressPlugin({
+        ext: ".gz",
+        deleteOriginFile,
+      })
+    );
+  }
+  if (compressList.includes("brotli")) {
+    plugins.push(
+      compressPlugin({
+        ext: ".br",
+        algorithm: "brotliCompress",
+        deleteOriginFile,
+      })
+    );
+  }
+  return plugins;
 }
