@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.4](https://github.com/mekefly/jumpalong/compare/v0.4.3...v0.4.4) (2023-04-02)
+
+
+### Bug Fixes
+
+* view bug ([a2a18b6](https://github.com/mekefly/jumpalong/commit/a2a18b6f1fb5149b05b201a47a0c9cd037558680))
+
 ### [0.4.3](https://github.com/mekefly/jumpalong/compare/v0.4.2...v0.4.3) (2023-04-02)
 
 
