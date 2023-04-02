@@ -37,6 +37,11 @@ function handleSave() {
 </script>
 
 <template>
+  <n-collapse-transition :show="relayConfigurator.hasChange()">
+    <n-button @click="handleSave" type="primary">
+      {{ t("save") }}
+    </n-button>
+  </n-collapse-transition>
   <RelayConnectListVue :urls="urls ?? []" title="">
     <template #right="{ url }">
       <RelayWritableButtonVue
@@ -49,15 +54,6 @@ function handleSave() {
       />
 
       <RelayAddButtonVue :url="url" />
-    </template>
-    <template #action>
-      <n-button
-        @click="handleSave"
-        type="primary"
-        v-if="relayConfigurator.hasChange()"
-      >
-        {{ t("save") }}
-      </n-button>
     </template>
   </RelayConnectListVue>
 </template>
