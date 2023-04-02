@@ -10,6 +10,7 @@ import {
 } from "@/api/like";
 
 import { useLazyComponent, useOnOK } from "@/utils/use";
+import DrawerVue from "./Drawer.vue";
 import SmileBeamRegularVue from "./icon/SmileBeamRegular.vue";
 import PapawReactionItemVue from "./PapawReactionItem.vue";
 
@@ -73,28 +74,18 @@ const reactionEntries = computed(() =>
         </n-icon>
       </n-button>
 
-      <n-drawer
-        v-model:show="active"
-        width="100%"
-        :height="100"
-        placement="bottom"
-        :trap-focus="false"
-        :block-scroll="false"
-        :to="`#${id}`"
-      >
-        <n-drawer-content title="">
-          <n-space class="h-full w-full flex items-center flex-wrap">
-            <PapawReactionItemVue
-              @handelSwitchActive="handelSwitchActive"
-              v-for="reaction of reactions"
-              :size="size"
-              :events="reactionMap[reaction] ?? []"
-              :reaction="reaction"
-              :active="activeMap[reaction]"
-            />
-          </n-space>
-        </n-drawer-content>
-      </n-drawer>
+      <DrawerVue v-model:show="active">
+        <n-space class="h-full w-full flex items-center flex-wrap">
+          <PapawReactionItemVue
+            @handelSwitchActive="handelSwitchActive"
+            v-for="reaction of reactions"
+            :size="size"
+            :events="reactionMap[reaction] ?? []"
+            :reaction="reaction"
+            :active="activeMap[reaction]"
+          />
+        </n-space>
+      </DrawerVue>
     </n-space>
   </div>
 </template>

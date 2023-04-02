@@ -1,11 +1,12 @@
 <script lang="ts" setup>
 import { config } from "@/nostr/nostr";
 import { useLazyShow } from "@/utils/use";
-import { arrayRemove, createId, timeout } from "@/utils/utils";
+import { arrayRemove, timeout } from "@/utils/utils";
 import { vOnLongPress } from "@vueuse/components";
 import { Event } from "nostr-tools";
 import Content from "./Content.vue";
 import DateTimeVue from "./DateTime.vue";
+import DrawerProvideVue from "./DrawerProvide.vue";
 import LazyItemDisabledVue from "./LazyItemDisabled.vue";
 import { useNewMessageState } from "./NewMessage";
 import PapawOptionsButtons from "./PapawOptionsButtons.vue";
@@ -73,8 +74,6 @@ function handelLongPress() {
   showSMS.value = !showSMS.value;
   isLongPress.value = true;
 }
-const id = `papaw-${createId()}`;
-provide("papaw-id", id);
 </script>
 
 <template>
@@ -84,43 +83,45 @@ provide("papaw-id", id);
       :disabled="!config.lazyDelayForPapaw"
       :minHeight="200"
     >
-      <div
-        :id="id"
-        class="w-max-full rounded-2xl mt-4 bg-[#dfe4ea55] overflow-hidden relative"
-        :class="{
-          twinkle: isTwinkle,
-        }"
-        v-on-long-press.prevent="[
-          handelLongPress,
-          { modifiers: { stop: true, prevent: true } },
-        ]"
-      >
-        <div class="p-3 flex justify-between items-center">
-          <UserInfoVue :pubkey="event.pubkey" :created_at="event.created_at">
-            <template #bottom>
-              <DateTimeVue :secondTimestamp="event.created_at" />
-            </template>
-            <template #right>
-              <SMSButtonVue
-                :show="showSMS"
-                :event="event"
-                :deleteEvent="handelDeleteEvent"
-                :isLongPress="isLongPress"
-              />
-            </template>
-          </UserInfoVue>
-        </div>
-        <div class="p-5 font">
-          <Content :event="event" />
-        </div>
+      <DrawerProvideVue #default="{ id }">
+        <div
+          :id="id"
+          class="w-max-full rounded-2xl mt-4 bg-[#dfe4ea55] overflow-hidden relative"
+          :class="{
+            twinkle: isTwinkle,
+          }"
+          v-on-long-press.prevent="[
+            handelLongPress,
+            { modifiers: { stop: true, prevent: true } },
+          ]"
+        >
+          <div class="p-3 flex justify-between items-center">
+            <UserInfoVue :pubkey="event.pubkey" :created_at="event.created_at">
+              <template #bottom>
+                <DateTimeVue :secondTimestamp="event.created_at" />
+              </template>
+              <template #right>
+                <SMSButtonVue
+                  :show="showSMS"
+                  :event="event"
+                  :deleteEvent="handelDeleteEvent"
+                  :isLongPress="isLongPress"
+                />
+              </template>
+            </UserInfoVue>
+          </div>
+          <div class="p-5 font">
+            <Content :event="event" />
+          </div>
 
-        <PapawOptionsButtons
-          v-if="withPapawOptionsButtons ?? true"
-          :event="event"
-        />
+          <PapawOptionsButtons
+            v-if="withPapawOptionsButtons ?? true"
+            :event="event"
+          />
 
-        <PapawSourceUrlVue :event="event" />
-      </div>
+          <PapawSourceUrlVue :event="event" />
+        </div>
+      </DrawerProvideVue>
     </LazyItemDisabledVue>
   </div>
 </template>
