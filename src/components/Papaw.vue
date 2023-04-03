@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import { config } from "@/nostr/nostr";
-import { useLazyShow } from "@/utils/use";
+import { useCanceleableClick, useLazyShow } from "@/utils/use";
 import { arrayRemove, timeout } from "@/utils/utils";
+import { usePushShortTextNote } from "@/views/ShortTextNoteView";
 import { vOnLongPress } from "@vueuse/components";
 import { Event } from "nostr-tools";
 import Content from "./Content.vue";
@@ -74,6 +75,11 @@ function handelLongPress() {
   showSMS.value = !showSMS.value;
   isLongPress.value = true;
 }
+const contentRef = ref();
+const pushShortText = usePushShortTextNote();
+const { isPress } = useCanceleableClick(contentRef, () => {
+  pushShortText(event.value);
+});
 </script>
 
 <template>
@@ -86,11 +92,12 @@ function handelLongPress() {
       <DrawerProvideVue #default="{ id }">
         <div
           :id="id"
-          class="w-max-full rounded-2xl mt-4 bg-[#dfe4ea55] overflow-hidden relative"
+          class="w-max-full rounded-2xl mt-4 bg-[#dfe4ea55] overflow-hidden relative transition"
           :class="{
             twinkle: isTwinkle,
+            [`bg-[#dfe4eabb]`]: isPress,
           }"
-          v-on-long-press="[handelLongPress, { modifiers: { stop: true } }]"
+          v-on-long-press="[handelLongPress, {}]"
         >
           <div class="p-3 flex justify-between items-center">
             <UserInfoVue :pubkey="event.pubkey" :created_at="event.created_at">
@@ -107,7 +114,7 @@ function handelLongPress() {
               </template>
             </UserInfoVue>
           </div>
-          <div class="p-5 font">
+          <div class="p-5 font" ref="contentRef">
             <Content :event="event" />
           </div>
 

@@ -11,8 +11,6 @@ export function useEvent() {
     return toDeCodeNevent(value.value);
   });
   const eventId = computed(() => {
-    console.debug("neventOpt", neventOpt.value);
-
     return neventOpt.value?.id;
   });
 

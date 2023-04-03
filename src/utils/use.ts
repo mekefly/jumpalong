@@ -653,3 +653,40 @@ export function useCacheStorage<E>(
     },
   });
 }
+export function useCanceleableClick(
+  target: Ref<HTMLElement | null | undefined>,
+  onClick: () => void
+) {
+  useEventListener(target, "mousedown", clickStart);
+  useEventListener(target, "touchstart", clickStart);
+  const isPress = ref(false);
+  function clickStart() {
+    addCancelListener();
+    isPress.value = true;
+  }
+  let id: any;
+  async function addCancelListener() {
+    const _target = target.value;
+    if (!_target) return;
+
+    _target.addEventListener("click", checkClick, { once: true });
+
+    _target.addEventListener("mousemove", cancelClick, { once: true });
+    _target.addEventListener("touchmove", cancelClick, { once: true });
+    _target.addEventListener("touchcancel", cancelClick, { once: true });
+
+    clearTimeout(id);
+    id = setTimeout(() => {
+      cancelClick();
+    }, 500);
+  }
+  function cancelClick() {
+    isPress.value = false;
+  }
+  function checkClick() {
+    if (!isPress.value) return;
+    isPress.value = false;
+    onClick();
+  }
+  return { isPress };
+}
