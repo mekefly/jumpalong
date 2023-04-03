@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { t } from "@/i18n";
+import { relayConfigurator } from "@/nostr/nostr";
 import { getSourceUrls } from "@/nostr/staff/createEventSourceTracers";
 import { Event } from "nostr-tools";
 import DrawerVue from "./Drawer.vue";
@@ -11,10 +13,17 @@ const props = defineProps<{ event: Event }>();
 const event = toRef(props, "event");
 const sourceUrls = computed(() => getSourceUrls(event.value.id));
 const active = ref(false);
+
+const router = useRouter();
+function handleSave() {
+  router.push({
+    name: "relays",
+  });
+}
 </script>
 
 <template>
-  <div class="flex pb-2 px-4" @click="() => (active = !active)">
+  <div class="flex" @click="() => (active = !active)">
     <div
       v-for="url in sourceUrls"
       class="h-2 w-2 rounded-full mr-1"
@@ -31,6 +40,13 @@ const active = ref(false);
         </template>
       </RelayConnectListVue>
     </ScrollbarVue>
+    <template #header>
+      <n-collapse-transition :show="relayConfigurator.hasChange()">
+        <n-button @click="handleSave" type="primary">
+          {{ t("save") }}
+        </n-button>
+      </n-collapse-transition>
+    </template>
   </DrawerVue>
 </template>
 

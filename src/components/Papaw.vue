@@ -10,8 +10,10 @@ import DateTimeVue from "./DateTime.vue";
 import DrawerProvideVue from "./DrawerProvide.vue";
 import LazyItemDisabledVue from "./LazyItemDisabled.vue";
 import { useNewMessageState } from "./NewMessage";
+import { usePapawFocusState } from "./Papaw";
 import PapawOptionsButtons from "./PapawOptionsButtons.vue";
 import PapawSourceUrlVue from "./PapawSourceUrl.vue";
+import PapawTreeHierarchy from "./PapawTreeHierarchy.vue";
 import { useInjectScrollbarInstRef } from "./Scrollbar";
 import SMSButtonVue from "./SMSButton.vue";
 import UserInfoVue from "./UserInfo.vue";
@@ -21,6 +23,7 @@ const props = withDefaults(
     event: Event;
     deleteEvent?: (id: string) => void;
     withPapawOptionsButtons?: boolean;
+    disabledReply?: boolean;
   }>(),
   {
     withPapawOptionsButtons: true,
@@ -56,6 +59,17 @@ const scrollToThis = async () => {
   twinkle();
 };
 jumpList?.value.push(scrollToThis);
+
+const focuState = computed(() => usePapawFocusState());
+watchEffect(() => {
+  const focusEvent = focuState.value?.focusEvent;
+  if (!focusEvent) {
+    return;
+  }
+  if (focusEvent.id === event.value.id) {
+    scrollToThis();
+  }
+});
 watch(isShow, () => {
   if (isShow.value) {
     if (!jumpList?.value) return;
@@ -80,10 +94,13 @@ const pushShortText = usePushShortTextNote();
 const { isPress } = useCanceleableClick(contentRef, () => {
   pushShortText(event.value);
 });
+defineExpose({
+  scrollToPapaw: scrollToThis,
+});
 </script>
 
 <template>
-  <div ref="target">
+  <div class="mt-4" ref="target">
     <LazyItemDisabledVue
       :delay="config.lazyDelayForPapaw"
       :disabled="!config.lazyDelayForPapaw"
@@ -91,39 +108,58 @@ const { isPress } = useCanceleableClick(contentRef, () => {
     >
       <DrawerProvideVue #default="{ id }">
         <div
-          :id="id"
-          class="w-max-full rounded-2xl mt-4 bg-[#dfe4ea55] overflow-hidden relative transition"
+          class="w-max-full rounded-2xl bg-[#dfe4ea55] overflow-hidden relative transition"
           :class="{
             twinkle: isTwinkle,
             [`bg-[#dfe4eabb]`]: isPress,
           }"
-          v-on-long-press="[handelLongPress, {}]"
+          v-on-long-press.stop="[
+            handelLongPress,
+            {
+              modifiers: {
+                stop: true,
+              },
+            },
+          ]"
+          @mousedown.stop
+          @touchstart.stop
+          @click.stop
         >
-          <div class="p-3 flex justify-between items-center">
-            <UserInfoVue :pubkey="event.pubkey" :created_at="event.created_at">
-              <template #bottom>
-                <DateTimeVue :secondTimestamp="event.created_at" />
-              </template>
-              <template #right>
-                <SMSButtonVue
-                  :show="showSMS"
+          <div :id="id" class="relative overflow-hidden rounded-xl">
+            <div class="mx-3 my-3">
+              <UserInfoVue
+                :pubkey="event.pubkey"
+                :created_at="event.created_at"
+              >
+                <template #bottom>
+                  <DateTimeVue :secondTimestamp="event.created_at" />
+                </template>
+                <template #right>
+                  <SMSButtonVue
+                    :show="showSMS"
+                    :event="event"
+                    :deleteEvent="handelDeleteEvent"
+                    :isLongPress="isLongPress"
+                  />
+                </template>
+              </UserInfoVue>
+              <div class="my-4 font" ref="contentRef">
+                <Content :event="event" :disabledReply="disabledReply" />
+              </div>
+
+              <div class="my-2">
+                <PapawOptionsButtons
+                  v-if="withPapawOptionsButtons ?? true"
                   :event="event"
-                  :deleteEvent="handelDeleteEvent"
-                  :isLongPress="isLongPress"
                 />
-              </template>
-            </UserInfoVue>
-          </div>
-          <div class="p-5 font" ref="contentRef">
-            <Content :event="event" />
-          </div>
 
-          <PapawOptionsButtons
-            v-if="withPapawOptionsButtons ?? true"
-            :event="event"
-          />
-
-          <PapawSourceUrlVue :event="event" />
+                <PapawSourceUrlVue :event="event" />
+              </div>
+            </div>
+          </div>
+          <PapawTreeHierarchy>
+            <slot name="reply"></slot>
+          </PapawTreeHierarchy>
         </div>
       </DrawerProvideVue>
     </LazyItemDisabledVue>

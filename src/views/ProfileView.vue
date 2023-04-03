@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import contactConfiguration from "@/api/Contact";
 import { getUserMetadataLineByPubkey } from "@/api/user";
+import profile from "@/assets/profile-2-400x400.png";
 import EllipsisVue from "@/components/Ellipsis.vue";
 import ProfileMoreInfoVue from "@/components/ProfileMoreInfo.vue";
 import ScrollbarVue from "@/components/Scrollbar.vue";
@@ -60,8 +61,9 @@ const [target] = useScale(0.3);
   <div v-if="pubkey" class="w-full h-full flex flex-col">
     <ScrollbarVue class="flex-shrink flex-1 h-0" refreshable loadable>
       <div class="flex flex-col">
-        <div ref="target" class="h-0 w-full relative" :style="{}">
+        <div ref="target" class="h-0 w-full relative flex-shrink-0" :style="{}">
           <n-image
+            v-if="metadata?.banner ?? metadata?.picture"
             :src="metadata?.banner ?? metadata?.picture"
             object-fit="cover"
             class="w-full h-full banner"
@@ -73,7 +75,7 @@ const [target] = useScale(0.3);
             }"
             round
             :size="100"
-            :src="metadata?.picture ?? ''"
+            :src="metadata?.picture ?? profile"
           />
         </div>
         <div>

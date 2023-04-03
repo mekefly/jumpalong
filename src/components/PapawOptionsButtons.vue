@@ -24,7 +24,7 @@ const limit = 20;
 </script>
 
 <template>
-  <div class="flex items-center justify-between px-4">
+  <div class="flex items-center justify-between">
     <n-space class="flex justify-around py-4 box-border">
       <PapawReplyButtonVue :size="size" :event="event" />
       <n-button text @click="() => message.error(t('message.not_implemented'))">

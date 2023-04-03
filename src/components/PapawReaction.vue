@@ -41,7 +41,6 @@ function handelSwitchActive(type: string) {
   }
   activeMap.value[type] = !activeMap.value[type];
 }
-const id = inject("papaw-id", null as string | null) as string | null;
 const active = ref(false);
 const reactionMapEntries = computed(() => Object.entries(reactionMap.value));
 const activeMapEntries = computed(() =>

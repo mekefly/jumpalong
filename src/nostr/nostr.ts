@@ -8,12 +8,13 @@ const appConfig = useLocalStorage(
   () => ({
     getOtherUrlsRequestLimitSize: 50,
     localStorage: { kind10002: 500, duration: 1000 * 60 * 60 * 24 * 7 },
-    eventCacheDuration: 1000 * 60 * 60 * 24,
+    eventCacheDuration: 1000 * 60 * 60,
     pullRelayConfig: {
       interval: 1000 * 60 * 60 * 24, // 24 hour
       debounce: 1000,
     },
     stopHideLongArticles: false,
+    enablePapawTree: false,
     lazyDelayForPapaw: 0,
     syncInterval: 1000 * 60,
     syncInterval1: 1000 * 60 * 5,
@@ -53,6 +54,7 @@ type ConfigType = {
     interval: number;
     debounce: number;
   };
+  enablePapawTree: boolean;
   stopHideLongArticles: boolean;
   lazyDelayForPapaw: number; //0 等于忽略
   syncInterval: number;

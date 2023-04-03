@@ -4,7 +4,12 @@ import {
   parseMetadata,
 } from "@/nostr/staff/createUseChannelMetadata";
 import { deserializeTagR, getRootTagE } from "@/nostr/tag";
-import { defaultCacheOptions, getCache, setCache } from "@/utils/cache";
+import {
+  defaultCacheOptions,
+  deleteCache,
+  getCache,
+  setCache,
+} from "@/utils/cache";
 import { CacheOptions } from "@/utils/cache/types";
 import { MaybeRef } from "@vueuse/core";
 import { MentionOption } from "naive-ui";
@@ -37,12 +42,12 @@ export function useUserOpt() {
   return { userRefMentionOption, userMap };
 }
 type EventMentionOption = MentionOption[];
-type EventMap = Map<
-  string,
-  { event: Event; marker: "marker" | "reply" | "mention" }
->;
+export type Marker = "root" | "reply" | "mention";
+type EventMap = Map<string, { event: Event; marker: Marker }>;
 export function useEventRef(value: Ref<string>) {
   const eventMap: EventMap = new Map();
+  const relaysTags = ref([] as string[][]);
+
   const eventMentionOption: EventMentionOption = [];
   function addEventMentionOption(e: Event) {
     const { content, id } = e;
@@ -52,14 +57,38 @@ export function useEventRef(value: Ref<string>) {
       key: id,
     });
   }
-  function addEvent(e: Event) {
-    eventMap.set(createMapKey(e), { event: e, marker: "reply" });
+  function addEvent(e: Event, marker: Marker) {
+    eventMap.set(createMapKey(e), { event: e, marker });
     addEventMentionOption(e);
   }
   function replyEvent(e: Event) {
+    //只能回复一人
+    relaysTags.value = [];
+    //直接被被回复的事件
+    relaysTags.value.push(["e", e.id]);
+    //直接被回复的用户
+    relaysTags.value.push(["p", e.pubkey]);
+    //创建根标签
+    relaysTags.value.push(getRootTagE(e.tags) ?? ["e", e.id, "", "root"]);
+
+    //被回复事件的直接回复变为提及，添加被回复事件的直接提及
+    relaysTags.value.push(
+      ...e.tags
+        .filter(
+          (tag) => tag[0] === "e" && tag[1] && (!tag[3] || tag[3] === "reply")
+        )
+        .map((tag) => [tag[0], tag[1], tag[2], "mention"])
+    );
+
+    //被提及的用户列表
+    relaysTags.value.push(...e.tags.filter((tag) => tag[0] === "p" && tag[1]));
+    //被提到的所有中继
+    relaysTags.value.push(...e.tags.filter((tag) => tag[0] === "r" && tag[1]));
+  }
+  function mentionEvent(e: Event) {
     if (value.value === "") value.value += `&${createMapKey(e)}\n`;
     else value.value += `\n&${createMapKey(e)}\n`;
-    addEvent(e);
+    addEvent(e, "mention");
   }
   function createMapKey(event: Event) {
     return `${event.id}`;
@@ -69,7 +98,9 @@ export function useEventRef(value: Ref<string>) {
     eventMap,
     eventMentionOption,
     replyEvent,
+    relaysTags,
     addEvent,
+    mentionEvent,
   };
 }
 
@@ -85,20 +116,27 @@ export type SourceOptions = {
     string,
     {
       event: Event;
-      marker: "reply" | "marker" | "mention";
+      marker: Marker;
     }
   >;
   value: string;
   tags: string[][];
+  replyTags: string[][];
 };
-export function useParseTagsFunction(userMap: UserMap, eventMap: EventMap) {
+export function useParseTagsFunction(
+  userMap: UserMap,
+  eventMap: EventMap,
+  relaysTags: Ref<string[][]>
+) {
   function parseTags(text: string) {
     const sourceOptions: SourceOptions = {
       userMap: {},
       eventMap: {},
       value: text,
       tags: [] as string[][],
+      replyTags: relaysTags.value,
     };
+
     const { tags } = sourceOptions;
     const postMessage = text.replace(/@\S+|(\s|^)#\S+|&\S+/g, (str) => {
       const prefix = str[0];
@@ -122,36 +160,45 @@ export function useParseTagsFunction(userMap: UserMap, eventMap: EventMap) {
           const eventDataOpt = eventMap.get(name);
           if (!eventDataOpt) return str;
           sourceOptions.eventMap[name] = eventDataOpt;
-          // 被回复事件所在的中续地址
+          const event = eventDataOpt.event;
+          // 被回复引用所在的中续地址
           const s1 = [...deserializeTagR(eventDataOpt.event.tags)];
 
-          //添加回复到的中继
+          //添加引用到的中继
           s1.forEach((u) => tags.push(["r", u]));
 
-          //添加roottags
-          const rootTag = getRootTagE(eventDataOpt.event.tags);
-          rootTag && tags.push(rootTag);
-
-          //添加回复人
-          tags.push([
-            "p",
-            eventDataOpt.event.pubkey,
-            [...s1][0],
-            eventDataOpt.marker,
-          ]);
-
-          //添加回复
+          //添加引用
           tags.push([
             "e",
             eventDataOpt.event.id,
-            [...s1][0],
+            [...s1][0] ?? "",
             eventDataOpt.marker,
           ]);
-          return `#[${tags.length - 1}]`;
+          const place = tags.length - 1;
+
+          //添加引用通知者
+          tags.push([
+            "p",
+            eventDataOpt.event.pubkey,
+            [...s1][0] ?? "",
+            "mention",
+          ]);
+
+          //所有回复变引用
+          tags.push(
+            ...event.tags
+              .filter((tag) => tag[0] === "e")
+              .map((tag) => ["e", tag[1], tag[2], "mention"])
+          );
+          //所有提及人
+          tags.push(...event.tags.filter((tag) => tag[0] === "p"));
+
+          return `#[${place}]`;
         default:
           return str;
       }
     });
+    tags.push(...sourceOptions.replyTags);
     return [postMessage, tags, sourceOptions] as const;
   }
   return parseTags;
@@ -164,7 +211,8 @@ const cacheOptions: CacheOptions = {
 export function useCacheTextValue(
   userMap: MaybeRef<UserMap>,
   eventMap: MaybeRef<EventMap>,
-  value: Ref<string>
+  value: Ref<string>,
+  replyTags: Ref<string[][]>
 ) {
   const prefix = "rich-text-source-options";
   const richTextEditBoxOpt = useRichTextEditBoxOpt();
@@ -172,10 +220,7 @@ export function useCacheTextValue(
     () => richTextEditBoxOpt.id,
     () => {
       try {
-        const c = getCache(
-          `${prefix}:${richTextEditBoxOpt.id}`,
-          cacheOptions
-        ) as SourceOptions;
+        const c = getCache(createCacheKey(), cacheOptions) as SourceOptions;
 
         for (const [key, opt] of Object.entries(c.userMap)) {
           unref(userMap).set(key, opt);
@@ -184,6 +229,7 @@ export function useCacheTextValue(
           unref(eventMap).set(key, opt);
         }
         value.value = c.value;
+        replyTags.value = c.replyTags;
       } catch (error) {}
     },
     {
@@ -192,7 +238,13 @@ export function useCacheTextValue(
   );
 
   function changeSourceCache(sourceOptions: SourceOptions) {
-    setCache(`${prefix}:${richTextEditBoxOpt.id}`, sourceOptions, cacheOptions);
+    setCache(createCacheKey(), sourceOptions, cacheOptions);
   }
-  return { changeSourceCache };
+  function createCacheKey() {
+    return `${prefix}:${richTextEditBoxOpt.id}`;
+  }
+  function clearCache() {
+    deleteCache(createCacheKey());
+  }
+  return { changeSourceCache, clearCache };
 }

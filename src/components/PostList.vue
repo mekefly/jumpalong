@@ -2,7 +2,6 @@
 import { eventDeletionOne } from "@/api/event";
 import PapawVueList from "@/components/PapawList.vue";
 import { t } from "@/i18n";
-import { NSkeleton, NSpace } from "naive-ui";
 import { Event, Filter } from "nostr-tools";
 import { createTextEventBeltline } from "../api/shortTextEventBeltline";
 import { useLoad } from "./Refresh";
@@ -16,6 +15,11 @@ const props = defineProps<{
   filters?: Filter[];
   pushEvent?: (e: Event) => void;
   active?: boolean;
+  disabledLoad?: boolean;
+  disabledEmpty?: boolean;
+  limit?: number;
+  reverseSort?: boolean;
+  disabledReply?: boolean;
 }>();
 const emit = defineEmits<{
   (e: "update:pushEvent", v: (e: Event) => void): void;
@@ -46,13 +50,19 @@ const mergeFilters = computed(() => {
 
 const textEventbeltline = computed(() => {
   const opt: any = {};
-  return createTextEventBeltline({
+  const line = createTextEventBeltline({
     filters: mergeFilters.value,
     ...opt,
+    addUrls: urls?.value,
+    limit: props.limit,
   });
+
+  props.reverseSort && line.addStaffOfSortByCreateAt();
+
+  return line;
 });
 
-useLoad(textEventbeltline, active);
+const loadOptions = useLoad(textEventbeltline, active);
 
 onUnmounted(() => {
   textEventbeltline.value?.closeReq();
@@ -68,30 +78,25 @@ const isLoading = computed(
     textEventbeltline.value?.feat.loadBufferOpt.isLoading ||
     textEventbeltline.value?.feat.refreshBufferOpt.isLoading
 );
+defineExpose({
+  postEvents,
+  ...loadOptions,
+});
 </script>
 
 <template>
   <div>
-    <div class="p-6" v-if="isLoading && postEvents && postEvents.length === 0">
-      <n-space vertical>
-        <n-card class="" v-for="_ in Array(5)">
-          <n-space vertical class="p-8">
-            <div class="flex items-center">
-              <NSkeleton circle class="w-12 h-12 flex-shrink-0"></NSkeleton>
-              <NSkeleton
-                text
-                class="w-80 flex-shrink h-6 ml-3"
-                :sharp="false"
-              ></NSkeleton>
-            </div>
-            <n-skeleton text :repeat="5" round />
-          </n-space>
-        </n-card>
-      </n-space>
+    <div
+      class="py-20 flex items-center justify-center"
+      v-if="!disabledLoad && isLoading && postEvents && postEvents.length === 0"
+    >
+      <n-spin size="medium" />
     </div>
 
     <div
-      v-else-if="!isLoading && postEvents && postEvents.length === 0"
+      v-else-if="
+        !disabledEmpty && !isLoading && postEvents && postEvents.length === 0
+      "
       class="h-40 flex justify-center items-center"
     >
       <n-empty :description="t('empty_text')" size="huge"> </n-empty>
@@ -101,6 +106,7 @@ const isLoading = computed(
       v-if="postEvents"
       :eventList="postEvents"
       withPapawOptionsButtons
+      :disabledReply="disabledReply"
       @eventDeletion="(id) => eventDeletionOne(id)"
     />
   </div>

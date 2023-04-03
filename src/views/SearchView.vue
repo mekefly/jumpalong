@@ -50,7 +50,10 @@ watch(
       //远程和本地搜索event
       const opt = neventOpt.value;
       const relays = neventOpt.value.relays;
-      const line = getEventLineById(opt.id, relays && { url: new Set(relays) });
+      const line = getEventLineById(
+        opt.id,
+        relays && { urls: new Set(relays) }
+      );
       searchRootLine.addChild(line); //交给searchRoot去管理
       line.feat.onHasEventOnce((e) => {
         classify(e, groupEvents.value as any);

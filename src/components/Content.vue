@@ -6,9 +6,14 @@ import { isNumberAndNotNaN } from "@/utils/utils";
 import { Event, nip19 } from "nostr-tools";
 import ContentReplyItemVue from "./ContentReplyItem.vue";
 import ContentWebsiteVue from "./ContentWebsite.vue";
+import RelayContent from "./RelayContent.vue";
 import UserLinkVue from "./UserLink.vue";
 
-const props = defineProps<{ event: Event; contenteditable?: boolean }>();
+const props = defineProps<{
+  event: Event;
+  contenteditable?: boolean;
+  disabledReply?: boolean;
+}>();
 const { event, contenteditable } = toRefs(props);
 
 function parseTag(mark: string, markIndex: string, tags: string[][]) {
@@ -131,12 +136,10 @@ const rows = computed(() => {
   parseRow(event.value.content, rows);
   return rows;
 });
-// const [target, isShow] = useLazyShow(400);
 </script>
 
 <template>
   <div class="w-full" ref="target">
-    <!-- <n-spin  class="w-full h-64" /> -->
     <div>
       <div
         v-for="row in rows"
@@ -196,16 +199,17 @@ const rows = computed(() => {
           <span
             v-else
             class="flex"
-            style="
-              table-layout: fixed;
-              word-break: break-all;
-              word-wrap: break-word;
-            "
+            :style="{
+              'table-layout': 'fixed',
+              'word-break': 'break-all',
+              'word-wrap': 'break-word',
+            }"
             v-text="item[1].replace(' ', '&nbsp')"
           />
         </span>
       </div>
     </div>
+    <RelayContent v-if="!disabledReply" :event="event" />
   </div>
 </template>
 

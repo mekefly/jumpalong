@@ -111,6 +111,13 @@ export function getIncludeMergeByFilters(
 }
 export function neventEncodeByEvent(event: Event, moreUrls?: Set<string>) {
   const url = deserializeTagR(event.tags);
+  event.tags.forEach((tag) => {
+    if (tag[0] === "e" || tag[0] === "p") {
+      if (tag[2]) {
+        url.add(tag[2]);
+      }
+    }
+  });
   return nip19.neventEncode({
     id: event.id as string,
     relays: [...url, ...(moreUrls ?? [])],

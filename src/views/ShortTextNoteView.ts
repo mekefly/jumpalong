@@ -1,4 +1,5 @@
 import { getEventLineById } from "@/api/event";
+import { getSourceUrls } from "@/nostr/staff/createEventSourceTracers";
 import { neventEncodeByEvent, toDeCodeNevent } from "@/utils/nostr";
 import { Event } from "nostr-tools";
 
@@ -22,7 +23,7 @@ export function useEvent() {
     }
 
     const line = getEventLineById(eventId.value, {
-      url: new Set(neventOpt.value?.relays),
+      urls: new Set(neventOpt.value?.relays),
     });
     return line?.feat.useEvent();
   });
@@ -31,10 +32,11 @@ export function useEvent() {
 export function usePushShortTextNote() {
   const router = useRouter();
   return (event: Event) => {
+    const urls = getSourceUrls(event.id);
     pushEvent.value = event;
     router.push({
       name: "short-text-note",
-      params: { value: neventEncodeByEvent(event) },
+      params: { value: neventEncodeByEvent(event, urls) },
     });
   };
 }

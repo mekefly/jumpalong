@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import ContentVue from "@/components/Content.vue";
-import DateTimeVue from "@/components/DateTime.vue";
-import PostListVue from "@/components/PostList.vue";
+import { providePapawFocus } from "@/components/Papaw";
+import Papaw from "@/components/Papaw.vue";
+import PapawTreeAutoFindParent from "@/components/PapawTreeAutoFindRoot.vue";
+import PostList from "@/components/PostList.vue";
 import { useRichTextEditBoxOpt } from "@/components/RichTextEditBox";
 import RichTextEditBoxVue from "@/components/RichTextEditBox.vue";
 import ScrollbarVue from "@/components/Scrollbar.vue";
-import SMSButtonVue from "@/components/SMSButton.vue";
-import UserInfoVue from "@/components/UserInfo.vue";
+import { config } from "@/nostr/nostr";
 import { deserializeTagR } from "@/nostr/tag";
 import { useHandleSendMessage } from "@/utils/use";
 import { Event, EventTemplate } from "nostr-tools";
@@ -17,7 +17,19 @@ import { useEvent } from "./ShortTextNoteView";
 const event = useEvent();
 const eventId = computed(() => event.value?.id ?? "default");
 
-useRichTextEditBoxOpt(eventId);
+const richTextEditBoxOpt = useRichTextEditBoxOpt(eventId);
+watch(
+  event,
+  async () => {
+    if (!event.value) return;
+
+    await nextTick();
+    richTextEditBoxOpt.emitRichTextEditBox("reply", event.value);
+  },
+  {
+    immediate: true,
+  }
+);
 
 const urls = computed<Set<string>>(() => {
   if (!event.value) return new Set();
@@ -29,35 +41,33 @@ const handleSendEvent = useHandleSendMessage(1, undefined, pushEvent, {
   urls: urls,
 });
 function handleSend(e: EventTemplate) {
-  //引用了父标签
-  e.tags.push(["e", eventId.value, "reply"]);
-
   handleSendEvent(e);
 }
+watchEffect(() => {
+  if (event.value) {
+    providePapawFocus(event.value);
+  }
+});
 </script>
 
 <template>
   <div v-if="event" class="flex flex-col w-full h-full overflow-auto">
     <ScrollbarVue class="w-full h-0 flex-shrink flex-1" loadable refreshable>
-      <UserInfoVue :pubkey="event.pubkey" :created_at="event.created_at">
-        <template #bottom>
-          <DateTimeVue :secondTimestamp="event.created_at" />
+      <PapawTreeAutoFindParent
+        v-if="config.enablePapawTree"
+        :event="event"
+      ></PapawTreeAutoFindParent>
+      <Papaw v-else :event="event">
+        <template #reply>
+          <PostList
+            v-model:pushEvent="pushEvent"
+            :urls="urls"
+            :filter="{ '#e': [event.id], kinds: [1, 30023] }"
+            active
+            disabledReply
+          />
         </template>
-        <template #right>
-          <SMSButtonVue :event="event" :deleteEvent="() => {}" />
-        </template>
-      </UserInfoVue>
-      <div class="p-5 font">
-        <ContentVue :event="event" />
-      </div>
-      <div>
-        <PostListVue
-          v-model:pushEvent="pushEvent"
-          :urls="urls"
-          :filter="{ '#e': [event.id], kinds: [1, 30023] }"
-          :active="true"
-        />
-      </div>
+      </Papaw>
     </ScrollbarVue>
     <RichTextEditBoxVue @send="handleSend" />
   </div>

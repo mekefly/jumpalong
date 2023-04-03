@@ -37,6 +37,13 @@ const { id } = useDrawerState() ?? {};
   >
     <n-drawer-content :title="title" :closable="closable">
       <slot></slot>
+
+      <template v-if="$slots.header" #header>
+        <slot name="header"></slot>
+      </template>
+      <template v-if="$slots.footer" #footer>
+        <slot name="footer"></slot>
+      </template>
     </n-drawer-content>
   </n-drawer>
 </template>

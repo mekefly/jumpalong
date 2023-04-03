@@ -77,6 +77,9 @@ const handleMap = {
   reply() {
     richTextEditBoxOpt.emitRichTextEditBox("reply", event.value);
   },
+  mention() {
+    richTextEditBoxOpt.emitRichTextEditBox("mention", event.value);
+  },
 };
 const runOperate = (key: string) => {
   (handleMap as any)[key]?.();
@@ -107,6 +110,10 @@ const options = ref<SelectMixedOption[]>([
   {
     label: t("reply"),
     value: "reply",
+  },
+  {
+    label: t("mention"),
+    value: "mention",
   },
   {
     label: `${t("copy")} Nevent`,

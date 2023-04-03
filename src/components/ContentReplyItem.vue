@@ -23,7 +23,7 @@ const neventOpt = computed(() => toDeCodeNevent(nevent.value));
 const line = computed(() => {
   if (!neventOpt.value) return;
   if (marker.value !== "reply" && marker.value !== "mention") return;
-  return getEventLineById(neventOpt.value.id, { url: relayUrls.value });
+  return getEventLineById(neventOpt.value.id, { urls: relayUrls.value });
 });
 const replyEvent = computed(() => line.value?.feat.useEvent());
 </script>
@@ -31,6 +31,7 @@ const replyEvent = computed(() => line.value?.feat.useEvent());
 <template>
   <PapawVue
     class="w-full"
+    disabledReply
     v-if="replyEvent"
     :event="replyEvent"
     :deleteEvent="() => {}"

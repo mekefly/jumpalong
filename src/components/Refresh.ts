@@ -33,14 +33,22 @@ export function useLoad(
     if (!unref(active)) {
       return;
     }
-    beltline.value?.feat.load();
-    message.info(t("loading"));
+
+    load();
   });
   refreshState?.on("refresh", () => {
     if (!unref(active)) {
       return;
     }
+    refresh();
+  });
+  function load() {
+    beltline.value?.feat.load();
+    message.info(t("loading"));
+  }
+  function refresh() {
     beltline.value?.feat.refresh();
     message.info(t("refreshing"));
-  });
+  }
+  return { load, refresh };
 }

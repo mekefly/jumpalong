@@ -13,7 +13,7 @@ import createRefreshLoadStaff, {
   createEventSourceTracersForRefreshLoadStaff,
 } from "@/nostr/staff/createRefreshLoadStaff";
 import { withDefault } from "@/utils/utils";
-import { Filter } from "nostr-tools";
+import { Event, Filter } from "nostr-tools";
 import { createGarbageFilter } from "../nostr/staff/createGarbageFilter";
 import { useCache } from "../utils/cache";
 import { createBlackStaff } from "../views/ContentBlacklistView";
@@ -87,6 +87,7 @@ export function getReferenceMessage(eventId: string[]) {
     filters: [
       {
         "#e": eventId,
+        kinds: [1],
       },
     ],
   });

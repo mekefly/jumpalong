@@ -1,10 +1,14 @@
 <script lang="ts" setup>
 import { useIfTransition } from "@/utils/use";
 import WindowNew20RegularVue from "./icon/WindowNew20Regular.vue";
-import { useProvideNewMessage } from "./NewMessage";
-const state = useProvideNewMessage({
-  jumpList: ref([]),
-});
+import { useNewMessageState, useProvideNewMessage } from "./NewMessage";
+
+let injectState = useNewMessageState();
+const state =
+  injectState ??
+  useProvideNewMessage({
+    jumpList: ref([]),
+  });
 
 const jumpList = computed(() => state.jumpList.value);
 
@@ -33,7 +37,7 @@ watchEffect(() => {
 <template>
   <slot></slot>
   <n-button
-    v-if="safeActive"
+    v-if="safeActive && !injectState"
     class="fixed bottom-3 right-4 px-2"
     :style="{
       transform: transitionActive ? 'translate(0%,0%)' : 'translate(150%,0%)',

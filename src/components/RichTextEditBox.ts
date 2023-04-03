@@ -3,11 +3,14 @@ import { MaybeRef } from "@vueuse/core";
 import { EventEmitter } from "events";
 import { Event } from "nostr-tools";
 
+import { Marker } from "./RichTextEditBoxInput";
 type EmitType = {
-  (e: "reply", event: Event): void;
+  (e: Marker, event: Event): void;
+  (e: "clear"): void;
 };
 type OnType = {
-  (e: "reply", callback: (event: Event) => void): void;
+  (e: Marker, callback: (event: Event) => void): void;
+  (e: "clear", callback: () => void): void;
 };
 type Opt = {
   emitRichTextEditBox: EmitType;
@@ -21,8 +24,8 @@ export function useRichTextEditBoxOpt(id: MaybeRef<string> = createId()) {
     richTextEditBoxEmiterKey,
     () => {
       const eventEmiter = new EventEmitter();
-      const emit: EmitType = function (e: "reply", event: Event) {
-        eventEmiter.emit(e, event);
+      const emit: EmitType = function (e, ...rest: any) {
+        eventEmiter.emit(e, ...rest);
       };
 
       const on: OnType = function on(e, callback) {

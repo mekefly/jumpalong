@@ -199,6 +199,10 @@ const message: I18nMessages = {
   add_relay: "添加中继",
   successfully_added: "添加成功",
 
+  not_found: "没有找到帖子",
+
+  enable_papaw_tree: "启用树形展示消息",
+
   message: {
     you_have_sent_a_delete_request: `您已经发送了删除请求`,
     relay_configurator_save_message:

@@ -8,6 +8,7 @@ import EmojiBoxVue from "./EmojiBox.vue";
 import CloseVue from "./icon/Close.vue";
 import Edit16FilledVue from "./icon/Edit16Filled.vue";
 import ReadOutlinedVue from "./icon/ReadOutlined.vue";
+import RelayContent from "./RelayContent.vue";
 import {
   useDragFileUpload,
   usePasteFile,
@@ -19,8 +20,6 @@ import { useUpload } from "./Upload";
 import UploadButtonVue from "./UploadButton.vue";
 
 const richTextEditBoxOpt = useRichTextEditBoxOpt();
-
-console.debug("RichTextEditBox:隧道编号", richTextEditBoxOpt.id);
 
 const emit = defineEmits<{
   (e: "send", event: EventTemplate): void;
@@ -79,6 +78,9 @@ async function uploadFile(file: File) {
 usePasteFile(target, uploadFile);
 
 useDragFileUpload(target, uploadFile, {});
+function handelClear() {
+  richTextEditBoxOpt.emitRichTextEditBox("clear");
+}
 </script>
 
 <template>
@@ -123,8 +125,8 @@ useDragFileUpload(target, uploadFile, {});
         <div>
           <n-button
             class="mr-2"
-            @click="() => (rawValue = '')"
-            :disabled="!rawValue"
+            @click="handelClear"
+            :disabled="!rawValue && !event.tags.length"
           >
             <n-icon>
               <CloseVue />
@@ -164,15 +166,19 @@ useDragFileUpload(target, uploadFile, {});
           v-show="!isEdit && event.content"
           @click="() => (isEdit = true)"
         >
-          <ContentVue :event="event" />
+          <ContentVue :event="event" disabledReply />
         </div>
         <RichTextEditBoxInputVue
+          :class="{
+            'mt-2': event.tags.length > 0,
+          }"
           v-model:rawValue="rawValue"
           v-show="isEdit || !event.content"
           @blur="handelBlur"
           @focus="() => (isEdit = true)"
           @change="handleChange"
         />
+        <RelayContent :event="event" />
       </ScrollbarVue>
     </div>
   </div>

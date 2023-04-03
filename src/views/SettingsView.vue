@@ -74,6 +74,13 @@ function handelClearCache() {
     </n-list-item>
 
     <n-list-item>
+      <n-thing :title="t('enable_papaw_tree')"> </n-thing>
+      <template #suffix>
+        <n-switch v-model:value="config.enablePapawTree" />
+      </template>
+    </n-list-item>
+
+    <n-list-item>
       <n-thing
         :description="t('lazy_delay_for_papaw_tip')"
         :titleExtra="String(config.lazyDelayForPapaw)"

@@ -33,9 +33,15 @@ const emit = defineEmits<{
 const value = useModelBind(props, "rawValue");
 
 const { userRefMentionOption, userMap } = useUserOpt();
-const { eventMap, eventMentionOption, addEvent, replyEvent } =
-  useEventRef(value);
-const parseTags = useParseTagsFunction(userMap, eventMap);
+const {
+  eventMap,
+  eventMentionOption,
+  addEvent,
+  replyEvent,
+  mentionEvent,
+  relaysTags: replyTags,
+} = useEventRef(value);
+const parseTags = useParseTagsFunction(userMap, eventMap, replyTags);
 
 watch(
   rawValue,
@@ -50,7 +56,13 @@ watch(
 
 richTextEditBoxOpt.onRichTextEditBox("reply", (e) => {
   replyEvent(e);
+  change();
 });
+richTextEditBoxOpt.onRichTextEditBox("mention", (e) => {
+  mentionEvent(e);
+  change();
+});
+richTextEditBoxOpt.onRichTextEditBox("clear", clear);
 
 const options = ref<MentionOption[]>([]);
 function handleSearch(value: string, prefix: string) {
@@ -60,16 +72,30 @@ function handleSearch(value: string, prefix: string) {
     options.value = eventMentionOption;
   }
 }
-const { changeSourceCache } = useCacheTextValue(userMap, eventMap, value);
+const { changeSourceCache, clearCache } = useCacheTextValue(
+  userMap,
+  eventMap,
+  value,
+  replyTags
+);
 function handleChange() {
   const v = value.value;
   if (lastChange === v) return;
   lastChange = v;
-
+  change();
+}
+function change() {
+  const v = value.value;
   const [postMessage, tags, sourceOptions] = parseTags(v);
   changeSourceCache(sourceOptions);
 
   emit("change", postMessage, { tags, sourceOptions });
+}
+function clear() {
+  clearCache();
+  replyTags.value = [];
+  value.value = "";
+  change();
 }
 </script>
 

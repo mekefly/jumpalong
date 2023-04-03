@@ -1,11 +1,13 @@
 import { createEvent } from "@/nostr/event";
 import { PublishOpt } from "@/nostr/eventBeltline";
 import { relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
+import createEoseUnSubStaff from "@/nostr/staff/createEoseUnSubStaff";
 import createOneEventStaff from "@/nostr/staff/createOneEventStaff";
+import createTimeoutUnSubStaff from "@/nostr/staff/createTimeoutUnSubStaff";
 import createWithEvent from "@/nostr/staff/createWithEvent";
 import getCacheStaff from "@/nostr/staff/storage/getCacheStaff";
 import { userKey } from "@/nostr/user";
-import { useCache } from "@/utils/cache";
+import { defaultCacheOptions, useCache } from "@/utils/cache";
 import { merageSet, syncInterval } from "@/utils/utils";
 import { Event } from "nostr-tools";
 // import { relayQuery } from "../nostr";
@@ -47,7 +49,11 @@ export async function publishEvent(
     .publish(event, relayConfigurator.getWriteList());
 }
 
-export function getEventLineById(eventId: string, opt?: { url?: Set<string> }) {
+const cacheOption = { ...defaultCacheOptions };
+export function getEventLineById(
+  eventId: string,
+  opt?: { urls?: Set<string> }
+) {
   return useCache(
     "getEventLineById" + eventId,
     () => {
@@ -56,7 +62,9 @@ export function getEventLineById(eventId: string, opt?: { url?: Set<string> }) {
       })
         .addFilter({ ids: [eventId], limit: 1 })
         .addStaff(createOneEventStaff())
-        .addStaff(createWithEvent());
+        .addStaff(createWithEvent())
+        .addStaff(createEoseUnSubStaff())
+        .addStaff(createTimeoutUnSubStaff());
 
       line.addStaff(getCacheStaff(eventId));
       if (line.feat.withEvent()) return line;
@@ -67,8 +75,8 @@ export function getEventLineById(eventId: string, opt?: { url?: Set<string> }) {
       const req = () => {
         if (line.feat.withEvent()) return;
 
-        if (opt?.url && opt.url.size > 0) {
-          line.addRelayUrls(opt.url);
+        if (opt?.urls && opt.urls.size > 0) {
+          line.addRelayUrls(opt.urls);
           setTimeout(() => {
             if (line.feat.withEvent()) return;
             line.addReadUrl();

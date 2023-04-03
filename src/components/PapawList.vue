@@ -1,10 +1,11 @@
 <script lang="ts" setup>
 import { Event } from "nostr-tools";
+import MayBeTreePapawVue from "./MayBeTreePapaw.vue";
 import NewMessageVue from "./NewMessage.vue";
-import PapawVue from "./Papaw.vue";
 const props = defineProps<{
   eventList: Event[];
   withPapawOptionsButtons?: boolean;
+  disabledReply?: boolean;
 }>();
 const emits = defineEmits<{
   (e: "eventDeletion", id: string): void;
@@ -13,13 +14,14 @@ const emits = defineEmits<{
 
 <template>
   <NewMessageVue>
-    <PapawVue
-      :withPapawOptionsButtons="withPapawOptionsButtons"
-      v-for="event in eventList"
-      :key="event.id"
-      :event="event"
-      :deleteEvent="(id) => emits('eventDeletion', id)"
-    />
+    <div v-for="event in eventList" :key="event.id">
+      <MayBeTreePapawVue
+        :event="event"
+        :withPapawOptionsButtons="withPapawOptionsButtons"
+        :disabledReply="disabledReply"
+      >
+      </MayBeTreePapawVue>
+    </div>
   </NewMessageVue>
 </template>
 

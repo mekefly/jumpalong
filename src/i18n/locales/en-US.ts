@@ -200,6 +200,9 @@ const defaul = {
   add_relay: "Add Realy",
   successfully_added: "Successfully added",
 
+  not_found: "Not Found",
+  enable_papaw_tree: "Enable Tree Message Bubble",
+
   message: {
     you_have_sent_a_delete_request: `You have sent a delete request`,
     relay_configurator_save_message:
