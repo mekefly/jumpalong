@@ -1,21 +1,25 @@
 import { getIncludeMergeByFilters } from "@/utils/nostr";
 import { timeout } from "@/utils/utils";
+import { Filter } from "nostr-tools";
 import autoAddRelayurlByEventIdStaff from "./autoAddRelayurlByEventIdStaff";
 import autoAddRelayurlByPubkeyStaff from "./autoAddRelayurlByPubkeyStaff";
 import { createStaff } from "./Staff";
 
+type AutoAddRelayUrlByFilterOptions = {
+  include?: Set<"ids" | "#e" | "authors" | "#p">;
+  filters?: Filter[];
+};
 export default function autoAddRelayUrlByFilter(
-  include: Set<"ids" | "#e" | "authors" | "#p"> = new Set([
-    "ids",
-    "#e",
-    "authors",
-    "#p",
-  ])
+  opts?: AutoAddRelayUrlByFilterOptions
 ) {
+  const {
+    filters: filter1 = [],
+    include = new Set(["ids", "#e", "authors", "#p"]),
+  } = opts ?? {};
   let isStop = false;
   return createStaff({
     async initialization() {
-      const filters = this.beltline.getFilters();
+      const filters = [...this.beltline.getFilters(), ...filter1];
 
       const pubkeys: Set<string> = getIncludeMergeByFilters(
         ["authors", "#p"].filter((k: any) => include.has(k)) as any,
