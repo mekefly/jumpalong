@@ -79,7 +79,7 @@ export function getUserMetadataLineByPubkey(
   return useCache(
     `getUserMetadataLineByPubkey:${pubkey}`,
     () => {
-      const line = rootEventBeltline
+      const line = createEventBeltlineReactive()
         .createChild({
           slef: reactive({}),
         })
