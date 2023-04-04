@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { getEventLineById } from "@/api/event";
 import { t } from "@/i18n";
+import { usePushShortTextNote } from "@/views/ShortTextNoteView";
 import { Event } from "nostr-tools";
 import Papaw from "./Papaw.vue";
 import PapawTreeHierarchy from "./PapawTreeHierarchy.vue";
@@ -14,6 +15,7 @@ const eventLine = computed(() =>
   getEventLineById(props.id, { urls: props.relays })
 );
 const event = computed(() => eventLine.value.feat.useEvent());
+const pushToTextNote = usePushShortTextNote();
 </script>
 
 <template>
@@ -23,10 +25,16 @@ const event = computed(() => eventLine.value.feat.useEvent());
     </template>
   </Papaw>
 
-  <PapawTreeHierarchy v-else>
-    <n-empty :description="t('not_found')" size="huge" />
-    <slot name="reply" :event="(event as Event | undefined)" />
-  </PapawTreeHierarchy>
+  <div v-else>
+    <n-empty
+      :description="t('not_found')"
+      size="huge"
+      :click="() => pushToTextNote(id)"
+    />
+    <PapawTreeHierarchy>
+      <slot name="reply" :event="(event as Event | undefined)" />
+    </PapawTreeHierarchy>
+  </div>
 </template>
 
 <style scoped></style>
