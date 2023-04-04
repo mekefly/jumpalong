@@ -34,10 +34,9 @@ const urls = computed(
 
 const metadata = computed(() => {
   if (!pubkey.value) return null;
-  return getUserMetadataLineByPubkey(
-    pubkey.value,
-    urls.value
-  ).feat.useMetadata();
+  return getUserMetadataLineByPubkey(pubkey.value, {
+    urls: urls.value,
+  }).feat.useMetadata();
 });
 
 const isFollow = computed(() => {

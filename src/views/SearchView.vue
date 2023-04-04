@@ -39,10 +39,9 @@ watch(
       //search人
       //远程和本地搜索
       const relays = profilePointer.value.relays;
-      const line = getUserMetadataLineByPubkey(
-        profilePointer.value.pubkey,
-        relays && new Set(relays)
-      );
+      const line = getUserMetadataLineByPubkey(profilePointer.value.pubkey, {
+        urls: relays && new Set(relays),
+      });
       searchRootLine.addChild(line); //交给searchRoot去管理
       groupEvents.value[0] = line;
     } else if (neventOpt.value) {

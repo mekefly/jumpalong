@@ -11,6 +11,7 @@ import RelayReadableButtonVue from "./RelayReadableButton.vue";
 import RelayWritableButtonVue from "./RelayWritableButton.vue";
 const props = defineProps<{
   pubkey: string;
+  active: boolean;
 }>();
 const { pubkey } = toRefs(props);
 

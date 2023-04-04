@@ -2,13 +2,16 @@ import { createEventBeltlineReactive } from "@/nostr/createEventBeltline";
 import { PublishOpt } from "@/nostr/eventBeltline";
 import { relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
 import ReplaceableEventMap from "@/nostr/ReplaceableEventMap";
+import createEoseUnSubStaff from "@/nostr/staff/createEoseUnSubStaff";
 import { getSourceUrls } from "@/nostr/staff/createEventSourceTracers";
+import createTimeoutUnSubStaff from "@/nostr/staff/createTimeoutUnSubStaff";
 import { deserializeTagRToReadWriteList } from "@/nostr/tag";
 import {
   defaultCacheOptions,
   deleteCache,
   getCacheOrNull,
   setCache,
+  useCache,
 } from "@/utils/cache";
 import { setAdds, withDefault } from "@/utils/utils";
 import { Event } from "nostr-tools";
@@ -20,14 +23,24 @@ import {
 } from "./shortTextEventBeltline";
 
 export function getLikeBeltline(urls?: Set<string>) {
-  return createEventBeltlineReactive({})
-    .addFilter({
-      authors: [userKey.value.publicKey],
-      kinds: [7],
-    })
+  return useCache(
+    "getLikeBeltline",
+    () => {
+      return createEventBeltlineReactive({})
+        .addFilter({
+          authors: [userKey.value.publicKey],
+          kinds: [7],
+        })
+        .addStaff(createEoseUnSubStaff())
+        .addStaff(createTimeoutUnSubStaff())
 
-    .addReadUrl()
-    .addRelayUrls(urls);
+        .addReadUrl()
+        .addRelayUrls(urls);
+    },
+    {
+      useLocalStorage: false,
+    }
+  );
 }
 type SendReactionsOption = {
   urls?: Set<string>;

@@ -3,6 +3,7 @@ import { PublishOpt } from "@/nostr/eventBeltline";
 import { relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
 import autoAddRelayurlByPubkeyStaff from "@/nostr/staff/autoAddRelayurlByPubkeyStaff";
 import createEoseUnSubStaff from "@/nostr/staff/createEoseUnSubStaff";
+import createEventSourceTracers from "@/nostr/staff/createEventSourceTracers";
 import createOneEventStaff from "@/nostr/staff/createOneEventStaff";
 import createTimeoutUnSubStaff from "@/nostr/staff/createTimeoutUnSubStaff";
 import createWithEvent from "@/nostr/staff/createWithEvent";
@@ -63,6 +64,7 @@ export function getEventLineById(
         .addFilter({ ids: [eventId], limit: 1 })
         .addStaff(createOneEventStaff())
         .addStaff(createWithEvent())
+        .addStaff(createEventSourceTracers())
         .addStaff(createEoseUnSubStaff())
         .addStaff(createTimeoutUnSubStaff());
 

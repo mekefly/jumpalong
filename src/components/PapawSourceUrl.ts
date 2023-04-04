@@ -1,5 +1,8 @@
+import { getSourceUrls } from "@/nostr/staff/createEventSourceTracers";
+import { deserializeTagR } from "@/nostr/tag";
 import { defaultCacheOptions, getCacheOrNull, setCache } from "@/utils/cache";
-import { randomColorHex } from "@/utils/utils";
+import { randomColorHex, setAdds } from "@/utils/utils";
+import { Event } from "nostr-tools";
 
 const cacheKey = "__color_map";
 const cacheOptions = { ...defaultCacheOptions };
@@ -15,4 +18,14 @@ export function getUrlColor(url: string) {
   colorMap[url] = color1;
   setCache(cacheKey, colorMap, cacheOptions);
   return color1;
+}
+export function getUrlsByEvent(event: Event) {
+  const urls = event.tags
+    .filter((tag) => (tag[0] === "e" || tag[0] === "p") && tag[2])
+    .map((tag) => tag[2]);
+  return setAdds(
+    deserializeTagR(event.tags),
+    getSourceUrls(event.id) ?? [],
+    urls
+  );
 }

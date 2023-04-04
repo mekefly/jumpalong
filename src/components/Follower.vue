@@ -3,7 +3,11 @@ import { NList } from "naive-ui";
 import { getFollowerLineByPubkey } from "../api/Contact";
 import ContactListItemVue from "./FollowItem.vue";
 import { useLoad } from "./Refresh";
-const props = defineProps<{ pubkey: string; active?: boolean }>();
+const props = defineProps<{
+  pubkey: string;
+  active?: boolean;
+  urls?: Set<string>;
+}>();
 const { pubkey, active } = toRefs(props);
 
 const flowerLine = computed(() => getFollowerLineByPubkey(pubkey.value));

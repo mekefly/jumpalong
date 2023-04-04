@@ -1,33 +1,38 @@
 <script lang="ts" setup>
-import ReplaceableEventMap from "@/nostr/ReplaceableEventMap";
-import { parseMetadata } from "@/nostr/staff/createUseChannelMetadata";
+import { Event, nip19 } from "nostr-tools";
 import { getUserMetadataLineByPubkey } from "../api/user";
 import profile from "../assets/profile-2-400x400.png";
 import { useLazyComponent } from "../utils/use";
 import EllipsisVue from "./Ellipsis.vue";
+import { getUrlsByEvent } from "./PapawSourceUrl";
 
-const props = defineProps<{ pubkey: string; created_at: number }>();
+const props = defineProps<{
+  pubkey: string;
+  created_at: number;
+  event?: Event;
+}>();
+// const urls =
 const { pubkey, created_at } = toRefs(props);
 
+const relayUrls = computed(() => props.event && getUrlsByEvent(props.event));
 const [metadata1, target, isShow] = useLazyComponent(() => {
-  return getUserMetadataLineByPubkey(pubkey.value).feat.useMetadata();
+  return getUserMetadataLineByPubkey(pubkey.value, {
+    urls: relayUrls.value,
+  }).feat.useMetadata();
 });
 
 const metadata = computed(() => {
-  if (!isShow.value) return;
-  const event = ReplaceableEventMap.kind0.get(pubkey.value);
-
-  if (event) {
-    return parseMetadata(event);
-  }
-
-  //要注意的是只要不调用.value就不会执行computed的更新函数
   return metadata1.value;
 });
 
 const router = useRouter();
 function routerPush(pubkey: string) {
-  router.push(`/profile/${pubkey}`);
+  router.push(
+    `/profile/${nip19.nprofileEncode({
+      pubkey,
+      relays: [...(relayUrls.value ?? [])],
+    })}`
+  );
 }
 
 const name = computed(() => {

@@ -1,7 +1,7 @@
 import { useCache } from "@/utils/cache";
 import { syncInterval } from "@/utils/utils";
 import { createStaff, StaffThisType } from ".";
-import { config } from "../nostr";
+import { config, rootEventBeltline } from "../nostr";
 import createAutomaticRandomRequestStaff, {
   createAutomaticRandomRequestWithEventAutoClose,
 } from "./automaticRandomRequestStaff";
@@ -24,16 +24,17 @@ export type AddRelayurlByPubkeyStaff = {
  */
 export default function autoAddRelayurlByPubkeyStaff(
   pubkey: string,
-  opt?: {
+  opts?: {
     extends?: boolean;
+    urls?: Set<string>;
   }
 ): AddRelayurlByPubkeyStaff {
   return createStaff({
     initialization() {
       const slefBeltline = this.beltline;
-      useCache(
-        `autoAddRelayurlByPubkey:${slefBeltline.id}:${pubkey}`,
-        async () => {
+      const line = useCache(
+        `autoAddRelayurlByPubkey:${pubkey}`,
+        () => {
           const kind10002line = slefBeltline
             .createChild()
             //10002是用户建议的relay读写列表
@@ -59,26 +60,36 @@ export default function autoAddRelayurlByPubkeyStaff(
             config.syncInterval6
           );
 
-          //更新读写列表
-          kind10002line.feat.onHasReadWriteList((readWrite) => {
-            slefBeltline.addRelayUrls(readWrite.writeUrl);
-          });
+          const req = async () => {
+            if (kind10002line.feat.withEvent()) return;
 
-          if (kind10002line.feat.withEvent()) return;
+            kind10002line.addExtends(rootEventBeltline);
+            if (kind10002line.feat.withEvent()) return;
 
-          kind10002line.addReadUrl();
-          if (await kind10002line.feat.timeoutWithEvent()) return;
+            if (opts?.urls) {
+              kind10002line.addRelayUrls(opts.urls);
+              if (await kind10002line.feat.timeoutWithEvent()) return;
+            }
 
-          //随缘算法
-          kind10002line
-            .addStaff(createAutomaticRandomRequestStaff())
-            //请求到一条消息就关闭
-            .addStaff(createAutomaticRandomRequestWithEventAutoClose());
+            kind10002line.addReadUrl();
+            if (await kind10002line.feat.timeoutWithEvent()) return;
 
-          opt?.extends && this.beltline.addExtends(kind10002line);
+            //随缘算法
+            kind10002line
+              .addStaff(createAutomaticRandomRequestStaff())
+              //请求到一条消息就关闭
+              .addStaff(createAutomaticRandomRequestWithEventAutoClose());
+          };
+          req();
+          return kind10002line;
         },
         { useLocalStorage: false }
       );
+
+      //更新读写列表
+      line.feat.onHasReadWriteList((readWrite) => {
+        slefBeltline.addRelayUrls(readWrite.writeUrl);
+      });
     },
   });
 }

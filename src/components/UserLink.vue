@@ -17,10 +17,9 @@ const profilePointer = computed(() => toDeCodeNprofile(value.value));
 const line = computed(() => {
   if (!profilePointer.value) return;
 
-  return getUserMetadataLineByPubkey(
-    profilePointer.value.pubkey,
-    new Set(profilePointer.value.relays)
-  );
+  return getUserMetadataLineByPubkey(profilePointer.value.pubkey, {
+    urls: new Set(profilePointer.value.relays),
+  });
 });
 const metadata = computed(() => line.value?.feat.useMetadata());
 const name = computed(() => {

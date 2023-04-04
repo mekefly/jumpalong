@@ -136,6 +136,7 @@ defineExpose({
               <UserInfoVue
                 :pubkey="event.pubkey"
                 :created_at="event.created_at"
+                :event="event"
               >
                 <template #bottom>
                   <DateTimeVue :secondTimestamp="event.created_at" />

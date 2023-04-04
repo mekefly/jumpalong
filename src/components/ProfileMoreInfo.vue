@@ -21,7 +21,7 @@ const activePage = ref("homepage");
       />
     </n-tab-pane>
     <n-tab-pane display-directive="show" name="follow" :tab="t('follow')">
-      <Follow :active="activePage === 'follow'" :pubkey="pubkey" />
+      <Follow :active="activePage === 'follow'" :pubkey="pubkey" :urls="urls" />
     </n-tab-pane>
     <n-tab-pane
       display-directive="show:lazy"

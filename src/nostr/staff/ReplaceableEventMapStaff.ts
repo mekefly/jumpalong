@@ -15,7 +15,6 @@ export default createStaffFactory<LatestEventStaffFeat>()(
           map.add(e);
         });
       },
-      push() {},
     };
   }
 );

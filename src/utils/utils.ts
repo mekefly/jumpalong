@@ -294,9 +294,11 @@ export async function ping(url: string, timeout: number = 2000) {
     }, timeout);
   });
 }
-export function setAdds<T>(set: Set<T>, iterable: Iterable<T>) {
-  for (const item of iterable) {
-    set.add(item);
+export function setAdds<T>(set: Set<T>, ...iterables: Iterable<T>[]) {
+  for (const iterable of iterables) {
+    for (const item of iterable) {
+      set.add(item);
+    }
   }
   return set;
 }

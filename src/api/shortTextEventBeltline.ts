@@ -57,7 +57,9 @@ export function createTextEventBeltline(opts: CreateTextEventBeltlineOption) {
 
       if (opts.pubkeys) {
         for (const pubkey of opts.pubkeys) {
-          textEventBeltline.addStaff(autoAddRelayurlByPubkeyStaff(pubkey));
+          textEventBeltline.addStaff(
+            autoAddRelayurlByPubkeyStaff(pubkey, { urls: opts.urls })
+          );
         }
       } else {
         textEventBeltline.addStaff(autoAddRelayUrlByFilter({ filters }));

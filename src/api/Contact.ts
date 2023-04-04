@@ -3,11 +3,14 @@ import { createEvent } from "@/nostr/event";
 import { rootEventBeltline } from "@/nostr/nostr";
 import { createDoNotRepeatStaff } from "@/nostr/staff";
 import autoAddRelayurlByPubkeyStaff from "@/nostr/staff/autoAddRelayurlByPubkeyStaff";
+import createEoseUnSubStaff from "@/nostr/staff/createEoseUnSubStaff";
 import { createLatestEventStaff } from "@/nostr/staff/createLatestEventStaff";
 import createRefreshLoadStaff from "@/nostr/staff/createRefreshLoadStaff";
+import createTimeoutUnSubStaff from "@/nostr/staff/createTimeoutUnSubStaff";
 import createUseChannelMetadata, {
   ChannelMetadata,
 } from "@/nostr/staff/createUseChannelMetadata";
+import createWithEvent from "@/nostr/staff/createWithEvent";
 import {
   deserializeTagE,
   deserializeTagP,
@@ -234,13 +237,18 @@ setTimeout(() => {
 
 export default contactConfiguration;
 
-export function getContactListLineByPubkey(pubkey: string) {
+export function getContactListLineByPubkey(
+  pubkey: string,
+  opts?: { urls?: Set<string> }
+) {
   return useCache(
     `getContactListLineByPubkey:${pubkey}`,
     () => {
       const line = createEventBeltlineReactive()
         .addFilter({ kinds: [3], authors: [pubkey] })
         .addStaff(createLatestEventStaff())
+        .addStaff(createEoseUnSubStaff())
+        .addStaff(createTimeoutUnSubStaff())
         .addStaff({
           feat: {
             getContactList() {
@@ -249,22 +257,15 @@ export function getContactListLineByPubkey(pubkey: string) {
               return deserializeTagP(event.tags);
             },
           },
-        });
+        })
+        .addStaff(createWithEvent());
 
-      useCache(
-        `getContactListLineByPubkey:addReadUrl:${pubkey}`,
-        () => {
-          setTimeout(() => {
-            line.addReadUrl();
-
-            setTimeout(() => {
-              line.addStaff(autoAddRelayurlByPubkeyStaff(pubkey));
-            }, 3000);
-          }, 1_000);
-          return true;
-        },
-        { duration: 100_000 }
-      );
+      const req = async () => {
+        line.addRelayUrls(opts?.urls);
+        line.addStaff(autoAddRelayurlByPubkeyStaff(pubkey));
+        line.addReadUrl();
+      };
+      req();
 
       return line;
     },
@@ -273,7 +274,11 @@ export function getContactListLineByPubkey(pubkey: string) {
     }
   );
 }
-export function getFollowerLineByPubkey(pubkey: string) {
+type GetFollowerLineByPubkeyOptions = { urls: Set<string> };
+export function getFollowerLineByPubkey(
+  pubkey: string,
+  opts?: GetFollowerLineByPubkeyOptions
+) {
   return useCache(
     `getFollowerLineByPubkey:${pubkey}`,
     () => {
@@ -282,7 +287,9 @@ export function getFollowerLineByPubkey(pubkey: string) {
       })
         .addStaff(createRefreshLoadStaff([{ kinds: [3], "#p": [pubkey] }], 100))
         .addStaff(createDoNotRepeatStaff())
-        .addReadUrl();
+        .addStaff(autoAddRelayurlByPubkeyStaff(pubkey))
+        .addReadUrl()
+        .addRelayUrls(opts?.urls);
 
       line.feat.load();
       return line;

@@ -5,12 +5,12 @@ import contactConfiguration, {
   getContactListLineByPubkey,
 } from "../api/Contact";
 import ContactListItemVue from "./FollowItem.vue";
-const props = defineProps<{ pubkey: string }>();
-const { pubkey } = toRefs(props);
+const props = defineProps<{ pubkey: string; urls?: Set<string> }>();
+const { pubkey, urls } = toRefs(props);
 
-const contactListLine = computed(() =>
-  getContactListLineByPubkey(pubkey.value)
-);
+const contactListLine = computed(() => {
+  return getContactListLineByPubkey(pubkey.value, { urls: urls?.value });
+});
 const contactList = computed(() => {
   if (pubkey.value === userKey.value.publicKey) {
     return contactConfiguration.getContactConfiguration();

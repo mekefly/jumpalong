@@ -1,7 +1,6 @@
 import { createEventBeltlineReactive } from "@/nostr/createEventBeltline";
 import { createEvent } from "@/nostr/event";
 import { config, rootEventBeltline } from "@/nostr/nostr";
-import ReplaceableEventMap from "@/nostr/ReplaceableEventMap";
 import { createDoNotRepeatStaff } from "@/nostr/staff";
 import autoAddRelayurlByPubkeyStaff from "@/nostr/staff/autoAddRelayurlByPubkeyStaff";
 import createEoseUnSubStaff from "@/nostr/staff/createEoseUnSubStaff";
@@ -70,7 +69,13 @@ export function getUserRelayUrlConfigByPubkey(pubkey: string) {
   );
 }
 
-export function getUserMetadataLineByPubkey(pubkey: string, url?: Set<string>) {
+export function getUserMetadataLineByPubkey(
+  pubkey: string,
+  opt?: {
+    urls?: Set<string>;
+  }
+) {
+  const { urls } = opt ?? {};
   return useCache(
     `getUserMetadataLineByPubkey:${pubkey}`,
     () => {
@@ -86,17 +91,11 @@ export function getUserMetadataLineByPubkey(pubkey: string, url?: Set<string>) {
         .addStaff(ReplaceableEventMapStaff(0, pubkey)) //可替换事件缓存
         .addStaff(createUseChannelMetadata())
         .addStaff(createEoseUnSubStaff())
-        .addStaff(createTimeoutUnSubStaff());
-
-      const event = ReplaceableEventMap.kind0.get(pubkey);
-
-      if (event) {
-        line.pushEvent(event);
-        return line;
-      }
+        .addStaff(createTimeoutUnSubStaff())
+        .addStaff(createWithEvent());
 
       const req = () => {
-        line.addRelayUrls(url);
+        line.addRelayUrls(urls);
         line.addReadUrl();
 
         line.addStaff(autoAddRelayurlByPubkeyStaff(pubkey));
@@ -104,19 +103,17 @@ export function getUserMetadataLineByPubkey(pubkey: string, url?: Set<string>) {
 
       if (line.feat.isHas()) {
         syncInterval(
-          `getUserMetadataLineByPubkey${pubkey}`,
+          `getUserMetadataLineByPubkey0${pubkey}`,
           req,
-          config.syncInterval7
+          config.syncInterval4
         );
       } else {
         syncInterval(
-          `getUserMetadataLineByPubkey${pubkey}`,
+          `getUserMetadataLineByPubkey1${pubkey}`,
           req,
           config.syncInterval
         );
       }
-
-      syncInterval(`getUserMetadataLineByPubkey${pubkey}`, () => {});
 
       return line;
     },
