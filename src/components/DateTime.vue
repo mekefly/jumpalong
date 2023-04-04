@@ -7,10 +7,16 @@ const nowSecondTimestamp = useNowSecondTimestamp();
 const comeFromBefore = computed(() => {
   return nowSecondTimestamp.value - secondTimestamp.value;
 });
+const dataString = computed(() =>
+  new Date(secondTimestamp.value * 1000).toLocaleDateString()
+);
 </script>
 
 <template>
-  <span v-if="comeFromBefore < 60">
+  <span v-if="comeFromBefore >= 60 * 60 * 24">
+    {{ dataString }}
+  </span>
+  <span v-else-if="comeFromBefore < 60">
     {{ t("x_seconds_ago", { x: comeFromBefore }) }}
   </span>
   <span v-else-if="comeFromBefore < 3600">
@@ -20,11 +26,7 @@ const comeFromBefore = computed(() => {
     {{ t("x_hours_ago", { x: Math.floor(comeFromBefore / 60 / 60) }) }}
   </span>
   <span v-else>
-    {{
-      `${new Date(secondTimestamp * 1000).getFullYear()}-` +
-      `${new Date(secondTimestamp * 1000).getMonth()}-` +
-      `${new Date(secondTimestamp * 1000).getDay()}`
-    }}
+    {{ dataString }}
   </span>
 </template>
 
