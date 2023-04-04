@@ -202,6 +202,7 @@ const message: I18nMessages = {
   not_found: "没有找到帖子",
 
   enable_papaw_tree: "启用树形展示消息",
+  mention: "引用",
 
   message: {
     you_have_sent_a_delete_request: `您已经发送了删除请求`,

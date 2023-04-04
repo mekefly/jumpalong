@@ -202,6 +202,7 @@ const defaul = {
 
   not_found: "Not Found",
   enable_papaw_tree: "Enable Tree Message Bubble",
+  mention: "Mention",
 
   message: {
     you_have_sent_a_delete_request: `You have sent a delete request`,

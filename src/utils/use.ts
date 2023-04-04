@@ -391,16 +391,18 @@ export function useElementIntoScreen(
         if (!containerRef) {
           return;
         }
-        containerRef.addEventListener("scroll", debounceCheckUp);
+        containerRef.addEventListener("scroll", debounceCheckUp, {
+          passive: true,
+        });
         onCleanup(() => {
           containerRef.removeEventListener("scroll", debounceCheckUp);
         });
       });
-      window.addEventListener("resize", debounceCheckUp);
+      window.addEventListener("resize", debounceCheckUp, { passive: true });
     } else {
-      window.addEventListener("mousewheel", debounceCheckUp);
-      window.addEventListener("resize", debounceCheckUp);
-      window.addEventListener("touchend", debounceCheckUp);
+      window.addEventListener("mousewheel", debounceCheckUp, { passive: true });
+      window.addEventListener("resize", debounceCheckUp, { passive: true });
+      window.addEventListener("touchend", debounceCheckUp, { passive: true });
     }
   }
 
@@ -625,12 +627,13 @@ export function autoHidden(
     if (show.value) {
       scrollbarInstRef?.containerRef.value?.addEventListener("scroll", hidden, {
         once: true,
+        passive: true,
       });
-      document.addEventListener("mousedown", hidden, { once: true });
+      document.addEventListener("mousedown", hidden, {
+        once: true,
+        passive: true,
+      });
     }
-  });
-  onUnmounted(() => {
-    scrollbarInstRef?.containerRef.value?.removeEventListener("scroll", hidden);
   });
 }
 export function useCacheStorage<E>(
@@ -657,8 +660,8 @@ export function useCanceleableClick(
   target: Ref<HTMLElement | null | undefined>,
   onClick: () => void
 ) {
-  useEventListener(target, "mousedown", clickStart);
-  useEventListener(target, "touchstart", clickStart);
+  useEventListener(target, "mousedown", clickStart, { passive: true });
+  useEventListener(target, "touchstart", clickStart, { passive: true });
   const isPress = ref(false);
   function clickStart() {
     addCancelListener();
@@ -671,9 +674,18 @@ export function useCanceleableClick(
 
     _target.addEventListener("click", checkClick, { once: true });
 
-    _target.addEventListener("mousemove", cancelClick, { once: true });
-    _target.addEventListener("touchmove", cancelClick, { once: true });
-    _target.addEventListener("touchcancel", cancelClick, { once: true });
+    _target.addEventListener("mousemove", cancelClick, {
+      once: true,
+      passive: true,
+    });
+    _target.addEventListener("touchmove", cancelClick, {
+      once: true,
+      passive: true,
+    });
+    _target.addEventListener("touchcancel", cancelClick, {
+      once: true,
+      passive: true,
+    });
 
     clearTimeout(id);
     id = setTimeout(() => {

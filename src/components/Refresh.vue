@@ -44,11 +44,16 @@ const {
 } = useLimitMovement(maxShifting);
 let lastY: null | number = null;
 const { x, y, arrivedState } = useScroll(containerRef);
-useEventListener(containerRef, "touchstart", (e: TouchEvent) => {
-  homing();
+useEventListener(
+  containerRef,
+  "touchstart",
+  (e: TouchEvent) => {
+    homing();
 
-  transition.value = false;
-});
+    transition.value = false;
+  },
+  { passive: true }
+);
 
 const reset = debounce(() => {
   trigger();
@@ -56,30 +61,45 @@ const reset = debounce(() => {
   homing();
   transition.value = true;
 }, 500);
-useEventListener(containerRef, "mousewheel", (e: any) => {
-  if (!(arrivedState.bottom || arrivedState.top)) return;
+useEventListener(
+  containerRef,
+  "mousewheel",
+  (e: any) => {
+    if (!(arrivedState.bottom || arrivedState.top)) return;
 
-  reset();
-  add(-e.wheelDeltaY / 3);
-  transition.value = true;
-});
-useEventListener(containerRef, "touchmove", (e: TouchEvent) => {
-  if (!(arrivedState.bottom || arrivedState.top)) return;
-  const clientY = e.touches[0].clientY;
-  if (!clientY) return;
-  if (lastY) {
-    add(lastY - clientY);
-  }
-  lastY = clientY;
-});
-useEventListener(containerRef, "touchend", (e: TouchEvent) => {
-  //如果不是顶部和底部的话，就忽略
-  if (!(arrivedState.bottom || arrivedState.top)) return;
-  trigger();
+    reset();
+    add(-e.wheelDeltaY / 3);
+    transition.value = true;
+  },
+  { passive: true }
+);
+useEventListener(
+  containerRef,
+  "touchmove",
+  (e: TouchEvent) => {
+    if (!(arrivedState.bottom || arrivedState.top)) return;
+    const clientY = e.touches[0].clientY;
+    if (!clientY) return;
+    if (lastY) {
+      add(lastY - clientY);
+    }
+    lastY = clientY;
+  },
+  { passive: true }
+);
+useEventListener(
+  containerRef,
+  "touchend",
+  (e: TouchEvent) => {
+    //如果不是顶部和底部的话，就忽略
+    if (!(arrivedState.bottom || arrivedState.top)) return;
+    trigger();
 
-  homing();
-  transition.value = true;
-});
+    homing();
+    transition.value = true;
+  },
+  { passive: true }
+);
 //自动复原
 watchEffect(() => {
   if (arrivedState.bottom || arrivedState.top) return;
