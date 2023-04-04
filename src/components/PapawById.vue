@@ -9,10 +9,11 @@ import PapawTreeHierarchy from "./PapawTreeHierarchy.vue";
 const props = defineProps<{
   id: string;
   relays?: Set<string>;
+  pubkey?: string;
   disabledReply?: boolean;
 }>();
 const eventLine = computed(() =>
-  getEventLineById(props.id, { urls: props.relays })
+  getEventLineById(props.id, { urls: props.relays, pubkey: props.pubkey })
 );
 const event = computed(() => eventLine.value.feat.useEvent());
 const pushToTextNote = usePushShortTextNote();

@@ -1,6 +1,7 @@
 import { createEvent } from "@/nostr/event";
 import { PublishOpt } from "@/nostr/eventBeltline";
 import { relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
+import autoAddRelayurlByPubkeyStaff from "@/nostr/staff/autoAddRelayurlByPubkeyStaff";
 import createEoseUnSubStaff from "@/nostr/staff/createEoseUnSubStaff";
 import createOneEventStaff from "@/nostr/staff/createOneEventStaff";
 import createTimeoutUnSubStaff from "@/nostr/staff/createTimeoutUnSubStaff";
@@ -51,7 +52,7 @@ export async function publishEvent(
 
 export function getEventLineById(
   eventId: string,
-  opt?: { urls?: Set<string> }
+  opt?: { urls?: Set<string>; pubkey?: string }
 ) {
   return useCache(
     "getEventLineById" + eventId,
@@ -71,23 +72,28 @@ export function getEventLineById(
       line.addExtends(rootEventBeltline);
       if (line.feat.withEvent()) return line;
 
-      const req = () => {
-        if (line.feat.withEvent()) return;
-
+      const req = async () => {
         if (opt?.urls && opt.urls.size > 0) {
           line.addRelayUrls(opt.urls);
-          setTimeout(() => {
-            if (line.feat.withEvent()) return;
-            line.addReadUrl();
-          }, 2000);
-        } else {
-          line.addReadUrl();
+          if (await line.feat.timeoutWithEvent()) return;
         }
+
+        if (opt?.pubkey) {
+          line.addStaff(autoAddRelayurlByPubkeyStaff(opt.pubkey));
+          if (await line.feat.timeoutWithEvent()) return;
+        }
+
+        line.addReadUrl();
+        if (await line.feat.timeoutWithEvent()) return;
       };
 
-      syncInterval(`getEventLineById:${eventId}`, () => {
-        req();
-      });
+      syncInterval(
+        `getEventLineById:${eventId}`,
+        () => {
+          req();
+        },
+        20 * 1000
+      );
 
       return line;
     },

@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { deserializeTagR } from "@/nostr/tag";
 import { Event } from "nostr-tools";
 import PapawById from "./PapawById.vue";
 
@@ -13,11 +14,13 @@ const replyIds = computed(() =>
     )
     .map((tag) => tag[1])
 );
+const relayUrls = computed(() => deserializeTagR(event.value.tags));
 </script>
 
 <template>
   <n-divider dashed v-if="replyIds.length > 0" />
-  <PapawById v-for="id in replyIds" :id="id" disabledReply> </PapawById>
+  <PapawById v-for="id in replyIds" :id="id" :relays="relayUrls" disabledReply>
+  </PapawById>
 </template>
 
 <style scoped></style>

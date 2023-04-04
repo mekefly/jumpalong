@@ -1,3 +1,4 @@
+import { timeout } from "@/utils/utils";
 import { createStaffFactory } from "./Staff";
 
 export default createStaffFactory()(() => {
@@ -5,6 +6,10 @@ export default createStaffFactory()(() => {
     feat: {
       withEvent() {
         return this.beltline.getList().length > 0;
+      },
+      async timeoutWithEvent(overtime: number = 2000) {
+        await timeout(2000);
+        return (this.beltline.feat as any).withEvent();
       },
     },
   };

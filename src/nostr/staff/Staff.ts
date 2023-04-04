@@ -21,6 +21,11 @@ export function createStaffFactory<Feat extends object>(): <
 function _createStaffFactory(v: any) {
   return v;
 }
+export type CreateLineTypeByStaffFaction<
+  E extends (...rest: any[]) => Staff<any>
+> = ReturnType<E>["feat"] extends {}
+  ? EventBeltline<ReturnType<E>["feat"]>
+  : EventBeltline<{}>;
 
 export type Staff<FEAT extends object = {}> = {
   beforePush?: (event: Event, eventList: Event[]) => void;
