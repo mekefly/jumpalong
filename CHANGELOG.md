@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.5](https://github.com/mekefly/jumpalong/compare/v0.4.4...v0.4.5) (2023-04-04)
+
+
+### Features
+
+* PapawTree.vue ([2045c92](https://github.com/mekefly/jumpalong/commit/2045c92adebf7f8c4ce0e70b10f3dd356fbc4091))
+* useCanceleableClick ([2f6ecdd](https://github.com/mekefly/jumpalong/commit/2f6ecdd96266e80d0d961475aa50dade8dfbb5ca))
+
+
+### Bug Fixes
+
+* Add more forms of search for relayurls and the ability to obtain information, fix several bugs ([47f925d](https://github.com/mekefly/jumpalong/commit/47f925da453a179b362011513b7e93fa91e2334e))
+* body background ([48746db](https://github.com/mekefly/jumpalong/commit/48746db95951f485c4b77f28881373cde83ccf09))
+* Date error ([e18251c](https://github.com/mekefly/jumpalong/commit/e18251c34d8f353393d43d119999ed2097f3dffb))
+* Fix relay addition issue in Papaw ([d806feb](https://github.com/mekefly/jumpalong/commit/d806feb681569b1ebf10db02ad95c0ba4fb2ad23))
+* Optimize adding URL logic ([0037d44](https://github.com/mekefly/jumpalong/commit/0037d445fc8267a01a572573e522571a9ab2bef9))
+* provide bugs ([ebde5b3](https://github.com/mekefly/jumpalong/commit/ebde5b3ffe9d6db5856caf0e40a45b611acb2721))
+* Recursive bug ([be7e419](https://github.com/mekefly/jumpalong/commit/be7e4196107a8771791f87a210ee3de854c47b7f))
+* RelayContent.vue Add more relay incoming ([d6e6b27](https://github.com/mekefly/jumpalong/commit/d6e6b27a3db9769523e464da924f5dc3411d9bcb))
+* Searching for events can pass in more clues ([adfb7f9](https://github.com/mekefly/jumpalong/commit/adfb7f9b5b73f6cec0fa919b2dc84574e7d18167))
+* The avatar is not displayed ([ea3cd29](https://github.com/mekefly/jumpalong/commit/ea3cd2972c3aa1b09252c779b7009e5067af7d89))
+* warn ([f9f7a97](https://github.com/mekefly/jumpalong/commit/f9f7a97fb516f447eef524f4ef53fbfbdb8f3fbe))
+
 ### [0.4.4](https://github.com/mekefly/jumpalong/compare/v0.4.3...v0.4.4) (2023-04-02)
 
 
