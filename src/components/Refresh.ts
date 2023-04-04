@@ -9,12 +9,22 @@ import { autoSetLoadBuffer } from "./LoadProgress";
 export const [provideRefreshState, useRefreshState] = createInjection(() => {
   const eventEmiter = new EventEmitter();
   type Type = "refresh" | "load";
+  const listenerList: any[] = [];
+  onUnmounted(() => {
+    eventEmiter.removeAllListeners();
+  });
   return {
     on(type: Type, listener: () => void) {
+      listenerList.push(listener);
       eventEmiter.on(type, listener);
+
+      return () => this.removeListener(type, listener);
     },
     emit(type: Type) {
       eventEmiter.emit(type);
+    },
+    removeListener(type: Type, listener: () => void) {
+      eventEmiter.removeListener(type, listener);
     },
   };
 });

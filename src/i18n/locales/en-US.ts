@@ -203,6 +203,10 @@ const defaul = {
   not_found: "Not Found",
   enable_papaw_tree: "Enable Tree Message Bubble",
   mention: "Mention",
+  load_parent_success: "Load parent papaw success!",
+  load_parent: "Load parent papaw",
+  non_existent: "Non existent",
+  enable_papaw_tree_lazy_mode: "Enable papaw tree lazy mode",
 
   message: {
     you_have_sent_a_delete_request: `You have sent a delete request`,

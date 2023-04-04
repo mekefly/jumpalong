@@ -61,12 +61,18 @@ const scrollToThis = async () => {
 jumpList?.value.push(scrollToThis);
 
 const focuState = usePapawFocusState();
-watchEffect(() => {
+const focus = computed(() => {
   const focusEvent = focuState?.focusEvent.value;
   if (!focusEvent) {
-    return;
+    return false;
   }
   if (focusEvent.id === event.value.id) {
+    return true;
+  }
+  return false;
+});
+watchEffect(() => {
+  if (focus.value) {
     scrollToThis();
   }
 });

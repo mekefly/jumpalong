@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { getEventLineById } from "@/api/event";
 import { t } from "@/i18n";
+import { Event } from "nostr-tools";
 import Papaw from "./Papaw.vue";
 import PapawTreeHierarchy from "./PapawTreeHierarchy.vue";
 
@@ -18,13 +19,13 @@ const event = computed(() => eventLine.value.feat.useEvent());
 <template>
   <Papaw v-if="event" :event="event" disabledReply>
     <template v-if="$slots.reply" #reply>
-      <slot name="reply"></slot>
+      <slot name="reply" :event="event"></slot>
     </template>
   </Papaw>
 
   <PapawTreeHierarchy v-else>
-    <n-empty :description="t('not_found')" size="huge"> </n-empty>
-    <slot name="reply"></slot>
+    <n-empty :description="t('not_found')" size="huge" />
+    <slot name="reply" :event="(event as Event | undefined)" />
   </PapawTreeHierarchy>
 </template>
 

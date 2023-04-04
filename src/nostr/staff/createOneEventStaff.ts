@@ -18,18 +18,18 @@ export type OneEventStaffFeat = {
   ): void;
 };
 
-export default function createOneEventStaff(): OneEventStaff {
+export default function createOneEventStaff() {
   let num = 0;
   return createStaff({
-    initialization() {},
-    push(e, list) {
-      if (num === 0) {
-        this.beltline.closeReq();
-        this.beltline.offLine();
-        num++;
-        list[0] = e;
-      }
-      return StaffState.BREAK;
+    initialization() {
+      this.beltline.feat.pushEvent = (event, eventList) => {
+        if (num === 0) {
+          this.beltline.closeReq();
+          this.beltline.offLine();
+          num++;
+          eventList[0] = event;
+        }
+      };
     },
     feat: {
       // vue reactive 模式时，可以直接在前端这样请求

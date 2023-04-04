@@ -7,7 +7,7 @@ import createTimeoutUnSubStaff from "@/nostr/staff/createTimeoutUnSubStaff";
 import createWithEvent from "@/nostr/staff/createWithEvent";
 import getCacheStaff from "@/nostr/staff/storage/getCacheStaff";
 import { userKey } from "@/nostr/user";
-import { defaultCacheOptions, useCache } from "@/utils/cache";
+import { useCache } from "@/utils/cache";
 import { merageSet, syncInterval } from "@/utils/utils";
 import { Event } from "nostr-tools";
 // import { relayQuery } from "../nostr";
@@ -49,7 +49,6 @@ export async function publishEvent(
     .publish(event, relayConfigurator.getWriteList());
 }
 
-const cacheOption = { ...defaultCacheOptions };
 export function getEventLineById(
   eventId: string,
   opt?: { urls?: Set<string> }

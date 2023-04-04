@@ -204,6 +204,11 @@ const message: I18nMessages = {
   enable_papaw_tree: "启用树形展示消息",
   mention: "引用",
 
+  load_parent_success: "加载被回复者成功",
+  load_parent: "加载被回复者",
+  non_existent: "此事件没有回复任何事件",
+  enable_papaw_tree_lazy_mode: "开启事件树的懒加载模式",
+
   message: {
     you_have_sent_a_delete_request: `您已经发送了删除请求`,
     relay_configurator_save_message:

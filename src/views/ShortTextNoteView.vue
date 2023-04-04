@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { providePapawFocus } from "@/components/Papaw";
 import Papaw from "@/components/Papaw.vue";
-import PapawTreeAutoFindParent from "@/components/PapawTreeAutoFindRoot.vue";
+import PapawTreeAutoFindRoot from "@/components/PapawTreeAutoFindRoot.vue";
 import PostList from "@/components/PostList.vue";
 import { useRichTextEditBoxOpt } from "@/components/RichTextEditBox";
 import RichTextEditBoxVue from "@/components/RichTextEditBox.vue";
@@ -49,10 +49,7 @@ providePapawFocus(event);
 <template>
   <div v-if="event" class="flex flex-col w-full h-full overflow-auto">
     <ScrollbarVue class="w-full h-0 flex-shrink flex-1" loadable refreshable>
-      <PapawTreeAutoFindParent
-        v-if="config.enablePapawTree"
-        :event="event"
-      ></PapawTreeAutoFindParent>
+      <PapawTreeAutoFindRoot v-if="config.enablePapawTree" :event="event" />
       <Papaw v-else :event="event">
         <template #reply>
           <PostList

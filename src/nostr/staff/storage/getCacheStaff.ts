@@ -18,9 +18,11 @@ export default createStaffFactory()((eventId: string, opt?: CacheOptions) => {
           this.beltline.pushEvent(event);
         }
       } catch (error) {}
-    },
-    push(e) {
-      setCache(e.id, e, _cacheOptions);
+      this.beltline.addStaff({
+        push(e) {
+          setCache(e.id, e, _cacheOptions);
+        },
+      });
     },
   };
 });
