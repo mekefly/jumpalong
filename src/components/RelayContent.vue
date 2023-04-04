@@ -1,5 +1,7 @@
 <script lang="ts" setup>
+import { getSourceUrls } from "@/nostr/staff/createEventSourceTracers";
 import { deserializeTagR } from "@/nostr/tag";
+import { setAdds } from "@/utils/utils";
 import { Event } from "nostr-tools";
 import PapawById from "./PapawById.vue";
 
@@ -14,7 +16,12 @@ const replyIds = computed(() =>
     )
     .map((tag) => tag[1])
 );
-const relayUrls = computed(() => deserializeTagR(event.value.tags));
+const relayUrls = computed(() =>
+  setAdds(
+    deserializeTagR(event.value.tags),
+    getSourceUrls(event.value.id) ?? []
+  )
+);
 </script>
 
 <template>
