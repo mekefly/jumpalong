@@ -55,11 +55,15 @@ export function createTextEventBeltline(opts: CreateTextEventBeltlineOption) {
       opts.urls ||
         textEventBeltline.addStaff(autoAddRelayUrlByFilter({ filters }));
 
-      for (const pubkey of opts.pubkeys ?? []) {
-        textEventBeltline.addStaff(autoAddRelayurlByPubkeyStaff(pubkey));
+      if (opts.pubkeys) {
+        for (const pubkey of opts.pubkeys) {
+          textEventBeltline.addStaff(autoAddRelayurlByPubkeyStaff(pubkey));
+        }
+      } else {
+        textEventBeltline.addStaff(autoAddRelayUrlByFilter({ filters }));
       }
-      textEventBeltline.feat.firstLoad();
 
+      textEventBeltline.feat.firstLoad();
       return textEventBeltline;
     },
     {

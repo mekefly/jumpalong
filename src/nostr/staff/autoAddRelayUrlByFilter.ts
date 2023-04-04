@@ -27,7 +27,7 @@ export default function autoAddRelayUrlByFilter(
       );
 
       for (const pubkey of pubkeys) {
-        await timeout(3000);
+        await timeout(1000);
         if (isStop) {
           return;
         }
@@ -40,7 +40,7 @@ export default function autoAddRelayUrlByFilter(
       );
 
       for (const eventId of eventIds) {
-        await timeout(3000);
+        await timeout(1000);
         if (isStop) {
           return;
         }

@@ -48,12 +48,18 @@ const mergeFilters = computed(() => {
   return _filters;
 });
 
+const allPubkeys = computed(() => [
+  ...(pubkey?.value ?? []),
+  ...mergeFilters.value.map((filter) => filter.authors ?? []).flat(1),
+]);
+
 const textEventbeltline = computed(() => {
   const opt: any = {};
   const line = createTextEventBeltline({
     filters: mergeFilters.value,
     ...opt,
     addUrls: urls?.value,
+    pubkeys: allPubkeys.value,
     limit: props.limit,
   });
 
