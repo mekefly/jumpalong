@@ -2,6 +2,7 @@
 import { t } from "@/i18n";
 import SyncAltVue from "./icon/SyncAlt.vue";
 import { useSyncState } from "./SyncButton";
+import Tooltip from "./Tooltip.vue";
 
 const props = defineProps<{
   url: string;
@@ -13,7 +14,7 @@ const { handelSync, status, isLoading, color } = useSyncState(
 </script>
 
 <template>
-  <TooltipVue :tooltip="t('sync_tooltip')">
+  <Tooltip :tooltip="t('sync_tooltip')">
     <n-button
       text
       @click="handelSync"
@@ -25,7 +26,7 @@ const { handelSync, status, isLoading, color } = useSyncState(
         <SyncAltVue />
       </n-icon>
     </n-button>
-  </TooltipVue>
+  </Tooltip>
 </template>
 
 <style scoped>

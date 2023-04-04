@@ -60,9 +60,9 @@ const scrollToThis = async () => {
 };
 jumpList?.value.push(scrollToThis);
 
-const focuState = computed(() => usePapawFocusState());
+const focuState = usePapawFocusState();
 watchEffect(() => {
-  const focusEvent = focuState.value?.focusEvent;
+  const focusEvent = focuState?.focusEvent.value;
   if (!focusEvent) {
     return;
   }
@@ -121,9 +121,9 @@ defineExpose({
               },
             },
           ]"
-          @mousedown.stop
-          @touchstart.stop
-          @click.stop
+          @mousedown.stop.passive=""
+          @touchstart.stop.passive=""
+          @click.stop.passive=""
         >
           <div :id="id" class="relative overflow-hidden rounded-xl">
             <div class="mx-3 my-3">

@@ -43,11 +43,7 @@ const handleSendEvent = useHandleSendMessage(1, undefined, pushEvent, {
 function handleSend(e: EventTemplate) {
   handleSendEvent(e);
 }
-watchEffect(() => {
-  if (event.value) {
-    providePapawFocus(event.value);
-  }
-});
+providePapawFocus(event);
 </script>
 
 <template>
