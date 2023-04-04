@@ -7,10 +7,6 @@ import LoadProgressProvideVue from "./components/LoadProgressProvide.vue";
 import UploadProvideVue from "./components/UploadProvide.vue";
 
 const themeVars = useThemeVars();
-
-watchEffect(() => {
-  document.body.style.background = themeVars.value.bodyColor;
-});
 </script>
 
 <template>
@@ -18,7 +14,7 @@ watchEffect(() => {
     <div
       class="body"
       :style="{
-        backgroundColor: themeVars.bodyColor,
+        backgroundColor: theme?.common.bodyColor,
       }"
     >
       <div class="container">
