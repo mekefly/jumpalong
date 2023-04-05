@@ -12,11 +12,12 @@
     "release:patch": "npm run release -- --release-as patch",
     "release:minor": "npm run release -- --release-as minor",
     "release:major": "npm run release -- --release-as major",
-    "release:patch:alpha": "npm run release -- --release-as patch --prerelease alpha",
-    "release:minor:alpha": "npm run release -- --release-as minor --prerelease alpha",
-    "release:major:alpha": "npm run release -- --release-as major --prerelease alpha",
-    "deploy-test": "run .\\scripts\\deploy-test.ps1",
-    "script": "node scripts"
+    "release:patch:test": "npm run release -- --release-as patch --prerelease test && pnpm deploy-test",
+    "release:minor:test": "npm run release -- --release-as minor --prerelease test && pnpm deploy-test",
+    "release:major:test": "npm run release -- --release-as major --prerelease test && pnpm deploy-test",
+    "script": "node scripts",
+    "deploy": "pnpm script deploy $",
+    "deploy-test": "pnpm script deploy $ --test"
   },
   "dependencies": {
     "@noble/secp256k1": "^1.7.1",
