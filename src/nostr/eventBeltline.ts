@@ -210,6 +210,11 @@ export class EventBeltline<
     this.filters.push(...filters);
     //请求所有urls和增加的过滤器
     this.reqs(this.urls, filters);
+    this.eventEmitter.emit("add-filters", filters);
+    return this;
+  }
+  public onAddFilters(l: (filters: Filter[]) => void) {
+    this.eventEmitter.on("add-filters", l);
     return this;
   }
   public removeStaff(staff: Staff) {
@@ -420,10 +425,26 @@ export class EventBeltline<
     //设置监听
     opt?.onOK && this.relayEmiter.on("ok", event.id, opt.onOK);
 
+    const publishedUrls = new Set<string>();
     // pushEvent
     for (const url of opt?.autoPublishToTagR ?? true ? publishToUrls : urls) {
       this.toPublish(url, event);
+      publishedUrls.add(url);
     }
+    for (const url of this.getRelayUrls()) {
+      if (publishedUrls.has(url)) {
+        continue;
+      }
+      this.toPublish(url, event);
+    }
+    this.onAddRelayUrlsAfter((urls) => {
+      for (const url of urls) {
+        if (publishedUrls.has(url)) {
+          continue;
+        }
+        this.toPublish(url, event);
+      }
+    });
     return event;
   }
 

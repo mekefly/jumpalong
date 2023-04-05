@@ -3,6 +3,8 @@ import { t } from "@/i18n";
 import { EventBeltline } from "@/nostr/eventBeltline";
 import { relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
 import { type RelayEmiterResponseEventMap } from "@/nostr/RelayEmiter";
+import autoAddRelayurlByEventIdStaff from "@/nostr/staff/autoAddRelayurlByEventIdStaff";
+import autoAddRelayurlByPubkeyStaff from "@/nostr/staff/autoAddRelayurlByPubkeyStaff";
 import type { MaybeRef } from "@vueuse/core";
 import type { Event, EventTemplate } from "nostr-tools";
 import {
@@ -430,7 +432,9 @@ export function useHandleSendMessage(
   return function handleSendEvent(event: EventTemplate) {
     event.kind = kind;
     const l = unref(line) ?? rootEventBeltline;
-    const newEvent = l.publish(
+    const publishLine = l.createChild();
+
+    const newEvent = publishLine.publish(
       event,
       setAdds(unref(urls), relayConfigurator.getWriteList()),
       {
@@ -438,6 +442,16 @@ export function useHandleSendMessage(
         onOK,
       }
     );
+    l.addExtends(publishLine);
+
+    newEvent?.tags.forEach((tag) => {
+      if (tag[0] === "p" && tag[1]) {
+        publishLine.addStaff(autoAddRelayurlByPubkeyStaff(tag[1]));
+      } else if (tag[0] === "e" && tag[1]) {
+        publishLine.addStaff(autoAddRelayurlByEventIdStaff(tag[1]));
+      }
+    });
+
     newEvent && pushEvent?.value?.(newEvent);
   };
 }
