@@ -617,11 +617,7 @@ export function createInjection<
   ] as const;
 }
 
-export function autoHidden(
-  target: globalThis.Ref<null>,
-  isLongPress: Ref<boolean | undefined | null>,
-  show: globalThis.Ref<boolean | undefined>
-) {
+export function autoHidden(show: globalThis.Ref<boolean | undefined>) {
   const scrollbarInstRef = useInjectScrollbarInstRef();
   function hidden() {
     show.value = false;

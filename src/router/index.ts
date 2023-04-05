@@ -107,6 +107,11 @@ const router = createRouter({
           component: () => import("../views/ToBackView.vue"),
           children: [
             {
+              path: "/notice",
+              name: "notice",
+              component: () => import("../views/NoticeView.vue"),
+            },
+            {
               path: "/search/:value?",
               name: "search",
               component: () => import("../views/SearchView.vue"),

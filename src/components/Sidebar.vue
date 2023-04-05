@@ -5,6 +5,7 @@ import { NIcon, NMenu, type MenuOption } from "naive-ui";
 import { h } from "vue";
 import { RouterLink } from "vue-router";
 import { renderIcon } from "../utils/naiveUi";
+import Alert16Filled from "./icon/Alert16Filled.vue";
 import AlertOutlineVue from "./icon/AlertOutline.vue";
 import BookmarkOutlineVue from "./icon/BookmarkOutline.vue";
 import CaretDownOutlineVue from "./icon/CaretDownOutline.vue";
@@ -45,6 +46,12 @@ const menuOptions = computed(
         label: t("channel"),
         href: "/channels",
         icon: renderIcon(UsersVue),
+      },
+      {
+        key: "Notice",
+        label: t("notice"),
+        href: "/notice",
+        icon: renderIcon(Alert16Filled),
       },
       {
         key: "Task",

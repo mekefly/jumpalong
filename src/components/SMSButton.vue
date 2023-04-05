@@ -23,12 +23,11 @@ const props = withDefaults(
     event: Event;
     deleteEvent: (id: string) => void;
     show?: boolean;
-    isLongPress?: boolean;
   }>(),
-  { isLongPress: false }
+  {}
 );
 
-const { event, deleteEvent, isLongPress } = toRefs(props);
+const { event, deleteEvent } = toRefs(props);
 
 const value = ref("");
 
@@ -141,7 +140,7 @@ const options = ref<SelectMixedOption[]>([
   },
 ]);
 const target = ref(null);
-autoHidden(target, isLongPress, show);
+autoHidden(show);
 </script>
 
 <template>

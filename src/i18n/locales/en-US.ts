@@ -208,6 +208,9 @@ const defaul = {
   non_existent: "Non existent",
   enable_papaw_tree_lazy_mode: "Enable papaw tree lazy mode",
 
+  notice: "Notice",
+  the_user_has_followed_you: "The user has followed you",
+
   message: {
     you_have_sent_a_delete_request: `You have sent a delete request`,
     relay_configurator_save_message:

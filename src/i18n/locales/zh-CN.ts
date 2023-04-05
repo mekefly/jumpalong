@@ -209,6 +209,10 @@ const message: I18nMessages = {
   non_existent: "此事件没有回复任何事件",
   enable_papaw_tree_lazy_mode: "开启事件树的懒加载模式",
 
+  notice: "通知",
+
+  the_user_has_followed_you: "我关注了你",
+
   message: {
     you_have_sent_a_delete_request: `您已经发送了删除请求`,
     relay_configurator_save_message:
