@@ -91,7 +91,8 @@ export function createId() {
  */
 export function debounce<F extends (...rest: any) => any>(
   f: F,
-  delay: number = 1000
+  delay: number = 1000,
+  maxDelay: number = delay * 4
 ): F & {
   clear?: () => void;
 } {
@@ -99,9 +100,18 @@ export function debounce<F extends (...rest: any) => any>(
     return f;
   }
   let t: NodeJS.Timeout | undefined;
+  let maxId: any;
   const ff = (...rest: any) => {
     clearTimeout(t);
-    t = setTimeout(() => f(...rest), delay);
+    t = setTimeout(() => {
+      clearTimeout(maxId);
+      f(...rest);
+    }, delay);
+
+    maxId = setTimeout(() => {
+      clearTimeout(t);
+      f(...rest);
+    }, maxDelay);
   };
   ff.clear = () => {
     clearTimeout(t);
