@@ -39,4 +39,22 @@ logger.for("app.vue").info("进入app.vue");
   </n-config-provider>
 </template>
 
-<style scoped></style>
+<style scoped>
+.body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  height: 100vh;
+  width: 100vw;
+}
+.container {
+  width: 1280px;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0rem;
+  overflow: hidden;
+  position: relative;
+}
+</style>

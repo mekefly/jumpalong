@@ -137,8 +137,8 @@ const router = createRouter({
     },
 
     {
-      path: "/to-back",
-      name: "to-back",
+      path: "/to-back-1",
+      name: "to-back-1",
       component: () => import("../views/ToBackView.vue"),
       children: [
         {
