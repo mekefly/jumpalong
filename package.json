@@ -1,6 +1,6 @@
 {
   "name": "jumpalong",
-  "version": "0.4.5",
+  "version": "0.4.6-alpha.0",
   "scripts": {
     "dev": "vite",
     "build": "run-p type-check build-only",
@@ -9,8 +9,12 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
     "release": "pnpm standard-version",
+    "release:patch": "npm run release -- --release-as patch",
     "release:minor": "npm run release -- --release-as minor",
-    "release:major": "npm run release -- --release-as major"
+    "release:major": "npm run release -- --release-as major",
+    "release:patch:alpha": "npm run release -- --release-as patch --prerelease alpha",
+    "release:minor:alpha": "npm run release -- --release-as minor --prerelease alpha",
+    "release:major:alpha": "npm run release -- --release-as major --prerelease alpha"
   },
   "dependencies": {
     "@noble/secp256k1": "^1.7.1",

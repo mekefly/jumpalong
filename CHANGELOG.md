@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.6-alpha.0](https://github.com/mekefly/jumpalong/compare/v0.4.5...v0.4.6-alpha.0) (2023-04-05)
+
+
+### ✨ Features | 新功能
+
+* Add timeout running for debounce function ([1b806e5](https://github.com/mekefly/jumpalong/commit/1b806e575272bd5b932ec6e7d8a6733770d265c8))
+* Display of webpage loading progress ([82df98b](https://github.com/mekefly/jumpalong/commit/82df98b32cfd35e996d087d561a30e6b0075e84e))
+* More intelligent release of messages ([64e7ea9](https://github.com/mekefly/jumpalong/commit/64e7ea904c798d9116d3d78910c131063381ad99))
+* NoticeView.vue ([463b250](https://github.com/mekefly/jumpalong/commit/463b250b591fac621cf8ad07df78e8016a30e56d))
+* RelayContent Add lazy loading ([def67fa](https://github.com/mekefly/jumpalong/commit/def67fa1f436913eff2288eca6a8b7bd243e3b75))
+* Rich text editing box can be displayed or hidden in full screen ([e3feb75](https://github.com/mekefly/jumpalong/commit/e3feb752dfdf075bb40833422dbbb089addedc99))
+* Universal Message Queuing ([86eb792](https://github.com/mekefly/jumpalong/commit/86eb792f18a6eb8c9b3f24c65b71d8ddd14c52d8))
+* You can now obtain the user's relay from Kind2 ([eb55c40](https://github.com/mekefly/jumpalong/commit/eb55c4050fefcbe8eabb951472e9fe150054b446))
+
+
+### 🐛 Bug Fixes | Bug 修复
+
+* ContentDownloadBlockVue ([4f0b71b](https://github.com/mekefly/jumpalong/commit/4f0b71b06d5286354a6cad1740ad3f7a6a2034e5))
+* Is there a logical error in lazy loading when entering the screen ([cb7508e](https://github.com/mekefly/jumpalong/commit/cb7508e73c38dd0d07a6321899539276e217dcfa))
+* login The issue of password deletion ([3f739f1](https://github.com/mekefly/jumpalong/commit/3f739f1447afba0669ed439dd7d0e0906d006739))
+* Route relay information to a reasonable location ([9e1906a](https://github.com/mekefly/jumpalong/commit/9e1906aace7fb1aeccd4705de90ce0d25d747151))
+* Show more username fields At @ ([f3c7798](https://github.com/mekefly/jumpalong/commit/f3c7798427c5b7acf8be4e35c79de268f8801afd))
+* view error ([3ad4521](https://github.com/mekefly/jumpalong/commit/3ad4521252897db3bfbc19fe4655eb5a926b5ffa))
+
 ### [0.4.5](https://github.com/mekefly/jumpalong/compare/v0.4.4...v0.4.5) (2023-04-04)
 
 
