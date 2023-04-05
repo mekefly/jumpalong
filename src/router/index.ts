@@ -97,11 +97,6 @@ const router = createRouter({
           component: () => import("../views/ContentBlacklistView.vue"),
         },
         {
-          path: "/relay/info/:url",
-          name: "relay-info",
-          component: () => import("../views/RelayInfoView.vue"),
-        },
-        {
           path: "/to-back",
           name: "to-back",
           component: () => import("../views/ToBackView.vue"),
@@ -137,6 +132,19 @@ const router = createRouter({
               component: () => import("../views/MoveHouseView.vue"),
             },
           ],
+        },
+      ],
+    },
+
+    {
+      path: "/to-back",
+      name: "to-back",
+      component: () => import("../views/ToBackView.vue"),
+      children: [
+        {
+          path: "/relay/info/:url",
+          name: "relay-info",
+          component: () => import("../views/RelayInfoView.vue"),
         },
       ],
     },
