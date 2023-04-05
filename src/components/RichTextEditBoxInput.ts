@@ -23,11 +23,15 @@ export function useUserOpt() {
   >();
   const userRefMentionOption: MentionOption[] = reactive([]);
   const Kind0eventMap = ReplaceableEventMap.kind0.allMap();
+
   for (const pubkey in Kind0eventMap) {
     const event = Kind0eventMap[pubkey];
     const metadata = parseMetadata(event);
 
-    const name = metadata.name ?? (event.pubkey?.slice(8) as string);
+    const name =
+      metadata.displayName ??
+      metadata.name ??
+      (event.pubkey?.slice(8) as string);
     const encodeName = encodeURI(name);
     userMap.set(encodeName, {
       event,
