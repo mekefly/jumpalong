@@ -1,45 +1,22 @@
 <script lang="ts" setup>
-import { useThemeVars } from "naive-ui";
 // let's query for an event that exists
-import { NConfigProvider } from "naive-ui";
-import { theme } from "./app";
-import LoadProgressProvideVue from "./components/LoadProgressProvide.vue";
-import UploadProvideVue from "./components/UploadProvide.vue";
 
-const themeVars = useThemeVars();
+const router = useRouter();
+const loading = useLoadingBar();
+router.beforeEach(() => {
+  loading.start();
+});
+router.afterEach(() => {
+  loading.finish();
+});
 </script>
 
 <template>
-  <n-config-provider :theme="theme">
-    <div
-      class="body"
-      :style="{
-        backgroundColor: theme?.common.bodyColor,
-      }"
-    >
-      <div class="container">
-        <div class="w-full h-screen overflow-hidden">
-          <n-dialog-provider>
-            <n-message-provider>
-              <n-notification-provider :placement="'bottom'">
-                <n-loading-bar-provider>
-                  <LoadProgressProvideVue>
-                    <UploadProvideVue>
-                      <router-view v-slot="{ Component }">
-                        <keep-alive>
-                          <component :is="Component" />
-                        </keep-alive>
-                      </router-view>
-                    </UploadProvideVue>
-                  </LoadProgressProvideVue>
-                </n-loading-bar-provider>
-              </n-notification-provider>
-            </n-message-provider>
-          </n-dialog-provider>
-        </div>
-      </div>
-    </div>
-  </n-config-provider>
+  <router-view v-slot="{ Component }">
+    <keep-alive>
+      <component :is="Component" />
+    </keep-alive>
+  </router-view>
 </template>
 
 <style scoped>
