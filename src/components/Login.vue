@@ -17,14 +17,14 @@ const emit = defineEmits<{
       style="margin: 0 -4px"
       pane-style="padding-left: 4px; padding-right: 4px; box-sizing: border-box;"
     >
-      <n-tab-pane name="signin" :tab="t('login')">
+      <n-tab-pane name="signin" :tab="t('login')" display-directive="show:lazy">
         <LoginFormVue @next="() => emit('next')">
           <template #prev-step>
             <slot name="prev-step"></slot>
           </template>
         </LoginFormVue>
       </n-tab-pane>
-      <n-tab-pane name="signup" :tab="t('logon')">
+      <n-tab-pane name="signup" :tab="t('logon')" display-directive="show:lazy">
         <RegistrationFormVue @next="() => emit('next')">
           <template #prev-step>
             <slot name="prev-step"></slot>
