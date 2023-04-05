@@ -2,6 +2,7 @@
 import ReplaceableEventMap from "@/nostr/ReplaceableEventMap";
 import { parseMetadata } from "@/nostr/staff/createUseChannelMetadata";
 import { matchTagPlaceholderRegExp, matchUrlRegExp } from "@/utils/RegExpUtils";
+import { useLazyShow } from "@/utils/use";
 import { isNumberAndNotNaN } from "@/utils/utils";
 import { Event, nip19 } from "nostr-tools";
 import ContentReplyItemVue from "./ContentReplyItem.vue";
@@ -136,6 +137,7 @@ const rows = computed(() => {
   parseRow(event.value.content, rows);
   return rows;
 });
+const [target, show] = useLazyShow();
 </script>
 
 <template>
@@ -209,7 +211,7 @@ const rows = computed(() => {
         </span>
       </div>
     </div>
-    <RelayContent v-if="!disabledReply" :event="event" />
+    <RelayContent v-if="!disabledReply && show" :event="event" />
   </div>
 </template>
 
