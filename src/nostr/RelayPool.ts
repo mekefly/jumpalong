@@ -1,4 +1,3 @@
-import { createTaskQueue } from "@/utils/utils";
 import {
   validateEvent,
   verifySignature,
@@ -97,7 +96,6 @@ export class RelayPool {
 }
 
 export class Relay {
-  [x: string]: any;
   ws: WebSocket;
   pool: RelayPool;
   subIds: Set<string> = new Set();
@@ -107,14 +105,8 @@ export class Relay {
   publishIds: Set<string> = new Set();
 
   constructor(ws: WebSocket, relayEmiter: RelayEmiter, pool: RelayPool) {
-    const taskQueue = createTaskQueue();
-    this.taskQueue = taskQueue;
     this.ws = ws;
-    this.ws.onmessage = (messageEvent) => {
-      taskQueue.unShift(() => {
-        this.handleMessage(messageEvent);
-      });
-    };
+    this.ws.onmessage = this.handleMessage.bind(this);
     this.relayEmiter = relayEmiter;
     this.pool = pool;
   }

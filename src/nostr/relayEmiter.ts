@@ -1,3 +1,4 @@
+import { createTaskQueue } from "@/utils/utils";
 import EventEmitter from "events";
 import { Event, Filter } from "nostr-tools";
 export interface RelayEmiterResponseEventMap {
@@ -34,6 +35,7 @@ type ExcludeUndefined<T> = keyof T extends infer K
 
 export class RelayEmiter {
   private eventEmiter = new EventEmitter();
+  private queue = createTaskQueue();
 
   constructor() {
     this.eventEmiter.setMaxListeners(1000);
@@ -52,7 +54,9 @@ export class RelayEmiter {
     subId: any,
     v?: any
   ) {
-    this.eventEmiter.emit(this.createEventName(type, subId), v);
+    this.queue.unShift(() => {
+      this.eventEmiter.emit(this.createEventName(type, subId), v);
+    });
   }
   emitEvent(subId: string, opt: RelayEmiterResponseEventMap["event"]) {
     this.eventEmiter.emit("event", opt);
@@ -102,7 +106,9 @@ export class RelayEmiter {
     type: E,
     v: RelayEmiterRequestEventMap[E]
   ) {
-    this.eventEmiter.emit(type, v);
+    this.queue.unShift(() => {
+      this.eventEmiter.emit(type, v);
+    });
   }
   removeRequestListener(
     type: keyof RelayEmiterRequestEventMap,
