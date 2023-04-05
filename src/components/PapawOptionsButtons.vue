@@ -3,6 +3,7 @@ import { t } from "@/i18n";
 import { useOnOK } from "@/utils/use";
 import { useThemeVars } from "naive-ui";
 import { Event } from "nostr-tools";
+import CloudLightning from "./icon/CloudLightning.vue";
 import PapawReactionVue from "./PapawReaction.vue";
 import PapawReplyButtonVue from "./PapawReplyButton.vue";
 

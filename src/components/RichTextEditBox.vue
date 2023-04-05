@@ -5,6 +5,7 @@ import { createId, debounce } from "@/utils/utils";
 import { Event, EventTemplate } from "nostr-tools";
 import ContentVue from "./Content.vue";
 import EmojiBoxVue from "./EmojiBox.vue";
+import ArrowExportUp20Filled from "./icon/ArrowExportUp20Filled.vue";
 import CloseVue from "./icon/Close.vue";
 import Edit16FilledVue from "./icon/Edit16Filled.vue";
 import ReadOutlinedVue from "./icon/ReadOutlined.vue";
@@ -81,6 +82,16 @@ useDragFileUpload(target, uploadFile, {});
 function handelClear() {
   richTextEditBoxOpt.emitRichTextEditBox("clear");
 }
+
+enum SizeMode {
+  Maximize = 0,
+  Common = 1,
+  Minsize = 2,
+}
+const sizeMode = useLocalStorage("__rich_size_mode", 2);
+function handleChangeSize() {
+  sizeMode.value = (1 + sizeMode.value) % 3;
+}
 </script>
 
 <template>
@@ -88,11 +99,13 @@ function handelClear() {
     class="w-full h-max box-border flex flex-col overflow-hidden flex-shrink-1"
     ref="target"
     :style="{
-      maxHeight: isShowEmojiBox
-        ? '100%'
-        : isEnter || isShowEmojiBox
-        ? '30em'
-        : '10em',
+      minHeight: SizeMode.Maximize === sizeMode ? '100%' : '0%',
+      maxHeight:
+        isShowEmojiBox || SizeMode.Maximize === sizeMode
+          ? '100%'
+          : isEnter || isShowEmojiBox
+          ? '30em'
+          : '10em',
       transition: 'max-height 300ms,min-height 300ms',
     }"
     @dblclick="() => (isEdit = true)"
@@ -123,6 +136,21 @@ function handelClear() {
         </div>
 
         <div>
+          <n-button class="mr-2" @click="handleChangeSize">
+            <div
+              :style="{
+                transform:
+                  SizeMode.Minsize === sizeMode
+                    ? `rotateX(0turn)`
+                    : `rotateX(0.5turn)`,
+                transition: 'transform 0.5s ease',
+              }"
+            >
+              <n-icon>
+                <ArrowExportUp20Filled />
+              </n-icon>
+            </div>
+          </n-button>
           <n-button
             class="mr-2"
             @click="handelClear"
@@ -153,33 +181,46 @@ function handelClear() {
       </div>
     </div>
     <n-divider
+      v-show="!(SizeMode.Minsize === sizeMode)"
       class="flex-shrink-0"
       :style="{
         marginBottom: '0.5em',
         marginTop: '0.5em',
       }"
     />
-    <div class="flex-1 flex-shrink relative h-0" @mouseenter="handleEnter">
-      <ScrollbarVue class="h-full">
-        <div
-          class="px-3 py-2"
-          v-show="!isEdit && event.content"
-          @click="() => (isEdit = true)"
-        >
-          <ContentVue :event="event" disabledReply />
-        </div>
-        <RichTextEditBoxInputVue
+    <div
+      class="flex-1 flex-shrink relative h-0"
+      :style="{}"
+      @mouseenter="handleEnter"
+    >
+      <n-collapse-transition
+        class="flex-1 flex-shrink relative h-full"
+        :show="!(SizeMode.Minsize === sizeMode)"
+      >
+        <ScrollbarVue
+          class="h-full box-border"
           :class="{
-            'mt-2': event.tags.length > 0,
+            'py-2': event.tags.length > 0 || SizeMode.Maximize === sizeMode,
           }"
-          v-model:rawValue="rawValue"
-          v-show="isEdit || !event.content"
-          @blur="handelBlur"
-          @focus="() => (isEdit = true)"
-          @change="handleChange"
-        />
-        <RelayContent :event="event" />
-      </ScrollbarVue>
+        >
+          <div
+            class="px-3 py-2"
+            v-show="!isEdit && event.content"
+            @click="() => (isEdit = true)"
+          >
+            <ContentVue :event="event" disabledReply />
+          </div>
+          <RichTextEditBoxInputVue
+            class="transition"
+            v-model:rawValue="rawValue"
+            v-show="isEdit || !event.content"
+            @blur="handelBlur"
+            @focus="() => (isEdit = true)"
+            @change="handleChange"
+          />
+          <RelayContent :event="event" />
+        </ScrollbarVue>
+      </n-collapse-transition>
     </div>
   </div>
 </template>
