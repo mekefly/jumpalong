@@ -343,18 +343,17 @@ export function useElementIntoScreen(
 
   const scrollBarRef = useInjectScrollbarInstRef();
 
-  let lazyRemoveEventListenerId: any;
   watchEffect(() => {
     //组件是否进入激活状态
     if (!active.value) {
-      lazyRemoveEventListener();
+      removeEventListener();
       isIntoScreen.value = false;
       return;
     }
     //目标必须存在
     if (!target.value) {
       isIntoScreen.value = false;
-      lazyRemoveEventListener();
+      removeEventListener();
       return;
     }
 
@@ -362,55 +361,46 @@ export function useElementIntoScreen(
       !(opt?.componentTreeOptimization && (parentIsIntoScreen?.value ?? true))
     ) {
       //根据组件树结构优化
-      lazyRemoveEventListener();
+      removeEventListener();
       return;
     }
     //手动停止监听
     if (!unref(_opts.isListener)) {
-      lazyRemoveEventListener();
+      removeEventListener();
       return;
     }
-    clearLazyRemoveEventListener();
+    // 如果是null就代表没有执行删除事件，所以也不用添加事件
     debounceCheckUp();
+    //如果还没执行删除监听，这时候就不会执行了
+
     addEventListener();
   });
 
   function addEventListener() {
     if (scrollBarRef) {
-      watchEffect((onCleanup) => {
-        const containerRef = scrollBarRef.containerRef.value;
-        if (!containerRef) {
-          return;
-        }
+      const containerRef = scrollBarRef.containerRef.value;
+      if (containerRef) {
         containerRef.addEventListener("scroll", debounceCheckUp, {
           passive: true,
         });
-        onCleanup(() => {
-          containerRef.removeEventListener("scroll", debounceCheckUp);
-        });
-      });
-      window.addEventListener("resize", debounceCheckUp, { passive: true });
-    } else {
-      window.addEventListener("mousewheel", debounceCheckUp, { passive: true });
-      window.addEventListener("resize", debounceCheckUp, { passive: true });
-      window.addEventListener("touchend", debounceCheckUp, { passive: true });
-    }
-  }
 
-  function lazyRemoveEventListener() {
-    lazyRemoveEventListenerId = setTimeout(() => {
-      if (active.value && (parentIsIntoScreen?.value ?? true)) {
+        window.addEventListener("resize", debounceCheckUp, { passive: true });
         return;
       }
-      removeEventListener();
-    }, 1000);
-  }
-
-  function clearLazyRemoveEventListener() {
-    clearTimeout(lazyRemoveEventListenerId);
+    }
+    window.addEventListener("mousewheel", debounceCheckUp, { passive: true });
+    window.addEventListener("resize", debounceCheckUp, { passive: true });
+    window.addEventListener("touchend", debounceCheckUp, { passive: true });
   }
 
   function removeEventListener() {
+    if (scrollBarRef) {
+      const containerRef = scrollBarRef.containerRef.value;
+      if (!containerRef) {
+        return;
+      }
+      containerRef.removeEventListener("scroll", debounceCheckUp);
+    }
     window.removeEventListener("mousewheel", debounceCheckUp);
     window.removeEventListener("resize", debounceCheckUp);
     window.removeEventListener("touchend", debounceCheckUp);
