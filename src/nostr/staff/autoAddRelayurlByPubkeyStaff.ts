@@ -5,12 +5,12 @@ import { config, rootEventBeltline } from "../nostr";
 import createAutomaticRandomRequestStaff, {
   createAutomaticRandomRequestWithEventAutoClose,
 } from "./automaticRandomRequestStaff";
+import { createDoNotRepeatStaff } from "./createDoNotRepeatStaff";
 import createEoseUnSubStaff from "./createEoseUnSubStaff";
 import { createLatestEventStaff } from "./createLatestEventStaff";
 import createReadWriteListStaff from "./createReadWriteListStaff";
 import createTimeoutUnSubStaff from "./createTimeoutUnSubStaff";
 import createWithEvent from "./createWithEvent";
-import createAddRelayUrlGraspClues from "./pullRelayConfig";
 import ReplaceableEventMapStaff from "./ReplaceableEventMapStaff";
 
 export type AddRelayurlByPubkeyStaff = {
@@ -35,7 +35,14 @@ export default function autoAddRelayurlByPubkeyStaff(
       const line = useCache(
         `autoAddRelayurlByPubkey:${pubkey}`,
         () => {
-          const kind10002line = slefBeltline
+          const line = slefBeltline.createChild();
+          const autoAddReqLine = line
+            .createChild()
+            .addStaff(createTimeoutUnSubStaff()) // 超时关闭
+            .addStaff(createEoseUnSubStaff()) // 自动关闭订阅
+            .addStaff(createDoNotRepeatStaff()); //不重复;
+
+          const kind10002 = autoAddReqLine
             .createChild()
             //10002是用户建议的relay读写列表
             .addFilter({
@@ -43,53 +50,74 @@ export default function autoAddRelayurlByPubkeyStaff(
               authors: [pubkey],
             })
 
-            .addStaff(createTimeoutUnSubStaff()) // 超时关闭
-            .addStaff(createEoseUnSubStaff()) // 自动关闭订阅
-
             .addStaff(createLatestEventStaff()) //创建最新事件
             .addStaff(ReplaceableEventMapStaff(10002, pubkey)) // 本地缓存
             .addStaff(createReadWriteListStaff()) // 创建读写配置列表
-            .addStaff(createWithEvent());
+            .addStaff(createWithEvent())
+            .onAddFilters((filters) => {
+              autoAddReqLine.addFilters(filters);
+            });
+
+          kind10002.feat.onHasReadWriteList((readWrite) => {
+            line.addRelayUrls(readWrite.writeUrl);
+          });
 
           //间隔同步
           syncInterval(
             `createAddRelayUrlGraspClues:${pubkey}`,
             () => {
-              kind10002line.addStaff(createAddRelayUrlGraspClues()); // 根据读写列表获得用户最新的读写列表
+              autoAddReqLine.addRelayUrls(line.getRelayUrls());
+              line.onAddRelayUrlsAfter((urls) => {
+                autoAddReqLine.addRelayUrls(urls);
+              });
             },
             config.syncInterval6
           );
 
-          const req = async () => {
-            if (kind10002line.feat.withEvent()) return;
+          const kind2line = autoAddReqLine
+            .createChild()
+            .addFilter({ kinds: [2], authors: [pubkey] })
 
-            kind10002line.addExtends(rootEventBeltline);
-            if (kind10002line.feat.withEvent()) return;
+            .onAddFilters((filters) => {
+              autoAddReqLine.addFilters(filters);
+            })
+            .addStaff({
+              push(e) {
+                line.addRelayUrl(e.content);
+              },
+            });
+
+          const req = async () => {
+            if (kind10002.feat.withEvent()) return;
+
+            autoAddReqLine.addExtends(rootEventBeltline);
+            if (kind10002.feat.withEvent()) return;
 
             if (opts?.urls) {
-              kind10002line.addRelayUrls(opts.urls);
-              if (await kind10002line.feat.timeoutWithEvent()) return;
+              autoAddReqLine.addRelayUrls(opts.urls);
+              if (await kind10002.feat.timeoutWithEvent()) return;
             }
 
-            kind10002line.addReadUrl();
-            if (await kind10002line.feat.timeoutWithEvent()) return;
+            autoAddReqLine.addReadUrl();
+            if (await kind10002.feat.timeoutWithEvent()) return;
 
             //随缘算法
-            kind10002line
+            kind10002
               .addStaff(createAutomaticRandomRequestStaff())
               //请求到一条消息就关闭
               .addStaff(createAutomaticRandomRequestWithEventAutoClose());
           };
           req();
-          return kind10002line;
+
+          return line;
         },
         { useLocalStorage: false }
       );
+      line.onAddRelayUrlsAfter((urls) => {
+        slefBeltline.addRelayUrls(urls);
+      });
 
       //更新读写列表
-      line.feat.onHasReadWriteList((readWrite) => {
-        slefBeltline.addRelayUrls(readWrite.writeUrl);
-      });
     },
   });
 }
