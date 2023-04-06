@@ -2,13 +2,12 @@ import cac from "cac";
 import { zip } from "compressing";
 import { mkdirSync, readdirSync, readFileSync } from "fs";
 import { relative, resolve } from "path";
-import { exit } from "process";
 import { exec } from "shelljs";
 
 const cli = cac();
 //命令行选项
 const defaultOptions = {
-  patch: true,
+  patch: false,
   minor: false,
   major: false,
   test: true,
@@ -41,42 +40,54 @@ cli.usage("可以输入参数设置\n','号将清空默认值，命令后面的�
 cli.help();
 const parsedArgv = cli.parse();
 const { patch, minor, major, test } = Object.assign(
-  parsedArgv.options,
-  defaultOptions
+  {},
+  defaultOptions,
+  parsedArgv.options
 );
 
-//获取json
-const packageJsonString = readFileSync("package.json", "utf-8");
-const packageJson = JSON.parse(packageJsonString);
+function isTrue(v: boolean | "true" | "false") {
+  if (v === true || v === "true") {
+    return true;
+  } else if (v === "false" || v === false) {
+    return false;
+  } else {
+    return false;
+  }
+}
+
 const PACKSGE_ROOT = resolve();
 
-const version = packageJson.version;
-const tag = `v${version}`;
-
-const releasePath = resolve("release", version);
-
+run();
 async function run() {
+  //发布版本和构建
+  let l = "pnpm release";
+  if (isTrue(patch)) {
+    l += ":patch";
+  } else if (isTrue(minor)) {
+    l += ":minor";
+  } else if (isTrue(major)) {
+    l += ":major";
+  } else {
+    l += ":patch";
+  }
+  if (isTrue(test)) {
+    l += ":test";
+  }
+  exec(l);
+
+  //获取json
+  const packageJsonString = readFileSync("package.json", "utf-8");
+  const packageJson = JSON.parse(packageJsonString);
+
+  const version = packageJson.version;
+  const tag = `v${version}`;
+
+  const releasePath = resolve("release", version);
+
   //创建文件夹
   try {
     mkdirSync(releasePath, { recursive: true });
   } catch (error) {}
-
-  //发布版本和构建
-  let l = "pnpm release";
-  if (patch) {
-    l += ":patch";
-  } else if (minor) {
-    l += ":minor";
-  } else if (major) {
-    l += ":major";
-  } else {
-    console.log("您必须输入 --patch | --minor | --major");
-    exit(1);
-  }
-  if (test) {
-    l += ":test";
-  }
-  exec(l);
 
   //将构建好的dist压缩为zip
   console.log();
@@ -102,7 +113,6 @@ async function run() {
   //将其发布
   exec(ghRelease);
 }
-run();
 
 function relativePath(path: string) {
   return relative(PACKSGE_ROOT, path);
