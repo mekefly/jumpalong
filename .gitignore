@@ -31,3 +31,4 @@ packages/cordova/**/*
 
 auto-imports.d.ts
 components.d.ts
+/release

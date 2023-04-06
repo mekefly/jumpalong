@@ -17,8 +17,6 @@ const PACKSGE_ROOT = resolve();
 CURRENT_SCRIPT_SRC_ROOT = resolve(CURRENT_SCRIPT_SRC_ROOT);
 console.log("CURRENT_SCRIPT_SRC_ROOT", CURRENT_SCRIPT_SRC_ROOT);
 
-const RELEADE_PATH = resolve("release");
-
 const CORDOVA_ROOT = resolve("packages/cordova");
 console.log("SCRIPT_SRC_ROOT", SCRIPT_SRC_ROOT);
 
@@ -34,6 +32,7 @@ const packageJson = JSON.parse(packageJsonString);
 
 const version = packageJson.version;
 
+const RELEADE_PATH = resolve(`release`, version);
 const defaultCordovaPackageString = readFileSync(
   resolve(CURRENT_SCRIPT_SRC_ROOT, "cordova/cordovaPackage.json"),
   "utf-8"
@@ -77,6 +76,9 @@ console.log(`config.xml will be create to ${configXmlPath}`);
 writeFileSync(configXmlPath, configXmlString);
 console.log("Create config.xml success !");
 
+console.log("start build www");
+!noBuild && exec("pnpm vite-build-android");
+
 cd("packages");
 
 cd("cordova");
@@ -93,9 +95,6 @@ for (const pathName of ["platforms", "plugins"]) {
     { force: true, recursive: true }
   );
 }
-
-console.log("start build www");
-!noBuild && exec("pnpm vite-build-android");
 
 //安装依赖
 exec("pnpm install");
