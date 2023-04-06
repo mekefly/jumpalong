@@ -77,6 +77,9 @@ console.log(`config.xml will be create to ${configXmlPath}`);
 writeFileSync(configXmlPath, configXmlString);
 console.log("Create config.xml success !");
 
+console.log("start build www");
+!noBuild && exec("pnpm vite-build-android");
+
 cd("packages");
 
 cd("cordova");
@@ -93,9 +96,6 @@ for (const pathName of ["platforms", "plugins"]) {
     { force: true, recursive: true }
   );
 }
-
-console.log("start build www");
-!noBuild && exec("pnpm vite-build-android");
 
 //安装依赖
 exec("pnpm install");
