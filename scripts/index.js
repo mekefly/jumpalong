@@ -16,6 +16,7 @@ const exclude = [/\.json$/, "index.js"];
 const ROOT_DIR = resolve();
 
 const BASE_PATH = __dirname;
+const SCRIPT_ROOT = BASE_PATH;
 const DIST_BASE_PATH = resolve(relativePath(BASE_PATH), "dist/");
 const possibleName = ["main.js"];
 
@@ -44,11 +45,11 @@ run();
 function run(params) {
   //验证要运行的scriptBuild是否存在
   if (!scriptsOptions.reBuild && existsSync(distPath)) {
-    runScript(distPath);
+    runScript(distPath, path);
   } else {
     if (existsSync(path)) {
       buildScript(path);
-      runScript(distPath);
+      runScript(distPath, path);
     } else {
       console.error("命令不存在%s", rPath);
       process.exit(-1);
@@ -60,9 +61,12 @@ function relativePath(path) {
   return relative(ROOT_DIR, path);
 }
 
-function runScript(scriptPath) {
+function runScript(scriptPath, scriptSrcPath) {
+  console.log("scriptSrcPath", scriptSrcPath);
   const sp = findScriptPath(scriptPath);
-  let c = `node ${relativePath(sp)} ${commendArgv.join(" ")}`;
+  let c = `node ${relativePath(sp)} --CURRENT_SCRIPT_SRC_ROOT=${relativePath(
+    scriptSrcPath
+  )} --SCRIPT_SRC_ROOT=${relativePath(SCRIPT_ROOT)} ${commendArgv.join(" ")}`;
   console.log(`run: ${c}`);
   exec(c);
 }

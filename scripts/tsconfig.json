@@ -17,6 +17,6 @@
     "lib": ["ES2021", "dom"],
     "types": ["vitest/globals"]
   },
-  "include": ["**/*.ts"],
+  "include": ["**/*.ts", "**/*.json", "**/*.xml"],
   "exclude": ["**/*.spec.ts"]
 }
