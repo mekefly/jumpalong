@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.6-test.3](https://github.com/mekefly/jumpalong/compare/v0.4.6-test.0...v0.4.6-test.3) (2023-04-06)
+
+
+### 🐛 Bug Fixes | Bug 修复
+
+* bug ([a91a1e8](https://github.com/mekefly/jumpalong/commit/a91a1e8691259ea969a37839c6ae00dafebb2338))
+
+### [0.4.6-test.2](https://github.com/mekefly/jumpalong/compare/v0.4.6-test.1...v0.4.6-test.2) (2023-04-06)
+
+### [0.4.6-test.1](https://github.com/mekefly/jumpalong/compare/v0.4.6-test.0...v0.4.6-test.1) (2023-04-06)
+
+
+### 🐛 Bug Fixes | Bug 修复
+
+* bug ([a91a1e8](https://github.com/mekefly/jumpalong/commit/a91a1e8691259ea969a37839c6ae00dafebb2338))
+
+
+### 🚀 Chore | 构建/工程依赖/工具
+
+* release ([887a47a](https://github.com/mekefly/jumpalong/commit/887a47a22a4f8bc8c7e0ac58952c13232a618e3f))
+* workflower ([7d12ba5](https://github.com/mekefly/jumpalong/commit/7d12ba52cab90c38b4242b5da284d0f1cce61866))
+
 ### [0.4.6-test.0](https://github.com/mekefly/jumpalong/compare/v0.4.6-alpha.0...v0.4.6-test.0) (2023-04-06)
 
 
