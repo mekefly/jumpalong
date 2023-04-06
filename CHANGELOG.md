@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.6-test.6](https://github.com/mekefly/jumpalong/compare/v0.4.6-test.5...v0.4.6-test.6) (2023-04-06)
+
+
+### 🚀 Chore | 构建/工程依赖/工具
+
+* try fix release ([db9c872](https://github.com/mekefly/jumpalong/commit/db9c872228faf40f2876567bf878d83b60cb6599))
+
 ### [0.4.6-test.5](https://github.com/mekefly/jumpalong/compare/v0.4.6-test.4...v0.4.6-test.5) (2023-04-06)
 
 ### [0.4.6-test.4](https://github.com/mekefly/jumpalong/compare/v0.4.6-test.3...v0.4.6-test.4) (2023-04-06)

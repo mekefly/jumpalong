@@ -1,7 +1,7 @@
 {
   "name": "jumpalong",
   "displayName": "Jumpalong",
-  "version": "0.4.6-test.5",
+  "version": "0.4.6-test.6",
   "description": "Jumpalong is a nostr client",
   "scripts": {
     "dev": "vite",
@@ -21,7 +21,9 @@
     "script": "node scripts",
     "deploy": "pnpm script deploy $",
     "deploy-test": "pnpm script deploy $ --test",
-    "build-android": "pnpm script build-android"
+    "build-android": "pnpm script build-android",
+    "auto-release:patch:test": "pnpm script release --patch",
+    "auto-release:patch:prod": "pnpm script release --patch --test=false"
   },
   "dependencies": {
     "@noble/secp256k1": "^1.7.1",
