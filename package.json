@@ -1,7 +1,7 @@
 {
   "name": "jumpalong",
   "displayName": "Jumpalong",
-  "version": "0.4.6-test.6",
+  "version": "0.4.6-test.7",
   "description": "Jumpalong is a nostr client",
   "scripts": {
     "dev": "vite",
