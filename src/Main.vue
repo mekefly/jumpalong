@@ -19,22 +19,4 @@ router.afterEach(() => {
   </router-view>
 </template>
 
-<style scoped>
-.body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-  height: 100vh;
-  width: 100vw;
-}
-.container {
-  width: 1280px;
-  max-width: 100%;
-  margin: 0 auto;
-  padding: 0rem;
-  overflow: hidden;
-  position: relative;
-}
-</style>
+<style scoped></style>
