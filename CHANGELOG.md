@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.6-test.9](https://github.com/mekefly/jumpalong/compare/v0.4.6-test.8...v0.4.6-test.9) (2023-04-07)
+
+
+### 🚀 Chore | 构建/工程依赖/工具
+
+* release android ([5e18a05](https://github.com/mekefly/jumpalong/commit/5e18a053d1bb92aa95cb26b124370d94dff273e0))
+
+
+### 🐛 Bug Fixes | Bug 修复
+
+* New login without synchronization bug ([df74cc9](https://github.com/mekefly/jumpalong/commit/df74cc92abba0595dad2279a704e67d0cf444a63))
+
 ### [0.4.6-test.8](https://github.com/mekefly/jumpalong/compare/v0.4.6-test.7...v0.4.6-test.8) (2023-04-07)
 
 
