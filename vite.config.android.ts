@@ -25,6 +25,7 @@ export default defineConfig({
   },
   build: {
     chunkSizeWarningLimit: 512 * 1024,
+    outDir: "packages/cordova/www",
   },
   define: {
     __VUE_I18N_FULL_INSTALL__: false,

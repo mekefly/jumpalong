@@ -88,7 +88,7 @@ console.log(`config.xml will be create to ${configXmlPath}`);
 writeFileSync(configXmlPath, configXmlString);
 console.log("Create config.xml success !");
 
-console.log("start build www");
+// build www
 !noBuild && e("pnpm vite-build-android");
 
 cd("packages");
