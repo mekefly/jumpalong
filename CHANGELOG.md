@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.6-test.8](https://github.com/mekefly/jumpalong/compare/v0.4.6-test.7...v0.4.6-test.8) (2023-04-07)
+
+
+### 🐛 Bug Fixes | Bug 修复
+
+* Fix the issue where APK cannot be opened ([49a736a](https://github.com/mekefly/jumpalong/commit/49a736a1f84a4b54a50b4a502bc4abebe54fc671))
+
 ### [0.4.6-test.7](https://github.com/mekefly/jumpalong/compare/v0.4.6-test.6...v0.4.6-test.7) (2023-04-06)
 
 
