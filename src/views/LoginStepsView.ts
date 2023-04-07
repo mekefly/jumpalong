@@ -1,6 +1,7 @@
 import contactConfiguration from "@/api/Contact";
 import { testAndVerifyNewUser } from "@/api/login";
 import { getFollowChannelConfiguration } from "@/nostr/FollowChannel";
+import { ReplaceableEventSyncAbstract } from "@/nostr/ReplaceableEventSyncAbstract";
 
 export const loginOperations: Array<() => void> = [];
 
@@ -27,6 +28,9 @@ loginOperations.push(() => {
       }
     );
   }
+});
+loginOperations.push(() => {
+  ReplaceableEventSyncAbstract.syncAll();
 });
 
 export function useLoginStepsState() {
@@ -56,6 +60,7 @@ export function useLoginStepsState() {
     router.push({ path: `/login-step-${step}` });
   }
 
+  const loadingBar = useLoadingBar();
   async function complete() {
     loginOperations.push(() => {
       //对新用户执行的操作
@@ -69,12 +74,15 @@ export function useLoginStepsState() {
 
     const redirected = route.query.redirected as string;
 
-    if (!redirected) {
-      router.push("/");
-      return;
-    }
+    loadingBar.start();
+    setTimeout(() => {
+      if (!redirected) {
+        router.push("/");
+        return;
+      }
 
-    router.push(redirected);
+      router.push(redirected);
+    }, 2000);
   }
 
   return {
