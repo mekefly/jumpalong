@@ -1,29 +1,11 @@
 {
-  "name": "com.mycompany.myapp",
-  "displayName": "myApp",
-  "version": "1.0.0",
+  "name": "io.cordova.jumpalong",
+  "displayName": "Jumpalong",
+  "version": "0.4.6-test.7",
   "description": "A sample Apache Cordova application that responds to the deviceready event.",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [
-    "ecosystem:cordova"
-  ],
-  "author": "Apache Cordova Team",
-  "license": "Apache-2.0",
-  "devDependencies": {
-    "cordova-plugin-camera": "^6.0.0"
-  },
-  "cordova": {
-    "plugins": {
-      "cordova-plugin-camera": {}
-    },
-    "platforms": [
-      "android"
-    ]
-  },
-  "dependencies": {
-    "cordova-android": "10.1.2"
-  }
+  "scripts": {},
+  "keywords": ["ecosystem:cordova"],
+  "author": "mekefly",
+  "cordova": {}
 }

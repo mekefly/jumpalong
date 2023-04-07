@@ -1,1 +1,1 @@
-{"extends":"R:\\Users\\meke\\Documents\\study\\jumpalong\\scripts\\tsconfig.json","include":["release\\**\\*.ts","release\\**\\*.json","release\\**\\*.xml"]}
+{"extends":"R:\\Users\\meke\\Documents\\study\\jumpalong\\scripts\\tsconfig.json","include":["build-android\\**\\*.ts","build-android\\**\\*.json","build-android\\**\\*.xml"]}

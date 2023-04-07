@@ -3,6 +3,8 @@ import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "fs";
 import { relative, resolve } from "path";
 import { cd, exec } from "shelljs";
 
+import { blue } from "picocolors";
+
 const cli = cac();
 let {
   options: {
@@ -77,34 +79,33 @@ writeFileSync(configXmlPath, configXmlString);
 console.log("Create config.xml success !");
 
 console.log("start build www");
-!noBuild && exec("pnpm vite-build-android");
+!noBuild && e("pnpm vite-build-android");
 
 cd("packages");
 
 cd("cordova");
 
-for (const pathName of ["platforms", "plugins"]) {
+//删除之前的构建
+for (const pathName of ["platforms"]) {
   const path = resolve("./", pathName);
-  console.log(`rm:${path}`);
+  console.log(`rm:${blue(path)}`);
 
-  rmSync(path, { force: true, recursive: true });
-
-  cpSync(
-    resolve(CURRENT_SCRIPT_SRC_ROOT, "cordova", pathName),
-    resolve(CORDOVA_ROOT, pathName),
-    { force: true, recursive: true }
-  );
+  try {
+    rmSync(path, { force: true, recursive: true });
+  } catch (error) {}
 }
 
+//构建安卓基础文件结构
+e("cordova platform add android");
+
 //安装依赖
-exec("pnpm install");
+e("pnpm install");
 
 console.log("");
 
 console.log("run: cordova build android");
 
-exec("cordova build android");
-exec("cat package.json");
+e("cordova build android");
 const releaseApkPath = resolve(
   RELEADE_PATH,
   `${packageJson.displayName}.${version}.apk`
@@ -122,4 +123,9 @@ try {
 
 function relativePath(path: string) {
   return relative(PACKSGE_ROOT, path);
+}
+
+function e(l: string) {
+  console.log(`run:${blue(l)}`);
+  exec(l);
 }

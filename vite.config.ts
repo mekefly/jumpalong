@@ -64,7 +64,7 @@ export default defineConfig({
     Components({
       resolvers: [NaiveUiResolver()],
     }),
-    configCompressPlugin("gzip", false),
+    // configCompressPlugin("gzip", false),
   ],
   resolve: {
     alias: {

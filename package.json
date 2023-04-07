@@ -3,6 +3,9 @@
   "displayName": "Jumpalong",
   "version": "0.4.6-test.7",
   "description": "Jumpalong is a nostr client",
+  "author": {
+    "name": "mekefly"
+  },
   "scripts": {
     "dev": "vite",
     "build": "run-p type-check build-only",
