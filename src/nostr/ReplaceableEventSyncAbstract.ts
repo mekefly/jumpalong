@@ -19,11 +19,6 @@ export abstract class ReplaceableEventSyncAbstract<E> {
   static list: ReplaceableEventSyncAbstract<any>[] = [];
 
   static syncAll() {
-    console.log(
-      "syncAll ReplaceableEventSyncAbstract.list",
-      ReplaceableEventSyncAbstract.list
-    );
-
     for (const item of ReplaceableEventSyncAbstract.list) {
       item.sync();
     }
@@ -38,7 +33,6 @@ export abstract class ReplaceableEventSyncAbstract<E> {
     this.name = name;
     ReplaceableEventSyncAbstract.cacheList.push(this.name);
     ReplaceableEventSyncAbstract.list.push(this);
-    console.log(this);
 
     const event = this.getLocalEvent();
     if (!event) {
@@ -153,8 +147,6 @@ export abstract class ReplaceableEventSyncAbstract<E> {
     onEvent?(e: Event, url: string): void;
     onPush?(url: string): void;
   }) {
-    console.log("sync");
-
     this.isSync = true;
     const urls: Set<string> = opt?.onlyUrl
       ? new Set<string>().add(opt.onlyUrl)

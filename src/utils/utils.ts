@@ -443,10 +443,11 @@ export function randomColorHex() {
     .toString(16)
     .padStart(6, "0")}`;
 }
-export function createTaskQueue() {
+export function createTaskQueue(interval = 0) {
   return {
     isRun: false,
-    queue: [] as Array<() => void>,
+    queue: [] as Array<{ task: () => void; priority: number }>,
+    interval,
     run() {
       this.isRun = true;
       const task = this.queue.pop();
@@ -455,13 +456,20 @@ export function createTaskQueue() {
         return;
       }
 
-      task();
+      task.task();
 
-      setTimeout(() => this.run());
+      setTimeout(() => this.run(), this.interval);
     },
     unShift(task: () => void) {
-      this.queue.unshift(task);
-
+      this.insert(task, 0);
+      this._run();
+    },
+    insert(task: () => void, priority: number) {
+      const index = searchInsertOnObjectList(this.queue, priority, "priority");
+      this.queue.splice(index, 0, { task, priority });
+      this._run();
+    },
+    _run() {
       if (this.isRun) return;
       this.run();
     },

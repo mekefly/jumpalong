@@ -2,7 +2,6 @@
 import PostList from "@/components/PostList.vue";
 import Scrollbar from "@/components/Scrollbar.vue";
 import { userKey } from "@/nostr/user";
-console.log("notice");
 </script>
 
 <template>

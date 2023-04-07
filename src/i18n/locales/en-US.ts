@@ -211,6 +211,8 @@ const defaul = {
   notice: "Notice",
   the_user_has_followed_you: "The user has followed you",
 
+  relay_emiter_queue_interval: "Relay emiter queue interval",
+
   message: {
     you_have_sent_a_delete_request: `You have sent a delete request`,
     relay_configurator_save_message:

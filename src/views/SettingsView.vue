@@ -103,6 +103,19 @@ function handelClearCache() {
         </template>
       </n-thing>
     </n-list-item>
+
+    <n-list-item>
+      <n-thing :titleExtra="String(config.relayEmiterQueueInterval)">
+        <template #header> {{ t("relay_emiter_queue_interval") }} </template>
+        <template #footer>
+          <n-slider
+            v-model:value="config.relayEmiterQueueInterval"
+            :min="0"
+            :max="20"
+          />
+        </template>
+      </n-thing>
+    </n-list-item>
     <n-list-item
       @click="
         () =>

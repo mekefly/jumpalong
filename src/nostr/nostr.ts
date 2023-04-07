@@ -13,6 +13,7 @@ const appConfig = useLocalStorage(
       interval: 1000 * 60 * 60 * 24, // 24 hour
       debounce: 1000,
     },
+    relayEmiterQueueInterval: 5,
     stopHideLongArticles: false,
     enablePapawTree: false,
     enablePapawTreeLazyMode: true,
@@ -55,6 +56,7 @@ type ConfigType = {
     interval: number;
     debounce: number;
   };
+  relayEmiterQueueInterval: number;
   enablePapawTree: boolean;
   enablePapawTreeLazyMode: boolean;
   stopHideLongArticles: boolean;

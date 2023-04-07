@@ -58,7 +58,7 @@ function handelPull() {
       .addRelayUrls(pullUrls.value)
   );
 }
-const taskQueue = createTaskQueue();
+const taskQueue = createTaskQueue(10);
 const total = computed(() => {
   let total = 0;
   for (const [k, v] of countMap.value) {

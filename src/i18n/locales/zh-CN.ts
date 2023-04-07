@@ -213,6 +213,8 @@ const message: I18nMessages = {
 
   the_user_has_followed_you: "我关注了你",
 
+  relay_emiter_queue_interval: "消息队列延迟",
+
   message: {
     you_have_sent_a_delete_request: `您已经发送了删除请求`,
     relay_configurator_save_message:
