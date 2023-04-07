@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.6-test.10](https://github.com/mekefly/jumpalong/compare/v0.4.6-test.9...v0.4.6-test.10) (2023-04-07)
+
+
+### ✨ Features | 新功能
+
+*  Increase the priority of the queue and set the interval for relayEmiterQueueInterval ([9526b16](https://github.com/mekefly/jumpalong/commit/9526b168e03f4640d651f29ea2d15f7709fdb8d2))
+* reloadButton ([c220953](https://github.com/mekefly/jumpalong/commit/c22095308855b4f404c14d386f1c8a1733abb289))
+
 ### [0.4.6-test.9](https://github.com/mekefly/jumpalong/compare/v0.4.6-test.8...v0.4.6-test.9) (2023-04-07)
 
 
