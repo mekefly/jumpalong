@@ -8,6 +8,7 @@ import I18nSwitchButtonVue from "./I18nSwitchButton.vue";
 import MenuVue from "./icon/Menu.vue";
 import LoadProgressVue from "./LoadProgress.vue";
 import PoolStateNumberVue from "./PoolStateNumber.vue";
+import ReloadButton from "./ReloadButton.vue";
 import ThemeButtonVue from "./ThemeButton.vue";
 
 const isShowdrawerMenu = ref(false);
@@ -63,6 +64,7 @@ watch(
 
           <template #footer>
             <div class="flex items-center">
+              <ReloadButton />
               <I18nSwitchButtonVue />
               <ThemeButtonVue></ThemeButtonVue>
               <PoolStateNumberVue />
