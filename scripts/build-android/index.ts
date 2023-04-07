@@ -42,7 +42,7 @@ const defaultCordovaPackageString = readFileSync(
 
 const defaultCordovaPackageJson = JSON.parse(defaultCordovaPackageString);
 
-const includeKeys = ["name", "displayName", "version", "description"];
+const includeKeys = ["name", "displayName", "version", "description", "author"];
 const includePackageJson = Object.fromEntries(
   Object.entries(packageJson).filter(([key, value]) =>
     includeKeys.some((v) => v === key)
@@ -69,9 +69,19 @@ let configXmlString = readFileSync(
 );
 
 // 给模版填写值
-for (const [key, value] of Object.entries(cordovaPackageJson)) {
+for (const key of [
+  "name",
+  "version",
+  "displayName",
+  "description",
+  "author.email",
+  "author.url",
+]) {
+  const value = getValue(cordovaPackageJson, key.split("."));
+  if (!value) continue;
   configXmlString = configXmlString.replaceAll(`__${key}__`, String(value));
 }
+
 const configXmlPath = resolve(CORDOVA_ROOT, "config.xml");
 
 console.log(`config.xml will be create to ${configXmlPath}`);
@@ -97,15 +107,14 @@ for (const pathName of ["platforms"]) {
 
 //构建安卓基础文件结构
 e("cordova platform add android");
+//插件，负责图标配置部分和启动动画部分
+e("cordova plugin add cordova-plugin-splashscreen");
 
 //安装依赖
 e("pnpm install");
 
-console.log("");
-
-console.log("run: cordova build android");
-
 e("cordova build android");
+
 const releaseApkPath = resolve(
   RELEADE_PATH,
   `${packageJson.displayName}.${version}.apk`
@@ -128,4 +137,11 @@ function relativePath(path: string) {
 function e(l: string) {
   console.log(`run:${blue(l)}`);
   exec(l);
+}
+
+function getValue(objs: any, key: (string | number | symbol)[]) {
+  return key.reduce((previousValue, currentValue) => {
+    if (previousValue === undefined) return undefined;
+    return previousValue[currentValue];
+  }, objs);
 }

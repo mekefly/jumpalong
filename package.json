@@ -4,7 +4,9 @@
   "version": "0.4.6-test.8",
   "description": "Jumpalong is a nostr client",
   "author": {
-    "name": "mekefly"
+    "name": "mekefly",
+    "email": "mekefly@outlook.com",
+    "url": "https://github.com/mekefly"
   },
   "scripts": {
     "dev": "vite",
@@ -22,6 +24,7 @@
     "release:minor:test": "npm run release -- --release-as minor --prerelease test && pnpm deploy-test && pnpm build-android",
     "release:major:test": "npm run release -- --release-as major --prerelease test && pnpm deploy-test && pnpm build-android",
     "script": "node scripts",
+    "re-script": "node scripts --reBuild",
     "deploy": "pnpm script deploy $",
     "deploy-test": "pnpm script deploy $ --test",
     "build-android": "pnpm script build-android",
