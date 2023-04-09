@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.6-test.11](https://github.com/mekefly/jumpalong/compare/v0.4.6-test.10...v0.4.6-test.11) (2023-04-09)
+
+
+### 🚀 Chore | 构建/工程依赖/工具
+
+* fix build-android ([03fe5b6](https://github.com/mekefly/jumpalong/commit/03fe5b61e49fa53bcdadd7b56c8cdaa90d2e9c17))
+
+
+### 🐛 Bug Fixes | Bug 修复
+
+* Fix the bug of stuck flash back ([426d165](https://github.com/mekefly/jumpalong/commit/426d165dd2ce55456b970c4a8980a9b0221fc3a3))
+
 ### [0.4.6-test.10](https://github.com/mekefly/jumpalong/compare/v0.4.6-test.9...v0.4.6-test.10) (2023-04-07)
 
 
