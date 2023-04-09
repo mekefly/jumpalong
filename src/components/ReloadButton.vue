@@ -1,7 +1,9 @@
 <script lang="ts" setup>
 import ReloadCircleSharp from "./icon/ReloadCircleSharp.vue";
 
+const loadingBar = useLoadingBar();
 function handelReload() {
+  loadingBar.start();
   location.reload();
 }
 </script>

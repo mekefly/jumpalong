@@ -29,7 +29,7 @@ const subIdSize = computed(() => relayPool.allSubIds.size);
     <template #trigger>
       <span
         :style="{
-          color: createDynamicColor(poolSize, 5, 30),
+          color: createDynamicColor(poolSize, 10, 80),
         }"
       >
         {{ poolSize }}

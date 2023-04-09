@@ -75,9 +75,7 @@ export class RelayPool {
       const ws = await createWebsocket(url);
 
       ws.onerror = (e) => {
-        this.pool.get(url)?.close();
-        this.pool.delete(url);
-        this.getRelayFromPool(url)?.close();
+        this.close(url);
       };
       ws.onclose = () => {
         this.close(url);
@@ -90,6 +88,7 @@ export class RelayPool {
     });
   }
   close(url: string) {
+    if (!this.pool.has(url)) return;
     this.getRelayFromPool(url)?.close();
     this.pool.delete(url);
   }
@@ -174,9 +173,13 @@ export class Relay {
   req(filters: Filter[], subId = this.createSubId()) {
     console.debug("websocket:req:", filters, this.ws.url);
 
-    this.send(["REQ", subId, ...filters]);
-
     this.addSubId(subId);
+    try {
+      this.send(["REQ", subId, ...filters]);
+    } catch (error) {
+      this.deleteSubId(subId);
+    }
+
     return subId;
   }
   closePublish(id: string) {
@@ -199,17 +202,18 @@ export class Relay {
   closeReq(subId: string) {
     if (!this.subIds.has(subId)) return;
 
-    this.send(["CLOSE", subId]);
     this.deleteSubId(subId);
+    this.send(["CLOSE", subId]);
   }
 
   addSubId(subId: string) {
+    if (this.isClose) return;
     this.subIds.add(subId);
     this.pool.allSubIds.add(subId);
-
-    this.clearAutoClose();
   }
   deleteSubId(subId: string) {
+    if (!this.subIds.has(subId)) return;
+
     this.subIds.delete(subId);
     this.pool.allSubIds.delete(subId);
 
@@ -219,11 +223,11 @@ export class Relay {
   }
   close() {
     if (this.isClose) return;
+    this.isClose = true;
 
     for (const subId of this.subIds) {
       this.deleteSubId(subId);
     }
-    this.isClose = true;
     this.ws.close();
     this.pool.close(this.ws.url);
   }

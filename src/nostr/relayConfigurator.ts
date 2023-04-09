@@ -22,6 +22,8 @@ import { reactive } from "vue";
 import { timeout } from "../utils/utils";
 import { readListKey, writeListKey } from "./relayConfiguratorKeys";
 import { ReplaceableEventSyncAbstract } from "./ReplaceableEventSyncAbstract";
+import createEoseUnSubStaff from "./staff/createEoseUnSubStaff";
+import createTimeoutUnSubStaff from "./staff/createTimeoutUnSubStaff";
 import { userKey } from "./user";
 
 export const defaultUrls: string[] = (window as any).defaultRelayUrls ?? [
@@ -229,7 +231,9 @@ function toGetRelayUrls() {
   const otherList = reactive(new Set<string>());
   const line = rootEventBeltline
     .createChild()
-    .addFilter({ kinds: [10002], limit: 20 })
+    .addStaff(createEoseUnSubStaff())
+    .addStaff(createTimeoutUnSubStaff())
+    .addFilter({ kinds: [10002], limit: 100 })
     .addStaff({
       push(e) {
         const { writeUrl, readUrl } = deserializeTagRToReadWriteList(e.tags);

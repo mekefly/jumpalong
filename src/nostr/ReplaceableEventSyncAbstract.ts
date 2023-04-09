@@ -6,6 +6,7 @@ import { createLatestEventStaff } from "@/nostr/staff/createLatestEventStaff";
 import { useCache } from "@/utils/cache";
 import { debounce, nowSecondTimestamp } from "@/utils/utils";
 import { Event, Filter } from "nostr-tools";
+import createTimeoutUnSubStaff from "./staff/createTimeoutUnSubStaff";
 
 export abstract class ReplaceableEventSyncAbstract<E> {
   private name: string;
@@ -164,6 +165,7 @@ export abstract class ReplaceableEventSyncAbstract<E> {
         const slef = this;
         const withEvent = new Set();
         const line = createEventBeltline()
+          .addStaff(createTimeoutUnSubStaff())
           .addFilters(this.getFilters())
           .addStaff({
             push(e, _, { subId }) {

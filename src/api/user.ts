@@ -15,17 +15,9 @@ import createUseChannelMetadata, {
 } from "@/nostr/staff/createUseChannelMetadata";
 import createWithEvent from "@/nostr/staff/createWithEvent";
 import ReplaceableEventMapStaff from "@/nostr/staff/ReplaceableEventMapStaff";
-import createLocalStorageStaff from "@/nostr/staff/storage/createLocalStorageStaff";
-import UserUniqueEventStaff from "@/nostr/staff/UserUniqueEventStaff";
 import { useCache } from "@/utils/cache";
 import { syncInterval, timeout } from "@/utils/utils";
 import { publishEvent } from "./event";
-
-const kind10002EventBeltline = rootEventBeltline
-  .createChild({ preventCircularReferences: true })
-  .addFilter({ kinds: [10002] })
-  .addStaff(createLocalStorageStaff(1000))
-  .addStaff(UserUniqueEventStaff());
 
 export async function sendUserMetadataByPubkey(userMetaData: UserMetaData) {
   return new Promise<void>((resolve, reject) => {

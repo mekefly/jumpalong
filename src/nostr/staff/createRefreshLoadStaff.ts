@@ -121,6 +121,8 @@ export default createStaffFactory()(
           const prestrainLine = slef
             .createChild()
             .addFilters(filters.map((filter) => ({ ...filter, limit })))
+            .addStaff(createEoseUnSubStaff())
+            .addStaff(createTimeoutUnSubStaff())
             .addStaff({
               push() {
                 if (loadBufferOpt.bufferCounter.count + 1 >= limit) {
