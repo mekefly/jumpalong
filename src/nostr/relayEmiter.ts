@@ -57,9 +57,16 @@ export class RelayEmiter {
     subId: any,
     v?: any
   ) {
+    const eventName = this.createEventName(type, subId);
+    if (!this.checkUp(eventName)) {
+      return;
+    }
     this.queue.insert(() => {
-      this.eventEmiter.emit(this.createEventName(type, subId), v);
-    }, 0);
+      this.eventEmiter.emit(eventName, v);
+    }, config.priority[type]);
+  }
+  checkUp(eventName: string) {
+    return this.eventEmiter.listenerCount(eventName) > 0;
   }
   emitEvent(subId: string, opt: RelayEmiterResponseEventMap["event"]) {
     this.eventEmiter.emit("event", opt);
@@ -109,9 +116,14 @@ export class RelayEmiter {
     type: E,
     v: RelayEmiterRequestEventMap[E]
   ) {
+    const eventName = type;
+    //存在监听才加入队列
+    if (!this.checkUp(eventName)) {
+      return;
+    }
     this.queue.insert(() => {
       this.eventEmiter.emit(type, v);
-    }, 10);
+    }, config.priority[type]);
   }
   removeRequestListener(
     type: keyof RelayEmiterRequestEventMap,

@@ -1,5 +1,5 @@
 import { useCache } from "@/utils/cache";
-import { syncInterval } from "@/utils/utils";
+import { debounce, syncInterval } from "@/utils/utils";
 import { createStaff, StaffThisType } from ".";
 import { config, rootEventBeltline } from "../nostr";
 import createAutomaticRandomRequestStaff, {
@@ -67,9 +67,11 @@ export default function autoAddRelayurlByPubkeyStaff(
             `createAddRelayUrlGraspClues:${pubkey}`,
             () => {
               autoAddReqLine.addRelayUrls(line.getRelayUrls());
-              line.onAddRelayUrlsAfter((urls) => {
+
+              const debounceOnAddRelayUrls = debounce((urls: Set<string>) => {
                 autoAddReqLine.addRelayUrls(urls);
-              });
+              }, 1000);
+              line.onAddRelayUrlsAfter(debounceOnAddRelayUrls);
             },
             config.syncInterval6
           );
@@ -113,9 +115,10 @@ export default function autoAddRelayurlByPubkeyStaff(
         },
         { useLocalStorage: false }
       );
-      line.onAddRelayUrlsAfter((urls) => {
+      const debounceOnAddRelayUrls = debounce((urls: Set<string>) => {
         slefBeltline.addRelayUrls(urls);
-      });
+      }, 1000);
+      line.onAddRelayUrlsAfter(debounceOnAddRelayUrls);
 
       //更新读写列表
     },

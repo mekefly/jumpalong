@@ -2,6 +2,7 @@
 import { getUserMetadataLineByPubkey } from "@/api/user";
 import { useLazyComponent } from "@/utils/use";
 import profile from "../assets/profile-2-400x400.png";
+import Ellipsis from "./Ellipsis.vue";
 
 const props = defineProps<{
   pubkey: string;
@@ -17,7 +18,7 @@ const metadata = computed(() => metadataLine.value?.feat.useMetadata());
 </script>
 
 <template>
-  <n-list-item class="cursor-pointer">
+  <n-list-item class="cursor-pointer overflow-hidden">
     <div ref="target" class="flex items-center">
       <n-avatar
         class="ml-4"
@@ -27,9 +28,12 @@ const metadata = computed(() => metadataLine.value?.feat.useMetadata());
         @click="() => $router.push(`/profile/${pubkey}`)"
       />
       <div class="flex flex-col ml-4 flex-1 shrink-1 w-full">
-        <div class="text-xl" @click="() => $router.push(`/profile/${pubkey}`)">
+        <Ellipsis
+          class="text-xl"
+          @click="() => $router.push(`/profile/${pubkey}`)"
+        >
           {{ name ?? metadata?.name ?? pubkey.slice(0, 10) }}
-        </div>
+        </Ellipsis>
         <Ellipsis v-if="metadata?.about" :style="{ fontSize: '10px' }">
           {{ about ?? metadata.about }}
         </Ellipsis>

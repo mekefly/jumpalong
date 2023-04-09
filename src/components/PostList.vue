@@ -2,25 +2,31 @@
 import { eventDeletionOne } from "@/api/event";
 import PapawVueList from "@/components/PapawList.vue";
 import { t } from "@/i18n";
+import { useElementIntoScreen } from "@/utils/use";
 import { Event, Filter } from "nostr-tools";
 import { createTextEventBeltline } from "../api/shortTextEventBeltline";
 import { useLoad } from "./Refresh";
 
 logger.for("home.vue").for("PostList.vue").info("进入PostList.vue");
 
-const props = defineProps<{
-  urls?: Set<string>;
-  pubkeys?: string[];
-  filter?: Filter;
-  filters?: Filter[];
-  pushEvent?: (e: Event) => void;
-  active?: boolean;
-  disabledLoad?: boolean;
-  disabledEmpty?: boolean;
-  limit?: number;
-  reverseSort?: boolean;
-  disabledReply?: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    urls?: Set<string>;
+    pubkeys?: string[];
+    filter?: Filter;
+    filters?: Filter[];
+    pushEvent?: (e: Event) => void;
+    active?: boolean;
+    disabledLoad?: boolean;
+    disabledEmpty?: boolean;
+    limit?: number;
+    reverseSort?: boolean;
+    disabledReply?: boolean;
+  }>(),
+  {
+    active: true,
+  }
+);
 const emit = defineEmits<{
   (e: "update:pushEvent", v: (e: Event) => void): void;
 }>();
@@ -88,10 +94,16 @@ defineExpose({
   postEvents,
   ...loadOptions,
 });
+const divRef = ref(undefined);
+useElementIntoScreen(divRef, {
+  active: active ?? ref(true),
+});
+
+const instance = ref(getCurrentInstance());
 </script>
 
 <template>
-  <div>
+  <div ref="divRef">
     <div
       class="py-20 flex items-center justify-center"
       v-if="!disabledLoad && isLoading && postEvents && postEvents.length === 0"

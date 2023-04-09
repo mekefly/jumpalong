@@ -1,11 +1,14 @@
+import {
+  RelayEmiterResponseEventMap,
+  type RelayEmiterRequestEventMap,
+} from "@/nostr/relayEmiter";
+import { withDefault } from "@/utils/utils";
 import { type EventBeltline } from "./eventBeltline";
 import { type RelayConfigurator } from "./relayConfigurator";
 import { type RelayEmiter } from "./RelayEmiter";
 import { type RelayPool } from "./RelayPool";
-
-const appConfig = useLocalStorage(
-  "app-config",
-  () => ({
+const createDefaultConfig = () => {
+  const v: ConfigType = {
     getOtherUrlsRequestLimitSize: 50,
     localStorage: { kind10002: 500, duration: 1000 * 60 * 60 * 24 * 7 },
     eventCacheDuration: 1000 * 60 * 20,
@@ -18,6 +21,16 @@ const appConfig = useLocalStorage(
     enablePapawTree: false,
     enablePapawTreeLazyMode: true,
     lazyDelayForPapaw: 0,
+    priority: {
+      close: 11,
+      closeReq: 12,
+      publish: 10,
+      req: 8,
+      eose: 18,
+      event: 7,
+      notice: 0,
+      ok: 15,
+    },
     syncInterval: 1000 * 60,
     syncInterval1: 1000 * 60 * 5,
     syncInterval2: 1000 * 60 * 15,
@@ -29,11 +42,16 @@ const appConfig = useLocalStorage(
     syncInterval8: 1000 * 60 * 60 * 24 * 3,
     syncInterval9: 1000 * 60 * 60 * 24 * 7,
     autoPing: true,
-  }),
-  {
-    deep: true,
-  }
-);
+  };
+  return v;
+};
+
+const appConfig = useLocalStorage("app-config", createDefaultConfig, {
+  deep: true,
+});
+const defaultConfig = createDefaultConfig();
+//设置默认
+withDefault(appConfig.value, defaultConfig);
 /**
  * 中继配置器
  */
@@ -57,6 +75,11 @@ type ConfigType = {
     debounce: number;
   };
   relayEmiterQueueInterval: number;
+  priority: {
+    [key in keyof RelayEmiterRequestEventMap]: number;
+  } & {
+    [key in keyof RelayEmiterResponseEventMap]: number;
+  };
   enablePapawTree: boolean;
   enablePapawTreeLazyMode: boolean;
   stopHideLongArticles: boolean;

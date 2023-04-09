@@ -18,7 +18,7 @@ import ReplaceableEventMapStaff from "@/nostr/staff/ReplaceableEventMapStaff";
 import createLocalStorageStaff from "@/nostr/staff/storage/createLocalStorageStaff";
 import UserUniqueEventStaff from "@/nostr/staff/UserUniqueEventStaff";
 import { useCache } from "@/utils/cache";
-import { syncInterval } from "@/utils/utils";
+import { syncInterval, timeout } from "@/utils/utils";
 import { publishEvent } from "./event";
 
 const kind10002EventBeltline = rootEventBeltline
@@ -94,11 +94,14 @@ export function getUserMetadataLineByPubkey(
         .addStaff(createTimeoutUnSubStaff())
         .addStaff(createWithEvent());
 
-      const req = () => {
+      const req = async () => {
         line.addRelayUrls(urls);
-        line.addReadUrl();
 
+        await timeout(1000);
         line.addStaff(autoAddRelayurlByPubkeyStaff(pubkey));
+
+        await timeout(1000);
+        line.addReadUrl();
       };
 
       if (line.feat.isHas()) {

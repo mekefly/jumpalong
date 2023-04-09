@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { useElementIntoScreen } from "@/utils/use";
 import { NList } from "naive-ui";
 import { getFollowerLineByPubkey } from "../api/Contact";
 import ContactListItemVue from "./FollowItem.vue";
@@ -16,10 +17,15 @@ const eventList = computed(() => {
 });
 
 useLoad(flowerLine, active);
+
+const divRef = ref(undefined);
+useElementIntoScreen(divRef, {
+  active: toRef(props, "active"),
+});
 </script>
 
 <template>
-  <div class="p-4 box-border">
+  <div ref="divRef" class="p-4 box-border">
     <n-list>
       <ContactListItemVue
         v-for="event of eventList"

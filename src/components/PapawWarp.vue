@@ -32,7 +32,9 @@ const emit = defineEmits<{
   (e: "update:showSMS", v: boolean): void;
 }>();
 
-const [target, isShow] = useLazyShow(undefined, { preloadDistance: 0 });
+const [target, isShow] = useLazyShow(undefined, {
+  preloadDistance: 0,
+});
 
 const { event, deleteEvent } = toRefs(props);
 

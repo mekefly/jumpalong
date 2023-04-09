@@ -13,14 +13,18 @@ const activePage = ref("homepage");
 
 <template>
   <n-tabs type="line" v-model:value="activePage" animated>
-    <n-tab-pane display-directive="show" name="homepage" :tab="t('homepage')">
+    <n-tab-pane
+      display-directive="show:lazy"
+      name="homepage"
+      :tab="t('homepage')"
+    >
       <PostListVue
         :active="activePage === 'homepage'"
         :pubkeys="pubkeys"
         :urls="props.urls"
       />
     </n-tab-pane>
-    <n-tab-pane display-directive="show" name="follow" :tab="t('follow')">
+    <n-tab-pane display-directive="show:lazy" name="follow" :tab="t('follow')">
       <Follow :active="activePage === 'follow'" :pubkey="pubkey" :urls="urls" />
     </n-tab-pane>
     <n-tab-pane
