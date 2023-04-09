@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.6-test.12](https://github.com/mekefly/jumpalong/compare/v0.4.6-test.11...v0.4.6-test.12) (2023-04-09)
+
+
+### 🐛 Bug Fixes | Bug 修复
+
+* Fix abnormal display of connection quantity ([18c7f98](https://github.com/mekefly/jumpalong/commit/18c7f98ef838a40a175ad975e2ff563c2df13260))
+
 ### [0.4.6-test.11](https://github.com/mekefly/jumpalong/compare/v0.4.6-test.10...v0.4.6-test.11) (2023-04-09)
 
 
