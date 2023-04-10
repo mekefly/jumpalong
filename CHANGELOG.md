@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.5.0-test.0](https://github.com/mekefly/jumpalong/compare/v0.4.6...v0.5.0-test.0) (2023-04-10)
+
+
+### ✨ Features | 新功能
+
+* TagView.vue ([988f4ef](https://github.com/mekefly/jumpalong/commit/988f4efc2753a5435be90d18216ab5c1d66a2e92))
+
 ### [0.4.6](https://github.com/mekefly/jumpalong/compare/v0.4.6-test.12...v0.4.6) (2023-04-10)
 
 
