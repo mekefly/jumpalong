@@ -80,7 +80,17 @@ export const newWeakMap = (() => {
   };
 })();
 export function createId() {
-  return Math.random().toString().slice(2);
+  return (Math.random() * 2 ** 52).toString(36);
+}
+
+/**
+ * 任意数为底的对数
+ * @param base 底数
+ * @param n 任意数
+ * @returns
+ */
+export function log(base: number, n: number) {
+  return Math.log(n) / Math.log(base);
 }
 
 /**
@@ -304,9 +314,12 @@ export async function ping(url: string, timeout: number = 2000) {
     }, timeout);
   });
 }
-export function setAdds<T>(set: Set<T>, ...iterables: Iterable<T>[]) {
+export function setAdds<T>(
+  set: Set<T>,
+  ...iterables: Array<Iterable<T> | undefined>
+) {
   for (const iterable of iterables) {
-    for (const item of iterable) {
+    for (const item of iterable ?? []) {
       set.add(item);
     }
   }

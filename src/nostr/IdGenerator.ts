@@ -1,5 +1,7 @@
+import { createId } from "@/utils/utils";
+
 export class IdGenerator {
   createId() {
-    return Math.random().toString().slice(2);
+    return createId();
   }
 }

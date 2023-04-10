@@ -3,8 +3,12 @@ import { type EventBeltline } from "@/nostr/eventBeltline";
 import { relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
 import createEoseUnSubStaff from "@/nostr/staff/createEoseUnSubStaff";
 import { createLatestEventStaff } from "@/nostr/staff/createLatestEventStaff";
-import { useCache } from "@/utils/cache";
-import { debounce, nowSecondTimestamp } from "@/utils/utils";
+import {
+  debounce,
+  nowSecondTimestamp,
+  setAdds,
+  syncInterval,
+} from "@/utils/utils";
 import { Event, Filter } from "nostr-tools";
 import createTimeoutUnSubStaff from "./staff/createTimeoutUnSubStaff";
 
@@ -151,21 +155,18 @@ export abstract class ReplaceableEventSyncAbstract<E> {
     this.isSync = true;
     const urls: Set<string> = opt?.onlyUrl
       ? new Set<string>().add(opt.onlyUrl)
-      : new Set(
-          [
-            ...(opt?.moreUrls ?? []),
-            ...relayConfigurator.getWriteList(),
-            ...relayConfigurator.getReadList(),
-          ].slice(0, 10)
+      : setAdds(
+          new Set(),
+          relayConfigurator.getWriteList(),
+          relayConfigurator.getReadList(),
+          opt?.moreUrls
         );
-
-    useCache(
-      `cache:${this.name + [...urls]}`,
+    syncInterval(
+      `cache:${this.name}:${JSON.stringify(opt)}`,
       () => {
         const slef = this;
         const withEvent = new Set();
         const line = createEventBeltline()
-          .addStaff(createTimeoutUnSubStaff())
           .addFilters(this.getFilters())
           .addStaff({
             push(e, _, { subId }) {
@@ -193,7 +194,10 @@ export abstract class ReplaceableEventSyncAbstract<E> {
             },
           })
           .addStaff(createEoseUnSubStaff())
-          .addRelayUrls(urls);
+          .addStaff(createTimeoutUnSubStaff());
+        setTimeout(() => {
+          line.addRelayUrls(urls);
+        });
 
         !opt?.onlyUrl && line.addExtends(rootEventBeltline);
         const localEvent = this.getLocalEvent();
@@ -208,12 +212,8 @@ export abstract class ReplaceableEventSyncAbstract<E> {
         });
 
         line.feat.onHasLatestEvent(debounceListener);
-
-        return true;
       },
-      {
-        duration: 10_000, //十秒过期是为了，有的人闲着，不断按浏览器刷新按钮
-      }
+      10_000
     );
   }
   syncOne() {

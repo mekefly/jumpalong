@@ -23,28 +23,6 @@ export function initializeRuntime() {
 
   injectNostrApi({ rootEventBeltline });
 
-  // .addStaf(createLocalStorageStaff())
-  // .addStaff(
-  //   UseStorageStaff(
-  //     [
-  //       {
-  //         kinds: [1, 42],
-  //       },
-  //     ],
-  //     300
-  //   )
-  // )
-  // .addStaff(
-  //   UseStorageStaff(
-  //     [
-  //       {
-  //         kinds: [0, 40, 41],
-  //       },
-  //     ],
-  //     500
-  //   )
-  // );
-
   relayEmiter.onEvent(({ subId, event, url }) => {
     rootEventBeltline.pushEvent(event, { subId });
   });
