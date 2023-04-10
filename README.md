@@ -28,7 +28,7 @@ This program is a web client of Nostr, provides a beautiful interface and intera
 - [ ] NIP-05: Mapping Nostr keys to DNS-based internet identifiers
 - [ ] NIP-06: Basic key derivation from mnemonic seed phrase
 - [ ] NIP-07: window.nostr capability for web browsers
-- [ ] NIP-08: Handling Mentions
+- [x] NIP-08: Handling Mentions
 - [x] NIP-09: Event Deletion
 - [ ] NIP-10: Conventions for clients' use of e and p tags in text events
 - [x] NIP-11: Relay Information Document
@@ -44,12 +44,13 @@ This program is a web client of Nostr, provides a beautiful interface and intera
 - [ ] NIP-23: Long-form Content
 - [ ] NIP-25: Reactions
 - [ ] NIP-26: Delegated Event Signing
+- [x] NIP-27: Text Note References
 - [x] NIP-28: Public Chat
 - [ ] NIP-33: Parameterized Replaceable Events
 - [ ] NIP-36: Sensitive Content
 - [ ] NIP-40: Expiration Timestamp
 - [ ] NIP-42: Authentication of clients to relays
-- [ ] NIP-50: Keywords filter
+- [x] NIP-50: Keywords filter
 - [ ] NIP-56: Reporting
 - [ ] NIP-57: Lightning Zaps
 - [x] NIP-65: Relay List Metadata
@@ -81,6 +82,17 @@ This program is a web client of Nostr, provides a beautiful interface and intera
 | 10000-19999 |        Replaceable Events        |   16    |     ✅     |
 | 20000-29999 |         Ephemeral Events         |   16    |     ✅     |
 | 30000-39999 | Parameterized Replaceable Events |   33    |     ✅     |
+
+## Client to Relay
+
+| **type** |                     **description**                     |                            **NIP**                             | **supper** |
+| :------: | :-----------------------------------------------------: | :------------------------------------------------------------: | :--------: |
+|  EVENT   |        used to send events requested to clients         | [1](https://github.com/nostr-protocol/nips/blob/master/01.md)  |     ✅     |
+|  NOTICE  |     used to send human-readable messages to clients     | [1](https://github.com/nostr-protocol/nips/blob/master/01.md)  |     ✅     |
+|   EOSE   | used to notify clients all stored events have been sent | [1](https://github.com/nostr-protocol/nips/blob/master/01.md)  |     ✅     |
+|    OK    |    used to notify clients if an EVENT was successful    | [20](https://github.com/nostr-protocol/nips/blob/master/20.md) |     ✅     |
+|   AUTH   |         used to send authentication challenges          | [42](https://github.com/nostr-protocol/nips/blob/master/42.md) |            |
+|  COUNT   |     used to send requested event counts to clients      | [45](https://github.com/nostr-protocol/nips/blob/master/45.md) |            |
 
 ## 技术
 

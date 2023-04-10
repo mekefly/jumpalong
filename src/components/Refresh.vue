@@ -44,16 +44,6 @@ const {
 } = useLimitMovement(maxShifting);
 let lastY: null | number = null;
 const { x, y, arrivedState } = useScroll(containerRef);
-useEventListener(
-  containerRef,
-  "touchstart",
-  (e: TouchEvent) => {
-    homing();
-
-    transition.value = false;
-  },
-  { passive: true }
-);
 
 const reset = debounce(() => {
   trigger();
@@ -84,6 +74,7 @@ useEventListener(
       add(lastY - clientY);
     }
     lastY = clientY;
+    transition.value = false;
   },
   { passive: true }
 );

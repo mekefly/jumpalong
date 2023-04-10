@@ -9,7 +9,7 @@ import { EventBeltline } from "@/nostr/eventBeltline";
 import { rootEventBeltline } from "@/nostr/nostr";
 import { createDoNotRepeatStaff } from "@/nostr/staff";
 import { toDeCodeNevent, toDeCodeNprofile } from "@/utils/nostr";
-import { Event } from "nostr-tools";
+import { Event, Filter } from "nostr-tools";
 
 const router = useRouter();
 const route = useRoute();
@@ -69,10 +69,16 @@ watch(
         });
       searchRootLine.addChild(searchLine); //交给searchRoot去管理
 
+      const filters: Array<Filter & { search?: string }> = [
+        { search: value.value },
+        {
+          ["#r"]: [value.value],
+        },
+      ];
       //本地搜索
       const searchLocal = searchLine
         .createChild()
-        .addFilter({ search: value.value } as any)
+        .addFilters(filters)
         .addExtends(rootEventBeltline);
       //汇总生产线
       searchLine.addExtends(searchLocal);

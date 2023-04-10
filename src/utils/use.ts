@@ -261,7 +261,7 @@ type UseElementIntoScreenOpt = {
   preloadDistance?: number;
   active?: Ref<boolean | undefined>;
 };
-function useActive(_active?: MaybeRef<boolean>) {
+export function useActivated(_active?: MaybeRef<boolean>) {
   const active: Ref<boolean> = ref(_active ?? false);
 
   onMounted(handelActive);
@@ -291,7 +291,7 @@ export function useElementIntoScreen(
   const parent = useIntoScreenState();
   const { isIntoScreen: parentIsIntoScreen, active: parentActive } =
     parent ?? {};
-  const active1 = useActive();
+  const active1 = useActivated();
 
   const { isIntoScreen, active, isAddListener } = useProvideIntoScreenState({
     // @ts-ignore
@@ -692,8 +692,9 @@ export function useCanceleableClick(
   function cancelClick() {
     isPress.value = false;
   }
-  function checkClick() {
+  function checkClick(e: any) {
     if (!isPress.value) return;
+    e.stopPropagation();
     isPress.value = false;
     onClick();
   }

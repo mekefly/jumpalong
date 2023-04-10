@@ -102,6 +102,12 @@ const router = createRouter({
           component: () => import("../views/ToBackView.vue"),
           children: [
             {
+              path: "/tag/:value",
+              name: "tag",
+              component: () => import("../views/TagView.vue"),
+              meta: {},
+            },
+            {
               path: "/notice",
               name: "notice",
               component: () => import("../views/NoticeView.vue"),
