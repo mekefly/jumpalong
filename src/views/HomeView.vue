@@ -58,9 +58,14 @@ const value = ref("MyFeed");
         >
           <PostList
             :active="value === 'GlobalFeed'"
-            :filter="{
-              kinds: [1],
-            }"
+            :filters="[
+              {
+                kinds: [1],
+              },
+              {
+                kinds: [30023],
+              },
+            ]"
           />
         </n-tab-pane>
       </n-tabs>

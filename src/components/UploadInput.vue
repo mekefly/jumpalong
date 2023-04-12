@@ -24,9 +24,20 @@ function handleUploadResult(opt: UploadFinishEventOpt) {
 </script>
 
 <template>
-  <div class="flex">
-    <n-input :placeholder="placeholder" v-model:value="value"> </n-input>
-    <UploadButtonVue @uploadResult="handleUploadResult"></UploadButtonVue>
+  <div>
+    <div class="flex">
+      <n-input :placeholder="placeholder" v-model:value="value" class="mr-2">
+      </n-input>
+      <UploadButtonVue @uploadResult="handleUploadResult"></UploadButtonVue>
+    </div>
+    <div class="mt-1">
+      <n-image
+        class="m-0 rounded-md"
+        v-if="value"
+        :imgProps="{ style: { width: '100%' } }"
+        :src="value"
+      ></n-image>
+    </div>
   </div>
 </template>
 

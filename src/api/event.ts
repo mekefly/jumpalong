@@ -4,14 +4,17 @@ import { relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
 import autoAddRelayurlByPubkeyStaff from "@/nostr/staff/autoAddRelayurlByPubkeyStaff";
 import createEoseUnSubStaff from "@/nostr/staff/createEoseUnSubStaff";
 import createEventSourceTracers from "@/nostr/staff/createEventSourceTracers";
+import { createLatestEventStaff } from "@/nostr/staff/createLatestEventStaff";
 import createOneEventStaff from "@/nostr/staff/createOneEventStaff";
 import createTimeoutUnSubStaff from "@/nostr/staff/createTimeoutUnSubStaff";
 import createWithEvent from "@/nostr/staff/createWithEvent";
 import getCacheStaff from "@/nostr/staff/storage/getCacheStaff";
 import { userKey } from "@/nostr/user";
 import { useCache } from "@/utils/cache";
+import { toDeCodeAddress } from "@/utils/nostr";
 import { merageSet, syncInterval } from "@/utils/utils";
-import { Event } from "nostr-tools";
+import { Event, Filter, nip19 } from "nostr-tools";
+import { AddressPointer } from "nostr-tools/lib/nip19";
 // import { relayQuery } from "../nostr";
 import { createEventBeltlineReactive } from "../nostr/createEventBeltline";
 type EventDeletionOptions = {} & PublishOpt;
@@ -97,6 +100,57 @@ export function getEventLineById(
         20 * 1000
       );
 
+      return line;
+    },
+    {
+      useLocalStorage: false,
+    }
+  );
+}
+export function createGetEventLineByAddress(address: string) {
+  const addressPointer = toDeCodeAddress(address);
+  if (addressPointer) {
+    return createGetEventLineByAddressPointer(addressPointer);
+  }
+  throw new Error("Not an address");
+}
+type CreateGetEventLineByAddressPointerOption = { urls: Set<string> };
+export function createGetEventLineByAddressPointer(
+  addressPointer: AddressPointer,
+  opt?: CreateGetEventLineByAddressPointerOption
+) {
+  return useCache(
+    `createGetEventLineByAddressPointer:${nip19.naddrEncode(addressPointer)}`,
+    () => {
+      const filter: Filter = {
+        ["#d"]: [addressPointer.identifier],
+        authors: [addressPointer.pubkey],
+        kinds: [addressPointer.kind],
+      };
+      const line = createEventBeltlineReactive({
+        describe: "获取Event通过id",
+      })
+        .addFilter(filter)
+        .addStaff(createWithEvent()) //具有事件判定
+        .addStaff(createLatestEventStaff()) // 只获取最新的一条
+        .addStaff(createEventSourceTracers()) //事件来源记录
+        .addStaff(createEoseUnSubStaff()) //自动结束订阅
+        .addStaff(createTimeoutUnSubStaff()); //超时解除订阅
+
+      const req = async () => {
+        line.addStaff(autoAddRelayurlByPubkeyStaff(addressPointer.pubkey));
+        if (await line.feat.timeoutWithEvent()) return;
+
+        if (opt?.urls && opt.urls.size > 0) {
+          line.addRelayUrls(opt.urls);
+          if (await line.feat.timeoutWithEvent()) return;
+        }
+
+        line.addReadUrl();
+        if (await line.feat.timeoutWithEvent()) return;
+      };
+
+      req();
       return line;
     },
     {

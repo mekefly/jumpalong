@@ -213,6 +213,13 @@ const defaul = {
 
   relay_emiter_queue_interval: "Relay emiter queue interval",
 
+  published_at: "Publish At",
+  markdown_editor: "Markdown Editor",
+  title: "Title",
+  summary: "Summary",
+
+  edit: "Edit",
+
   message: {
     you_have_sent_a_delete_request: `You have sent a delete request`,
     relay_configurator_save_message:

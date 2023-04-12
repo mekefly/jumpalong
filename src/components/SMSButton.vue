@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import { t } from "@/i18n";
+import { getOnlyTag } from "@/nostr/tag";
+import router from "@/router";
 import {
   useRecommendEvent,
   useRecommendUser,
@@ -15,6 +17,7 @@ import { userKey } from "../nostr/user";
 import { useBlackData } from "../views/ContentBlacklistView";
 import MoreIconVue from "./icon/MoreIcon.vue";
 import { useRichTextEditBoxOpt } from "./RichTextEditBox";
+const message = useMessage();
 
 const richTextEditBoxOpt = useRichTextEditBoxOpt();
 
@@ -42,6 +45,23 @@ const pushShortTextNote = usePushShortTextNote();
 const handleMap = {
   close: () => {
     show.value = false;
+  },
+  editArticle: () => {
+    const identifierTag = getOnlyTag("d", event.value.tags);
+    if (!(identifierTag && identifierTag[1])) {
+      message.info("Identifier not found");
+      return;
+    }
+    router.push({
+      name: "markdown-editor",
+      params: {
+        value: nip19.naddrEncode({
+          identifier: identifierTag[1],
+          pubkey: event.value.pubkey,
+          kind: event.value.kind,
+        }),
+      },
+    });
   },
   deleteEvent: () => {
     deleteEvent.value(event.value.id as any);
@@ -93,12 +113,22 @@ const options = ref<SelectMixedOption[]>([
   },
   ...(event.value.pubkey === userKey.value.publicKey
     ? [
+        ...(event.value.kind === 30023
+          ? [
+              {
+                label: t("edit"),
+                value: "editArticle",
+              },
+            ]
+          : []),
+
         {
           label: t("delete_event"),
           value: "deleteEvent",
         },
       ]
     : []),
+
   ...(event.value.pubkey !== userKey.value.publicKey
     ? [{ label: t("hide"), value: "joinTheBlacklist" }]
     : []),

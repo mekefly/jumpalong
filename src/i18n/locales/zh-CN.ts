@@ -215,6 +215,12 @@ const message: I18nMessages = {
 
   relay_emiter_queue_interval: "消息队列延迟",
 
+  published_at: "发布时间",
+  markdown_editor: "Markdown编辑器",
+  title: "标题",
+  summary: "摘要",
+  edit: "编辑",
+
   message: {
     you_have_sent_a_delete_request: `您已经发送了删除请求`,
     relay_configurator_save_message:

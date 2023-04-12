@@ -2,6 +2,7 @@
 import { t } from "@/i18n";
 import { Event } from "nostr-tools";
 import Content from "./Content.vue";
+import Markdown from "./Markdown.vue";
 import PapawReactionItem from "./PapawReactionItem.vue";
 import PapawWarp from "./PapawWarp.vue";
 import RelayContent from "./RelayContent.vue";
@@ -53,6 +54,10 @@ const content = computed(() => event.value.content);
           :active="true"
         />
         <RelayContent v-if="!disabledReply" :event="event" />
+      </span>
+
+      <span v-else-if="kind === 30023">
+        <Markdown :event="event"></Markdown>
       </span>
       <span v-else>{{ event.content }}</span>
     </template>

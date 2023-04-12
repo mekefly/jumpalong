@@ -20,7 +20,16 @@ const activePage = ref("homepage");
     >
       <PostListVue
         :active="activePage === 'homepage'"
-        :pubkeys="pubkeys"
+        :filters="[
+          {
+            kinds: [30023],
+            authors: [pubkey],
+          },
+          {
+            kinds: [1],
+            authors: [pubkey],
+          },
+        ]"
         :urls="props.urls"
       />
     </n-tab-pane>

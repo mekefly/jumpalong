@@ -57,6 +57,11 @@ const router = createRouter({
           component: () => import("../views/HomeView.vue"),
         },
         {
+          path: "/markdown/editor/:value?",
+          name: "markdown-editor",
+          component: () => import("../views/MarkdownEditorView.vue"),
+        },
+        {
           path: "/relays",
           name: "relays",
           component: () => import("../views/RelaysView.vue"),

@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { proviteArticeSetting } from "@/components/Markdown";
 import { providePapawFocus } from "@/components/Papaw";
 import Papaw from "@/components/Papaw.vue";
 import PapawTreeAutoFindRoot from "@/components/PapawTreeAutoFindRoot.vue";
@@ -44,6 +45,7 @@ function handleSend(e: EventTemplate) {
   handleSendEvent(e);
 }
 providePapawFocus(event);
+proviteArticeSetting({ showArticleDetails: true });
 </script>
 
 <template>

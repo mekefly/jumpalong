@@ -26,6 +26,25 @@ export function getTagEOfFirst(tags: string[][]): string[] | void {
   }
   return;
 }
+export function getOnlyTag(
+  type:
+    | String
+    | "title"
+    | "image"
+    | "summary"
+    | "published_at"
+    | "e"
+    | "d"
+    | "p",
+  tags: string[][]
+) {
+  for (const tag of tags) {
+    if (tag[0] === type) {
+      return tag;
+    }
+  }
+  return null;
+}
 
 export type WritableReadableList = {
   readUrl: Set<string>;

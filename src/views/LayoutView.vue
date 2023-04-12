@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import LayoutHeaderVue from "@/components/LayoutHeader.vue";
+import Router from "@/components/Router.vue";
 import { useThemeVars } from "naive-ui";
 import { ref } from "vue";
 import Sidebar from "../components/Sidebar.vue";
@@ -41,11 +42,7 @@ const themeVars = useThemeVars();
       </n-layout-sider>
       <n-layout content-style="padding: 8px;">
         <div class="h-full overflow-x-hidden">
-          <router-view v-slot="{ Component }">
-            <keep-alive>
-              <component :is="Component" />
-            </keep-alive>
-          </router-view>
+          <Router></Router>
         </div>
       </n-layout>
     </n-layout>

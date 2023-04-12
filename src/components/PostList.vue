@@ -45,7 +45,7 @@ const mergeFilters = computed(() => {
     _filters.push(
       ...pubkey.value.map((pubkey) => {
         return {
-          kinds: [1],
+          kinds: [30023, 1],
           authors: [pubkey],
         } as Filter;
       })

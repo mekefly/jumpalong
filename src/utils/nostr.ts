@@ -1,6 +1,6 @@
 import { deserializeTagR } from "@/nostr/tag";
 import { Event, Filter, nip19 } from "nostr-tools";
-import { ProfilePointer } from "nostr-tools/lib/nip19";
+import { AddressPointer, ProfilePointer } from "nostr-tools/lib/nip19";
 import { setAdds } from "./utils";
 
 export function toDeCodeNprofile(str: string): ProfilePointer | null {
@@ -23,6 +23,16 @@ export function toDeCodeNprofile(str: string): ProfilePointer | null {
       return null;
     }
   }
+}
+export function toDeCodeAddress(str: string): AddressPointer | null {
+  try {
+    const v = nip19.decode(str);
+
+    if (v["type"] === "naddr") {
+      return v["data"] as AddressPointer;
+    }
+  } catch (error) {}
+  return null;
 }
 export function decodeToPrikey(anyPrikey: string) {
   if (!anyPrikey) return null;
@@ -122,4 +132,8 @@ export function neventEncodeByEvent(event: Event, moreUrls?: Set<string>) {
     id: event.id as string,
     relays: [...url, ...(moreUrls ?? [])],
   });
+}
+
+export function createEventTemplate(e: Partial<Event>) {
+  return e;
 }

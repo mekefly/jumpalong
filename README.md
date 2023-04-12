@@ -39,9 +39,9 @@ This program is a web client of Nostr, provides a beautiful interface and intera
 - [ ] NIP-16: Event Treatment
 - [x] NIP-19: bech32-encoded entities
 - [ ] NIP-20: Command Results
-- [ ] NIP-21: nostr: URL scheme
+- [x] NIP-21: nostr: URL scheme
 - [x] NIP-22: Event created_at Limits
-- [ ] NIP-23: Long-form Content
+- [x] NIP-23: Long-form Content
 - [ ] NIP-25: Reactions
 - [ ] NIP-26: Delegated Event Signing
 - [x] NIP-27: Text Note References
@@ -77,7 +77,7 @@ This program is a web client of Nostr, provides a beautiful interface and intera
 |    9735     |               Zap                |   57    |            |
 |    10002    |       Relay List Metadata        |   65    |     ✅     |
 |    22242    |      Client Authentication       |   42    |            |
-|    30023    |        Long-form Content         |   23    |            |
+|    30023    |        Long-form Content         |   23    |     ✅     |
 |  1000-9999  |          Regular Events          |   16    |            |
 | 10000-19999 |        Replaceable Events        |   16    |     ✅     |
 | 20000-29999 |         Ephemeral Events         |   16    |     ✅     |

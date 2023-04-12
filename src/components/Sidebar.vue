@@ -10,6 +10,7 @@ import AlertOutlineVue from "./icon/AlertOutline.vue";
 import BookmarkOutlineVue from "./icon/BookmarkOutline.vue";
 import CaretDownOutlineVue from "./icon/CaretDownOutline.vue";
 import ClipboardTaskListLtr20FilledVue from "./icon/ClipboardTaskListLtr20Filled.vue";
+import Edit24Filled from "./icon/Edit24Filled.vue";
 import HomeVue from "./icon/Home.vue";
 import LinodeVue from "./icon/Linode.vue";
 import LogOutVue from "./icon/LogOut.vue";
@@ -28,6 +29,12 @@ const menuOptions = computed(
         label: t("home"),
         href: "/home",
         icon: renderIcon(HomeVue),
+      },
+      {
+        key: "MarkdownEditor",
+        label: t("markdown_editor"),
+        href: "/markdown/editor",
+        icon: renderIcon(Edit24Filled),
       },
       {
         key: "Profile",

@@ -427,7 +427,7 @@ export function useHandleSendMessage(
   const { urls = new Set<string>() } = opt ?? {};
   const onOK = useOnOK();
 
-  return function handleSendEvent(event: EventTemplate) {
+  return function handleSendEvent(event: Partial<EventTemplate>) {
     event.kind = kind;
     const l = unref(line) ?? rootEventBeltline;
     const publishLine = l.createChild();
