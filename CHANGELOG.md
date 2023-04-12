@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.5.0-test.2](https://github.com/mekefly/jumpalong/compare/v0.5.0-test.1...v0.5.0-test.2) (2023-04-12)
+
+
+### ✨ Features | 新功能
+
+* Support for long editable articles in nip 30023 ([6353059](https://github.com/mekefly/jumpalong/commit/6353059818f956439eb6fbc3d30d562c2da929f8))
+
 ## [0.5.0-test.1](https://github.com/mekefly/jumpalong/compare/v0.5.0-test.0...v0.5.0-test.1) (2023-04-11)
 
 ## [0.5.0-test.0](https://github.com/mekefly/jumpalong/compare/v0.4.6...v0.5.0-test.0) (2023-04-10)
