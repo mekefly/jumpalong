@@ -1,14 +1,15 @@
+import { retry } from "@/utils/utils";
 import { injectNostrApi } from "./nostr";
-import { NostrApiImpl } from "./NostrApi";
+import { NostrApiImpl, NotFoundError } from "./NostrApi";
 
 export function injectWindowNostr() {
   injectNostrApi({
     nostrApi: new NostrApiImpl(() => {
-      return new Promise((resolve) => {
+      return retry(async () => {
         if ((window as any).nostr) {
-          resolve((window as any).nostr);
+          return (window as any).nostr;
         } else {
-          setTimeout(() => resolve((window as any).nostr), 2000);
+          return Promise.reject(new NotFoundError("Not Found Nostr"));
         }
       });
     }),

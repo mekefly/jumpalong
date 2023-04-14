@@ -488,3 +488,25 @@ export function createTaskQueue(interval = 0) {
     },
   };
 }
+export async function retry<E>(
+  fn: () => Promise<E>,
+  num: number = 3,
+  interval: number = 1000
+) {
+  return new Promise<E>(async (resolve, reject) => {
+    let c = num;
+    while (c > 0) {
+      try {
+        resolve(await fn());
+        return;
+      } catch (error) {
+        c--;
+        if (c <= 0) {
+          reject(error);
+          return;
+        }
+      }
+      await timeout(interval);
+    }
+  });
+}

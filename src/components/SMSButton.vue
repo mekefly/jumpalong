@@ -48,6 +48,7 @@ const handleMap = {
   },
   editArticle: () => {
     const naddr = createAddress(event.value);
+
     if (!naddr) {
       message.info("Identifier not found");
       return;

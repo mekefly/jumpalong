@@ -139,14 +139,14 @@ export class NostrApiImpl implements NostrApi {
     if (!nostrApi.getPublicKey)
       throw new NotFoundError("Not found getPublicKey");
 
-    return nostrApi.getPublicKey();
+    return await nostrApi.getPublicKey();
   }
   async getRelays(): Promise<{
     [url: string]: { read: boolean; write: boolean };
   }> {
     const nostrApi = await this.getNostrApi();
     try {
-      return nostrApi.getRelays?.call(window) ?? {};
+      return nostrApi.getRelays?.() ?? {};
     } catch (error) {
       return {};
     }

@@ -8,35 +8,45 @@ import {
 } from "@/nostr/NostrApi";
 import router from "@/router";
 import { nip19, UnsignedEvent } from "nostr-tools";
+import { useCache } from "./cache";
 
 export function usePubkey(opt?: { intercept: boolean }) {
-  const pubkey = ref<string | undefined>(undefined);
-  const dialogApi = useDialog();
-  async function getPubkey() {
-    try {
-      pubkey.value = await nostrApi.getPublicKey();
-    } catch (error) {
-      if (error instanceof NotFoundError) {
-        dialogApi.error({
-          title: t("error"),
-          content:
-            "您当前使用插件授权登录,但是并没有找到此api,你需要检查登录插件是否安装",
-          positiveText: t("yes"),
-          onPositiveClick: () => {},
-        });
-      }
+  return useCache(
+    "usePubkey",
+    () => {
+      const pubkey = ref<string | undefined>(undefined);
+      const dialogApi = useDialog();
+      async function getPubkey() {
+        try {
+          pubkey.value = await nostrApi.getPublicKey();
+        } catch (error) {
+          if (error instanceof NotFoundError) {
+            dialogApi.error({
+              title: t("error"),
+              content:
+                "您当前使用插件授权登录,但是并没有找到此api,你需要检查登录插件是否安装",
+              positiveText: t("yes"),
+              onPositiveClick: () => {},
+            });
+          }
 
-      dialogApi.error({
-        title: t("error"),
-        content: String(error),
-        positiveText: t("yes"),
-        onPositiveClick: () => {},
-      });
-      opt?.intercept && pushToLogin();
+          dialogApi.error({
+            title: t("error"),
+            content: String(error),
+            positiveText: t("yes"),
+            onPositiveClick: () => {},
+          });
+          opt?.intercept && pushToLogin();
+        }
+      }
+      getPubkey();
+      return pubkey;
+    },
+    {
+      duration: 10 * 1000,
+      useLocalStorage: false,
     }
-  }
-  getPubkey();
-  return pubkey;
+  );
 }
 export async function getPubkeyOrNull(opt?: { intercept: boolean }) {
   try {
