@@ -9,6 +9,7 @@ import {
 } from "@/nostr/staff";
 import autoAddRelayUrlByFilter from "@/nostr/staff/autoAddRelayUrlByFilter";
 import autoAddRelayurlByPubkeyStaff from "@/nostr/staff/autoAddRelayurlByPubkeyStaff";
+import createMuteUserStaff from "@/nostr/staff/CreateMuteUserStaff";
 import createRefreshLoadStaff, {
   createEventSourceTracersForRefreshLoadStaff,
 } from "@/nostr/staff/createRefreshLoadStaff";
@@ -40,7 +41,8 @@ export function createTextEventBeltline(opts: CreateTextEventBeltlineOption) {
         })
       )
         .addStaff(createDoNotRepeatStaff()) // 重复事件过滤器
-        .addStaff(createBlackStaff()) // 黑名单过滤器
+        .addStaff(createMuteUserStaff()) // 用户黑名单过滤器
+        .addStaff(createBlackStaff()) // 文本黑名单过滤器
         .addStaff(createGarbageFilter()) // 垃圾邮件过滤器
         .addStaff(createFilterGreaterThanTheCurrenttimeStaff()) // 过滤掉-n秒前的情况
         .addStaff(createRefreshLoadStaff(filters, limit)) //添加刷新和加载功能
