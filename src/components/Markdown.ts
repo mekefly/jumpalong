@@ -44,7 +44,9 @@ export function useMarkdownState(
   const line = computed(
     () =>
       addressPointer.value &&
-      createGetEventLineByAddressPointer(addressPointer.value)
+      createGetEventLineByAddressPointer(addressPointer.value, {
+        urls: addressPointer.value.relays,
+      })
   );
   const event = computed(() => line.value?.feat.getLatestEvent());
   return {

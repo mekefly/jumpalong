@@ -220,6 +220,19 @@ const defaul = {
 
   edit: "Edit",
 
+  authorized: "Authorized",
+
+  authorized_form_not_floud_nostr_tip:
+    "You have not installed any login plugins. You can take a look at one of the following plugins",
+
+  authorized_form_test_note:
+    "Authorization requests may pop up, but no information will be sent",
+
+  help: "Help",
+
+  help_article:
+    "naddr1qq9rsetkvamxgwfkx35qz9mhwden5te0wfjkccte9ehx7um5wghxyctwvshsz8thwden5te0dehhxarj94c82c3wwajkcmr0wfjx2u3wdejhgqgewaehxw309ahx7um5wgh8q6twddsku6mf9ehhyee0qy08wumn8ghj7un9d3shjtnwdaehgu3wwa5hyetydejhgtn2wqhszxmhwden5te0dehhxarj9e3xjarrda5kutfjxyhx7un89uq32amnwvaz7tmxd9shger9de5k2u3wvdhk6tcpp4mhxue69uhkummn9ekx7mqpzpmhxue69uhkumedwd68ytn0wfnszxrhwden5te0d35kw6r5de5kuemjv4kxz7fwvdhk6qgnwaehxw309aex2mrp09skymr99ehhyeczyqrklt56qgr88jhemdn8xjyy4f980aym5w2zwjykusu7r3hlz7pgjqcyqqq823crzj7e3",
+
   message: {
     you_have_sent_a_delete_request: `You have sent a delete request`,
     relay_configurator_save_message:

@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { t } from "@/i18n";
 import { relayConfigurator } from "@/nostr/nostr";
+import { usePubkey } from "@/utils/nostrApiUse";
 import { NButton, NSpace } from "naive-ui";
 import { getUserMetadataLineByPubkey, UserMetaData } from "../api/user";
-import { userKey } from "../nostr/user";
 import UserMetadataEditingVue from "./UserMetadataEditing.vue";
 
 const message = useMessage();
@@ -13,18 +13,23 @@ const emit = defineEmits<{
 
 const userMetadata = ref<UserMetaData>({});
 
-const metadataLine = computed(() =>
-  getUserMetadataLineByPubkey(userKey.value.publicKey)
+const pubkey = usePubkey({ intercept: true });
+const metadataLine = computed(() => {
+  if (!pubkey.value) return;
+  return getUserMetadataLineByPubkey(pubkey.value);
+});
+const metadata = computed(
+  () => metadataLine.value && metadataLine.value.feat.useMetadata()
 );
-const metadata = computed(() => metadataLine.value.feat.useMetadata());
 watchEffect(() => {
+  if (!metadata.value) return;
   userMetadata.value = metadata.value;
 });
 
 const loading = ref(false);
 async function send() {
   loading.value = true;
-  metadataLine.value.publish(
+  metadataLine.value?.publish(
     {
       content: JSON.stringify(userMetadata.value),
       kind: 0,
@@ -53,6 +58,7 @@ async function send() {
     :bordered="false"
     role="dialog"
     aria-modal="true"
+    v-if="metadataLine"
   >
     <n-space vertical>
       <UserMetadataEditingVue :userMetadata="userMetadata" />

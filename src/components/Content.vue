@@ -11,6 +11,7 @@ import { isNumberAndNotNaN } from "@/utils/utils";
 import { Event, nip19 } from "nostr-tools";
 import ContentReplyItemVue from "./ContentReplyItem.vue";
 import ContentWebsiteVue from "./ContentWebsite.vue";
+import AiddrLink from "./NaddrLink.vue";
 import RelayContent from "./RelayContent.vue";
 import UserLinkVue from "./UserLink.vue";
 
@@ -78,6 +79,24 @@ const parseHandelList: ParseHandel[] = [
         if (!markIndex) return;
 
         cols.push(parseTagPlaceholder(mark, markIndex, event.tags) as any);
+      }
+    );
+  },
+  (next, text, cols, event) => {
+    //&notexxxx &nevent
+
+    matchAll(
+      text,
+      /(nostr:|&|@)((naddr)[a-zA-Z0-9]+)/g,
+      (text) => {
+        next(text);
+      },
+      (_, _1, regExpMatchArray) => {
+        const value = regExpMatchArray[2];
+
+        if (!value) return;
+
+        cols.push(["naddr", value]);
       }
     );
   },
@@ -300,6 +319,7 @@ function handelClick(item: string[], e: MouseEvent) {
             >{{ item[1] }}</RouterLink
           >
 
+          <AiddrLink v-else-if="item[0] === 'naddr'" :addr="item[1]" />
           <UserLinkVue v-else-if="item[0] === 'p'" :value="item[2]" />
           <ContentReplyItemVue
             v-else-if="item[0] === 'e'"

@@ -17,6 +17,7 @@ import {
   unref,
   watch,
   watchEffect,
+  WatchStopHandle,
   type Ref,
 } from "vue";
 import { useRouter } from "vue-router";
@@ -427,12 +428,12 @@ export function useHandleSendMessage(
   const { urls = new Set<string>() } = opt ?? {};
   const onOK = useOnOK();
 
-  return function handleSendEvent(event: Partial<EventTemplate>) {
+  return async function handleSendEvent(event: Partial<EventTemplate>) {
     event.kind = kind;
     const l = unref(line) ?? rootEventBeltline;
     const publishLine = l.createChild();
 
-    const newEvent = publishLine.publish(
+    const newEvent = await publishLine.publish(
       event,
       setAdds(unref(urls), relayConfigurator.getWriteList()),
       {
@@ -626,10 +627,15 @@ export function autoHidden(show: globalThis.Ref<boolean | undefined>) {
         once: true,
         passive: true,
       });
-      document.addEventListener("mousedown", hidden, {
-        once: true,
-        passive: true,
-      });
+      document.addEventListener(
+        "click",
+        () => {
+          setTimeout(hidden, 0);
+        },
+        {
+          once: true,
+        }
+      );
     }
   });
 }
@@ -699,4 +705,57 @@ export function useCanceleableClick(
     onClick();
   }
   return { isPress };
+}
+export function useAsyncComputed<
+  T,
+  D,
+  Sources extends Array<Ref<any> | (() => any)> = []
+>(
+  fn: (gets: {
+    [key in keyof Sources]: Sources[key] extends Ref<infer V>
+      ? () => V
+      : Sources[key];
+  }) => Promise<T>,
+  opt?: { default?: D; sources?: Sources }
+): ComputedRef<T | D> {
+  const v = ref<any>();
+  const flag = ref(false);
+  async function renew() {
+    v.value = await fn(gets as any);
+  }
+  const sourceList = ref(new Set());
+  let stop: WatchStopHandle | undefined;
+  watch(sourceList, () => {
+    stop?.();
+    stop = watch(sourceList.value, () => {
+      renew();
+    });
+  });
+
+  watch(sourceList.value, () => {
+    renew();
+  });
+
+  const gets =
+    opt?.sources?.map((source) => {
+      if (isRef(source)) {
+        return () => {
+          watch(source, () => {
+            flag.value = !flag.value;
+          });
+          sourceList.value.add(source);
+          return source.value;
+        };
+      } else {
+        return () => {
+          sourceList.value.add(source);
+          source();
+        };
+      }
+    }) ?? [];
+  const value = computed(() => {
+    renew();
+    return v.value ?? opt?.default;
+  });
+  return value as any;
 }

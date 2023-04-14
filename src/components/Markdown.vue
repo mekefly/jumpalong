@@ -96,7 +96,7 @@ function handelClick(tag: string) {
           'word-wrap': 'break-word',
         }"
       >
-        {{ longFormContent?.title }} xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxa
+        {{ longFormContent?.title }}
       </h3>
 
       <p>

@@ -3,15 +3,15 @@ import Copy16FilledVue from "@/components/icon/Copy16Filled.vue";
 import FloatingCardVue from "@/components/LoginCard.vue";
 import TooltipVue from "@/components/Tooltip.vue";
 import { t } from "@/i18n";
-import { userKey } from "@/nostr/user";
-import { nip19 } from "nostr-tools";
+import { usePrikey } from "@/utils/nostrApiUse";
 import { useClipboardDialog } from "../utils/naiveUi";
 
 const clipboard = useClipboardDialog();
 
-const prikey = computed(() => nip19.nsecEncode(userKey.value.privateKey));
+const prikey = usePrikey();
 
 function handleClipboard() {
+  if (!prikey.value) return;
   clipboard(prikey.value);
 }
 const value = ref();
@@ -25,6 +25,7 @@ const value = ref();
 
     <n-space class="mt-6" vertical>
       <n-input
+        v-if="prikey"
         placeholder=""
         v-model:value="prikey"
         type="password"

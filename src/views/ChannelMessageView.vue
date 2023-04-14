@@ -10,10 +10,10 @@ import RichTextEditBoxVue from "@/components/RichTextEditBox.vue";
 import ScrollbarVue from "@/components/Scrollbar.vue";
 import { t } from "@/i18n";
 import { getFollowChannelConfiguration } from "@/nostr/FollowChannel";
-import { userKey } from "@/nostr/user";
 import router from "@/router";
 import { useClipboardDialog } from "@/utils/naiveUi";
 import { toDeCodeNevent } from "@/utils/nostr";
+import { usePubkey } from "@/utils/nostrApiUse";
 import { useHandleSendMessage } from "@/utils/use";
 import { EventTemplate, nip19 } from "nostr-tools";
 import { computed } from "vue";
@@ -126,6 +126,7 @@ function handleEditChannel() {
   if (!nevent) return;
   router.push({ name: "edit-channel", params: { value: nevent } });
 }
+const currentPubkey = usePubkey();
 </script>
 
 <template>
@@ -139,7 +140,7 @@ function handleEditChannel() {
       <template #extra>
         <div class="felx items-center justify-center">
           <n-button
-            v-if="channelEvent && channelEvent.pubkey === userKey.publicKey"
+            v-if="channelEvent && channelEvent.pubkey === currentPubkey"
             class="mr-2"
             round
             @click="handleEditChannel"

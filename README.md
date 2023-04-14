@@ -27,7 +27,7 @@ This program is a web client of Nostr, provides a beautiful interface and intera
 - [ ] NIP-04: Encrypted Direct Message
 - [ ] NIP-05: Mapping Nostr keys to DNS-based internet identifiers
 - [ ] NIP-06: Basic key derivation from mnemonic seed phrase
-- [ ] NIP-07: window.nostr capability for web browsers
+- [x] NIP-07: window.nostr capability for web browsers
 - [x] NIP-08: Handling Mentions
 - [x] NIP-09: Event Deletion
 - [ ] NIP-10: Conventions for clients' use of e and p tags in text events

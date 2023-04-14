@@ -1,5 +1,6 @@
 import { type RelayConfigurator } from "@/nostr/relayConfigurator";
 import { type RelayEmiterResponseEventMap } from "@/nostr/relayEmiter";
+import { getPubkeyOrNull } from "@/utils/nostrApiUse";
 import { EventEmitter } from "events";
 import { Event, Filter, verifySignature } from "nostr-tools";
 import {
@@ -16,7 +17,6 @@ import { StaffState, type FeatType, type Staff } from "./staff";
 import { createFilterStaff } from "./staff/createFilterStaff";
 import createPushStaff from "./staff/createPushStaff";
 import { deserializeTagR } from "./tag";
-import { userKey } from "./user";
 
 const EventBeltlineSetSlef: new (slef: any) => {} = function (
   this: any,
@@ -371,7 +371,7 @@ export class EventBeltline<
       }
     });
   }
-  public publish(
+  public async publish(
     eventPart: Partial<Event>,
     urls: Set<string>,
     opt?: PublishOpt
@@ -412,11 +412,11 @@ export class EventBeltline<
     let event = eventPart as Event;
     if (isReSig) {
       //如果公钥存在，并且不是自己的话，认为是非法信息不发布
-      if (eventPart.pubkey && eventPart.pubkey !== userKey.value.publicKey)
+      if (eventPart.pubkey && eventPart.pubkey !== (await getPubkeyOrNull()))
         return;
 
       //不完整但是自己发送的，就从新签名
-      event = createEvent(eventPart);
+      event = await createEvent(eventPart);
     }
 
     // push到本地
@@ -426,6 +426,7 @@ export class EventBeltline<
     opt?.onOK && this.relayEmiter.on("ok", event.id, opt.onOK);
 
     const publishedUrls = new Set<string>();
+
     // pushEvent
     for (const url of opt?.autoPublishToTagR ?? true ? publishToUrls : urls) {
       this.toPublish(url, event);
@@ -445,6 +446,7 @@ export class EventBeltline<
         this.toPublish(url, event);
       }
     });
+
     return event;
   }
 

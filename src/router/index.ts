@@ -128,6 +128,11 @@ const router = createRouter({
               component: () => import("../views/ShortTextNoteView.vue"),
             },
             {
+              path: "/article/:value",
+              name: "article",
+              component: () => import("../views/ArticleView.vue"),
+            },
+            {
               path: "/channel/create",
               name: "create-channel",
               component: () => import("../views/CreateChannelView.vue"),
@@ -160,21 +165,6 @@ const router = createRouter({
       ],
     },
   ],
-});
-
-router.beforeEach((to, from, next) => {
-  const prikey = localStorage.getItem("newUserFlag");
-  const currentPrikey = localStorage.getItem("prikey");
-  if (
-    to.path.startsWith("/login") ||
-    ["relay-info", "login"].some((nextName) => to.name === nextName)
-  ) {
-    next();
-  } else if (prikey && prikey === currentPrikey) {
-    next({ name: "login", query: { redirected: to.fullPath } });
-  } else {
-    next();
-  }
 });
 
 export default router;

@@ -221,6 +221,16 @@ const message: I18nMessages = {
   summary: "摘要",
   edit: "编辑",
 
+  authorized: "授权",
+  authorized_form_not_floud_nostr_tip:
+    "你没有安装任何的登录插件，你可以看一下以下插件之一",
+
+  authorized_form_test_note: "可能会弹出授权请求,但不会发送任何信息",
+
+  help: "帮助",
+  help_article:
+    "naddr1qq9rsetkvamxgwfkx35qz9mhwden5te0wfjkccte9ehx7um5wghxyctwvshsz8thwden5te0dehhxarj94c82c3wwajkcmr0wfjx2u3wdejhgqgewaehxw309ahx7um5wgh8q6twddsku6mf9ehhyee0qy08wumn8ghj7un9d3shjtnwdaehgu3wwa5hyetydejhgtn2wqhszxmhwden5te0dehhxarj9e3xjarrda5kutfjxyhx7un89uq32amnwvaz7tmxd9shger9de5k2u3wvdhk6tcpp4mhxue69uhkummn9ekx7mqpzpmhxue69uhkumedwd68ytn0wfnszxrhwden5te0d35kw6r5de5kuemjv4kxz7fwvdhk6qgnwaehxw309aex2mrp09skymr99ehhyeczyqrklt56qgr88jhemdn8xjyy4f980aym5w2zwjykusu7r3hlz7pgjqcyqqq823crzj7e3",
+
   message: {
     you_have_sent_a_delete_request: `您已经发送了删除请求`,
     relay_configurator_save_message:

@@ -8,24 +8,29 @@ import ScrollbarVue from "@/components/Scrollbar.vue";
 import UserInformationButtonVue from "@/components/UserInformationButton.vue";
 import { relayConfigurator } from "@/nostr/nostr";
 import { toDeCodeNprofile } from "@/utils/nostr";
+import { usePubkey } from "@/utils/nostrApiUse";
 import { useScale } from "@/utils/use";
 import { nip19 } from "nostr-tools";
 import { computed } from "vue";
-import { userKey } from "../nostr/user";
 const route = useRoute();
 
-const nprofile = nip19.nprofileEncode({
-  pubkey: userKey.value.publicKey,
-  relays: Array.from(relayConfigurator.getWriteList()),
-});
-const hash = computed(() => (route.params.value as string) ?? nprofile);
+const currentPubkey = usePubkey({ intercept: true });
+const nprofile = computed(() =>
+  currentPubkey.value
+    ? nip19.nprofileEncode({
+        pubkey: currentPubkey.value,
+        relays: Array.from(relayConfigurator.getWriteList()),
+      })
+    : ""
+);
+const hash = computed(() => (route.params.value as string) ?? nprofile.value);
 
 const profilePointer = computed(() => {
   return toDeCodeNprofile(hash.value);
 });
 
 const isItMe = computed(
-  () => profilePointer.value?.pubkey === userKey.value.publicKey
+  () => profilePointer.value?.pubkey === currentPubkey.value
 );
 const pubkey = computed(() => profilePointer.value?.pubkey);
 const urls = computed(
@@ -43,14 +48,14 @@ const isFollow = computed(() => {
   if (!pubkey.value) return false;
   return contactConfiguration.isFollow(pubkey.value);
 });
-function handelClick() {
+async function handelClick() {
   if (!pubkey.value) {
     return;
   }
   if (isFollow.value) {
-    contactConfiguration.unFollow(pubkey.value);
+    await contactConfiguration.unFollow(pubkey.value);
   } else {
-    contactConfiguration.follow(pubkey.value);
+    await contactConfiguration.follow(pubkey.value);
   }
 }
 const [target] = useScale(0.3);

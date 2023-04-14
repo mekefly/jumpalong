@@ -10,7 +10,7 @@ import { createDoNotRepeatStaff } from "@/nostr/staff";
 import createEventSourceTracers, {
   getSourceUrls,
 } from "@/nostr/staff/createEventSourceTracers";
-import { userKey } from "@/nostr/user";
+import { usePubkey } from "@/utils/nostrApiUse";
 import { useCacheStorage } from "@/utils/use";
 import { createTaskQueue } from "@/utils/utils";
 import { useThemeVars } from "naive-ui";
@@ -27,8 +27,9 @@ const kinds = [
 
 const checkedKinds = useCacheStorage("checkedKinds", kinds);
 
-const includeUser = [userKey.value.publicKey];
-const checkedUsers = ref([...includeUser]);
+const pubkey = usePubkey();
+const includeUser = computed(() => (pubkey.value ? [pubkey.value] : []));
+const checkedUsers = computed(() => [...includeUser.value]);
 const countMap = ref(new Map<number, number>());
 const filters = computed(() => [
   { kinds: checkedKinds.value, authors: checkedUsers.value },
@@ -183,8 +184,8 @@ function handelAddRelayToPush() {
           <n-card :title="t('include_user')">
             <n-checkbox-group v-model:value="checkedUsers">
               <div class="grid grid-cols-2"></div>
-              <n-checkbox v-for="userKey in includeUser" :value="userKey">
-                <UserLinkVue :withPrefix="false" :value="userKey">
+              <n-checkbox v-for="userPubkey in includeUser" :value="userPubkey">
+                <UserLinkVue :withPrefix="false" :value="userPubkey">
                 </UserLinkVue>
               </n-checkbox>
             </n-checkbox-group>

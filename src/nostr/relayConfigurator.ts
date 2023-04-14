@@ -16,6 +16,7 @@ import {
   setCache,
   useCache,
 } from "@/utils/cache";
+import { getPubkeyOrNull } from "@/utils/nostrApiUse";
 import { debounceWatch } from "@/utils/vue";
 import { type Event } from "nostr-tools";
 import { reactive } from "vue";
@@ -24,7 +25,6 @@ import { readListKey, writeListKey } from "./relayConfiguratorKeys";
 import { ReplaceableEventSyncAbstract } from "./ReplaceableEventSyncAbstract";
 import createEoseUnSubStaff from "./staff/createEoseUnSubStaff";
 import createTimeoutUnSubStaff from "./staff/createTimeoutUnSubStaff";
-import { userKey } from "./user";
 
 export const defaultUrls: string[] = (window as any).defaultRelayUrls ?? [
   "wss://no.str.cr",
@@ -60,24 +60,32 @@ export class RelayConfigurator extends ReplaceableEventSyncAbstract<RelayConfigu
       [writeListKey]: new Set(),
     });
   }
-  getFilters() {
+  public async getFilters() {
+    const pubkey = await getPubkeyOrNull();
+    if (!pubkey) {
+      return [];
+    }
+
     return [
       {
         kinds: [10002],
-        authors: [userKey.value.publicKey],
+        authors: [pubkey],
       },
     ];
   }
 
-  serializeToData(e: Event): RelayConfiguration {
+  public async serializeToData(e: Event): Promise<RelayConfiguration> {
     const { relayConfiguration, readUrl, writeUrl } =
       deserializeRelayConfiguration(e.tags);
 
     return relayConfiguration;
   }
-  deserializeToEvent(data: RelayConfiguration, changeAt: number): Event {
+  public async deserializeToEvent(
+    data: RelayConfiguration,
+    changeAt: number
+  ): Promise<Event> {
     const tags = serializeRelayConfiguration(data);
-    const event = createEvent({
+    const event = await createEvent({
       kind: 10002,
       tags,
       created_at: changeAt,

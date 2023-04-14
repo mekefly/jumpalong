@@ -6,9 +6,28 @@ import { RelayEmiter } from "./RelayEmiter";
 
 import { RelayPool } from "./RelayPool";
 
+import { PRIVATE_KEY } from "@/api/login";
+import { injectWindowNostr } from "./injectWindowNostr";
+import { getNostrApiMode, NostrApiMode, PriKeyNostApiImpl } from "./NostrApi";
 import { RelayConfigurator } from "./relayConfigurator";
 
 export function initializeRuntime() {
+  const mode = getNostrApiMode();
+
+  switch (mode) {
+    case NostrApiMode.WindowNostr:
+      injectWindowNostr();
+      break;
+
+    case NostrApiMode.PrivateKey:
+      const prikey = localStorage.getItem(PRIVATE_KEY);
+      injectNostrApi({ nostrApi: new PriKeyNostApiImpl(prikey ?? undefined) });
+      break;
+
+    default:
+      break;
+  }
+
   const relayEmiter = new RelayEmiter();
   injectNostrApi({ relayEmiter });
 

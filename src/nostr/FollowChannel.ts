@@ -6,10 +6,10 @@ import { debounce, setAdds } from "@/utils/utils";
 import { Event } from "nostr-tools";
 import { AddressPointer } from "nostr-tools/lib/nip19";
 import { createEvent } from "./event";
+import { nostrApi } from "./nostr";
 import { ParameterizedReplaceableEventSyncAbstract } from "./ParameterizedReplaceableEventSyncAbstract";
 import { ChannelMetadata } from "./staff/createUseChannelMetadata";
 import { deserializeTagE, deserializeTagR } from "./tag";
-import { userKey } from "./user";
 export function getFollowChannelConfiguration() {
   return useCache(
     "getFollowChannelConfiguration",
@@ -40,16 +40,17 @@ export class FollowChannel extends ParameterizedReplaceableEventSyncAbstract<Cha
   constructor() {
     super("follower-channel", new Map());
   }
-  getAddressPointers(): AddressPointer[] {
+  public async getAddressPointers(): Promise<AddressPointer[]> {
+    const pubkey = await nostrApi.getPublicKey();
     return [
       {
         identifier: this.identifier,
         kind: this.kind,
-        pubkey: userKey.value.publicKey,
+        pubkey: pubkey,
       },
     ];
   }
-  serializeToData(e: Event): ChannelConfigurationType {
+  public async serializeToData(e: Event): Promise<ChannelConfigurationType> {
     const channelConfiguration: ChannelConfigurationType = new Map();
     const tagEs = deserializeTagE(e.tags);
     for (const tag of tagEs) {
@@ -70,7 +71,10 @@ export class FollowChannel extends ParameterizedReplaceableEventSyncAbstract<Cha
     }
     return channelConfiguration;
   }
-  deserializeToEvent(data: ChannelConfigurationType, createAt: number): Event {
+  public async deserializeToEvent(
+    data: ChannelConfigurationType,
+    createAt: number
+  ): Promise<Event> {
     const tags: string[][] = [];
     tags.push(["d", this.identifier]);
 

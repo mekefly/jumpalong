@@ -8,9 +8,9 @@ export abstract class ParameterizedReplaceableEventSyncAbstract<
   constructor(name: string, defaul: E) {
     super(name, defaul);
   }
-  abstract getAddressPointers(): AddressPointer[];
-  getFilters(): Filter[] {
-    return this.getAddressPointers().map((addressPointer) => ({
+  abstract getAddressPointers(): Promise<AddressPointer[]>;
+  public async getFilters(): Promise<Filter[]> {
+    return (await this.getAddressPointers()).map((addressPointer) => ({
       kinds: [addressPointer.kind],
       authors: [addressPointer.pubkey],
       ["#d"]: [addressPointer.identifier],

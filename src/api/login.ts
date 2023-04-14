@@ -1,5 +1,10 @@
+import { injectNostrApi } from "@/nostr/nostr";
+import {
+  NostrApiMode,
+  PriKeyNostApiImpl,
+  setNostrApiMode,
+} from "@/nostr/NostrApi";
 import { ReplaceableEventSyncAbstract } from "@/nostr/ReplaceableEventSyncAbstract";
-import { privateKey } from "@/nostr/user";
 import { generatePrivateKey } from "nostr-tools";
 
 export const PRIVATE_KEY = "prikey";
@@ -9,17 +14,19 @@ export function createPrikey() {
 }
 export function loginPrikey(key: string) {
   localStorage.setItem(PRIVATE_KEY, key);
-  setTimeout(() => {
-    privateKey.value = key;
-  });
+  setNostrApiMode(NostrApiMode.PrivateKey);
+  injectNostrApi({ nostrApi: new PriKeyNostApiImpl(key) });
 }
 export function registerPrikey(prikey: string = createPrikey()) {
   localStorage.setItem("newUserFlag", prikey);
   loginPrikey(prikey);
+
   return prikey;
 }
 export function logout() {
-  window.localStorage[PRIVATE_KEY] = "";
+  localStorage.removeItem(PRIVATE_KEY);
+  setNostrApiMode(NostrApiMode.NotLogin);
+
   ReplaceableEventSyncAbstract.clearAll();
   location.reload();
 }

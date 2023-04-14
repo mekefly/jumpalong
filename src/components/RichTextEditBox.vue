@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { t } from "@/i18n";
-import { createEvent } from "@/nostr/event";
+import { createEventTemplate } from "@/utils/nostr";
 import { createId, debounce } from "@/utils/utils";
-import { Event, EventTemplate } from "nostr-tools";
+import { EventTemplate } from "nostr-tools";
 import ContentVue from "./Content.vue";
 import EmojiBoxVue from "./EmojiBox.vue";
 import ArrowExportUp20Filled from "./icon/ArrowExportUp20Filled.vue";
@@ -27,7 +27,7 @@ const emit = defineEmits<{
 }>();
 
 const rawValue = ref("");
-const event = ref<Event>(createEvent({}));
+const event = ref<EventTemplate>(createEventTemplate({}));
 
 const isEnter = ref(false);
 const isEdit = ref(false);
@@ -39,7 +39,7 @@ onClickOutside(target, (event) => {
 });
 
 function handleChange(str: string, options: { tags: string[][] }) {
-  event.value = createEvent({
+  event.value = createEventTemplate({
     content: str,
     tags: options.tags,
   });
@@ -208,7 +208,7 @@ function handleChangeSize() {
             v-show="!isEdit && event.content"
             @click="() => (isEdit = true)"
           >
-            <ContentVue :event="event" disabledReply />
+            <ContentVue :event="(event as any)" disabledReply />
           </div>
           <RichTextEditBoxInputVue
             class="transition"
@@ -218,7 +218,7 @@ function handleChangeSize() {
             @focus="() => (isEdit = true)"
             @change="handleChange"
           />
-          <RelayContent :event="event" />
+          <RelayContent :event="(event as any)" />
         </ScrollbarVue>
       </n-collapse-transition>
     </div>

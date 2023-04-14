@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import Drawer from "@/components/Drawer.vue";
 import DrawerProvide from "@/components/DrawerProvide.vue";
+import Copy16Filled from "@/components/icon/Copy16Filled.vue";
 import WindowHeaderHorizontal20Filled from "@/components/icon/WindowHeaderHorizontal20Filled.vue";
 import {
   LongFormContentOptions,
@@ -10,12 +11,13 @@ import MavonEditor from "@/components/MavonEditor.vue";
 import { useUpload } from "@/components/Upload";
 import UploadInput from "@/components/UploadInput.vue";
 import { t } from "@/i18n";
-import { userKey } from "@/nostr/user";
+import { useClipboardDialog } from "@/utils/naiveUi";
 import { createEventTemplate } from "@/utils/nostr";
+import { usePubkey } from "@/utils/nostrApiUse";
 import { useHandleSendMessage } from "@/utils/use";
 import { createId, nowSecondTimestamp } from "@/utils/utils";
 import { nip19 } from "nostr-tools";
-import { AddressPointer } from "nostr-tools/lib/nip19";
+import { type AddressPointer } from "nostr-tools/lib/nip19";
 
 const loadingBar = useLoadingBar();
 const route = useRoute();
@@ -36,13 +38,14 @@ const {
   event: remoteEvent,
 } = useMarkdownState(value);
 
+const pubkey = usePubkey();
 const addrPoint = computed<AddressPointer>(() => {
   if (Boolean(addressPointer.value)) {
     return addressPointer.value as AddressPointer;
   }
   const _addressPointer: AddressPointer = {
     identifier: createId(),
-    pubkey: userKey.value.publicKey,
+    pubkey: pubkey.value ?? "",
     kind: kind.value,
     relays: [],
   };
@@ -136,6 +139,11 @@ function handelSave(value: string) {
 }
 const show = ref(false);
 setTimeout(() => (show.value = true));
+const clipboardDialog = useClipboardDialog();
+function handleCopyNaddr() {
+  const naddr = nip19.naddrEncode(addrPoint.value);
+  clipboardDialog(naddr);
+}
 </script>
 <template>
   <DrawerProvide v-slot="{ id }">
@@ -150,10 +158,19 @@ setTimeout(() => (show.value = true));
         <template #right-toolbar-after>
           <button
             type="button"
+            @click="handleCopyNaddr"
+            class="op-icon"
+            aria-hidden="true"
+            :title="`${t('copy')}naddr`"
+          >
+            <n-icon> <Copy16Filled /></n-icon>
+          </button>
+          <button
+            type="button"
             @click="() => (show = !show)"
             class="op-icon"
             aria-hidden="true"
-            title="自定义"
+            :title="t('edit')"
           >
             <n-icon> <WindowHeaderHorizontal20Filled /></n-icon>
           </button>

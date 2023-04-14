@@ -1,6 +1,6 @@
 import { createEventBeltlineReactive } from "@/nostr/createEventBeltline";
 import { PublishOpt } from "@/nostr/eventBeltline";
-import { relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
+import { nostrApi, relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
 import ReplaceableEventMap from "@/nostr/ReplaceableEventMap";
 import createEoseUnSubStaff from "@/nostr/staff/createEoseUnSubStaff";
 import { getSourceUrls } from "@/nostr/staff/createEventSourceTracers";
@@ -15,7 +15,6 @@ import {
 } from "@/utils/cache";
 import { setAdds, withDefault } from "@/utils/utils";
 import { Event } from "nostr-tools";
-import { userKey } from "../nostr/user";
 import { eventDeletionOne } from "./event";
 import {
   createTextEventBeltline,
@@ -26,16 +25,21 @@ export function getLikeBeltline(urls?: Set<string>) {
   return useCache(
     "getLikeBeltline",
     () => {
-      return createEventBeltlineReactive({})
-        .addFilter({
-          authors: [userKey.value.publicKey],
-          kinds: [7],
-        })
+      const line = createEventBeltlineReactive({})
         .addStaff(createEoseUnSubStaff())
         .addStaff(createTimeoutUnSubStaff())
 
         .addReadUrl()
         .addRelayUrls(urls);
+
+      nostrApi.getPublicKey().then((pubkey) => {
+        line.addFilter({
+          authors: [pubkey],
+          kinds: [7],
+        });
+      });
+
+      return line;
     },
     {
       useLocalStorage: false,
@@ -55,7 +59,7 @@ const ReactionsCacheOptions = {
   ...defaultCacheOptions,
   duration: 1000 * 60 * 60 * 24,
 };
-export function sendReactions(
+export async function sendReactions(
   content: ReactionsContent,
   targetEvent: Event,
   opt?: SendReactionsOption
@@ -78,7 +82,7 @@ export function sendReactions(
     setAdds(urls, writeUrl);
   }
 
-  const likeEvent = rootEventBeltline.publish(
+  const likeEvent = await rootEventBeltline.publish(
     {
       content,
       kind: 7,

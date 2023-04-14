@@ -3,8 +3,8 @@ import { getUserRelayUrlConfigByPubkey } from "@/api/user";
 import { t } from "@/i18n";
 import { relayConfigurator } from "@/nostr/nostr";
 import { WritableReadableList } from "@/nostr/tag";
-import { userKey } from "@/nostr/user";
 import router from "@/router";
+import { getPubkeyOrNull } from "@/utils/nostrApiUse";
 import RelayAddButtonVue from "./RelayAddButton.vue";
 import RelayConnectListVue from "./RelayConnectList.vue";
 import RelayReadableButtonVue from "./RelayReadableButton.vue";
@@ -16,16 +16,19 @@ const props = defineProps<{
 const { pubkey } = toRefs(props);
 
 const line = computed(() => getUserRelayUrlConfigByPubkey(pubkey.value));
-const readWriteList = computed<WritableReadableList | undefined>(() => {
-  if (pubkey.value === userKey.value.publicKey) {
-    return {
-      readUrl: relayConfigurator.getReadList(),
-      writeUrl: relayConfigurator.getWriteList(),
-      urls: new Set(Object.keys(relayConfigurator.getData())),
-    };
-  }
-  return line.value.feat.getReadWriteList();
-});
+const readWriteList = computedAsync<WritableReadableList | undefined>(
+  async () => {
+    if (pubkey.value === ((await getPubkeyOrNull()) ?? "")) {
+      return {
+        readUrl: relayConfigurator.getReadList(),
+        writeUrl: relayConfigurator.getWriteList(),
+        urls: new Set(Object.keys(relayConfigurator.getData())),
+      };
+    }
+    return line.value.feat.getReadWriteList();
+  },
+  undefined
+);
 const urls = computed(() => {
   return readWriteList.value?.urls;
 });

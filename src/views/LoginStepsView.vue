@@ -17,7 +17,7 @@ const {
   <router-view v-slot="{ Component }">
     <keep-alive>
       <component :is="Component">
-        <n-steps size="small" :current="(current as number)">
+        <n-steps class="m-1" size="small" :current="(current as number)">
           <n-step
             v-for="(_, index) in Array.from({ length: numberOfSteps })"
             :key="index"

@@ -1,6 +1,6 @@
 import { createEventBeltline } from "@/nostr/createEventBeltline";
 import { type EventBeltline } from "@/nostr/eventBeltline";
-import { relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
+import { nostrApi, relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
 import createEoseUnSubStaff from "@/nostr/staff/createEoseUnSubStaff";
 import { createLatestEventStaff } from "@/nostr/staff/createLatestEventStaff";
 import {
@@ -47,19 +47,19 @@ export abstract class ReplaceableEventSyncAbstract<E> {
     this.setDataByEvent(event);
   }
 
-  abstract getFilters(): Filter[];
+  abstract getFilters(): Promise<Filter[]>;
   /**
    * 将事件序列化为你所需要的数据
    * @param e
    */
-  abstract serializeToData(e: Event): E;
+  abstract serializeToData(e: Event): Promise<E>;
 
   /**
    * 将你的数据序列为存储和同步时需要使用的event
    * @param data
    * @param changeAt
    */
-  abstract deserializeToEvent(data: E, changeAt: number): Event;
+  abstract deserializeToEvent(data: E, changeAt: number): Promise<Event>;
 
   /**
    * 更改本地的event
@@ -139,8 +139,8 @@ export abstract class ReplaceableEventSyncAbstract<E> {
    * 通过event去设置data
    * @param e
    */
-  public setDataByEvent(e: Event) {
-    this.setData(this.serializeToData(e));
+  public async setDataByEvent(e: Event) {
+    this.setData(await this.serializeToData(e));
   }
 
   /**
@@ -153,21 +153,35 @@ export abstract class ReplaceableEventSyncAbstract<E> {
     onPush?(url: string): void;
   }) {
     this.isSync = true;
+
+    const localUrls: Set<string> = new Set();
+    try {
+      setAdds(localUrls, new Set(Object.keys(nostrApi.getRelays())));
+    } catch (error) {}
     const urls: Set<string> = opt?.onlyUrl
       ? new Set<string>().add(opt.onlyUrl)
       : setAdds(
           new Set(),
+          localUrls,
           relayConfigurator.getWriteList(),
           relayConfigurator.getReadList(),
           opt?.moreUrls
         );
     syncInterval(
       `cache:${this.name}:${JSON.stringify(opt)}`,
-      () => {
+      async () => {
+        let filters;
+        try {
+          filters = await this.getFilters().catch((e) => {
+            throw e;
+          });
+        } catch (error) {
+          return;
+        }
         const slef = this;
         const withEvent = new Set();
         const line = createEventBeltline()
-          .addFilters(this.getFilters())
+          .addFilters(filters)
           .addStaff({
             push(e, _, { subId }) {
               if (!subId) return;
@@ -255,10 +269,10 @@ export abstract class ReplaceableEventSyncAbstract<E> {
   /**
    * 保存行为不会比对，直接将数据发布到云端
    */
-  public save() {
+  public async save() {
     if (!this.isChange) return;
 
-    const state = this.saveToEvent();
+    const state = await this.saveToEvent();
     if (!state) return;
 
     const event = this.getLocalEvent();
@@ -270,9 +284,9 @@ export abstract class ReplaceableEventSyncAbstract<E> {
     this.isChange = false;
   }
 
-  private saveToEvent() {
+  private async saveToEvent() {
     if (!this.data) return false;
-    const event = this.deserializeToEvent(
+    const event = await this.deserializeToEvent(
       this.data,
       this.getChangeAt() ?? nowSecondTimestamp()
     );

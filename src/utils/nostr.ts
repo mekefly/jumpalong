@@ -1,5 +1,5 @@
 import { deserializeTagR } from "@/nostr/tag";
-import { Event, Filter, nip19 } from "nostr-tools";
+import { Event, EventTemplate, Filter, nip19 } from "nostr-tools";
 import { AddressPointer, ProfilePointer } from "nostr-tools/lib/nip19";
 import { setAdds } from "./utils";
 
@@ -134,6 +134,16 @@ export function neventEncodeByEvent(event: Event, moreUrls?: Set<string>) {
   });
 }
 
-export function createEventTemplate(e: Partial<Event>) {
-  return e;
+export function createEventTemplate(options: Partial<Event>) {
+  let event: Partial<Event> & EventTemplate = Object.assign(
+    {
+      kind: 1,
+      created_at: Math.floor(Date.now() / 1000),
+      tags: [],
+      content: "",
+    },
+    options
+  );
+
+  return event;
 }

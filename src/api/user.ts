@@ -1,5 +1,4 @@
 import { createEventBeltlineReactive } from "@/nostr/createEventBeltline";
-import { createEvent } from "@/nostr/event";
 import { config, rootEventBeltline } from "@/nostr/nostr";
 import { createDoNotRepeatStaff } from "@/nostr/staff";
 import autoAddRelayurlByPubkeyStaff from "@/nostr/staff/autoAddRelayurlByPubkeyStaff";
@@ -20,13 +19,12 @@ import { syncInterval, timeout } from "@/utils/utils";
 import { publishEvent } from "./event";
 
 export async function sendUserMetadataByPubkey(userMetaData: UserMetaData) {
-  return new Promise<void>((resolve, reject) => {
-    const event = createEvent({
+  return new Promise<void>(async (resolve, reject) => {
+    setTimeout(reject, 20000);
+    publishEvent({
       kind: 0,
       content: JSON.stringify(userMetaData),
     });
-    setTimeout(reject, 20000);
-    publishEvent(event);
   });
 }
 export function getUserRelayUrlConfigByPubkey(pubkey: string) {

@@ -12,12 +12,12 @@ const message = useMessage();
 const onOK = useOnOK();
 
 const channelMetadata = ref<ChannelMetadata>({});
-function handleCreate() {
+async function handleCreate() {
   if (!channelMetadata.value.name) {
     message.warning("请输入channelName");
     return;
   }
-  const event = rootEventBeltline.publish(
+  const event = await rootEventBeltline.publish(
     {
       kind: 40,
       content: JSON.stringify(channelMetadata.value),

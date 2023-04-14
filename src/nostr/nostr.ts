@@ -4,6 +4,7 @@ import {
 } from "@/nostr/relayEmiter";
 import { withDefault } from "@/utils/utils";
 import { type EventBeltline } from "./eventBeltline";
+import { NostrApi, NostrApiImpl } from "./NostrApi";
 import { type RelayConfigurator } from "./relayConfigurator";
 import { type RelayEmiter } from "./RelayEmiter";
 import { type RelayPool } from "./RelayPool";
@@ -61,6 +62,7 @@ export let config: ConfigType = appConfig.value as any as ConfigType;
 export let relayEmiter: RelayEmiter = null as any;
 export let relayPool: RelayPool = null as any;
 export let rootEventBeltline: EventBeltline = null as any;
+export let nostrApi: NostrApi = new NostrApiImpl();
 
 type ConfigType = {
   getOtherUrlsRequestLimitSize: number;
@@ -103,10 +105,12 @@ export function injectNostrApi(options: {
   rootEventBeltline?: EventBeltline;
   relayConfigurator?: RelayConfigurator;
   config?: Partial<ConfigType>;
+  nostrApi?: NostrApi;
 }) {
   options.relayEmiter && (relayEmiter = options.relayEmiter);
   options.relayPool && (relayPool = options.relayPool);
   options.rootEventBeltline && (rootEventBeltline = options.rootEventBeltline);
   options.relayConfigurator && (relayConfigurator = options.relayConfigurator);
   options.config && Object.assign(config, options.config);
+  options.nostrApi && (nostrApi = options.nostrApi);
 }

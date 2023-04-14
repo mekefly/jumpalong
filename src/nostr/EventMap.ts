@@ -4,6 +4,7 @@ import {
   getCache,
   setCache,
 } from "@/utils/cache";
+import { CacheOptions } from "@/utils/cache/types";
 import { Event } from "nostr-tools";
 
 type key = string;
@@ -11,12 +12,14 @@ type EventId = string;
 export class EventMap {
   private map: Record<key, EventId> = {};
   public readonly KEY: string;
-  private cacheOption = {
-    duration: 1000 * 60 * 60 * 24 * 3, //3天
-    ...defaultCacheOptions,
-  };
+  private cacheOption: CacheOptions;
 
-  constructor(KEY: string) {
+  constructor(KEY: string, opt?: { cacheOptinos: CacheOptions }) {
+    this.cacheOption = {
+      duration: 1000 * 60 * 60 * 24, //1天
+      ...defaultCacheOptions,
+      ...opt?.cacheOptinos,
+    };
     this.KEY = KEY;
     const str = localStorage.getItem(KEY);
     if (!str) return;

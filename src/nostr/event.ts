@@ -1,6 +1,8 @@
-import { userKey } from "@/nostr/user";
+import { getPubkeyOrNull, signEvent } from "@/utils/nostrApiUse";
 import * as secp256k1 from "@noble/secp256k1";
-import { Event, getEventHash, signEvent, UnsignedEvent } from "nostr-tools";
+import { Event, getEventHash, nip19, UnsignedEvent } from "nostr-tools";
+import { getSourceUrls } from "./staff/createEventSourceTracers";
+import { deserializeTagR, getOnlyTag } from "./tag";
 
 export function validateEvent(event: Event): boolean {
   if (typeof event.content !== "string") return false;
@@ -27,12 +29,13 @@ export function verifySignature(event: Event & { sig: string }): boolean {
   );
 }
 
-export function createEvent(options: Partial<Event>): Event {
-  const { privateKey, publicKey } = userKey.value;
+export async function createEvent(options: Partial<Event>): Promise<Event> {
+  const pubkey = await getPubkeyOrNull({ intercept: true });
+
   let event: UnsignedEvent & Partial<Event> = Object.assign(
     {
       kind: 1,
-      pubkey: publicKey,
+      pubkey: pubkey,
       created_at: Math.floor(Date.now() / 1000),
       tags: [],
       content: "",
@@ -41,6 +44,24 @@ export function createEvent(options: Partial<Event>): Event {
   );
 
   event.id = getEventHash(event);
-  event.sig = signEvent(event, privateKey);
+
+  event = await signEvent(event, { intercept: true });
+
   return event as Event;
+}
+
+export function createAddress(event: Event) {
+  const identifierTag = getOnlyTag("d", event.tags);
+
+  if (!(identifierTag && identifierTag[1])) {
+    return;
+  }
+  const urls = deserializeTagR(event.tags);
+  const sourceUrls = getSourceUrls(event.id);
+  return nip19.naddrEncode({
+    identifier: identifierTag[1],
+    pubkey: event.pubkey,
+    kind: event.kind,
+    relays: [...urls, ...(sourceUrls ?? [])],
+  });
 }

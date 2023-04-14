@@ -1,6 +1,5 @@
-import { createEvent } from "@/nostr/event";
 import { PublishOpt } from "@/nostr/eventBeltline";
-import { relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
+import { nostrApi, relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
 import autoAddRelayurlByPubkeyStaff from "@/nostr/staff/autoAddRelayurlByPubkeyStaff";
 import createEoseUnSubStaff from "@/nostr/staff/createEoseUnSubStaff";
 import createEventSourceTracers from "@/nostr/staff/createEventSourceTracers";
@@ -8,8 +7,8 @@ import { createLatestEventStaff } from "@/nostr/staff/createLatestEventStaff";
 import createOneEventStaff from "@/nostr/staff/createOneEventStaff";
 import createTimeoutUnSubStaff from "@/nostr/staff/createTimeoutUnSubStaff";
 import createWithEvent from "@/nostr/staff/createWithEvent";
+import createReplaceableEventCacheStaff from "@/nostr/staff/storage/createReplaceableEventCacheStaff";
 import getCacheStaff from "@/nostr/staff/storage/getCacheStaff";
-import { userKey } from "@/nostr/user";
 import { useCache } from "@/utils/cache";
 import { toDeCodeAddress } from "@/utils/nostr";
 import { merageSet, syncInterval } from "@/utils/utils";
@@ -23,19 +22,16 @@ export async function eventDeletion(
   relayUrls?: Set<string>,
   opt?: EventDeletionOptions
 ) {
-  return new Promise<void>((resolve, reject) => {
-    const event = createEvent({
-      kind: 5,
-      pubkey: userKey.value.publicKey,
-      tags: eventId.map((id) => ["e", id]),
-    });
-    rootEventBeltline
-      .createChild()
-      .publish(
-        event,
-        merageSet(relayConfigurator.getWriteList(), relayUrls ?? new Set()),
-        opt
-      );
+  return new Promise<void>(async (resolve, reject) => {
+    rootEventBeltline.createChild().publish(
+      {
+        kind: 5,
+        pubkey: await nostrApi.getPublicKey(),
+        tags: eventId.map((id) => ["e", id]),
+      },
+      merageSet(relayConfigurator.getWriteList(), relayUrls ?? new Set()),
+      opt
+    );
   });
 }
 export function eventDeletionOne(
@@ -46,7 +42,7 @@ export function eventDeletionOne(
 }
 
 export async function publishEvent(
-  event: Event
+  event: Partial<Event>
   // options: PublishEventOptions = {}
 ) {
   rootEventBeltline
@@ -114,7 +110,7 @@ export function createGetEventLineByAddress(address: string) {
   }
   throw new Error("Not an address");
 }
-type CreateGetEventLineByAddressPointerOption = { urls: Set<string> };
+type CreateGetEventLineByAddressPointerOption = { urls?: Set<string> };
 export function createGetEventLineByAddressPointer(
   addressPointer: AddressPointer,
   opt?: CreateGetEventLineByAddressPointerOption
@@ -133,11 +129,16 @@ export function createGetEventLineByAddressPointer(
         .addFilter(filter)
         .addStaff(createWithEvent()) //具有事件判定
         .addStaff(createLatestEventStaff()) // 只获取最新的一条
+        .addStaff(createReplaceableEventCacheStaff(addressPointer)) //缓存
         .addStaff(createEventSourceTracers()) //事件来源记录
         .addStaff(createEoseUnSubStaff()) //自动结束订阅
         .addStaff(createTimeoutUnSubStaff()); //超时解除订阅
 
+      let isRun = false;
       const req = async () => {
+        if (isRun) return;
+        isRun = true;
+
         line.addStaff(autoAddRelayurlByPubkeyStaff(addressPointer.pubkey));
         if (await line.feat.timeoutWithEvent()) return;
 
@@ -150,6 +151,16 @@ export function createGetEventLineByAddressPointer(
         if (await line.feat.timeoutWithEvent()) return;
       };
 
+      //超时同步
+      syncInterval(
+        `createGetEventLineByAddressPointer:${addressPointer.kind}:${addressPointer.pubkey}:${addressPointer.identifier}`,
+        () => {
+          req();
+        },
+        20 * 1000
+      );
+      //无缓存直接请求
+      if (line.feat.withEvent()) return line;
       req();
       return line;
     },

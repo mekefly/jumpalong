@@ -1,6 +1,6 @@
 import { createEventBeltlineReactive } from "@/nostr/createEventBeltline";
 import { createEvent } from "@/nostr/event";
-import { rootEventBeltline } from "@/nostr/nostr";
+import { nostrApi, rootEventBeltline } from "@/nostr/nostr";
 import { createDoNotRepeatStaff } from "@/nostr/staff";
 import autoAddRelayurlByPubkeyStaff from "@/nostr/staff/autoAddRelayurlByPubkeyStaff";
 import createEoseUnSubStaff from "@/nostr/staff/createEoseUnSubStaff";
@@ -21,8 +21,6 @@ import { useCache } from "@/utils/cache";
 import { debounce } from "@/utils/utils";
 import { Event, Filter } from "nostr-tools";
 import { ReplaceableEventSyncAbstract } from "../nostr/ReplaceableEventSyncAbstract";
-import { userKey } from "../nostr/user";
-import { getChannelMetadataBeltlineByChannelId } from "./channel";
 import { getUserMetadataLineByPubkey, UserMetaData } from "./user";
 
 type ContactConfigurationDatas = {
@@ -40,11 +38,11 @@ class ContactConfiguration extends ReplaceableEventSyncAbstract<ContactConfigura
     });
   }
 
-  getFilters(): Filter[] {
-    return [{ kinds: [3], authors: [userKey.value.publicKey] }];
+  async getFilters(): Promise<Filter[]> {
+    return [{ kinds: [3], authors: [await nostrApi.getPublicKey()] }];
   }
 
-  serializeToData(e: Event): ContactConfigurationDatas {
+  public async serializeToData(e: Event): Promise<ContactConfigurationDatas> {
     const contactConfiguration: ContactConfigurationType = {};
     const pubkeyTagList = deserializeTagP(e.tags);
     for (const { name, pubkey, relayUrl } of pubkeyTagList) {
@@ -77,7 +75,10 @@ class ContactConfiguration extends ReplaceableEventSyncAbstract<ContactConfigura
   getContactConfiguration() {
     return this.getData()["contactConfiguration"];
   }
-  deserializeToEvent(data: ContactConfigurationDatas, createAt: number): Event {
+  public async deserializeToEvent(
+    data: ContactConfigurationDatas,
+    createAt: number
+  ): Promise<Event> {
     const contactConfiguration = data["contactConfiguration"];
     const tagPs = Object.entries(contactConfiguration).map(
       ([pubkey, { name, relayUrl }]) =>
@@ -93,70 +94,6 @@ class ContactConfiguration extends ReplaceableEventSyncAbstract<ContactConfigura
       tags: [...tagPs, ...tagEs],
       created_at: createAt,
     });
-  }
-
-  joinChannel(eventId: string, relay?: string) {
-    if (!eventId) return;
-
-    // 每改变一次加一次，如果中间有新的更新，就会强制停止同步
-
-    const channelConfiguration = this.getData()["channelConfiguration"];
-
-    const channel = channelConfiguration.get(eventId);
-    if (channel) {
-      return;
-    }
-    this.toChanged();
-    const channelMetadata: ChannelConfigurationData = {
-      eventId,
-      marker: "root",
-      relay: relay ?? "",
-      type: "",
-    };
-
-    const changeId = this.toChanged();
-    channelConfiguration.set(eventId, channelMetadata);
-
-    this.save();
-
-    const line = getChannelMetadataBeltlineByChannelId(eventId);
-
-    const debounceUpdateMetadata = debounce(
-      (metadata: ChannelMetadata, subId?: string) => {
-        if (this.isReChange(changeId)) {
-          line.closeReq();
-          return;
-        }
-
-        Object.assign(channelMetadata, metadata);
-        if (metadata.relayUrls && metadata.relayUrls.length > 0) {
-          channelMetadata.relay = metadata.relayUrls[0];
-        } else {
-          const url = line.getUrlBySubId(subId ?? "");
-          if (url) {
-            channelMetadata.relay = url;
-          }
-        }
-
-        this.save();
-      },
-      3000
-    );
-    line.feat.onHasMetadata(debounceUpdateMetadata);
-  }
-  leaveChannel(eventId: string) {
-    if (!eventId) return;
-
-    // 每改变一次加一次，如果中间有新的更新，就会强制停止同步
-
-    const channelConfiguration = this.getData().channelConfiguration;
-
-    if (!channelConfiguration.has(eventId)) return;
-    this.toChanged();
-
-    channelConfiguration.delete(eventId);
-
-    this.save();
   }
 
   getChannelConfiguration() {
@@ -182,8 +119,6 @@ class ContactConfiguration extends ReplaceableEventSyncAbstract<ContactConfigura
 
     const changeId = this.toChanged();
 
-    this.save();
-
     const line = getUserMetadataLineByPubkey(pubkey);
 
     const debounceUpdateMetadata = debounce(
@@ -202,10 +137,10 @@ class ContactConfiguration extends ReplaceableEventSyncAbstract<ContactConfigura
             contactMetaData.relayUrl = url;
           }
         }
-
-        this.save();
       }
     );
+
+    this.save();
     line.feat.onHasMetadata(debounceUpdateMetadata);
   }
 

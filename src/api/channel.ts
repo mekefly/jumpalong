@@ -1,5 +1,4 @@
 import { createEventBeltlineReactive } from "@/nostr/createEventBeltline";
-import { createEvent } from "@/nostr/event";
 import { relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
 import {
   createDoNotRepeatStaff,
@@ -36,17 +35,17 @@ export function joinChannel(
   pubkey?: string,
   relayUrl?: string
 ) {
-  const event = createEvent({
-    kind: 7,
-    content: JOIN_CHANNEL_CONTENT,
-    tags: noUndefinedInTheArray([
-      createTagArray("e", channelId, relayUrl),
-      pubkey ? createTagArray("p", pubkey, relayUrl) : undefined,
-    ]),
-  });
-  rootEventBeltline
-    .createChild()
-    .publish(event, relayConfigurator.getWriteList());
+  rootEventBeltline.createChild().publish(
+    {
+      kind: 7,
+      content: JOIN_CHANNEL_CONTENT,
+      tags: noUndefinedInTheArray([
+        createTagArray("e", channelId, relayUrl),
+        pubkey ? createTagArray("p", pubkey, relayUrl) : undefined,
+      ]),
+    },
+    relayConfigurator.getWriteList()
+  );
 }
 
 /**

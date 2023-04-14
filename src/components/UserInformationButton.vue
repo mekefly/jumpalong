@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import { t } from "@/i18n";
-import { userKey } from "@/nostr/user";
+import { getNostrApiMode, NostrApiMode } from "@/nostr/NostrApi";
 import { useRecommendUser, useRecommendUserMetadata } from "@/state/nostr";
+import { usePubkey } from "@/utils/nostrApiUse";
 import { nip19 } from "nostr-tools";
-import { relayConfigurator } from "../nostr/nostr";
+import { nostrApi, relayConfigurator } from "../nostr/nostr";
 import { renderIcon, useClipboardDialog } from "../utils/naiveUi";
 import MoreIconVue from "./icon/MoreIcon.vue";
 import PencilVue from "./icon/Pencil.vue";
@@ -18,7 +19,8 @@ const { pubkey } = toRefs(props);
 
 const clipboard = useClipboardDialog();
 
-const isItMe = computed(() => pubkey.value === userKey.value.publicKey);
+const currentPubkey = usePubkey();
+const isItMe = computed(() => pubkey.value === currentPubkey.value);
 const showModal = ref(false);
 
 const recommendUser = useRecommendUser();
@@ -46,7 +48,7 @@ const options = ref<any>(
           key: "copy-npub",
           props: {
             onclick() {
-              const k = nip19.npubEncode(userKey.value.publicKey);
+              const k = nip19.npubEncode(pubkey.value);
               clipboard(k);
             },
           },
@@ -57,29 +59,32 @@ const options = ref<any>(
           props: {
             onclick() {
               const k = nip19.nprofileEncode({
-                pubkey: userKey.value.publicKey,
+                pubkey: pubkey.value,
                 relays: [...relayConfigurator.getWriteList()],
               });
               clipboard(k);
             },
           },
         },
-        isItMe.value && {
-          label: `${t("copy")} nsec`,
-          key: "copy-nsec",
-          props: {
-            onclick() {
-              const k = nip19.nsecEncode(userKey.value.privateKey);
-              clipboard(k);
+        isItMe.value &&
+          getNostrApiMode() === NostrApiMode.PrivateKey &&
+          (nostrApi as any)?.getPrivateKey &&
+          typeof (nostrApi as any).getPrivateKey === "function" && {
+            label: `${t("copy")} nsec`,
+            key: "copy-nsec",
+            props: {
+              onclick() {
+                const k = nip19.nsecEncode((nostrApi as any).getPrivateKey());
+                clipboard(k);
+              },
             },
           },
-        },
         {
           label: `${t("copy")} publicKey hex`,
           key: "copy-hex",
           props: {
             onclick() {
-              clipboard(userKey.value.publicKey);
+              clipboard(pubkey.value);
             },
           },
         },

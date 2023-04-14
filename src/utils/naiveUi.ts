@@ -28,9 +28,9 @@ export function useClipboardDialog() {
     });
   };
 }
-export const renderIcon = (icon: Component) => {
+export const renderIcon = (icon: Component, props: any = null) => {
   return () => {
-    return h(NIcon, null, {
+    return h(NIcon, props, {
       default: () => h(icon),
     });
   };

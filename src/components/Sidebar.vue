@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { t } from "@/i18n";
+import { getNostrApiMode, NostrApiMode } from "@/nostr/NostrApi";
 import { isFunction } from "@vueuse/core";
 import { NIcon, NMenu, type MenuOption } from "naive-ui";
 import { h } from "vue";
@@ -20,6 +21,8 @@ import UsersVue from "./icon/Users.vue";
 import LogoutButtonVue from "./LogoutButton.vue";
 
 const { collapsed } = defineProps<{ collapsed: boolean }>();
+
+const isLogin = computed(() => getNostrApiMode() !== NostrApiMode.NotLogin);
 
 const menuOptions = computed(
   () =>
@@ -81,7 +84,13 @@ const menuOptions = computed(
       },
       {
         key: "Logout",
-        label: () => h(LogoutButtonVue, {}, { default: () => t("logout") }),
+        label: () =>
+          h(
+            LogoutButtonVue,
+            {},
+            { default: () => (isLogin.value ? t("logout") : t("login")) }
+          ),
+
         icon: renderIcon(LogOutVue),
       },
     ] as MenuOption[]

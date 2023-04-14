@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { t } from "@/i18n";
+import AuthorizedFormVue from "./AuthorizedFormVue.vue";
 import LoginFormVue from "./LoginForm.vue";
 import RegistrationFormVue from "./RegistrationForm.vue";
 
@@ -30,6 +31,18 @@ const emit = defineEmits<{
             <slot name="prev-step"></slot>
           </template>
         </RegistrationFormVue>
+      </n-tab-pane>
+
+      <n-tab-pane
+        name="authorized"
+        :tab="t('authorized')"
+        display-directive="show:lazy"
+      >
+        <AuthorizedFormVue @next="() => emit('next')">
+          <template #prev-step>
+            <slot name="prev-step"></slot>
+          </template>
+        </AuthorizedFormVue>
       </n-tab-pane>
     </n-tabs>
   </div>
