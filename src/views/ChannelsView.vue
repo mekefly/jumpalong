@@ -6,7 +6,6 @@ import { computed } from "vue";
 import ChannelListItemVue from "../components/ChannelListItem.vue";
 const followChannel = getFollowChannelConfiguration();
 
-const reouter = useRouter();
 const channelMap = computed(() => followChannel.getData());
 const channelList = computed(() => channelMap.value.entries());
 function handleCreate() {
