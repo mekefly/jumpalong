@@ -510,3 +510,6 @@ export async function retry<E>(
     }
   });
 }
+export function toLocaleString(time: number) {
+  return new Date(time * 1000).toLocaleString();
+}
