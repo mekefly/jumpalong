@@ -1,4 +1,5 @@
 import { createGetEventLineByAddressPointer } from "@/api/event";
+import { EventBeltline } from "@/nostr/eventBeltline";
 import { getOnlyTag } from "@/nostr/tag";
 import { toDeCodeAddress } from "@/utils/nostr";
 import { createInjection } from "@/utils/use";
@@ -15,6 +16,7 @@ export type LongFormContentOptions = {
 };
 
 type UseMarkdownStateReturnType = {
+  line: EventBeltline<any>;
   addressPointer: ComputedRef<AddressPointer | null>;
   event: ComputedRef<Event | undefined>;
   longFormContentOptions: ComputedRef<
@@ -45,11 +47,12 @@ export function useMarkdownState(
     () =>
       addressPointer.value &&
       createGetEventLineByAddressPointer(addressPointer.value, {
-        urls: addressPointer.value.relays,
+        urls: new Set(addressPointer.value.relays),
       })
   );
   const event = computed(() => line.value?.feat.getLatestEvent());
   return {
+    line: line as any,
     addressPointer,
     event,
     longFormContentOptions: useLongFormContentOptions(event),

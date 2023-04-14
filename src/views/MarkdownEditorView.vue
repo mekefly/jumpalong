@@ -34,6 +34,7 @@ watch(newArticle, () => {
 const kind = ref(30023);
 const {
   addressPointer,
+  line,
   longFormContentOptions: remoteLongFormContentOptions,
   event: remoteEvent,
 } = useMarkdownState(value);
@@ -77,7 +78,9 @@ watch(
     const _remoteLongFormContentOptions = remoteLongFormContentOptions.value;
 
     if (_remoteLongFormContentOptions) {
-      loadingBar.finish();
+      setTimeout(() => {
+        loadingBar.finish();
+      });
       for (const [key, value] of Object.entries(
         _remoteLongFormContentOptions
       )) {
@@ -85,7 +88,7 @@ watch(
       }
     }
   },
-  { deep: true }
+  { deep: true, immediate: true }
 );
 
 const titleTag = computed(() => ["title", longFormContent.value.title]);
@@ -128,11 +131,7 @@ const handelImgAdd = async (pos: number, file: File) => {
   md.value?.$img2Url(pos, opt.url);
 };
 
-const handleSendMessage = useHandleSendMessage(
-  kind.value,
-  undefined,
-  undefined
-);
+const handleSendMessage = useHandleSendMessage(kind.value, line, undefined);
 function handelSave(value: string) {
   longFormContent.value.content = value;
   handleSendMessage(event.value);
