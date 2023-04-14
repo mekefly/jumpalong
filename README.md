@@ -75,9 +75,19 @@ This program is a web client of Nostr, provides a beautiful interface and intera
 |    1984     |            Reporting             |   56    |            |
 |    9734     |           Zap Request            |   57    |            |
 |    9735     |               Zap                |   57    |            |
+|    10000    |            Mute List             |   51    |     ✅     |
+|    10001    |             Pin List             |   51    |            |
 |    10002    |       Relay List Metadata        |   65    |     ✅     |
 |    22242    |      Client Authentication       |   42    |            |
+|    24133    |          Nostr Connect           |   46    |            |
+|    30000    |     Categorized People List      |   51    |            |
+|    30001    |    Categorized Bookmark List     |   51    |            |
+|    30008    |          Profile Badges          |   58    |            |
+|    30009    |         Badge Definition         |   58    |            |
+|    30017    |     Create or update a stall     |   15    |            |
+|    30018    |    Create or update a product    |   15    |            |
 |    30023    |        Long-form Content         |   23    |     ✅     |
+|    30078    |    Application-specific Data     |   78    |            |
 |  1000-9999  |          Regular Events          |   16    |            |
 | 10000-19999 |        Replaceable Events        |   16    |     ✅     |
 | 20000-29999 |         Ephemeral Events         |   16    |     ✅     |
@@ -85,14 +95,14 @@ This program is a web client of Nostr, provides a beautiful interface and intera
 
 ## Client to Relay
 
-| **type** |                     **description**                     |                            **NIP**                             | **supper** |
-| :------: | :-----------------------------------------------------: | :------------------------------------------------------------: | :--------: |
-|  EVENT   |        used to send events requested to clients         | [1](https://github.com/nostr-protocol/nips/blob/master/01.md)  |     ✅     |
-|  NOTICE  |     used to send human-readable messages to clients     | [1](https://github.com/nostr-protocol/nips/blob/master/01.md)  |     ✅     |
-|   EOSE   | used to notify clients all stored events have been sent | [1](https://github.com/nostr-protocol/nips/blob/master/01.md)  |     ✅     |
-|    OK    |    used to notify clients if an EVENT was successful    | [20](https://github.com/nostr-protocol/nips/blob/master/20.md) |     ✅     |
-|   AUTH   |         used to send authentication challenges          | [42](https://github.com/nostr-protocol/nips/blob/master/42.md) |            |
-|  COUNT   |     used to send requested event counts to clients      | [45](https://github.com/nostr-protocol/nips/blob/master/45.md) |            |
+| **type** |                     **description**                     | **NIP** | **supper** |
+| :------: | :-----------------------------------------------------: | :-----: | :--------: |
+|  EVENT   |        used to send events requested to clients         |    1    |     ✅     |
+|  NOTICE  |     used to send human-readable messages to clients     |    1    |     ✅     |
+|   EOSE   | used to notify clients all stored events have been sent |    1    |     ✅     |
+|    OK    |    used to notify clients if an EVENT was successful    |   20    |     ✅     |
+|   AUTH   |         used to send authentication challenges          |   42    |            |
+|  COUNT   |     used to send requested event counts to clients      |   45    |            |
 
 ## 技术
 
