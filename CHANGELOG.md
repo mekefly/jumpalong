@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.5.0-test.6](https://github.com/mekefly/jumpalong/compare/v0.5.0-test.5...v0.5.0-test.6) (2023-04-14)
+
+
+### ✨ Features | 新功能
+
+* TextEventBeltline mute User ([e2aadbf](https://github.com/mekefly/jumpalong/commit/e2aadbfaa2e291a7a734379732f68458bc156a75))
+
 ## [0.5.0-test.5](https://github.com/mekefly/jumpalong/compare/v0.5.0-test.4...v0.5.0-test.5) (2023-04-14)
 
 
