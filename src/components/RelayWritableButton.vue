@@ -9,7 +9,7 @@ const active = toRef(props, "active");
   <n-icon
     class="mr-1"
     :color="active ? '#2ed573' : undefined"
-    @click="() => $emit('click')"
+    @click="() => $emit('switch')"
   >
     <ArrowUpload16Filled />
   </n-icon>

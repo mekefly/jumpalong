@@ -57,12 +57,12 @@ const updateTime = computed(() => {
       <RelayWritableButtonVue
         :active="relayConfigurator.hasWriteByUrl(url)"
         class="mr-1"
-        @click="() => switchWrite(url)"
+        @switch="() => switchWrite(url)"
       />
       <RelayReadableButtonVue
         :active="relayConfigurator.hasReadByUrl(url)"
         class="mr-2"
-        @click="() => switchRead(url)"
+        @switch="() => switchRead(url)"
       />
       <ButtonCloseVue text @click="() => relayConfigurator.remove(url)" />
     </template>
