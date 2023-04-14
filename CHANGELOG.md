@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.5.0-test.3](https://github.com/mekefly/jumpalong/compare/v0.5.0-test.2...v0.5.0-test.3) (2023-04-14)
+
+
+### ✨ Features | 新功能
+
+* **NIP-07:**  Add plugin login,Asynchronous authorization,fix bugs ([eb9711d](https://github.com/mekefly/jumpalong/commit/eb9711d8a5840fdfa6bffea11e5272ccaa23f93a))
+
 ## [0.5.0-test.2](https://github.com/mekefly/jumpalong/compare/v0.5.0-test.1...v0.5.0-test.2) (2023-04-12)
 
 
