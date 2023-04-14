@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { t } from "@/i18n";
 import { createAddress } from "@/nostr/event";
+import { getMuteListEventSync } from "@/nostr/MuteList";
 import router from "@/router";
 import {
   useRecommendEvent,
@@ -10,7 +11,7 @@ import {
 import { useClipboardDialog } from "@/utils/naiveUi";
 import { neventEncodeByEvent } from "@/utils/nostr";
 import { usePubkey } from "@/utils/nostrApiUse";
-import { autoHidden, useModelBind } from "@/utils/use";
+import { autoHidden, useModelBind, useOnOK } from "@/utils/use";
 import { usePushShortTextNote } from "@/views/ShortTextNoteView";
 import { SelectMixedOption } from "naive-ui/es/select/src/interface";
 import { Event, nip19 } from "nostr-tools";
@@ -41,6 +42,8 @@ const recommendEvent = useRecommendEvent();
 const recommendUser = useRecommendUser();
 const recommendUserMetadata = useRecommendUserMetadata();
 const pushShortTextNote = usePushShortTextNote();
+const muteListEventSync = getMuteListEventSync();
+const onOK = useOnOK();
 
 const handleMap = {
   close: () => {
@@ -95,6 +98,11 @@ const handleMap = {
   recommendUserMetadata() {
     recommendUserMetadata(event.value.pubkey);
   },
+  muteUser() {
+    muteListEventSync.addPubkey(event.value.pubkey, {
+      onOK,
+    });
+  },
   pushShortTextNote() {
     pushShortTextNote(event.value);
   },
@@ -146,8 +154,12 @@ const options = computed<SelectMixedOption[]>(() => [
           value: "joinTheBlacklist",
           key: "joinTheBlacklist",
         },
+        {
+          label: t("mute_user"),
+          value: "muteUser",
+          key: "muteUser",
+        },
       ]),
-
   {
     label: t("open"),
     value: "pushShortTextNote",

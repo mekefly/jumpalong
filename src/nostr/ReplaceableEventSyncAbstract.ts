@@ -1,5 +1,5 @@
 import { createEventBeltline } from "@/nostr/createEventBeltline";
-import { type EventBeltline } from "@/nostr/eventBeltline";
+import { PublishOpt, type EventBeltline } from "@/nostr/eventBeltline";
 import { nostrApi, relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
 import createEoseUnSubStaff from "@/nostr/staff/createEoseUnSubStaff";
 import { nowSecondTimestamp, setAdds, syncInterval } from "@/utils/utils";
@@ -270,7 +270,7 @@ export abstract class ReplaceableEventSyncAbstract<E> {
   /**
    * 保存行为不会比对，直接将数据发布到云端
    */
-  public async save() {
+  public async save(opt?: PublishOpt) {
     if (!this.isChange) return;
 
     const state = await this.saveToEvent();
@@ -280,7 +280,7 @@ export abstract class ReplaceableEventSyncAbstract<E> {
     if (!event) return;
 
     //发布到写列表
-    rootEventBeltline.publish(event, relayConfigurator.getWriteList());
+    rootEventBeltline.publish(event, relayConfigurator.getWriteList(), opt);
 
     this.isChange = false;
   }

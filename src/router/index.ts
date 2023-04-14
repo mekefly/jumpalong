@@ -147,6 +147,11 @@ const router = createRouter({
               name: "move-house",
               component: () => import("../views/MoveHouseView.vue"),
             },
+            {
+              path: "/mute/user",
+              name: "mute-user",
+              component: () => import("../views/MuteUserListView.vue"),
+            },
           ],
         },
       ],

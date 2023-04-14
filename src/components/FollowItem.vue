@@ -38,6 +38,9 @@ const metadata = computed(() => metadataLine.value?.feat.useMetadata());
           {{ about ?? metadata.about }}
         </Ellipsis>
       </div>
+      <div class="flex-shrink-0 ml-2">
+        <slot name="right" :pubkey="pubkey"></slot>
+      </div>
     </div>
   </n-list-item>
 </template>

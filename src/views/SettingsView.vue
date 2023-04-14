@@ -53,7 +53,13 @@ function handelClearCache() {
     >
       <n-thing :title="t('hide_rules')"> </n-thing>
       <template #suffix>
-        <n-icon><ArrowForwardIosRoundVue /> </n-icon>
+        <n-icon><ArrowForwardIosRoundVue /></n-icon>
+      </template>
+    </n-list-item>
+    <n-list-item @click="() => $router.push({ name: 'mute-user' })">
+      <n-thing :title="t('mute_user')"> </n-thing>
+      <template #suffix>
+        <n-icon><ArrowForwardIosRoundVue /></n-icon>
       </template>
     </n-list-item>
     <n-list-item @click="handelIntelligentCleaning">
