@@ -49,7 +49,11 @@ watch(height, (h) => {
     ref="wrap"
     class="overflow-hidden relative"
     :style="{
-      minHeight: typeof minHeight === 'number' ? `${minHeight}px` : minHeight,
+      minHeight: safeActive
+        ? '0px'
+        : typeof minHeight === 'number'
+        ? `${minHeight}px`
+        : minHeight,
       height: transitionActive ? `${_height}px` : '0px',
       transition: `height ${duration}ms ease-out`,
     }"
