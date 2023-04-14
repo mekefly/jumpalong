@@ -485,6 +485,9 @@ export function useScale(scale = 0.5625) {
   onMounted(() => {
     setupHeight();
   });
+  onUpdated(() => {
+    setupHeight();
+  });
   useEventListener(window, "resize", () => {
     setupHeight();
   });
