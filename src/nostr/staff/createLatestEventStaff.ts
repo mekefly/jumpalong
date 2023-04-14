@@ -42,13 +42,8 @@ export function createLatestEventStaff() {
   return createStaff({
     push(event, eventList, { lastState, subId }) {
       const oldV = eventList[0];
-      if (!oldV) {
+      if (!oldV || event.created_at > oldV.created_at) {
         eventList[0] = event;
-        eventEmiter.emit("update", event, subId);
-        return StaffState.BREAK;
-      }
-      if (event.created_at > oldV.created_at) {
-        eventList[0] = eventList[0];
         eventEmiter.emit("update", event, subId);
       }
       return StaffState.BREAK;
