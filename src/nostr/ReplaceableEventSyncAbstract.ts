@@ -2,13 +2,7 @@ import { createEventBeltline } from "@/nostr/createEventBeltline";
 import { type EventBeltline } from "@/nostr/eventBeltline";
 import { nostrApi, relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
 import createEoseUnSubStaff from "@/nostr/staff/createEoseUnSubStaff";
-import { createLatestEventStaff } from "@/nostr/staff/createLatestEventStaff";
-import {
-  debounce,
-  nowSecondTimestamp,
-  setAdds,
-  syncInterval,
-} from "@/utils/utils";
+import { nowSecondTimestamp, setAdds, syncInterval } from "@/utils/utils";
 import { Event, Filter } from "nostr-tools";
 import createTimeoutUnSubStaff from "./staff/createTimeoutUnSubStaff";
 
@@ -40,11 +34,16 @@ export abstract class ReplaceableEventSyncAbstract<E> {
     ReplaceableEventSyncAbstract.list.push(this);
 
     const event = this.getLocalEvent();
+
+    this.data = defaul;
     if (!event) {
-      this.data = defaul;
       return;
     }
-    this.setDataByEvent(event);
+
+    //没办法了，如果非得想办法隔离vue的话，代码越写越复杂，还不如直接引入进来
+    const slef = reactive(this) as any;
+    slef.setDataByEvent(event);
+    return slef;
   }
 
   abstract getFilters(): Promise<Filter[]>;
@@ -170,62 +169,60 @@ export abstract class ReplaceableEventSyncAbstract<E> {
     syncInterval(
       `cache:${this.name}:${JSON.stringify(opt)}`,
       async () => {
-        let filters;
-        try {
-          filters = await this.getFilters().catch((e) => {
-            throw e;
-          });
-        } catch (error) {
-          return;
-        }
+        let filters = await this.getFilters();
+
         const slef = this;
         const withEvent = new Set();
         const line = createEventBeltline()
           .addFilters(filters)
-          .addStaff({
-            push(e, _, { subId }) {
-              if (!subId) return;
-              const url = this.beltline.getUrlBySubId(subId);
-
-              if (!url) return;
-              withEvent.add(url);
-              opt?.onEvent?.(e, url);
-            },
-          })
-          .addStaff(createLatestEventStaff())
+          //执行的事件回调
           .addStaff({
             initialization() {
+              //中继不存在某事件的回调
               this.beltline.onAfterReq(({ subId, url }) => {
                 this.beltline.getRelayEmiter().once("eose", subId, () => {
+                  //中继不存在此事件
                   if (!withEvent.has(url)) {
                     const localEvent = slef.getLocalEvent();
                     localEvent &&
-                      line.publish(localEvent, new Set<string>().add(url));
+                      line
+                        .createChild()
+                        .publish(localEvent, new Set<string>().add(url), {
+                          autoPublishToTagR: false,
+                        });
                     opt?.onPush?.(url);
                   }
                 });
               });
+            }, //具有事件的检测
+            push(e, _, { subId, url }) {
+              if (!url) return;
+
+              //具有event的事件
+              withEvent.add(url);
+              opt?.onEvent?.(e, url);
             },
           })
           .addStaff(createEoseUnSubStaff())
           .addStaff(createTimeoutUnSubStaff());
+
         setTimeout(() => {
           line.addRelayUrls(urls);
         });
 
-        !opt?.onlyUrl && line.addExtends(rootEventBeltline);
-        const localEvent = this.getLocalEvent();
-
-        localEvent && rootEventBeltline.pushEvent(localEvent);
-
         const oldUrl = new Set<string>();
-
         //更旧的数据列表
-        const debounceListener = debounce((e: Event, subId?: string) => {
-          this.syncByEvent(e, subId, oldUrl, line);
+        line.addStaff({
+          push: (event, _, { subId }) => {
+            // debounceListener(event, subId);
+
+            this.syncByEvent(event, subId, oldUrl, line);
+          },
         });
 
-        line.feat.onHasLatestEvent(debounceListener);
+        !opt?.onlyUrl && line.addExtends(rootEventBeltline);
+        const localEvent = this.getLocalEvent();
+        localEvent && rootEventBeltline.pushEvent(localEvent);
       },
       10_000
     );
@@ -258,7 +255,11 @@ export abstract class ReplaceableEventSyncAbstract<E> {
     } else if (e.created_at < updateAt && url) {
       //本地更新
       const localEvent = this.getLocalEvent();
-      localEvent && line.publish(localEvent, new Set<string>().add(url));
+
+      localEvent &&
+        line.createChild().publish(localEvent, new Set<string>().add(url), {
+          autoPublishToTagR: false,
+        });
     }
 
     //url不存在应该就是本地或存储上下载下来的event，而不是relay,目前没有提供对应的删除更新方法
