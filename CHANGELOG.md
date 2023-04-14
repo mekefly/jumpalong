@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.5.0-test.4](https://github.com/mekefly/jumpalong/compare/v0.5.0-test.3...v0.5.0-test.4) (2023-04-14)
+
+
+### 🐛 Bug Fixes | Bug 修复
+
+* bugs ([c68d6de](https://github.com/mekefly/jumpalong/commit/c68d6dec0aa821cd68d7d9e4e4d3daae6faaa38a))
+* Click on the read write button in the relay editor to ignore any bugs used ([8c978ae](https://github.com/mekefly/jumpalong/commit/8c978ae170913d8a4061add391448a51be215216))
+* createLatestEventStaff bug,I didn't expect to discover such a core bug until now ([4d1e1b2](https://github.com/mekefly/jumpalong/commit/4d1e1b24feac0bf260cbb2316f728ef2d49a59b5))
+* Delete useless code ([8a40dfe](https://github.com/mekefly/jumpalong/commit/8a40dfed27ab45697f7b7a8ec35c0292c9d19f5a))
+* Fix the issue of asynchronous relay editor ([1daa10b](https://github.com/mekefly/jumpalong/commit/1daa10b6448ec02de41a075a4290a404ae087564))
+* MarkdownEditorView Bugs not loaded due to cache issues ([d425ff5](https://github.com/mekefly/jumpalong/commit/d425ff574b464ed0302994c4961bea0daf04894d))
+
+
+### ✨ Features | 新功能
+
+* toLocaleString second ([ab48003](https://github.com/mekefly/jumpalong/commit/ab48003583b6a11ae2acec89e8cc0d15ac07a77f))
+
 ## [0.5.0-test.3](https://github.com/mekefly/jumpalong/compare/v0.5.0-test.2...v0.5.0-test.3) (2023-04-14)
 
 

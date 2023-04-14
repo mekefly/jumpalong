@@ -1,7 +1,7 @@
 {
   "name": "jumpalong",
   "displayName": "Jumpalong",
-  "version": "0.5.0-test.3",
+  "version": "0.5.0-test.4",
   "description": "Jumpalong is a nostr client",
   "author": {
     "name": "mekefly",
