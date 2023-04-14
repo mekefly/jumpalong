@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.5.0-test.5](https://github.com/mekefly/jumpalong/compare/v0.5.0-test.4...v0.5.0-test.5) (2023-04-14)
+
+
+### ✨ Features | 新功能
+
+* Blacklist function ([26f54fc](https://github.com/mekefly/jumpalong/commit/26f54fca69af7761a023806c98d62ce6a48ee3db))
+
+
+### 🚀 Chore | 构建/工程依赖/工具
+
+* README.md ([cd7b58e](https://github.com/mekefly/jumpalong/commit/cd7b58eca40ab7adeccb0861e88762a1f60cf3df))
+
 ## [0.5.0-test.4](https://github.com/mekefly/jumpalong/compare/v0.5.0-test.3...v0.5.0-test.4) (2023-04-14)
 
 
