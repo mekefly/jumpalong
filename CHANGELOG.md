@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.5.0-test.8](https://github.com/mekefly/jumpalong/compare/v0.5.0-test.7...v0.5.0-test.8) (2023-04-15)
+
+
+### 🐛 Bug Fixes | Bug 修复
+
+* Fix bug where incorrect configuration was obtained without a public key ([2fd8c49](https://github.com/mekefly/jumpalong/commit/2fd8c4951618fb0477b66769f7537e1f48de48d1))
+
+
+### ✨ Features | 新功能
+
+* Automatically obtain user's relay configuration ([d54f2e3](https://github.com/mekefly/jumpalong/commit/d54f2e39056e26320ab55be443e2bbbf5c1ea202))
+
 ## [0.5.0-test.7](https://github.com/mekefly/jumpalong/compare/v0.5.0-test.6...v0.5.0-test.7) (2023-04-15)
 
 
