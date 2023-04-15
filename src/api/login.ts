@@ -1,5 +1,6 @@
 import { injectNostrApi } from "@/nostr/nostr";
 import {
+  getNostrApiMode,
   NostrApiMode,
   PriKeyNostApiImpl,
   setNostrApiMode,
@@ -34,7 +35,12 @@ export function logout() {
 export function testAndVerifyNewUser() {
   const prikey = localStorage.getItem("newUserFlag");
   const currentPrikey = localStorage.getItem("prikey");
-  if (prikey && prikey === currentPrikey) {
+
+  if (
+    getNostrApiMode() === NostrApiMode.PrivateKey &&
+    prikey &&
+    prikey === currentPrikey
+  ) {
     return true;
   } else {
     return false;

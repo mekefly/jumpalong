@@ -63,11 +63,7 @@ export function useLoginStepsState() {
   const loadingBar = useLoadingBar();
   async function complete() {
     loginOperations.push(() => {
-      //对新用户执行的操作
-      if (testAndVerifyNewUser()) {
-        //从现在开始不再是新注册用户了
-        localStorage.removeItem("newUserFlag");
-      }
+      localStorage.removeItem("newUserFlag");
     });
 
     loginOperations.forEach((f) => f());
