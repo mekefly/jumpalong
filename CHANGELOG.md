@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.5.0-test.7](https://github.com/mekefly/jumpalong/compare/v0.5.0-test.6...v0.5.0-test.7) (2023-04-15)
+
+
+### 🐛 Bug Fixes | Bug 修复
+
+* Fix the issue of banner disappearing ([658da18](https://github.com/mekefly/jumpalong/commit/658da18c73978a98982a8ac30d4ed126ed44c21e))
+* LazyItem Abnormal Leave Blank ([f0d931d](https://github.com/mekefly/jumpalong/commit/f0d931d480f66e011abc426f56d994270239a1cc))
+
+
+### ✨ Features | 新功能
+
+* Optimizing the refresh and loading effects feels more in line with expectations ([65a9c1d](https://github.com/mekefly/jumpalong/commit/65a9c1d764ed56e5b7ca7c025297e2565d7dab81))
+
 ## [0.5.0-test.6](https://github.com/mekefly/jumpalong/compare/v0.5.0-test.5...v0.5.0-test.6) (2023-04-14)
 
 
