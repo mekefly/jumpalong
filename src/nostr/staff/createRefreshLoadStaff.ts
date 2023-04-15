@@ -1,17 +1,12 @@
 import { defaultCacheOptions, getCacheOrNull, setCache } from "@/utils/cache";
-import { createCounter, nowSecondTimestamp } from "@/utils/utils";
+import { createCounter, debounce, nowSecondTimestamp } from "@/utils/utils";
 import { Event, Filter } from "nostr-tools";
 import { EventBeltline } from "../eventBeltline";
 import { createDoNotRepeatStaff } from "./createDoNotRepeatStaff";
 import createEoseUnSubStaff from "./createEoseUnSubStaff";
 import createEventSourceTracers from "./createEventSourceTracers";
 import createTimeoutUnSubStaff from "./createTimeoutUnSubStaff";
-import {
-  createStaffFactory,
-  FeatType,
-  StaffState,
-  StaffThisType,
-} from "./Staff";
+import { createStaffFactory, FeatType, StaffThisType } from "./Staff";
 
 export type BufferOpt = {
   bufferLine: EventBeltline;
@@ -39,7 +34,7 @@ export type RefreshLoadStaffFeat = {
 };
 const createCacheKey = (filters: Filter[]) =>
   `createRefreshLoadStaff:${JSON.stringify(filters)}`;
-const cacheOptions = { ...defaultCacheOptions, duration: 1000 * 60 * 30 };
+const cacheOptions = { ...defaultCacheOptions, duration: 1000 * 60 };
 
 export default createStaffFactory()(
   (
@@ -47,6 +42,9 @@ export default createStaffFactory()(
     limit: number = 20,
     opts?: {
       eventBeltline: EventBeltline<any>;
+      interval: number;
+      loadBufferOpt: Partial<BufferOpt>;
+      refreshBufferOpt: Partial<BufferOpt>;
     }
   ): RefreshLoadStaff => {
     const pushEventArgv = new WeakMap<Event, EventArg>();
@@ -56,9 +54,10 @@ export default createStaffFactory()(
       loadBufferOpt: BufferOpt;
       refreshBufferOpt: BufferOpt;
     } = (getCacheOrNull(cacheKey, cacheOptions) as any) ?? {
-      loadBufferOpt: undefined,
+      loadBufferOpt: opts?.loadBufferOpt,
       refreshBufferOpt: {
         minSince: nowSecondTimestamp(),
+        ...opts?.refreshBufferOpt,
       },
     };
 
@@ -72,42 +71,14 @@ export default createStaffFactory()(
       initialization() {
         // const urls = this.beltline.getRelayUrls();
         const slef = opts?.eventBeltline ?? this.beltline;
-        //刷新
-        refreshBufferOpt.bufferLine = slef
-          .createChild()
-          .addStaff(createDoNotRepeatStaff())
-          .addStaff({
-            push(event, _, opt) {
-              saveEventParameters(event, opt);
 
-              refreshBufferOpt.bufferCounter.reduce();
-              //const 是当不够时，就从刚添加的列表里添加，不往待添加区放
-              if (refreshBufferOpt.bufferCounter.count < limit) {
-                slef.pushEvent(event, opt);
-                return StaffState.BREAK;
-              }
-            },
-          })
-          .addStaffOfReverseSortByCreateAt(); //用来存储待刷新的列表
+        //刷新
+        //[3,2,1,0] 先将最旧的拿出来，然后拿到新的那里
+        initializationEventLine(slef, refreshBufferOpt, true);
 
         //加载
-        loadBufferOpt.bufferLine = slef
-          .createChild()
-          .addStaff(createDoNotRepeatStaff())
-          .addStaff({
-            push(event, _, opt) {
-              saveEventParameters(event, opt);
-
-              //const 是当不够时，就从刚添加的列表里添加，不往待添加区放
-              loadBufferOpt.bufferCounter.reduce();
-
-              if (loadBufferOpt.bufferCounter.count < limit) {
-                slef.pushEvent(event, opt);
-                return StaffState.BREAK;
-              }
-            },
-          })
-          .addStaffOfReverseSortByCreateAt(); //用来存储待刷新的列表
+        // [0,1,2,3] 先将最新的拿出来，所以是正序
+        initializationEventLine(slef, loadBufferOpt, false);
       },
       feat: {
         loadBufferOpt,
@@ -214,6 +185,10 @@ export default createStaffFactory()(
       },
     };
 
+    function clearReq(bufferOpt: BufferOpt) {
+      clearInterval(bufferOpt.intervalId);
+      bufferOpt.isLoading = false;
+    }
     function toPush(
       bufferOpt: BufferOpt,
       slef: EventBeltline<{
@@ -222,6 +197,7 @@ export default createStaffFactory()(
       }>,
       createFilters: CreateFilters
     ) {
+      clearReq(bufferOpt);
       if (filters.length === 0) return;
 
       const urls = slef.getRelayUrls();
@@ -235,8 +211,6 @@ export default createStaffFactory()(
       if (pushList.length < limit) {
         //方案二根据时间刷新，但不必担心任何顺序问题，对方可能发送顺序不一定的，所以此方案将更厉害
         req(bufferOpt, urls, pushList.length, (...rest) => {
-          setOptCache(slef);
-
           const v = createFilters(...rest);
           setOptCache(slef);
           return v;
@@ -272,10 +246,6 @@ export default createStaffFactory()(
       count: number,
       createFilters: CreateFilters
     ) {
-      const _clearInterval = () => {
-        clearInterval(bufferOpt.intervalId);
-        bufferOpt.isLoading = false;
-      };
       //如果获取到的内容太多，就消减时间
 
       if (bufferOpt.bufferCounter.count > limit) {
@@ -289,24 +259,24 @@ export default createStaffFactory()(
       }
       bufferOpt.bufferCounter.set(count);
 
-      _clearInterval();
+      clearReq(bufferOpt);
 
       bufferOpt.isLoading = true;
 
-      bufferOpt.intervalId = setInterval(toReq, 4000);
+      bufferOpt.intervalId = setInterval(toReq, opts?.interval ?? 3000);
 
       setTimeout(() => toReq(true));
 
       function toReq(stop?: boolean) {
         bufferOpt.isLoading = true;
         if (bufferOpt.bufferCounter.count >= limit) {
-          _clearInterval();
+          clearReq(bufferOpt);
           return;
         } else {
           if (!stop) bufferOpt.timeIncrement = bufferOpt.timeIncrement * 2;
         }
 
-        const _filter = createFilters(_clearInterval, bufferOpt);
+        const _filter = createFilters(() => clearReq(bufferOpt), bufferOpt);
         if (!_filter) return;
         if (urls.size === 0) return;
 
@@ -349,7 +319,7 @@ export default createStaffFactory()(
         {
           bufferLine: undefined as any as EventBeltline,
           bufferCounter: createCounter(0),
-          timeIncrement: 600,
+          timeIncrement: 1200,
           until: nowSecondTimestamp(),
           since: nowSecondTimestamp(),
           createTime: nowSecondTimestamp(),
@@ -359,6 +329,39 @@ export default createStaffFactory()(
         },
         opt
       );
+    }
+
+    function initializationEventLine(
+      slef: EventBeltline,
+      bufferOpt: BufferOpt,
+      isReverseSort: boolean
+    ) {
+      const pushEventList = debounce(() => {
+        //试图从待添加列表里添加内容
+        const list = bufferOpt.bufferLine.getList();
+        //最新的limit个pop出来
+        const pushList = list.splice(list.length - limit, limit);
+
+        //将等待区的数据放到展示区
+        pushToEvent(pushList, slef);
+      }, (opts?.interval ?? 3000) + 1000);
+      bufferOpt.bufferLine = slef
+        .createChild()
+        .addStaff(createDoNotRepeatStaff())
+        .addStaff({
+          push(event, _, opt) {
+            saveEventParameters(event, opt);
+
+            bufferOpt.bufferCounter.reduce();
+
+            //const 是当不够时，就从刚添加的列表里添加，不往待添加区放
+            pushEventList();
+          },
+        });
+      isReverseSort
+        ? bufferOpt.bufferLine.addStaffOfReverseSortByCreateAt()
+        : bufferOpt.bufferLine.addStaffOfSortByCreateAt();
+      //用来存储待刷新的列表
     }
   }
 );
