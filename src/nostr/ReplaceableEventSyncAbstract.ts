@@ -2,8 +2,10 @@ import { createEventBeltline } from "@/nostr/createEventBeltline";
 import { PublishOpt, type EventBeltline } from "@/nostr/eventBeltline";
 import { nostrApi, relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
 import createEoseUnSubStaff from "@/nostr/staff/createEoseUnSubStaff";
+import { getPubkeyOrNull } from "@/utils/nostrApiUse";
 import { nowSecondTimestamp, setAdds, syncInterval } from "@/utils/utils";
 import { Event, Filter } from "nostr-tools";
+import autoAddRelayurlByPubkeyStaff from "./staff/autoAddRelayurlByPubkeyStaff";
 import createTimeoutUnSubStaff from "./staff/createTimeoutUnSubStaff";
 
 export abstract class ReplaceableEventSyncAbstract<E> {
@@ -152,6 +154,7 @@ export abstract class ReplaceableEventSyncAbstract<E> {
     onPush?(url: string): void;
   }) {
     this.isSync = true;
+    const isOnly = Boolean(opt?.onlyUrl);
 
     const localUrls: Set<string> = new Set();
     try {
@@ -207,9 +210,14 @@ export abstract class ReplaceableEventSyncAbstract<E> {
           .addStaff(createEoseUnSubStaff())
           .addStaff(createTimeoutUnSubStaff());
 
-        setTimeout(() => {
-          line.addRelayUrls(urls);
-        });
+        if (!isOnly) {
+          setTimeout(async () => {
+            line.addRelayUrls(urls);
+            const pubkey = await getPubkeyOrNull();
+            if (!pubkey) return;
+            line.addStaff(autoAddRelayurlByPubkeyStaff(pubkey));
+          });
+        }
 
         const oldUrl = new Set<string>();
         //更旧的数据列表
