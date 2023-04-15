@@ -170,6 +170,7 @@ export abstract class ReplaceableEventSyncAbstract<E> {
       `cache:${this.name}:${JSON.stringify(opt)}`,
       async () => {
         let filters = await this.getFilters();
+        if (filters.length === 0) return;
 
         const slef = this;
         const withEvent = new Set();
