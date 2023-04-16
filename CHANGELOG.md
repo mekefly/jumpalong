@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.5.0](https://github.com/mekefly/jumpalong/compare/v0.5.0-test.8...v0.5.0) (2023-04-16)
+
+
+### 🐛 Bug Fixes | Bug 修复
+
+* bugs ([7c029c8](https://github.com/mekefly/jumpalong/commit/7c029c83c3f7afac45b7b491874c02bc507317e7))
+* Selecting registration and returning to selecting login will trigger new users to automatically guide and follow the bug ([4014776](https://github.com/mekefly/jumpalong/commit/40147764b38802c56396a252715fd8d82ae98b36))
+
+
+### ✨ Features | 新功能
+
+* pin 10001 ([9be2fc6](https://github.com/mekefly/jumpalong/commit/9be2fc602bdb5d5b8a6bb7fe26d52ec00a690ce1))
+
 ## [0.5.0-test.8](https://github.com/mekefly/jumpalong/compare/v0.5.0-test.7...v0.5.0-test.8) (2023-04-15)
 
 
