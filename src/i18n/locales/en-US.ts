@@ -237,8 +237,8 @@ const defaul = {
   already_pinned_tip: "You have already pinned!",
   request_initiated: "Request initiated",
 
-  tip: "Tip",
-  unpin: "Unpin",
+  pin: "pin",
+  unpin: "unpin",
 
   message: {
     you_have_sent_a_delete_request: `You have sent a delete request`,

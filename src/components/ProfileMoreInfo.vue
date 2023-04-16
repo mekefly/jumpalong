@@ -46,18 +46,16 @@ const tags = computed(() =>
       name="homepage"
       :tab="t('homepage')"
     >
-      <div v-if="isMe">
+      <div v-if="tags && tags.length > 0">
         <SMSButtonProvide
+          v-if="isMe"
           :insertDropdownOptionList="[unPininsertDropdownOption]"
         >
           <PostListVue :tags="tags" />
         </SMSButtonProvide>
+        <PostListVue v-else :tags="tags"></PostListVue>
+        <n-divider>{{ t("pin") }}</n-divider>
       </div>
-      <div v-else>
-        <PostListVue :tags="tags"></PostListVue>
-      </div>
-
-      <n-divider v-if="tags.length > 0">{{ t("tip") }}</n-divider>
 
       <PostListVue
         :active="activePage === 'homepage'"

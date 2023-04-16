@@ -235,7 +235,7 @@ const message: I18nMessages = {
   already_pinned_tip: "您已经固定了此消息",
   request_initiated: "已经发起请求",
 
-  tip: "固定",
+  pin: "固定",
   unpin: "取消固定",
 
   message: {
