@@ -45,7 +45,9 @@ export async function createEvent(options: Partial<Event>): Promise<Event> {
 
   event.id = getEventHash(event);
 
-  event = await signEvent(event, { intercept: true });
+  event = await signEvent(JSON.parse(JSON.stringify(event)), {
+    intercept: true,
+  });
 
   return event as Event;
 }

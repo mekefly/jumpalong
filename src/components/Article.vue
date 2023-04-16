@@ -13,14 +13,27 @@ const props = defineProps<{
   urls: Set<string>;
 }>();
 
+const emits = defineEmits<{
+  (e: "pushEvent", v: Event): void;
+}>();
+const message = useMessage();
 const urls = toRef(props, "urls");
-const pushEvent = ref<undefined | ((e: Event) => void)>(undefined);
 
-const handleSendEvent = useHandleSendMessage(1, undefined, pushEvent, {
-  urls: urls,
-});
-function handleSend(e: EventTemplate) {
-  handleSendEvent(e);
+const pushEvent = ref<any>(undefined);
+const handleSendEvent = useHandleSendMessage(
+  1,
+  undefined,
+  ref((e: Event) => {
+    pushEvent.value?.(e);
+    emits("pushEvent", e);
+  }),
+  {
+    urls: urls,
+  }
+);
+async function handleSend(e: EventTemplate) {
+  await handleSendEvent(e);
+  message.info("send");
 }
 </script>
 
