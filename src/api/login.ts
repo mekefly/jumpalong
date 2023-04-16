@@ -29,7 +29,9 @@ export function logout() {
   setNostrApiMode(NostrApiMode.NotLogin);
 
   ReplaceableEventSyncAbstract.clearAll();
-  location.reload();
+  setTimeout(() => {
+    location.reload();
+  }, 0);
 }
 
 export function testAndVerifyNewUser() {
