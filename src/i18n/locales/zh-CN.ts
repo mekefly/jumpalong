@@ -232,6 +232,11 @@ const message: I18nMessages = {
     "naddr1qq9rsetkvamxgwfkx35qz9mhwden5te0wfjkccte9ehx7um5wghxyctwvshsz8thwden5te0dehhxarj94c82c3wwajkcmr0wfjx2u3wdejhgqgewaehxw309ahx7um5wgh8q6twddsku6mf9ehhyee0qy08wumn8ghj7un9d3shjtnwdaehgu3wwa5hyetydejhgtn2wqhszxmhwden5te0dehhxarj9e3xjarrda5kutfjxyhx7un89uq32amnwvaz7tmxd9shger9de5k2u3wvdhk6tcpp4mhxue69uhkummn9ekx7mqpzpmhxue69uhkumedwd68ytn0wfnszxrhwden5te0d35kw6r5de5kuemjv4kxz7fwvdhk6qgnwaehxw309aex2mrp09skymr99ehhyeczyqrklt56qgr88jhemdn8xjyy4f980aym5w2zwjykusu7r3hlz7pgjqcyqqq823crzj7e3",
 
   mute_user: "加入黑名单",
+  already_pinned_tip: "您已经固定了此消息",
+  request_initiated: "已经发起请求",
+
+  tip: "固定",
+  unpin: "取消固定",
 
   message: {
     you_have_sent_a_delete_request: `您已经发送了删除请求`,

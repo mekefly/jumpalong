@@ -5,6 +5,8 @@ import { t } from "@/i18n";
 import { useElementIntoScreen } from "@/utils/use";
 import { Event, Filter } from "nostr-tools";
 import { createTextEventBeltline } from "../api/shortTextEventBeltline";
+import PapawByAddr from "./PapawByAddr.vue";
+import PapawById from "./PapawById.vue";
 import { useLoad } from "./Refresh";
 
 logger.for("home.vue").for("PostList.vue").info("进入PostList.vue");
@@ -22,6 +24,7 @@ const props = withDefaults(
     limit?: number;
     reverseSort?: boolean;
     disabledReply?: boolean;
+    tags?: string[][];
   }>(),
   {
     active: true,
@@ -61,6 +64,7 @@ const allPubkeys = computed(() => [
 
 const textEventbeltline = computed(() => {
   const opt: any = {};
+  if (mergeFilters.value.length === 0) return;
   const line = createTextEventBeltline({
     filters: mergeFilters.value,
     ...opt,
@@ -118,6 +122,19 @@ const instance = ref(getCurrentInstance());
       class="h-40 flex justify-center items-center"
     >
       <n-empty :description="t('empty_text')" size="huge"> </n-empty>
+    </div>
+
+    <div v-if="tags" v-for="tag in tags">
+      <PapawById
+        v-if="tag[0] === 'e' && tag[1]"
+        :id="tag[1]"
+        :relays="tag[2] ? new Set([tag[2]]) : undefined"
+      ></PapawById>
+
+      <PapawByAddr
+        v-else-if="tag[0] === 'a' && tag[1]"
+        :a="tag[1]"
+      ></PapawByAddr>
     </div>
 
     <PapawVueList

@@ -2,6 +2,7 @@
 import { t } from "@/i18n";
 import { createAddress } from "@/nostr/event";
 import { getMuteListEventSync } from "@/nostr/MuteList";
+import { getPinListSync } from "@/nostr/PinListSync";
 import router from "@/router";
 import {
   useRecommendEvent,
@@ -13,11 +14,12 @@ import { neventEncodeByEvent } from "@/utils/nostr";
 import { usePubkey } from "@/utils/nostrApiUse";
 import { autoHidden, useModelBind, useOnOK } from "@/utils/use";
 import { usePushShortTextNote } from "@/views/ShortTextNoteView";
-import { SelectMixedOption } from "naive-ui/es/select/src/interface";
+import { DropdownOption } from "naive-ui";
 import { Event, nip19 } from "nostr-tools";
 import { useBlackData } from "../views/ContentBlacklistView";
 import MoreIconVue from "./icon/MoreIcon.vue";
 import { useRichTextEditBoxOpt } from "./RichTextEditBox";
+import { Handle, useSMSButton } from "./SMSButtonProvide";
 const message = useMessage();
 
 const richTextEditBoxOpt = useRichTextEditBoxOpt();
@@ -44,8 +46,19 @@ const recommendUserMetadata = useRecommendUserMetadata();
 const pushShortTextNote = usePushShortTextNote();
 const muteListEventSync = getMuteListEventSync();
 const onOK = useOnOK();
+const pinListSync = getPinListSync();
+const smsButton = useSMSButton();
 
-const handleMap = {
+const handleMap = ref<Record<string, Handle>>({
+  pin: () => {
+    if (pinListSync.hasByEvent(event.value)) {
+      message.info(t("already_pinned_tip"));
+      return;
+    }
+
+    pinListSync.pin(event.value, { onOK });
+    message.info(t("request_initiated"));
+  },
   close: () => {
     show.value = false;
   },
@@ -112,118 +125,128 @@ const handleMap = {
   mention() {
     richTextEditBoxOpt.emitRichTextEditBox("mention", event.value);
   },
-};
-const runOperate = (key: string) => {
-  const fn = (handleMap as any)[key];
+});
+const handleSelect = (key: string) => {
+  const fn = (handleMap.value as any)[key];
   if (!fn) {
     message.error("Not found");
   }
 
-  fn();
+  fn(event.value);
 };
 
 const { addRule } = useBlackData();
 const currentPubkey = usePubkey();
 
-const options = computed<SelectMixedOption[]>(() => [
-  {
-    label: t("close"),
-    value: "close",
-    key: "close",
-  },
-  ...(event.value.pubkey === currentPubkey.value
-    ? [
-        ...(event.value.kind === 30023
-          ? [
-              {
-                label: t("edit"),
-                value: "editArticle",
-                key: "editArticle",
-              },
-            ]
-          : []),
-        {
-          label: t("delete_event"),
-          value: "deleteEvent",
-          key: "deleteEvent",
-        },
-      ]
-    : [
-        {
-          label: t("hide"),
-          value: "joinTheBlacklist",
-          key: "joinTheBlacklist",
-        },
-        {
-          label: t("mute_user"),
-          value: "muteUser",
-          key: "muteUser",
-        },
-      ]),
-  {
-    label: t("open"),
-    value: "pushShortTextNote",
-    key: "pushShortTextNote",
-  },
-  {
-    label: t("reply"),
-    value: "reply",
-    key: "reply",
-  },
-  {
-    label: t("mention"),
-    value: "mention",
-    key: "mention",
-  },
-  {
-    label: `${t("copy")} Nevent`,
-    value: "copyNevent",
-    key: "copyNevent",
-  },
-  {
-    label: `${t("copy")} Note`,
-    value: "copyNote",
-    key: "copyNote",
-  },
-  ...(event.value.kind >= 30000 && event.value.kind < 40000
-    ? [
-        {
-          label: `${t("copy")} Naddr`,
-          value: "copyNaddr",
-          key: "copyNaddr",
-        },
-      ]
-    : []),
-  {
-    label: `${t("copy")} Hex pubkey`,
-    value: "copyHexPubkey",
-    key: "copyHexPubkey",
-  },
-  {
-    label: t("recommend_user"),
-    value: "recommendUser",
-    key: "recommendUser",
-  },
-  {
-    label: t("recommend_event"),
-    value: "recommendEvent",
-    key: "recommendEvent",
-  },
-  {
-    label: t("recommend_metadata"),
-    value: "recommendUserMetadata",
-    key: "recommendUserMetadata",
-  },
-]);
+const options = computed<DropdownOption[]>(() => {
+  const dropdownOption = [
+    {
+      label: t("close"),
+      value: "close",
+      key: "close",
+    },
+    ...(event.value.pubkey === currentPubkey.value
+      ? [
+          ...(event.value.kind === 30023
+            ? [
+                {
+                  label: t("edit"),
+                  value: "editArticle",
+                  key: "editArticle",
+                },
+              ]
+            : []),
+          {
+            label: t("delete_event"),
+            value: "deleteEvent",
+            key: "deleteEvent",
+          },
+        ]
+      : [
+          {
+            label: t("hide"),
+            value: "joinTheBlacklist",
+            key: "joinTheBlacklist",
+          },
+          {
+            label: t("mute_user"),
+            value: "muteUser",
+            key: "muteUser",
+          },
+        ]),
+    {
+      label: t("open"),
+      value: "pushShortTextNote",
+      key: "pushShortTextNote",
+    },
+    {
+      label: t("reply"),
+      value: "reply",
+      key: "reply",
+    },
+    {
+      label: t("mention"),
+      value: "mention",
+      key: "mention",
+    },
+    {
+      label: t("tip"),
+      value: `pin`,
+      key: `pin`,
+    },
+    {
+      label: `${t("copy")} Nevent`,
+      value: "copyNevent",
+      key: "copyNevent",
+    },
+    {
+      label: `${t("copy")} Note`,
+      value: "copyNote",
+      key: "copyNote",
+    },
+    ...(event.value.kind >= 30000 && event.value.kind < 40000
+      ? [
+          {
+            label: `${t("copy")} Naddr`,
+            value: "copyNaddr",
+            key: "copyNaddr",
+          },
+        ]
+      : []),
+    {
+      label: `${t("copy")} Hex pubkey`,
+      value: "copyHexPubkey",
+      key: "copyHexPubkey",
+    },
+    {
+      label: t("recommend_user"),
+      value: "recommendUser",
+      key: "recommendUser",
+    },
+    {
+      label: t("recommend_event"),
+      value: "recommendEvent",
+      key: "recommendEvent",
+    },
+    {
+      label: t("recommend_metadata"),
+      value: "recommendUserMetadata",
+      key: "recommendUserMetadata",
+    },
+  ];
+
+  smsButton?.runInsertDropdown(dropdownOption, handleMap.value);
+
+  return dropdownOption;
+});
 const target = ref(null);
 autoHidden(show);
 </script>
 
 <template>
   <div>
-    <n-popselect
-      ref="target"
-      @updateValue="runOperate"
+    <n-dropdown
+      @select="handleSelect"
       v-model:value="value"
       :options="options"
       trigger="manual"
@@ -232,7 +255,7 @@ autoHidden(show);
       <n-button quaternary circle @click="() => (show = !show)">
         <n-icon> <MoreIconVue /> </n-icon>
       </n-button>
-    </n-popselect>
+    </n-dropdown>
   </div>
 </template>
 

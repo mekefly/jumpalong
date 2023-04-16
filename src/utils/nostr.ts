@@ -32,6 +32,19 @@ export function toDeCodeAddress(str: string): AddressPointer | null {
       return v["data"] as AddressPointer;
     }
   } catch (error) {}
+
+  // a标签的第二个参数 ["a", "30023:a695f6b60119d9521934a691347d9f78e8770b56da16bb255ee286ddf9fda919:ipsum", "wss://relay.nostr.org"]
+  const [kindString, pubkey, identifier] = str.split(":");
+  if (kindString && pubkey && identifier) {
+    try {
+      const kind = parseInt(kindString);
+      return {
+        kind,
+        identifier,
+        pubkey,
+      };
+    } catch (error) {}
+  }
   return null;
 }
 export function decodeToPrikey(anyPrikey: string) {

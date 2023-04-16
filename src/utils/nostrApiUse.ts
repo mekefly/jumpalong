@@ -76,7 +76,7 @@ export async function signEvent(
   opt?: { intercept: boolean }
 ) {
   try {
-    return nostrApi.signEvent(event);
+    return await nostrApi.signEvent(event);
   } catch (error) {
     if (opt?.intercept) {
       pushToLogin();

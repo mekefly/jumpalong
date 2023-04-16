@@ -35,7 +35,8 @@ export function getOnlyTag(
     | "published_at"
     | "e"
     | "d"
-    | "p",
+    | "p"
+    | "a",
   tags: string[][]
 ) {
   for (const tag of tags) {

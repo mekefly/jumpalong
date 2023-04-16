@@ -289,7 +289,11 @@ export abstract class ReplaceableEventSyncAbstract<E> {
     if (!event) return;
 
     //发布到写列表
-    rootEventBeltline.publish(event, relayConfigurator.getWriteList(), opt);
+    await rootEventBeltline.publish(
+      event,
+      relayConfigurator.getWriteList(),
+      opt
+    );
 
     this.isChange = false;
   }

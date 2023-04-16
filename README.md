@@ -76,7 +76,7 @@ This program is a web client of Nostr, provides a beautiful interface and intera
 |    9734     |           Zap Request            |   57    |            |
 |    9735     |               Zap                |   57    |            |
 |    10000    |            Mute List             |   51    |     ✅     |
-|    10001    |             Pin List             |   51    |            |
+|    10001    |             Pin List             |   51    |     ✅     |
 |    10002    |       Relay List Metadata        |   65    |     ✅     |
 |    22242    |      Client Authentication       |   42    |            |
 |    24133    |          Nostr Connect           |   46    |            |
