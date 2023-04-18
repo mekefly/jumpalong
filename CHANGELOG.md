@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.6.0-test.0](https://github.com/mekefly/jumpalong/compare/v0.5.0...v0.6.0-test.0) (2023-04-18)
+
+
+### 🐛 Bug Fixes | Bug 修复
+
+* i18n tip -> pin，pin i18n error ([92381eb](https://github.com/mekefly/jumpalong/commit/92381eb9ef1851ae0292d462786e41eb5dc09642))
+* ReplaceableEventSyncAbstract.clearAll ([b533ba3](https://github.com/mekefly/jumpalong/commit/b533ba3b3f82e61598b409b82db61c71fd552fb3))
+
+
+### ✨ Features | 新功能
+
+* Remote Connection Login ([35f5e85](https://github.com/mekefly/jumpalong/commit/35f5e85a011ac7568a0f373b8e579c87bd46482b))
+
 ## [0.5.0](https://github.com/mekefly/jumpalong/compare/v0.5.0-test.8...v0.5.0) (2023-04-16)
 
 
