@@ -151,9 +151,9 @@ export function createEventTemplate(options: Partial<Event>) {
   let event: Partial<Event> & EventTemplate = Object.assign(
     {
       kind: 1,
-      created_at: Math.floor(Date.now() / 1000),
       tags: [],
       content: "",
+      created_at: Math.floor(Date.now() / 1000),
     },
     options
   );
