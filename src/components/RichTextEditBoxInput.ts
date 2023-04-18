@@ -81,13 +81,23 @@ export function useEventRef(value: Ref<string>) {
         .filter(
           (tag) => tag[0] === "e" && tag[1] && (!tag[3] || tag[3] === "reply")
         )
-        .map((tag) => [tag[0], tag[1], tag[2], "mention"])
+        .map((tag) => [tag[0], tag[1], tag[2] ?? "", "mention"])
     );
 
     //被提及的用户列表
-    relaysTags.value.push(...e.tags.filter((tag) => tag[0] === "p" && tag[1]));
+    relaysTags.value.push(
+      ...e.tags
+        .filter((tag) => tag[0] === "p" && tag[1])
+        //将null过滤掉
+        .map((tag) => tag.map((item) => item ?? ""))
+    );
     //被提到的所有中继
-    relaysTags.value.push(...e.tags.filter((tag) => tag[0] === "r" && tag[1]));
+    relaysTags.value.push(
+      ...e.tags
+        .filter((tag) => tag[0] === "r" && tag[1])
+        //将null过滤掉
+        .map((tag) => tag.map((item) => item ?? ""))
+    );
   }
   function mentionEvent(e: Event) {
     if (value.value === "") value.value += `&${createMapKey(e)}\n`;
