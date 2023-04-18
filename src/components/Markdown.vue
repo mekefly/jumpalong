@@ -1,15 +1,14 @@
 <script lang="ts" setup>
-import { type AddressPointer } from "nostr-tools/lib/nip19";
+import { t } from "@/i18n";
+import router from "@/router";
+import { Event } from "nostr-tools";
+import { AddressPointer } from "nostr-tools/lib/nip19";
+import DateTime from "./DateTime.vue";
 import {
   useArticeSetting,
   useLongFormContentOptions,
   useMarkdownState,
 } from "./Markdown";
-
-import { t } from "@/i18n";
-import router from "@/router";
-import { Event } from "nostr-tools";
-import DateTime from "./DateTime.vue";
 import MavonEditor from "./MavonEditor.vue";
 
 const props = defineProps<{

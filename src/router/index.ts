@@ -152,6 +152,11 @@ const router = createRouter({
               name: "mute-user",
               component: () => import("../views/MuteUserListView.vue"),
             },
+            {
+              path: "/nostr/connect",
+              name: "nostr-connect-setting",
+              component: () => import("../views/NostrConnectSettingView.vue"),
+            },
           ],
         },
       ],

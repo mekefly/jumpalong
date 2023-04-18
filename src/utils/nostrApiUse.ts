@@ -20,7 +20,11 @@ export function usePubkey(opt?: { intercept: boolean }) {
         try {
           pubkey.value = await nostrApi.getPublicKey();
         } catch (error) {
-          if (error instanceof NotFoundError) {
+          const mode = getNostrApiMode();
+          if (
+            error instanceof NotFoundError &&
+            mode === NostrApiMode.WindowNostr
+          ) {
             dialogApi.error({
               title: t("error"),
               content:
@@ -28,14 +32,15 @@ export function usePubkey(opt?: { intercept: boolean }) {
               positiveText: t("yes"),
               onPositiveClick: () => {},
             });
+          } else if (mode !== NostrApiMode.NotLogin) {
+            dialogApi.error({
+              title: t("error"),
+              content: String(error),
+              positiveText: t("yes"),
+              onPositiveClick: () => {},
+            });
           }
 
-          dialogApi.error({
-            title: t("error"),
-            content: String(error),
-            positiveText: t("yes"),
-            onPositiveClick: () => {},
-          });
           opt?.intercept && pushToLogin();
         }
       }
@@ -71,6 +76,7 @@ export async function getPrikeyOrNull() {
   }
   return null;
 }
+
 export async function signEvent(
   event: UnsignedEvent,
   opt?: { intercept: boolean }
@@ -78,9 +84,12 @@ export async function signEvent(
   try {
     return await nostrApi.signEvent(event);
   } catch (error) {
-    if (opt?.intercept) {
-      pushToLogin();
+    if (getNostrApiMode() === NostrApiMode.NotLogin) {
+      if (opt?.intercept) {
+        pushToLogin();
+      }
     }
+
     throw error;
   }
 }

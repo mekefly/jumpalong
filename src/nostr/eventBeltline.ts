@@ -189,6 +189,7 @@ export class EventBeltline<
     }
     // 增加的url和所有的过滤器请求
     this.reqs(incrementUrl, this.filters);
+
     this.eventEmitter.emit("add-relay-urls", incrementUrl, urls);
 
     return this;
@@ -450,7 +451,7 @@ export class EventBeltline<
     return event;
   }
 
-  private req(url: string, filters: Filter[]) {
+  public req(url: string, filters: Filter[]) {
     const subId = this.idGenerator.createId();
 
     this.onReceiveEvent(subId);
@@ -477,9 +478,6 @@ export class EventBeltline<
     // 监听
     this.relayEmiter.on("event", subId, ({ event, url }) => {
       this.pushEvent(event, { subId, url });
-    });
-    this.relayEmiter.once("eose", subId, () => {
-      this.relayEmiter.removeAllListener(subId);
     });
 
     // for (const line of this.extendTo) {

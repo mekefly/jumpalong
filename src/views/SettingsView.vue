@@ -62,6 +62,12 @@ function handelClearCache() {
         <n-icon><ArrowForwardIosRoundVue /></n-icon>
       </template>
     </n-list-item>
+    <n-list-item @click="() => $router.push({ name: 'nostr-connect-setting' })">
+      <n-thing :title="t('nostr_connect')"> </n-thing>
+      <template #suffix>
+        <n-icon><ArrowForwardIosRoundVue /></n-icon>
+      </template>
+    </n-list-item>
     <n-list-item @click="handelIntelligentCleaning">
       <n-thing :title="t('clear_expired_cache')"> </n-thing>
     </n-list-item>

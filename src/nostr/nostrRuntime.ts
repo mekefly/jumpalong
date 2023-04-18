@@ -7,8 +7,14 @@ import { RelayEmiter } from "./RelayEmiter";
 import { RelayPool } from "./RelayPool";
 
 import { PRIVATE_KEY } from "@/api/login";
+import { NostrConnectNostrApiImpl } from "@/api/NostrConnect";
 import { injectWindowNostr } from "./injectWindowNostr";
-import { getNostrApiMode, NostrApiMode, PriKeyNostApiImpl } from "./NostrApi";
+import {
+  getNostrApiMode,
+  NostrApiMode,
+  PriKeyNostApiImpl,
+  setNostrApiMode,
+} from "./NostrApi";
 import { RelayConfigurator } from "./relayConfigurator";
 
 export function initializeRuntime() {
@@ -21,7 +27,22 @@ export function initializeRuntime() {
 
     case NostrApiMode.PrivateKey:
       const prikey = localStorage.getItem(PRIVATE_KEY);
+      if (!prikey) {
+        setNostrApiMode(NostrApiMode.NotLogin); //取消登录
+        break;
+      }
       injectNostrApi({ nostrApi: new PriKeyNostApiImpl(prikey ?? undefined) });
+      break;
+
+    case NostrApiMode.NostrContent:
+      const pubkey = localStorage.getItem("pubkey");
+
+      if (!pubkey) {
+        setNostrApiMode(NostrApiMode.NotLogin); //取消登录
+        break;
+      }
+
+      injectNostrApi({ nostrApi: new NostrConnectNostrApiImpl(pubkey) });
       break;
 
     default:

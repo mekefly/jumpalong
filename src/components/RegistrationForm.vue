@@ -1,18 +1,22 @@
 <script lang="ts" setup>
-import { registerPrikey, testAndVerifyNewUser } from "@/api/login";
+import contactConfiguration from "@/api/Contact";
+import {
+  clearNewUserFlag,
+  registerPrikey,
+  testAndVerifyNewUser,
+} from "@/api/login";
 import { t } from "@/i18n";
+import { getFollowChannelConfiguration } from "@/nostr/FollowChannel";
 import { relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
 import { useOnOK } from "@/utils/use";
-import { useLoginStepsState } from "@/views/LoginStepsView";
 import { generatePrivateKey, getPublicKey, nip19 } from "nostr-tools";
 import { useSetAutocomplete } from "./Login";
+import { useLoginCompleteHook } from "./LoginCompleteHook";
 import UserMetadataEditingVue from "./UserMetadataEditing.vue";
 
 const emit = defineEmits<{
   (e: "next"): void;
 }>();
-
-const { loginOperations } = useLoginStepsState();
 
 const message = useMessage();
 
@@ -31,13 +35,36 @@ function handleRegister() {
   registerPrikey(prikey.value);
 }
 
-loginOperations.push(() => {
+const hook = useLoginCompleteHook();
+hook?.setHook(async () => {
   //在点击完成注册按钮时将会执行
-
   if (testAndVerifyNewUser()) {
     //是新用户的话执行
-    send();
+    await send();
+
+    //对新用户执行的操作
+    contactConfiguration.follow(
+      "076fae9a020673caf9db66734884aa4a77f49ba394274896e439e1c6ff178289",
+      "wss://nos.lol", //作者
+      "你好"
+    );
+    // Nostr
+    getFollowChannelConfiguration().joinChannel(
+      "25e5c82273a271cb1a840d0060391a0bf4965cafeb029d5ab55350b418953fbb", //nostr群
+      {
+        relays: ["wss://nos.lol"],
+      }
+    );
+    // Jumpalong
+    getFollowChannelConfiguration().joinChannel(
+      "22dcc0565a6c698199767e80b0526769cf3c04460b7ffc22a4b4cfbfdd642b53", //Jumpalong群
+      {
+        relays: ["wss://nos.lol"],
+      }
+    );
   }
+
+  clearNewUserFlag();
 });
 const onOK = useOnOK();
 async function send() {

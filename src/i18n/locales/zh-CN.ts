@@ -237,9 +237,43 @@ const message: I18nMessages = {
 
   pin: "固定",
   unpin: "取消固定",
+  not_asking_anymore: "不再提醒",
+  allow: "允许",
+  refuse: "拒绝",
+  device_pubkey: "设备公钥",
+  nostr_connect: "远程授权",
+
+  nostr_connect_tip: `你需要在你的另一设备上点击确定连接，确保上方的设备公钥与请求连接的设备公钥相同`,
+  you_have_sent_a_delete_request: `您已经发送了删除请求`,
+
+  minutes: "分钟",
+  day: "天",
+
+  describe: "描述",
+  get_public_key: "获取公钥",
+  sign_event: "签名事件",
+  connect: "连接",
+  disconnect: "断开",
+  delegate: "事件委托",
+  get_relays: "获取中继",
+  nip04_encrypt: "加密",
+  nip04_decrypt: "解秘",
+
+  want_to_encrypt_the_following_content: "想要加密以下内容:",
+  send_to: `发送给:`,
+  want_to_decrypt_the_following_content: "想要解密已下内容:",
+  sender: "发送者:",
+
+  want_to_obtain_your_public_key: "想要获取您的公钥",
+  want_to_sign_the_following_event: "想要签名以下事件:",
+  want_to_obtain_your_relays: "想要获取您的Relays",
+  want_to_establish_a_connection_with_you: `想要与您建立连接`,
+  want_to_obtain_descriptive_information: "想要获取接口信息",
+
+  deny_authorization: "拒绝授权",
+  NotFoundError: "没有找到Nostr API!",
 
   message: {
-    you_have_sent_a_delete_request: `您已经发送了删除请求`,
     relay_configurator_save_message:
       "你的中继信息已保存到本地，正在准备上传，您可以继续您的其他操作",
     relay_configurator_sync_message:

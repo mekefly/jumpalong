@@ -78,7 +78,7 @@ const handleMap = ref<Record<string, Handle>>({
   },
   deleteEvent: () => {
     deleteEvent.value(event.value.id as any);
-    info(t("message.you_have_sent_a_delete_request"));
+    info(t("you_have_sent_a_delete_request"));
   },
   joinTheBlacklist() {
     addRule({ title: t("hide_list"), ignoreContent: event.value.content });
@@ -190,7 +190,7 @@ const options = computed<DropdownOption[]>(() => {
       key: "mention",
     },
     {
-      label: t("tip"),
+      label: t("pin"),
       value: `pin`,
       key: `pin`,
     },

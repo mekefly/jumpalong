@@ -431,6 +431,7 @@ export function useHandleSendMessage(
   return async function handleSendEvent(event: EventTemplate) {
     event.kind = kind;
     const l = unref(line) ?? rootEventBeltline;
+
     const publishLine = l.createChild();
 
     const newEvent = await publishLine.publish(
@@ -646,21 +647,19 @@ export function useCacheStorage<E>(
   key: string,
   defaul?: E,
   opt?: CacheOptions
-) {
+): ComputedRef<E> {
   const cacheOption = { ...defaultCacheOptions, ...(opt ?? {}) };
 
-  const _value = ref(
-    (getCacheOrNull("checkedKinds", cacheOption) as number[]) ?? defaul
-  );
-  return computed({
+  const _value = ref<E>((getCacheOrNull(key, cacheOption) as any) ?? defaul);
+  return computed<E>({
     get() {
-      return _value.value;
+      return _value.value as any;
     },
     set(v) {
-      _value.value = v;
-      setCache("checkedKinds", v, cacheOption);
+      _value.value = v as any;
+      setCache(key, v, cacheOption);
     },
-  });
+  }) as any;
 }
 export function useCanceleableClick(
   target: Ref<HTMLElement | null | undefined>,

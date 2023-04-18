@@ -35,8 +35,14 @@ export class Relay {
             subId = data[1];
             let event = data[2];
 
-            if (!validateEvent(event)) return;
-            if (!verifySignature(event)) return;
+            if (!validateEvent(event)) {
+              console.error("Incomplete event");
+              return;
+            }
+            if (!verifySignature(event)) {
+              console.error("Event signature error");
+              return;
+            }
 
             this.relayEmiter.emitEvent(subId, {
               url: this.ws.url,
@@ -146,6 +152,7 @@ export class Relay {
     }
     this.ws.close();
     this.pool.close(this.ws.url);
+    this.relayEmiter.emit("close", this.ws.url, { url: this.ws.url });
   }
   clearAutoClose() {
     clearTimeout(this.timeout);

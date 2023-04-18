@@ -1,3 +1,4 @@
+import { createEventTemplate } from "@/utils/nostr";
 import {
   getEventHash,
   getPublicKey,
@@ -12,7 +13,7 @@ export interface NostrApi {
   getRelays(): Promise<{
     [url: string]: { read: boolean; write: boolean };
   }>;
-  signEvent(event: Partial<Event>): Promise<Event>;
+  signEvent(event: UnsignedEvent): Promise<Event>;
   nip04: Nip04;
 }
 export interface Nip04 {
@@ -30,9 +31,10 @@ export interface Nip04 {
   decrypt(pubkey: string, ciphertext: string): Promise<string>;
 }
 export enum NostrApiMode {
-  NotLogin, //0
-  WindowNostr, //1
-  PrivateKey, //2
+  NotLogin, //0 没有登录
+  WindowNostr, //1 window.nostr登录 https://github.com/nostr-protocol/nips/blob/master/07.md
+  PrivateKey, //2 私钥登录
+  NostrContent, //3 远程登录 https://github.com/nostr-protocol/nips/blob/master/46.md
 }
 export function getNostrApiMode() {
   const mode = localStorage.getItem("__nostr_api_mode");
@@ -40,6 +42,8 @@ export function getNostrApiMode() {
     return NostrApiMode.WindowNostr;
   } else if (mode === String(NostrApiMode.PrivateKey)) {
     return NostrApiMode.PrivateKey;
+  } else if (mode === String(NostrApiMode.NostrContent)) {
+    return NostrApiMode.NostrContent;
   } else {
     return NostrApiMode.NotLogin;
   }
@@ -101,7 +105,7 @@ class PriKeyNip04 implements Nip04 {
   }
   public async decrypt(_pubkey: string, ciphertext: string) {
     return Promise.resolve(
-      nip04.encrypt(this.getPrikey(), _pubkey, ciphertext)
+      nip04.decrypt(this.getPrikey(), _pubkey, ciphertext)
     );
   }
 }
@@ -161,4 +165,96 @@ export class NostrApiImpl implements NostrApi {
   }
 }
 
-export class NotFoundError extends Error {}
+export class NotFoundError extends Error {
+  constructor(err: string) {
+    super(`NotFoundError:${err}`);
+  }
+}
+
+export const apiNameList = [
+  "nostr",
+  "getPublicKey",
+  "getRelays",
+  "signEvent",
+  "nip04",
+  "nip04.encrypt",
+  "nip04.decrypt",
+] as const;
+export type ApiListType = Array<typeof apiNameList[any]>;
+
+export function testNostr(_withNameApi: ApiListType, nostr: Partial<NostrApi>) {
+  if (!nostr) return;
+
+  _withNameApi.push("nostr");
+
+  if (!nostr.getPublicKey) {
+    return;
+  }
+
+  try {
+    nostr.getPublicKey().then((pubkey) => {
+      _withNameApi.push("getPublicKey");
+
+      testNip04(nostr.nip04, _withNameApi, pubkey);
+      testSignEvent(pubkey, _withNameApi, nostr);
+    });
+  } catch (error) {}
+
+  if (nostr.getRelays) {
+    try {
+      nostr.getRelays().then(() => {
+        _withNameApi.push("getRelays");
+      });
+    } catch (error) {}
+  }
+}
+export function testSignEvent(
+  pubkey: string,
+  _withNameApi: ApiListType,
+  nostr: Partial<NostrApi>
+) {
+  if (nostr.signEvent) {
+    try {
+      nostr
+        .signEvent(
+          createEventTemplate({
+            kind: 1,
+            content: "33",
+            pubkey,
+          })
+        )
+        .then(() => {
+          _withNameApi.push("signEvent");
+        });
+    } catch (error) {}
+  }
+}
+async function testNip04(
+  nip04: Partial<Nip04> | undefined,
+  _withNameApi: ApiListType,
+  pubkey: string
+) {
+  if (!nip04) return;
+  try {
+    _withNameApi.push("nip04");
+
+    //加密
+    if (!nip04.encrypt) {
+      return;
+    }
+    const testText = "test";
+    const plaintext = await nip04.encrypt(pubkey, testText);
+    _withNameApi.push("nip04.encrypt");
+
+    //解秘
+    if (!nip04.decrypt) {
+      return;
+    }
+    const text = await nip04.decrypt(pubkey, plaintext);
+
+    if (text !== testText) {
+      return;
+    }
+    _withNameApi.push("nip04.decrypt");
+  } catch (error) {}
+}

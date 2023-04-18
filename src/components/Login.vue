@@ -1,17 +1,22 @@
 <script lang="ts" setup>
 import { t } from "@/i18n";
+import { useCacheStorage } from "@/utils/use";
 import AuthorizedFormVue from "./AuthorizedFormVue.vue";
 import LoginFormVue from "./LoginForm.vue";
+import NostrConnectForm from "./NostrConnectForm.vue";
 import RegistrationFormVue from "./RegistrationForm.vue";
 
 const emit = defineEmits<{
   (e: "next"): void;
 }>();
+
+const activeName = useCacheStorage("__login-active-name", "signin");
 </script>
 
 <template>
   <div class="px-2 box-border">
     <n-tabs
+      v-model:value="activeName"
       default-value="signin"
       size="large"
       animated
@@ -43,6 +48,18 @@ const emit = defineEmits<{
             <slot name="prev-step"></slot>
           </template>
         </AuthorizedFormVue>
+      </n-tab-pane>
+
+      <n-tab-pane
+        name="nostr_connect"
+        :tab="t('nostr_connect')"
+        display-directive="show:lazy"
+      >
+        <NostrConnectForm @next="() => emit('next')">
+          <template #prev-step>
+            <slot name="prev-step"></slot>
+          </template>
+        </NostrConnectForm>
       </n-tab-pane>
     </n-tabs>
   </div>

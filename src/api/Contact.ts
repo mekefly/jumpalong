@@ -1,6 +1,6 @@
 import { createEventBeltlineReactive } from "@/nostr/createEventBeltline";
 import { createEvent } from "@/nostr/event";
-import { nostrApi, rootEventBeltline } from "@/nostr/nostr";
+import { rootEventBeltline } from "@/nostr/nostr";
 import { createDoNotRepeatStaff } from "@/nostr/staff";
 import autoAddRelayurlByPubkeyStaff from "@/nostr/staff/autoAddRelayurlByPubkeyStaff";
 import createEoseUnSubStaff from "@/nostr/staff/createEoseUnSubStaff";
@@ -18,6 +18,7 @@ import {
   TagE,
 } from "@/nostr/tag";
 import { useCache } from "@/utils/cache";
+import { getPubkeyOrNull } from "@/utils/nostrApiUse";
 import { debounce } from "@/utils/utils";
 import { Event, Filter } from "nostr-tools";
 import { ReplaceableEventSyncAbstract } from "../nostr/ReplaceableEventSyncAbstract";
@@ -39,7 +40,10 @@ class ContactConfiguration extends ReplaceableEventSyncAbstract<ContactConfigura
   }
 
   async getFilters(): Promise<Filter[]> {
-    return [{ kinds: [3], authors: [await nostrApi.getPublicKey()] }];
+    const pubkey = await getPubkeyOrNull();
+    if (!pubkey) return [];
+
+    return [{ kinds: [3], authors: [pubkey] }];
   }
 
   public async serializeToData(e: Event): Promise<ContactConfigurationDatas> {

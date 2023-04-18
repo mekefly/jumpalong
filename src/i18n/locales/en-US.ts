@@ -239,9 +239,48 @@ const defaul = {
 
   pin: "pin",
   unpin: "unpin",
+  not_asking_anymore: "Not Asking Anymore",
+
+  allow: "Allow",
+  refuse: "Refuse",
+
+  device_pubkey: "Device Pubkey",
+  nostr_connect: "Nostr connect",
+
+  you_have_sent_a_delete_request: `You have sent a delete request`,
+  nostr_connect_tip: `You need to click on Confirm Connection on your device to ensure that the device public key above is the same as the device public key requesting connection`,
+
+  minutes: "Minutes",
+  day: "Day",
+
+  describe: "Describe",
+  get_public_key: "Get public key",
+  sign_event: "Sign event",
+  connect: "Connect",
+  disconnect: "Disconnect",
+  delegate: "Delegate",
+  get_relays: "Get relays",
+  nip04_encrypt: "Nip04 encrypt",
+  nip04_decrypt: "Nip04 decrypt",
+
+  want_to_encrypt_the_following_content:
+    "Want to encrypt the following content:",
+  send_to: `Send to:`,
+  want_to_decrypt_the_following_content:
+    "want to decrypt the following content:",
+  sender: "Sender:",
+
+  want_to_obtain_your_public_key: "Want to obtain your public key",
+  want_to_sign_the_following_event: "Want to sign the following event:",
+  want_to_obtain_your_relays: "Want to obtain your Relays",
+  want_to_establish_a_connection_with_you: `want to establish a connection with you`,
+  want_to_obtain_descriptive_information:
+    "Want to obtain descriptive information",
+
+  deny_authorization: "Deny Authorization",
+  NotFoundError: "Not found  Nostr API!",
 
   message: {
-    you_have_sent_a_delete_request: `You have sent a delete request`,
     relay_configurator_save_message:
       "Your relay information has been saved locally and is being prepared for upload. You can continue with your other operations",
     relay_configurator_sync_message:

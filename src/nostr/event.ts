@@ -1,6 +1,13 @@
+import { createEventTemplate } from "@/utils/nostr";
 import { getPubkeyOrNull, signEvent } from "@/utils/nostrApiUse";
 import * as secp256k1 from "@noble/secp256k1";
-import { Event, getEventHash, nip19, UnsignedEvent } from "nostr-tools";
+import {
+  Event,
+  getEventHash,
+  nip19,
+  signEvent as toolsSignEvent,
+  UnsignedEvent,
+} from "nostr-tools";
 import { getSourceUrls } from "./staff/createEventSourceTracers";
 import { deserializeTagR, getOnlyTag } from "./tag";
 
@@ -33,14 +40,8 @@ export async function createEvent(options: Partial<Event>): Promise<Event> {
   const pubkey = await getPubkeyOrNull({ intercept: true });
 
   let event: UnsignedEvent & Partial<Event> = Object.assign(
-    {
-      kind: 1,
-      pubkey: pubkey,
-      created_at: Math.floor(Date.now() / 1000),
-      tags: [],
-      content: "",
-    },
-    options
+    createEventTemplate(options),
+    { pubkey }
   );
 
   event.id = getEventHash(event);
@@ -48,6 +49,19 @@ export async function createEvent(options: Partial<Event>): Promise<Event> {
   event = await signEvent(JSON.parse(JSON.stringify(event)), {
     intercept: true,
   });
+
+  return event as Event;
+}
+export function createEventByPrikey(
+  options: Partial<Event> & { pubkey: string },
+  prikey: string
+) {
+  let event: UnsignedEvent & Partial<Event> = Object.assign(
+    createEventTemplate(options)
+  );
+
+  event.id = getEventHash(event);
+  event.sig = toolsSignEvent(event, prikey);
 
   return event as Event;
 }

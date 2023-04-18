@@ -147,7 +147,9 @@ export function neventEncodeByEvent(event: Event, moreUrls?: Set<string>) {
   });
 }
 
-export function createEventTemplate(options: Partial<Event>) {
+export function createEventTemplate<EVENT extends Partial<Event>>(
+  options: EVENT
+): EVENT & Partial<Event> & EventTemplate {
   let event: Partial<Event> & EventTemplate = Object.assign(
     {
       kind: 1,
@@ -158,5 +160,5 @@ export function createEventTemplate(options: Partial<Event>) {
     options
   );
 
-  return event;
+  return event as any;
 }

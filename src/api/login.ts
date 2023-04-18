@@ -6,7 +6,7 @@ import {
   setNostrApiMode,
 } from "@/nostr/NostrApi";
 import { ReplaceableEventSyncAbstract } from "@/nostr/ReplaceableEventSyncAbstract";
-import { generatePrivateKey } from "nostr-tools";
+import { generatePrivateKey, getPublicKey } from "nostr-tools";
 
 export const PRIVATE_KEY = "prikey";
 
@@ -19,8 +19,10 @@ export function loginPrikey(key: string) {
   injectNostrApi({ nostrApi: new PriKeyNostApiImpl(key) });
 }
 export function registerPrikey(prikey: string = createPrikey()) {
-  localStorage.setItem("newUserFlag", prikey);
   loginPrikey(prikey);
+
+  const pubkey = getPublicKey(prikey);
+  localStorage.setItem("newUserFlag", pubkey);
 
   return prikey;
 }
@@ -35,16 +37,20 @@ export function logout() {
 }
 
 export function testAndVerifyNewUser() {
-  const prikey = localStorage.getItem("newUserFlag");
+  const newUserFlagPubkey = localStorage.getItem("newUserFlag");
   const currentPrikey = localStorage.getItem("prikey");
+  const currentPubkey = currentPrikey && getPublicKey(currentPrikey);
 
   if (
     getNostrApiMode() === NostrApiMode.PrivateKey &&
-    prikey &&
-    prikey === currentPrikey
+    newUserFlagPubkey &&
+    newUserFlagPubkey === currentPubkey
   ) {
     return true;
   } else {
     return false;
   }
+}
+export function clearNewUserFlag() {
+  localStorage.removeItem("newUserFlag");
 }

@@ -9,6 +9,7 @@ export interface RelayEmiterResponseEventMap {
   ok: { ok: boolean; message: string; url: string };
   notice: { url: string; message: string };
   event: { url: string; event: Event; subId: string };
+  close: { url: string };
 }
 export interface RelayEmiterRequestEventMap {
   req: {
@@ -70,6 +71,7 @@ export class RelayEmiter {
   }
   emitEvent(subId: string, opt: RelayEmiterResponseEventMap["event"]) {
     this.eventEmiter.emit("event", opt);
+
     this.emit("event", subId, opt);
   }
   onEvent(callBack: (v: RelayEmiterResponseEventMap["event"]) => void) {
