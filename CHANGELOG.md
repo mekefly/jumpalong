@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.6.0-test.1](https://github.com/mekefly/jumpalong/compare/v0.6.0-test.0...v0.6.0-test.1) (2023-04-18)
+
+
+### 🚀 Chore | 构建/工程依赖/工具
+
+* README.md ([ac57696](https://github.com/mekefly/jumpalong/commit/ac576966d829d0c7e5e1d5693aecedc81e079e60))
+
+
+### 🐛 Bug Fixes | Bug 修复
+
+* Fix errors that cannot be signed ([62b454f](https://github.com/mekefly/jumpalong/commit/62b454fddccdd35ff0305bbcf21cf4752280ba0b))
+
 ## [0.6.0-test.0](https://github.com/mekefly/jumpalong/compare/v0.5.0...v0.6.0-test.0) (2023-04-18)
 
 
