@@ -79,7 +79,7 @@ This program is a web client of Nostr, provides a beautiful interface and intera
 |    10001    |             Pin List             |   51    |     ✅     |
 |    10002    |       Relay List Metadata        |   65    |     ✅     |
 |    22242    |      Client Authentication       |   42    |            |
-|    24133    |          Nostr Connect           |   46    |            |
+|    24133    |          Nostr Connect           |   46    |     ✅     |
 |    30000    |     Categorized People List      |   51    |            |
 |    30001    |    Categorized Bookmark List     |   51    |            |
 |    30008    |          Profile Badges          |   58    |            |
