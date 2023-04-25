@@ -9,6 +9,7 @@ import { renderIcon } from "../utils/naiveUi";
 import Alert16Filled from "./icon/Alert16Filled.vue";
 import AlertOutlineVue from "./icon/AlertOutline.vue";
 import BookmarkOutlineVue from "./icon/BookmarkOutline.vue";
+import BookStar20Filled from "./icon/BookStar20Filled.vue";
 import CaretDownOutlineVue from "./icon/CaretDownOutline.vue";
 import ClipboardTaskListLtr20FilledVue from "./icon/ClipboardTaskListLtr20Filled.vue";
 import Edit24Filled from "./icon/Edit24Filled.vue";
@@ -50,6 +51,12 @@ const menuOptions = computed(
         label: t("relays"),
         href: "/relays",
         icon: renderIcon(LinodeVue),
+      },
+      {
+        key: "Collect",
+        label: t("collect"),
+        href: "/collect",
+        icon: renderIcon(BookStar20Filled),
       },
       {
         key: "Channels",

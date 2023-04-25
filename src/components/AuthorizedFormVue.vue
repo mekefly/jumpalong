@@ -9,6 +9,7 @@ import TestNostrApi from "./TestNostrApi.vue";
 
 const emit = defineEmits<{
   (e: "next"): void;
+  (e: "beforeNext"): void;
 }>();
 
 const isFloudNostr = computed(() => {
@@ -25,6 +26,7 @@ const recommendedList = ref([
 ]);
 
 function handleNext() {
+  emit("beforeNext");
   setNostrApiMode(NostrApiMode.WindowNostr);
   injectWindowNostr();
 

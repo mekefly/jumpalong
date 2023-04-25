@@ -6,6 +6,7 @@ import {
   setNostrApiMode,
 } from "@/nostr/NostrApi";
 import { ReplaceableEventSyncAbstract } from "@/nostr/ReplaceableEventSyncAbstract";
+import SynchronizerAbstract from "@/nostr/Synchronizer/SynchronizerAbstract";
 import { generatePrivateKey, getPublicKey } from "nostr-tools";
 
 export const PRIVATE_KEY = "prikey";
@@ -31,6 +32,7 @@ export function logout() {
   setNostrApiMode(NostrApiMode.NotLogin);
 
   ReplaceableEventSyncAbstract.clearAll();
+  SynchronizerAbstract.clearAll();
   setTimeout(() => {
     location.reload();
   }, 0);

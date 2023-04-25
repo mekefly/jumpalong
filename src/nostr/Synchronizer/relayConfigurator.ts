@@ -20,11 +20,11 @@ import { getPubkeyOrNull } from "@/utils/nostrApiUse";
 import { debounceWatch } from "@/utils/vue";
 import { type Event } from "nostr-tools";
 import { reactive } from "vue";
-import { timeout } from "../utils/utils";
-import { readListKey, writeListKey } from "./relayConfiguratorKeys";
-import { ReplaceableEventSyncAbstract } from "./ReplaceableEventSyncAbstract";
-import createEoseUnSubStaff from "./staff/createEoseUnSubStaff";
-import createTimeoutUnSubStaff from "./staff/createTimeoutUnSubStaff";
+import { timeout } from "../../utils/utils";
+import { readListKey, writeListKey } from "../relayConfiguratorKeys";
+import createEoseUnSubStaff from "../staff/createEoseUnSubStaff";
+import createTimeoutUnSubStaff from "../staff/createTimeoutUnSubStaff";
+import ReplaceableSynchronizerAbstract from "./ReplaceableSynchronizerAbstract";
 
 export const defaultUrls: string[] = (window as any).defaultRelayUrls ?? [
   "wss://no.str.cr",
@@ -49,15 +49,17 @@ export const defaultUrls: string[] = (window as any).defaultRelayUrls ?? [
  *
  * 最高优先级为本地配置
  */
-export class RelayConfigurator extends ReplaceableEventSyncAbstract<RelayConfiguration> {
-  setLocalEventByEvent(e: Event) {
-    this.setLocalEvent(e);
+export class RelayConfigurator extends ReplaceableSynchronizerAbstract<RelayConfiguration> {
+  createDefault(): RelayConfiguration {
+    return {
+      [readListKey]: new Set(),
+      [writeListKey]: new Set(),
+    };
   }
 
   constructor() {
     super("RelayConfigurator", {
-      [readListKey]: new Set(),
-      [writeListKey]: new Set(),
+      isAutoAddRelayurl: true,
     });
   }
   public async getFilters() {
@@ -94,7 +96,7 @@ export class RelayConfigurator extends ReplaceableEventSyncAbstract<RelayConfigu
   }
 
   public getConfiguration() {
-    return this.getData();
+    return this.getDataSync();
   }
   public getWriteList() {
     return this.getConfiguration()[writeListKey];
@@ -133,7 +135,7 @@ export class RelayConfigurator extends ReplaceableEventSyncAbstract<RelayConfigu
   }
   public remove(url: string) {
     this.toChanged();
-    delete this.getData()[url];
+    delete this.getDataSync()[url];
 
     this.getConfiguration()[writeListKey].delete(url);
     this.getConfiguration()[readListKey].delete(url);

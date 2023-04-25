@@ -252,7 +252,7 @@ export function getLocalStorageCache(key: string) {
     checkCache(cache);
     return cache.value;
   } catch (error) {
-    keylist.deleteCacheKey(key);
+    keylist.delete(key);
     throw error;
   }
 }
@@ -265,7 +265,7 @@ export function deleteMemoryCache(key: string) {
   delete memoryCacheDate[key];
 }
 export function deleteLocalStorageCache(key: string) {
-  keylist.deleteCacheKey(key);
+  keylist.delete(key);
   localStorage.removeItem(key);
 }
 /**
@@ -298,7 +298,7 @@ function setMemoryCache(key: string, value: any) {
  * @param {*} cache
  */
 export function setLocalStorage(key: string, cache: any) {
-  keylist.addCacheKey(key);
+  keylist.add(key);
   localStorage.setItem(key, cacheStringify(cache));
 }
 

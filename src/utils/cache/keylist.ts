@@ -1,3 +1,3 @@
-import { LocalStorageKeyList } from "./cacheKeyList";
+import { KeyList } from "./cacheKeyList";
 
-export default new LocalStorageKeyList("__cache_key_list_");
+export default new KeyList("__cache_key_list_");

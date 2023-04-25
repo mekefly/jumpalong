@@ -5,9 +5,9 @@ import {
 import { withDefault } from "@/utils/utils";
 import { type EventBeltline } from "./eventBeltline";
 import { NostrApi, NostrApiImpl } from "./NostrApi";
-import { type RelayConfigurator } from "./relayConfigurator";
 import { type RelayEmiter } from "./RelayEmiter";
 import { type RelayPool } from "./RelayPool";
+import { type RelayConfigurator } from "./Synchronizer/relayConfigurator";
 const createDefaultConfig = () => {
   const v: ConfigType = {
     getOtherUrlsRequestLimitSize: 50,

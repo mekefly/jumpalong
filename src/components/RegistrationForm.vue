@@ -16,6 +16,7 @@ import UserMetadataEditingVue from "./UserMetadataEditing.vue";
 
 const emit = defineEmits<{
   (e: "next"): void;
+  (e: "beforeNext"): void;
 }>();
 
 const message = useMessage();
@@ -30,9 +31,9 @@ const npub = computed(() => nip19.npubEncode(pubkey.value));
 const userMetadata = ref({} as any);
 
 function handleRegister() {
-  emit("next");
-
+  emit("beforeNext");
   registerPrikey(prikey.value);
+  emit("next");
 }
 
 const hook = useLoginCompleteHook();

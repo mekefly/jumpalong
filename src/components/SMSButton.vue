@@ -17,6 +17,7 @@ import { usePushShortTextNote } from "@/views/ShortTextNoteView";
 import { DropdownOption } from "naive-ui";
 import { Event, nip19 } from "nostr-tools";
 import { useBlackData } from "../views/ContentBlacklistView";
+import { useCollect } from "./CollectProvide";
 import MoreIconVue from "./icon/MoreIcon.vue";
 import { useRichTextEditBoxOpt } from "./RichTextEditBox";
 import { Handle, useSMSButton } from "./SMSButtonProvide";
@@ -48,6 +49,7 @@ const muteListEventSync = getMuteListEventSync();
 const onOK = useOnOK();
 const pinListSync = getPinListSync();
 const smsButton = useSMSButton();
+const collect = useCollect();
 
 const handleMap = ref<Record<string, Handle>>({
   pin: () => {
@@ -61,6 +63,9 @@ const handleMap = ref<Record<string, Handle>>({
   },
   close: () => {
     show.value = false;
+  },
+  collect: () => {
+    collect?.collect(event.value);
   },
   editArticle: () => {
     const naddr = createAddress(event.value);
@@ -174,6 +179,12 @@ const options = computed<DropdownOption[]>(() => {
             key: "muteUser",
           },
         ]),
+
+    {
+      label: t("collect"),
+      value: "collect",
+      key: "collect",
+    },
     {
       label: t("open"),
       value: "pushShortTextNote",

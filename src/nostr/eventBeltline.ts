@@ -1,5 +1,5 @@
-import { type RelayConfigurator } from "@/nostr/relayConfigurator";
 import { type RelayEmiterResponseEventMap } from "@/nostr/relayEmiter";
+import { type RelayConfigurator } from "@/nostr/Synchronizer/relayConfigurator";
 import { getPubkeyOrNull } from "@/utils/nostrApiUse";
 import { EventEmitter } from "events";
 import { Event, Filter, verifySignature } from "nostr-tools";

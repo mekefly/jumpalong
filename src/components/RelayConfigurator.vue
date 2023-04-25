@@ -51,7 +51,7 @@ const updateTime = computed(() => {
     <template #header-extra>
       <n-icon class="mr-1"><EditCalendarRound /></n-icon>
       <DateTimeVue v-if="updateTime" :secondTimestamp="updateTime" />
-      <span v-else>null</span>
+      <span v-else></span>
     </template>
     <template #right="{ url }">
       <RelayWritableButtonVue

@@ -1,5 +1,5 @@
-import { type RelayConfiguration } from "./relayConfigurator";
 import { readListKey, writeListKey } from "./relayConfiguratorKeys";
+import { type RelayConfiguration } from "./Synchronizer/relayConfigurator";
 
 export function deserializeTagR(serializedArray: string[][]): Set<string> {
   const url = new Set<string>();
@@ -26,19 +26,17 @@ export function getTagEOfFirst(tags: string[][]): string[] | void {
   }
   return;
 }
-export function getOnlyTag(
-  type:
-    | String
-    | "title"
-    | "image"
-    | "summary"
-    | "published_at"
-    | "e"
-    | "d"
-    | "p"
-    | "a",
-  tags: string[][]
-) {
+export type TagType =
+  | String
+  | "title"
+  | "image"
+  | "summary"
+  | "published_at"
+  | "e"
+  | "d"
+  | "p"
+  | "a";
+export function getOnlyTag(type: TagType, tags: string[][]) {
   for (const tag of tags) {
     if (tag[0] === type) {
       return tag;

@@ -7,6 +7,7 @@ import { useSetAutocomplete } from "./Login";
 
 const emit = defineEmits<{
   (e: "next"): void;
+  (e: "beforeNext"): void;
 }>();
 
 const message = useMessage();
@@ -30,7 +31,7 @@ function handelLogin() {
     message.error("您输入的既不是nsec,也不是hex");
     return;
   }
-
+  emit("beforeNext");
   loginPrikey(prikey.value);
   emit("next");
 }

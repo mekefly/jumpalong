@@ -12,6 +12,7 @@ import { useLoginCompleteHook } from "./LoginCompleteHook";
 
 const emit = defineEmits<{
   (e: "next"): void;
+  (e: "beforeNext"): void;
 }>();
 const hook = useLoginCompleteHook();
 const pubkeyValue = useCacheStorage("pubkey-input-value", "", {});
@@ -21,6 +22,8 @@ const pubkey = computed(() => profilePointer.value?.pubkey);
 const dialog = useDialog();
 async function handleNext() {
   if (!pubkey.value) return;
+  emit("beforeNext");
+
   const nostrApi = new NostrConnectNostrApiImpl(pubkey.value);
 
   //设置api

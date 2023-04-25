@@ -67,6 +67,11 @@ const router = createRouter({
           component: () => import("../views/RelaysView.vue"),
         },
         {
+          path: "/collect",
+          name: "collect",
+          component: () => import("../views/CollectView.vue"),
+        },
+        {
           path: "/channels",
           component: () => import("../views/ChannelsView.vue"),
         },

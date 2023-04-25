@@ -9,5 +9,3 @@ export const debounceWatch: typeof watch &
     opt: { delay: number } & ArgumentsType<typeof watch>[2]
   ) => ReturnType<typeof watch>) = ((r1: any, r2: any, opt: any) =>
   watch(r1, debounce(r2, opt.delay), opt)) as any;
-
-export function componentAsync(callback) {}

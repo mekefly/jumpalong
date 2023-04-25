@@ -1,36 +1,105 @@
-export class LocalStorageKeyList {
-  private CACHE_LIST_KEY;
-  private cacheList: Set<string>;
-  constructor(CACHE_LIST_KEY: string) {
-    this.CACHE_LIST_KEY = CACHE_LIST_KEY;
+export class KeyList {
+  private LIST_KEY;
+  private keyList!: Set<string>;
+  constructor(LIST_KEY: string) {
+    this.LIST_KEY = LIST_KEY;
 
-    const str = localStorage.getItem(CACHE_LIST_KEY);
+    this.init();
+  }
+  init() {
+    const str = localStorage.getItem(this.LIST_KEY);
+
     if (!str) {
-      this.cacheList = new Set();
+      this.keyList = new Set();
       return;
     }
+
     const v = JSON.parse(str);
     if (!Array.isArray(v)) {
-      this.cacheList = new Set();
+      this.keyList = new Set();
       return;
     }
-    this.cacheList = new Set(v);
+
+    this.keyList = new Set(v);
   }
 
-  addCacheKey(key: string) {
-    this.cacheList.add(key);
+  add(key: string) {
+    this.keyList.add(key);
 
-    this.reviseCacheList();
+    this.updateKeyList();
   }
-  deleteCacheKey(key: string) {
-    this.cacheList.delete(key);
-    this.reviseCacheList();
+  delete(key: string) {
+    this.keyList.delete(key);
+    this.updateKeyList();
   }
-  getCacheList() {
-    return this.cacheList;
+  getKeys() {
+    return this.keyList;
   }
-  private reviseCacheList() {
-    const cacheString = JSON.stringify(Array.from(this.cacheList));
-    localStorage.setItem(this.CACHE_LIST_KEY, cacheString);
+  private updateKeyList() {
+    const cacheString = JSON.stringify(Array.from(this.keyList));
+    localStorage.setItem(this.LIST_KEY, cacheString);
+  }
+  clear() {
+    localStorage.removeItem(this.LIST_KEY);
+  }
+}
+export class LocalStorageMap<V> {
+  private keyList: KeyList;
+  private map: Map<string, V> | null = null;
+
+  constructor(CACHE_LIST_KEY: string) {
+    this.keyList = new KeyList(CACHE_LIST_KEY);
+  }
+  set(key: string, value: V) {
+    localStorage.setItem(key, JSON.stringify(value));
+    this.keyList.add(key);
+    this.getMap().set(key, value);
+  }
+  get(key: string): V | null {
+    if (this.map) {
+      return this.map.get(key) ?? null;
+    } else {
+      return this.localGet(key);
+    }
+  }
+  localGet(key: string): V | null {
+    const valueStr = localStorage.getItem(key);
+    if (!valueStr) {
+      return null;
+    }
+    return JSON.parse(valueStr);
+  }
+  remote(key: string) {
+    localStorage.removeItem(key);
+    this.keyList.delete(key);
+    this.map?.delete(key);
+  }
+  getValues() {
+    return [...this.getMap().values()];
+  }
+  getKeys() {
+    return this.keyList.getKeys();
+  }
+  getMap() {
+    if (this.map) return this.map;
+    this.map = new Map<string, V>();
+    const keys = this.keyList.getKeys();
+
+    for (const key of keys) {
+      const v = this.localGet(key);
+
+      if (!v) {
+        continue;
+      }
+      this.map.set(key, v);
+    }
+    return this.map;
+  }
+  clear() {
+    for (const key of this.getKeys()) {
+      this.remote(key);
+    }
+    this.keyList.clear();
+    this.keyList.init();
   }
 }

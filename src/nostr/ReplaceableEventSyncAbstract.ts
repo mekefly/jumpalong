@@ -25,9 +25,13 @@ export abstract class ReplaceableEventSyncAbstract<E> {
     }
   }
   static clearAll() {
-    for (const item of ReplaceableEventSyncAbstract.cacheList) {
-      localStorage.removeItem(item);
+    for (const item of ReplaceableEventSyncAbstract.list) {
+      item.clear();
     }
+  }
+  clear() {
+    this.changeAt = null;
+    localStorage.removeItem(this.name);
   }
 
   constructor(name: string, defaul: E) {

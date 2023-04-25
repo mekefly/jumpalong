@@ -15,7 +15,7 @@ import {
   PriKeyNostApiImpl,
   setNostrApiMode,
 } from "./NostrApi";
-import { RelayConfigurator } from "./relayConfigurator";
+import { RelayConfigurator } from "./Synchronizer/relayConfigurator";
 
 export function initializeRuntime() {
   const mode = getNostrApiMode();
@@ -76,10 +76,6 @@ export function initializeRuntime() {
   rootEventBeltline.relayConfigurator = relayConfigurator;
 
   injectNostrApi({ relayConfigurator });
-
-  setTimeout(() => {
-    relayConfigurator.sync();
-  });
 
   return { relayEmiter, relayPool, rootEventBeltline, relayConfigurator };
 }

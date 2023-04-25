@@ -8,7 +8,7 @@ setTimeout(() => {
 export function intelligentCleaning() {
   const localStorage = window.localStorage;
 
-  const list = keylist.getCacheList();
+  const list = keylist.getKeys();
   for (const key of list) {
     try {
       const cacheString = localStorage.getItem(key);
@@ -31,7 +31,7 @@ export function clearCache() {
   const localStorage = window.localStorage;
   const len = localStorage.length;
 
-  const list = keylist.getCacheList();
+  const list = keylist.getKeys();
   for (const key of list) {
     try {
       const cacheString = localStorage.getItem(key);

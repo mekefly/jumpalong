@@ -1,5 +1,9 @@
 <script lang="ts" setup>
+import { PRIVATE_KEY } from "@/api/login";
 import { t } from "@/i18n";
+import { NostrApiMode, setNostrApiMode } from "@/nostr/NostrApi";
+import { ReplaceableEventSyncAbstract } from "@/nostr/ReplaceableEventSyncAbstract";
+import SynchronizerAbstract from "@/nostr/Synchronizer/SynchronizerAbstract";
 import { useCacheStorage } from "@/utils/use";
 import AuthorizedFormVue from "./AuthorizedFormVue.vue";
 import LoginFormVue from "./LoginForm.vue";
@@ -11,6 +15,16 @@ const emit = defineEmits<{
 }>();
 
 const activeName = useCacheStorage("__login-active-name", "signin");
+function handleBeforeNext() {
+  localStorage.removeItem(PRIVATE_KEY);
+  setNostrApiMode(NostrApiMode.NotLogin);
+
+  ReplaceableEventSyncAbstract.clearAll();
+  SynchronizerAbstract.syncAll();
+}
+function handleNext() {
+  emit("next");
+}
 </script>
 
 <template>
@@ -24,14 +38,14 @@ const activeName = useCacheStorage("__login-active-name", "signin");
       pane-style="padding-left: 4px; padding-right: 4px; box-sizing: border-box;"
     >
       <n-tab-pane name="signin" :tab="t('login')" display-directive="show:lazy">
-        <LoginFormVue @next="() => emit('next')">
+        <LoginFormVue @next="handleNext" @beforeNext="handleBeforeNext">
           <template #prev-step>
             <slot name="prev-step"></slot>
           </template>
         </LoginFormVue>
       </n-tab-pane>
       <n-tab-pane name="signup" :tab="t('logon')" display-directive="show:lazy">
-        <RegistrationFormVue @next="() => emit('next')">
+        <RegistrationFormVue @next="handleNext" @beforeNext="handleBeforeNext">
           <template #prev-step>
             <slot name="prev-step"></slot>
           </template>
@@ -43,7 +57,7 @@ const activeName = useCacheStorage("__login-active-name", "signin");
         :tab="t('authorized')"
         display-directive="show:lazy"
       >
-        <AuthorizedFormVue @next="() => emit('next')">
+        <AuthorizedFormVue @next="handleNext" @beforeNext="handleBeforeNext">
           <template #prev-step>
             <slot name="prev-step"></slot>
           </template>
@@ -55,7 +69,7 @@ const activeName = useCacheStorage("__login-active-name", "signin");
         :tab="t('nostr_connect')"
         display-directive="show:lazy"
       >
-        <NostrConnectForm @next="() => emit('next')">
+        <NostrConnectForm @next="handleNext" @beforeNext="handleBeforeNext">
           <template #prev-step>
             <slot name="prev-step"></slot>
           </template>
