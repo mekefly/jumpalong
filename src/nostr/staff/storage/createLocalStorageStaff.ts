@@ -132,15 +132,6 @@ export default createStaffFactory()(
           localStorageFilter?.removeItem(eventId);
         },
         getItem(eventId: string) {
-          console.debug(
-            "getItem",
-            eventId,
-            "localStorageFilter",
-            localStorageFilter,
-            "event",
-            localStorageFilter?.getItem(eventId)
-          );
-
           return localStorageFilter?.getItem(eventId);
         },
       },

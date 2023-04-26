@@ -1,15 +1,14 @@
 <script setup lang="ts">
-// let's query for an event that exists
 import { NConfigProvider } from "naive-ui";
 import { theme } from "./app";
 import CollectProvide from "./components/CollectProvide.vue";
 import LoadProgressProvideVue from "./components/LoadProgressProvide.vue";
 import NostrConnect from "./components/NostrConnect.vue";
 import UploadProvideVue from "./components/UploadProvide.vue";
-
-// let's query for an event that exists
 import Main from "./Main.vue";
-logger.for("app.vue").info("进入app.vue");
+
+const logger = loggerScope;
+logger.info();
 </script>
 
 <template>

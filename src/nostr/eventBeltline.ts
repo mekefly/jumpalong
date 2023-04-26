@@ -380,7 +380,7 @@ export class EventBeltline<
       try {
         this.req(url, filters);
       } catch (error) {
-        console.error(error);
+        logger.error(error);
       }
     });
   }

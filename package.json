@@ -40,6 +40,7 @@
     "inversify": "^6.0.1",
     "inversify-inject-decorators": "^3.1.0",
     "mavon-editor": "^3.0.1",
+    "minimatch": "^9.0.0",
     "naive-ui": "^2.34.3",
     "nostr-tools": "1.9.0",
     "reflect-metadata": "^0.1.13",

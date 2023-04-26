@@ -7,8 +7,10 @@ import { useHandleSendMessage } from "@/utils/use";
 import contactConfiguration from "../api/Contact";
 import PostList from "../components/PostList.vue";
 
+const logger = loggerScope;
+logger.info();
+
 const message = useMessage();
-logger.for("home.vue").info("home.vue");
 
 //需要为显示区域和编辑区域架设一个隧道
 useRichTextEditBoxOpt("home");

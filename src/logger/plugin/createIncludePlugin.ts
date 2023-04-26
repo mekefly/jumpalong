@@ -1,25 +1,30 @@
-import { createLoggerPlugin } from "./Plugin";
+import { minimatch } from "minimatch";
+import { Logger } from "../Logger";
+import { createPlugin } from "../LoggerFactory";
 
-type IncludeType = { [key in string]: IncludeType } | boolean | undefined;
+export default function createIncludePlugin(isStatic: boolean = true) {
+  return createPlugin((logger, loggerFactory) => {
+    const _logger = logger as Logger<{ include?: string[] }>;
 
-export interface LoggerIncludeConfig {
-  include?: IncludeType;
-}
-export function createIncludePlugin() {
-  return createLoggerPlugin({
-    filter(logger) {
-      let include: IncludeType = logger.getConfig().include;
-
-      logger.chain.traverseBackward((name) => {
-        if (typeof include === "boolean") return include;
-        if (include === undefined) return false;
-
-        include = include[name];
+    const filter = (include: string[]) => {
+      return include.some((include) => {
+        return minimatch(logger.path, include);
       });
+    };
 
-      if (typeof include === "boolean") return include;
-      return false;
-    },
-    config: { include: true } as LoggerIncludeConfig,
+    if (isStatic) {
+      const include = _logger.getConfig().include ?? ["**/*"];
+      const isInclude = filter(include);
+
+      _logger.addFilter((logger) => {
+        return isInclude;
+      });
+    } else {
+      _logger.addFilter((logger) => {
+        const include = logger.getConfig().include ?? ["**/*"];
+        return filter(include);
+      });
+    }
+    return _logger;
   });
 }

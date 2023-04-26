@@ -6,6 +6,8 @@ import {
   type UploadFileInfo,
   type UploadInst,
 } from "naive-ui";
+const logger = loggerScope;
+logger.info();
 
 const evemtEmiter = new EventEmitter();
 const uploadRef = ref(null as UploadInst | null);
@@ -132,7 +134,7 @@ export function useCustomRequest() {
       })
       .catch((e) => {
         message.error("上传失败", e);
-        console.error("上传失败", e);
+        logger.error("上传失败", e);
 
         onError();
       });

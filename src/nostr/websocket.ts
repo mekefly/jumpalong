@@ -1,3 +1,4 @@
+const logger = loggerScope;
 export async function createWebsocket(url: string) {
   return new Promise<WebSocket>((resolve, reject) => {
     try {
@@ -12,7 +13,7 @@ export async function createWebsocket(url: string) {
         };
       } catch (error) {}
     } catch (error) {
-      console.error("Incorrect connection", url);
+      logger.error("Incorrect connection", url);
     }
   });
 }

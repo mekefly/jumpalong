@@ -1,6 +1,5 @@
 import "reflect-metadata";
-import "./logger/Logger";
-import "./logger/logger.config";
+import "./logger";
 import "./style.css";
 
 import { createApp } from "vue";

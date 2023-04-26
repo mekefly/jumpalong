@@ -48,7 +48,7 @@ export function createTextEventBeltline(opts: CreateTextEventBeltlineOption) {
         .addStaff(createRefreshLoadStaff(filters, limit)) //添加刷新和加载功能
         .addStaff(createEventSourceTracersForRefreshLoadStaff()) // 给刷新和加载添加源头追踪
         .addStaffOfReverseSortByCreateAt(); // 通过创建时间反排序
-
+      if (filters.length === 0) return textEventBeltline;
       textEventBeltline
         .addReadUrl()
         .addRelayUrls(opts.urls)

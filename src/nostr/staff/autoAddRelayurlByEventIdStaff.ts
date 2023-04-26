@@ -20,8 +20,6 @@ export type AddRelayurlByEventIdStaff = {
 export default function autoAddRelayurlByEventIdStaff(
   eventId: string
 ): AddRelayurlByEventIdStaff {
-  logger.for("autoAddRelayurlByEventIdStaff").debug("eventId", eventId);
-
   return createStaff({
     initialization() {
       let stop = false;

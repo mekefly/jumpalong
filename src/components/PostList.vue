@@ -9,8 +9,6 @@ import PapawByAddr from "./PapawByAddr.vue";
 import PapawById from "./PapawById.vue";
 import { useLoad } from "./Refresh";
 
-logger.for("home.vue").for("PostList.vue").info("进入PostList.vue");
-
 const props = withDefaults(
   defineProps<{
     urls?: Set<string>;
@@ -36,10 +34,6 @@ const emit = defineEmits<{
 const { pubkeys: pubkey, filter, filters, urls, active } = toRefs(props);
 const message = useMessage();
 
-logger
-  .for("home.vue")
-  .for("PostList.vue")
-  .debug("defineProps > pubkey:", pubkey);
 const mergeFilters = computed(() => {
   const _filters = filters?.value ? [...filters.value] : [];
 
@@ -64,7 +58,6 @@ const allPubkeys = computed(() => [
 
 const textEventbeltline = computed(() => {
   const opt: any = {};
-  if (mergeFilters.value.length === 0) return;
   const line = createTextEventBeltline({
     filters: mergeFilters.value,
     ...opt,

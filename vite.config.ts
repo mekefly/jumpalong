@@ -8,75 +8,81 @@ import { PluginOption } from "vite";
 import { DirResolverHelper } from "vite-auto-import-resolvers";
 import compressPlugin from "vite-plugin-compression";
 import { defineConfig } from "vitest/config";
+import packageJson from "./package.json";
+import vitePlugin from "./src/logger/logger.vitePlugin";
 
 // @ts-ignore
-import packageJson from "./package.json";
-
 // https://vitejs.dev/config/
-export default defineConfig({
-  test: {
-    globals: true,
-    environment: "happy-dom",
-  },
-  base: "./",
-  server: {
-    host: "0.0.0.0",
-    proxy: {},
-  },
-  build: {
-    chunkSizeWarningLimit: 512 * 1024,
-  },
-  define: {
-    __VUE_I18N_FULL_INSTALL__: false,
-    __VUE_I18N_LEGACY_API__: true,
-    __INTLIFY_PROD_DEVTOOLS__: false,
-  },
-  plugins: [
-    vue(),
-    createReplacePlugin(),
-    DirResolverHelper(),
-    AutoImport({
-      include: [
-        /\.[tj]sx?$/, // .ts, .tsx, .js, .jsx
-        /\.vue$/,
-        /\.vue\?vue/, // .vue
-        /\.md$/, // .md
-      ],
-      imports: [
-        "vue",
-        "vue-router",
-        // "vitest",
-        "@vueuse/core",
-        {
-          "naive-ui": [
-            "useDialog",
-            "useMessage",
-            "useNotification",
-            "useLoadingBar",
-            "NButton",
-            "NDropdown",
-            "NAvatar",
-            "NModal",
-          ],
-        },
-      ],
-    }),
-    Components({
-      resolvers: [NaiveUiResolver()],
-    }),
-    // configCompressPlugin("gzip", false),
-  ],
-  resolve: {
-    alias: {
-      "@": fileURLToPath(new URL("./src", import.meta.url)),
+export default defineConfig(({ command }) => {
+  const isProd = command === "build";
+
+  return {
+    test: {
+      globals: true,
+      environment: "happy-dom",
+      include: ["**/logger/**/*.test.ts"],
     },
-  },
-  optimizeDeps: {
-    include: ["vue", "vue-router", "naive-ui"],
-  },
+    base: "./",
+    server: {
+      host: "0.0.0.0",
+      proxy: {},
+    },
+    build: {
+      chunkSizeWarningLimit: 512 * 1024,
+    },
+    define: {
+      __VUE_I18N_FULL_INSTALL__: false,
+      __VUE_I18N_LEGACY_API__: true,
+      __INTLIFY_PROD_DEVTOOLS__: false,
+    },
+    plugins: [
+      vitePlugin(),
+      vue(),
+      createReplacePlugin(isProd),
+      DirResolverHelper(),
+      AutoImport({
+        include: [
+          /\.[tj]sx?$/, // .ts, .tsx, .js, .jsx
+          /\.vue$/,
+          /\.vue\?vue/, // .vue
+          /\.md$/, // .md
+        ],
+        imports: [
+          "vue",
+          "vue-router",
+          // "vitest",
+          "@vueuse/core",
+          {
+            "naive-ui": [
+              "useDialog",
+              "useMessage",
+              "useNotification",
+              "useLoadingBar",
+              "NButton",
+              "NDropdown",
+              "NAvatar",
+              "NModal",
+            ],
+          },
+        ],
+      }),
+      Components({
+        resolvers: [NaiveUiResolver()],
+      }),
+      // configCompressPlugin("gzip", false),
+    ],
+    resolve: {
+      alias: {
+        "@": fileURLToPath(new URL("./src", import.meta.url)),
+      },
+    },
+    optimizeDeps: {
+      include: ["vue", "vue-router", "naive-ui"],
+    },
+  };
 });
 
-function createReplacePlugin(isProd = true) {
+function createReplacePlugin(isProd = false) {
   const isDEV = !isProd;
   return replace({
     preventAssignment: true,

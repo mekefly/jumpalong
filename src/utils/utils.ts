@@ -362,7 +362,6 @@ export function _new<Args extends any[]>(
   //1创建一个新对象
   //2原型链链接
   target.__proto__ = classObj.prototype;
-  console.dir(classObj);
   let constructor = classObj.prototype.constructor;
 
   //3将构造函数的属性和方法添加到这个新对象中

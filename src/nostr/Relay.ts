@@ -7,6 +7,9 @@ import {
 import { type RelayEmiter } from "./RelayEmiter";
 import { RelayPool } from "./RelayPool";
 
+const logger = loggerScope;
+logger.info();
+
 export class Relay {
   ws: WebSocket;
   pool: RelayPool;
@@ -25,8 +28,8 @@ export class Relay {
   handleMessage(ev: MessageEvent<string>) {
     try {
       const data = JSON.parse(ev.data);
-      console.debug(this.ws.url, data);
-      logger.for("Relay:onMessage:data").debug(data);
+
+      logger.debug("handleMessage", this.ws.url, data);
 
       let subId = "";
       if (Array.isArray(data)) {
@@ -36,11 +39,11 @@ export class Relay {
             let event = data[2];
 
             if (!validateEvent(event)) {
-              console.error("Incomplete event");
+              logger.error("Incomplete event");
               return;
             }
             if (!verifySignature(event)) {
-              console.error("Event signature error");
+              logger.error("Event signature error");
               return;
             }
 
@@ -90,7 +93,7 @@ export class Relay {
     return Math.random().toString().slice(2);
   }
   req(filters: Filter[], subId = this.createSubId()) {
-    console.debug("websocket:req:", filters, this.ws.url);
+    logger.debug("websocket:req:", filters, this.ws.url);
 
     this.addSubId(subId);
     try {
@@ -108,7 +111,7 @@ export class Relay {
     this.autoClose();
   }
   publish(e: Event) {
-    console.debug("websocket:publish", this.ws.url, e);
+    logger.debug("websocket:publish", this.ws.url, e);
     this.send(["EVENT", e]);
     this.publishIds.add(e.id);
 

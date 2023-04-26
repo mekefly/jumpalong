@@ -3,7 +3,10 @@ import { TYPES } from "./nostr";
 import { Relay } from "./Relay";
 import { type RelayEmiter } from "./RelayEmiter";
 import { createWebsocket } from "./websocket";
+const logger = loggerScope;
+
 (window as any).sendCount = 0;
+//logger-scope
 @injectable()
 export class RelayPool {
   private pool!: Map<string, Relay>;
