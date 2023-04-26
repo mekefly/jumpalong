@@ -1,22 +1,20 @@
-import { relayEmiter } from "./nostr";
+import { inject, injectable } from "inversify";
+import { TYPES } from "./nostr";
 import { Relay } from "./Relay";
 import { type RelayEmiter } from "./RelayEmiter";
 import { createWebsocket } from "./websocket";
 (window as any).sendCount = 0;
+@injectable()
 export class RelayPool {
   private pool!: Map<string, Relay>;
-  private relayEmiter!: RelayEmiter;
+
   public allSubIds!: Set<string>;
   constructor(
-    relayEmiter: RelayEmiter,
-    opt?: {
-      self?: any;
-    }
+    @inject(TYPES.RelayEmiter)
+    private relayEmiter: RelayEmiter
   ) {
-    const seft = opt?.self ?? {};
-    seft.__proto__ = (this as any).__proto__;
+    const seft = reactive(this) as any;
 
-    seft.relayEmiter = relayEmiter;
     seft.allSubIds = new Set();
     seft.pool = new Map<string, Relay>();
 
@@ -76,7 +74,7 @@ export class RelayPool {
         this.close(url);
       };
 
-      const relay = new Relay(ws, relayEmiter, this);
+      const relay = new Relay(ws, this.relayEmiter, this);
       this.pool.set(url, relay);
 
       res(relay);

@@ -35,7 +35,6 @@ export default abstract class SynchronizerAbstract<E> {
 
   constructor(name: string, opts?: SynchronizerAbstractOption) {
     const slef = reactive(this);
-    console.log("xxx", slef);
 
     SynchronizerAbstract.list.push(slef as any);
 

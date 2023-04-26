@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import "./logger/Logger";
 import "./logger/logger.config";
 import "./style.css";
@@ -8,9 +9,7 @@ import i18n from "./i18n";
 import { initializeRuntime } from "./nostr/nostrRuntime";
 import router from "./router";
 
-try {
-  (window as any).nostrApi = initializeRuntime();
-} catch (error) {}
+(window as any).nostrApi = initializeRuntime();
 
 const app = createApp(App);
 

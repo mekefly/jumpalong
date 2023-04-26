@@ -1,5 +1,6 @@
 import { createTaskQueue } from "@/utils/utils";
 import EventEmitter from "events";
+import { injectable } from "inversify";
 import { Event, Filter } from "nostr-tools";
 import { config } from "./nostr";
 export interface RelayEmiterResponseEventMap {
@@ -35,6 +36,7 @@ type ExcludeUndefined<T> = keyof T extends infer K
     : never
   : never;
 
+@injectable()
 export class RelayEmiter {
   private eventEmiter = new EventEmitter();
   private queue = createTaskQueue(

@@ -1,6 +1,6 @@
 import { EventBeltline } from "./eventBeltline";
 
-import { injectNostrApi } from "./nostr";
+import { injectNostrApi, TYPES } from "./nostr";
 
 import { RelayEmiter } from "./RelayEmiter";
 
@@ -8,9 +8,13 @@ import { RelayPool } from "./RelayPool";
 
 import { PRIVATE_KEY } from "@/api/login";
 import { NostrConnectNostrApiImpl } from "@/api/NostrConnect";
-import { injectWindowNostr } from "./injectWindowNostr";
+import { Container, injectable } from "inversify";
+import { IdGenerator } from "./IdGenerator";
+import { createNostrApiImpl, injectWindowNostr } from "./injectWindowNostr";
 import {
   getNostrApiMode,
+  NostrApi,
+  NostrApiImpl,
   NostrApiMode,
   PriKeyNostApiImpl,
   setNostrApiMode,
@@ -20,9 +24,25 @@ import { RelayConfigurator } from "./Synchronizer/relayConfigurator";
 export function initializeRuntime() {
   const mode = getNostrApiMode();
 
+  const nostrContainer = new Container();
+  injectNostrApi({
+    nostrContainer: nostrContainer,
+  });
+  nostrContainer
+    .bind(TYPES.NostrContainer)
+    .toDynamicValue(() => nostrContainer)
+    .inSingletonScope();
+
+  nostrContainer.bind(TYPES.IdGenerator).to(IdGenerator).inSingletonScope();
+
   switch (mode) {
     case NostrApiMode.WindowNostr:
       injectWindowNostr();
+
+      nostrContainer
+        .bind<NostrApi>(TYPES.NostrApi)
+        .toDynamicValue(() => createNostrApiImpl())
+        .inSingletonScope();
       break;
 
     case NostrApiMode.PrivateKey:
@@ -31,7 +51,11 @@ export function initializeRuntime() {
         setNostrApiMode(NostrApiMode.NotLogin); //取消登录
         break;
       }
-      injectNostrApi({ nostrApi: new PriKeyNostApiImpl(prikey ?? undefined) });
+
+      nostrContainer
+        .bind<NostrApi>(TYPES.NostrApi)
+        .toDynamicValue(() => new PriKeyNostApiImpl(prikey ?? undefined))
+        .inSingletonScope();
       break;
 
     case NostrApiMode.NostrContent:
@@ -41,25 +65,54 @@ export function initializeRuntime() {
         setNostrApiMode(NostrApiMode.NotLogin); //取消登录
         break;
       }
-
-      injectNostrApi({ nostrApi: new NostrConnectNostrApiImpl(pubkey) });
+      nostrContainer
+        .bind<NostrApi>(TYPES.NostrApi)
+        .toDynamicValue(() => new NostrConnectNostrApiImpl(pubkey))
+        .inSingletonScope();
       break;
 
     default:
+      setNostrApiMode(NostrApiMode.NotLogin); //取消登录
+
+      nostrContainer
+        .bind<NostrApi>(TYPES.NostrApi)
+        .toDynamicValue(() => new NostrApiImpl())
+        .inSingletonScope();
       break;
   }
+  injectNostrApi({ nostrApi: nostrContainer.get(TYPES.NostrApi) });
 
-  const relayEmiter = new RelayEmiter();
+  nostrContainer
+    .bind<RelayEmiter>(TYPES.RelayEmiter)
+    .to(RelayEmiter)
+    .inSingletonScope();
+  const relayEmiter = nostrContainer.get<RelayEmiter>(TYPES.RelayEmiter);
   injectNostrApi({ relayEmiter });
 
-  const relayPool = new RelayPool(relayEmiter, { self: reactive({}) });
-
+  nostrContainer
+    .bind<RelayPool>(TYPES.RelayPool)
+    .to(RelayPool)
+    .inSingletonScope();
+  const relayPool = nostrContainer.get<RelayPool>(TYPES.RelayPool);
   injectNostrApi({ relayPool });
 
-  const rootEventBeltline = new EventBeltline({
-    preventCircularReferences: true,
-    relayEmiter,
-  });
+  nostrContainer
+    .bind<EventBeltline>(TYPES.RelayConfiguratorFactory)
+    .toFactory(() => {
+      return () => {
+        const relayConfigurator = nostrContainer.get<EventBeltline>(
+          TYPES.RelayConfigurator
+        );
+        return relayConfigurator;
+      };
+    });
+  nostrContainer
+    .bind<EventBeltline>(TYPES.RootEventBeltline)
+    .to(RootEventBeltline)
+    .inSingletonScope();
+  const rootEventBeltline = nostrContainer.get<EventBeltline>(
+    TYPES.RootEventBeltline
+  );
 
   injectNostrApi({ rootEventBeltline });
 
@@ -67,15 +120,22 @@ export function initializeRuntime() {
     rootEventBeltline.pushEvent(event, { subId });
   });
 
-  // /**
-  //  * 中继配置器
-  //  */
-  const relayConfigurator: RelayConfigurator = reactive(
-    new RelayConfigurator()
-  ) as any;
-  rootEventBeltline.relayConfigurator = relayConfigurator;
+  nostrContainer
+    .bind<RelayConfigurator>(TYPES.RelayConfigurator)
+    .toDynamicValue(() => reactive(new RelayConfigurator()) as any)
+    .inSingletonScope();
+  const relayConfigurator = nostrContainer.get<RelayConfigurator>(
+    TYPES.RelayConfigurator
+  );
 
   injectNostrApi({ relayConfigurator });
 
   return { relayEmiter, relayPool, rootEventBeltline, relayConfigurator };
+}
+
+@injectable()
+class RootEventBeltline extends EventBeltline {
+  constructor() {
+    super();
+  }
 }

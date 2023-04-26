@@ -3,7 +3,12 @@ import { PublishOpt, type EventBeltline } from "@/nostr/eventBeltline";
 import { nostrApi, relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
 import createEoseUnSubStaff from "@/nostr/staff/createEoseUnSubStaff";
 import { getPubkeyOrNull } from "@/utils/nostrApiUse";
-import { nowSecondTimestamp, setAdds, syncInterval } from "@/utils/utils";
+import {
+  nowSecondTimestamp,
+  setAdds,
+  syncInterval,
+  timeout,
+} from "@/utils/utils";
 import { Event, Filter } from "nostr-tools";
 import autoAddRelayurlByPubkeyStaff from "./staff/autoAddRelayurlByPubkeyStaff";
 import createTimeoutUnSubStaff from "./staff/createTimeoutUnSubStaff";
@@ -160,17 +165,13 @@ export abstract class ReplaceableEventSyncAbstract<E> {
     this.isSync = true;
     const isOnly = Boolean(opt?.onlyUrl);
 
-    const localUrls: Set<string> = new Set();
-    try {
-      setAdds(localUrls, new Set(Object.keys(nostrApi.getRelays())));
-    } catch (error) {}
     const urls: Set<string> = opt?.onlyUrl
       ? new Set<string>().add(opt.onlyUrl)
       : setAdds(
           new Set(),
-          localUrls,
-          relayConfigurator.getWriteList(),
-          relayConfigurator.getReadList(),
+          new Set(Object.keys(nostrApi.getRelays())),
+          relayConfigurator?.getWriteList?.(),
+          relayConfigurator?.getReadList?.(),
           opt?.moreUrls
         );
     syncInterval(
@@ -179,6 +180,7 @@ export abstract class ReplaceableEventSyncAbstract<E> {
         let filters = await this.getFilters();
         if (filters.length === 0) return;
 
+        await timeout(0);
         const slef = this;
         const withEvent = new Set();
         const line = createEventBeltline()

@@ -1,7 +1,8 @@
 import { type RelayEmiterResponseEventMap } from "@/nostr/relayEmiter";
-import { type RelayConfigurator } from "@/nostr/Synchronizer/relayConfigurator";
+import { RelayConfigurator } from "@/nostr/Synchronizer/relayConfigurator";
 import { getPubkeyOrNull } from "@/utils/nostrApiUse";
 import { EventEmitter } from "events";
+import { Container, inject, injectable } from "inversify";
 import { Event, Filter, verifySignature } from "nostr-tools";
 import {
   arrayRemove,
@@ -12,6 +13,7 @@ import {
 } from "../utils/utils";
 import { createEvent } from "./event";
 import { IdGenerator } from "./IdGenerator";
+import { TYPES } from "./nostr";
 import { RelayEmiter } from "./RelayEmiter";
 import { StaffState, type FeatType, type Staff } from "./staff";
 import { createFilterStaff } from "./staff/createFilterStaff";
@@ -27,10 +29,17 @@ const EventBeltlineSetSlef: new (slef: any) => {} = function (
 } as any;
 
 let id = 0;
+
+@injectable()
 export class EventBeltline<
   FEAT extends object = {}
 > extends EventBeltlineSetSlef {
-  relayConfigurator: RelayConfigurator | undefined;
+  @inject(TYPES.NostrContainer)
+  public nostrContainer!: Container;
+
+  @inject(TYPES.RelayConfiguratorFactory)
+  public getRelayConfigurator!: () => RelayConfigurator;
+
   static isEventBeltlin(o: unknown): o is EventBeltline {
     return typeof o === "object" && Boolean((o as any).__EventBeltline__);
   }
@@ -60,8 +69,10 @@ export class EventBeltline<
   private root: EventBeltline;
 
   // inject
-  private idGenerator: IdGenerator;
-  private relayEmiter: RelayEmiter;
+  @inject(TYPES.IdGenerator)
+  private idGenerator!: IdGenerator;
+  @inject(TYPES.RelayEmiter)
+  private relayEmiter!: RelayEmiter;
 
   // event
   private eventEmitter = new EventEmitter().setMaxListeners(200);
@@ -76,11 +87,12 @@ export class EventBeltline<
     } as any;
     options?.describe && (this.name = options?.describe);
 
-    this.relayEmiter = options?.relayEmiter ?? new RelayEmiter();
+    options?.relayEmiter && (this.relayEmiter = options?.relayEmiter);
     this.root = options?.root ?? this;
     this.parent = options?.parent ?? null;
-    this.relayConfigurator = options?.relayConfigurator;
-    this.idGenerator = options?.idGenerator ?? new IdGenerator();
+    options?.relayConfigurator &&
+      (this.getRelayConfigurator = () => options.relayConfigurator as any);
+    options?.idGenerator && (this.idGenerator = options.idGenerator);
 
     this.addFiltersStaff(this.filters, { unshift: true });
 
@@ -170,8 +182,8 @@ export class EventBeltline<
     return this.urls;
   }
   public addReadUrl() {
-    this.relayConfigurator &&
-      this.addRelayUrls(this.relayConfigurator.getReadList() as any);
+    this.getRelayConfigurator &&
+      this.addRelayUrls(this.getRelayConfigurator().getReadList() as any);
 
     return this;
   }
@@ -270,7 +282,7 @@ export class EventBeltline<
         {
           relayEmiter: this.relayEmiter,
           idGenerator: this.idGenerator,
-          relayConfigurator: this.relayConfigurator,
+          relayConfigurator: this.getRelayConfigurator(),
           root: this.root,
           parent: this,
           slef: {},

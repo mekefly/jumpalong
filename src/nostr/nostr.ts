@@ -3,6 +3,7 @@ import {
   type RelayEmiterRequestEventMap,
 } from "@/nostr/relayEmiter";
 import { withDefault } from "@/utils/utils";
+import { Container } from "inversify";
 import { type EventBeltline } from "./eventBeltline";
 import { NostrApi, NostrApiImpl } from "./NostrApi";
 import { type RelayEmiter } from "./RelayEmiter";
@@ -63,6 +64,7 @@ export let relayEmiter: RelayEmiter = null as any;
 export let relayPool: RelayPool = null as any;
 export let rootEventBeltline: EventBeltline = null as any;
 export let nostrApi: NostrApi = new NostrApiImpl();
+export let nostrContainer: Container = null as any;
 
 type ConfigType = {
   getOtherUrlsRequestLimitSize: number;
@@ -106,6 +108,7 @@ export function injectNostrApi(options: {
   relayConfigurator?: RelayConfigurator;
   config?: Partial<ConfigType>;
   nostrApi?: NostrApi;
+  nostrContainer?: Container;
 }) {
   options.relayEmiter && (relayEmiter = options.relayEmiter);
   options.relayPool && (relayPool = options.relayPool);
@@ -113,4 +116,16 @@ export function injectNostrApi(options: {
   options.relayConfigurator && (relayConfigurator = options.relayConfigurator);
   options.config && Object.assign(config, options.config);
   options.nostrApi && (nostrApi = options.nostrApi);
+  options.nostrContainer && (nostrContainer = options.nostrContainer);
 }
+
+export const TYPES = {
+  RelayEmiter: Symbol.for("RelayEmiter"),
+  RelayPool: Symbol.for("RelayPool"),
+  RootEventBeltline: Symbol.for("EventBeltlineRoot"),
+  RelayConfigurator: Symbol.for("RelayConfigurator"),
+  RelayConfiguratorFactory: Symbol.for("RelayConfigurator:Factory"),
+  IdGenerator: Symbol.for("IdGenerator"),
+  NostrApi: Symbol.for("NostrApi"),
+  NostrContainer: Symbol.for("NostrContainer"),
+};
