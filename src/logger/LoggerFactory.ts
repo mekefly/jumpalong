@@ -7,7 +7,7 @@ export class LoggerFactory<Config = {}> {
 
   addPlugin<_Config>(
     plugin: LoggerPlugin<Partial<_Config>>
-  ): LoggerFactory<Partial<_Config & Config>> {
+  ): LoggerFactory<_Config & Config> {
     this.plugins.push(plugin);
     return this as any;
   }

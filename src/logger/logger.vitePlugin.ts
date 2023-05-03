@@ -7,16 +7,20 @@ export default function (
   function createStatement(_path: string) {
     return `window[Symbol.for('${key}')].create(${JSON.stringify(_path)})`;
   }
+
+  function createPath(path: string) {
+    return relative(resolve(), path).replace(/\\/g, "/");
+  }
   return replace({
     preventAssignment: true,
     values: {
       ["intoLoggerScope"]: (path: string) => {
-        const _path = relative(resolve(), path);
+        const _path = createPath(path);
 
         return `const ${globalKey} = ${createStatement(_path)}`;
       },
       ["loggerScope"]: (path: string) => {
-        const _path = relative(resolve(), path);
+        const _path = createPath(path);
 
         return createStatement(_path);
       },

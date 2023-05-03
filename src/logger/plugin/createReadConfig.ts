@@ -1,22 +1,33 @@
 import logger_config from "../config/logger.config";
-import logger_config_dev from "../config/logger.config.dev";
-import logger_config_prod from "../config/logger.config.prod";
 import { Logger } from "../Logger";
-import { createPlugin } from "../LoggerFactory";
+import { createPlugin, LoggerFactory } from "../LoggerFactory";
 
 export default function createReadConfig<Config = {}>() {
   return createPlugin((logger, loggerFactory) => {
     const _logger = logger as any as Logger<Config>;
     //默认配置
+
     loggerFactory.assignConfig(logger_config);
+
     if (__DEV__) {
       //开发环境
-      loggerFactory.assignConfig(logger_config_dev);
+      assignConfig(loggerFactory, ".dev.ts");
     } else {
       //生产环境
-      loggerFactory.assignConfig(logger_config_prod);
+      assignConfig(loggerFactory, ".prod.ts");
     }
 
     return _logger;
   });
+}
+function assignConfig(loggerFactory: LoggerFactory, endsStr: string) {
+  const moduleConfigs: Record<string, { default: any }> =
+    //@ts-ignore
+    import.meta.globEager("../config/*.ts");
+
+  for (const [key, module] of Object.entries(moduleConfigs)) {
+    if (key.endsWith(endsStr)) {
+      loggerFactory.assignConfig(module.default);
+    }
+  }
 }

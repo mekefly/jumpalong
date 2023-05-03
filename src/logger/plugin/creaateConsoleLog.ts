@@ -7,11 +7,11 @@ export const LogLevelMethodMap: Record<
 > = {
   [LogLevel.Error]: "error",
   [LogLevel.Warn]: "warn",
-  [LogLevel.Info]: "log",
-  [LogLevel.Http]: "info",
-  [LogLevel.Verbose]: "info",
+  [LogLevel.Info]: "info",
+  [LogLevel.Http]: "debug",
+  [LogLevel.Verbose]: "debug",
   [LogLevel.Debug]: "debug",
-  [LogLevel.Silly]: "info",
+  [LogLevel.Silly]: "debug",
 };
 
 export const Styles = {
@@ -30,7 +30,8 @@ export default function creaateConsoleLog() {
 
     logger.addContext(({ level }, args) => {
       console[LogLevelMethodMap[level]](
-        `%c${logger.path}`,
+        //@ts-ignore
+        `[${LogLevel[level]}] %c${logger.path}`,
         Styles[level] as string,
         args.length > 0 ? "\n" : "",
         ...args

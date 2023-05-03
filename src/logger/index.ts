@@ -1,5 +1,6 @@
 import { LoggerFactory } from "./LoggerFactory";
 import creaateConsoleLog from "./plugin/creaateConsoleLog";
+import createExcludePlugin from "./plugin/createExcludePlugin";
 import createIncludePlugin from "./plugin/createIncludePlugin";
 import createLevelFilter from "./plugin/createLevelFilter";
 import createReadConfig from "./plugin/createReadConfig";
@@ -7,6 +8,7 @@ import createReadConfig from "./plugin/createReadConfig";
 function createFactroy() {
   return new LoggerFactory()
     .addPlugin(createIncludePlugin())
+    .addPlugin(createExcludePlugin())
     .addPlugin(creaateConsoleLog())
     .addPlugin(createLevelFilter())
     .addPlugin(createReadConfig())
