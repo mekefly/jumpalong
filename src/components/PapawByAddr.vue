@@ -1,7 +1,9 @@
 <script lang="ts" setup>
-import { createGetEventLineByAddressPointer } from "@/api/event";
+import { type EventApi } from "@/api/event";
+import { TYPES } from "@/nostr/nostr";
 import { toDeCodeAddress } from "@/utils/nostr";
-import { AddressPointer } from "nostr-tools/lib/nip19";
+import { type AddressPointer } from "nostr-tools/lib/nip19";
+import { useNostrContainerGet } from "./NostrContainerProvade";
 import Papaw from "./Papaw.vue";
 
 const props = defineProps<{
@@ -9,6 +11,9 @@ const props = defineProps<{
   a?: string;
 }>();
 const { naddr, a } = toRefs(props);
+
+const eventApi = useNostrContainerGet<EventApi>(TYPES.EventApi);
+
 const addrPoint = computed<AddressPointer | null>(() => {
   if (naddr?.value) {
     return toDeCodeAddress(naddr.value);
@@ -18,7 +23,9 @@ const addrPoint = computed<AddressPointer | null>(() => {
   return null;
 });
 const line = computed(
-  () => addrPoint.value && createGetEventLineByAddressPointer(addrPoint.value)
+  () =>
+    addrPoint.value &&
+    eventApi.createGetEventLineByAddressPointer(addrPoint.value)
 );
 const event = computed(() => line.value && line.value.feat.getLatestEvent());
 </script>

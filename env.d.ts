@@ -11,4 +11,8 @@ declare module "*.json" {
   export default content;
 }
 
+// declare module "nostr-tools" {
+//   const EventTemplate: { kind: number };
+// }
+
 declare module "loadsh";

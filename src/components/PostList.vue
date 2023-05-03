@@ -1,13 +1,16 @@
 <script lang="ts" setup>
-import { eventDeletionOne } from "@/api/event";
+import { EventApi } from "@/api/event";
 import PapawVueList from "@/components/PapawList.vue";
 import { t } from "@/i18n";
+import { TYPES } from "@/nostr/nostr";
 import { useElementIntoScreen } from "@/utils/use";
 import { Event, Filter } from "nostr-tools";
-import { createTextEventBeltline } from "../api/shortTextEventBeltline";
+import { useNostrContainerGet } from "./NostrContainerProvade";
 import PapawByAddr from "./PapawByAddr.vue";
 import PapawById from "./PapawById.vue";
 import { useLoad } from "./Refresh";
+const logger = loggerScope;
+logger.debug();
 
 const props = withDefaults(
   defineProps<{
@@ -33,6 +36,7 @@ const emit = defineEmits<{
 }>();
 const { pubkeys: pubkey, filter, filters, urls, active } = toRefs(props);
 const message = useMessage();
+const eventApi = useNostrContainerGet<EventApi>(TYPES.EventApi);
 
 const mergeFilters = computed(() => {
   const _filters = filters?.value ? [...filters.value] : [];
@@ -51,6 +55,11 @@ const mergeFilters = computed(() => {
   return _filters;
 });
 
+const generalEventEventBeltline = useNostrContainerGet(
+  TYPES.GeneralEventEventBeltline
+);
+logger.silly("generalEventEventBeltline", generalEventEventBeltline);
+
 const allPubkeys = computed(() => [
   ...(pubkey?.value ?? []),
   ...mergeFilters.value.map((filter) => filter.authors ?? []).flat(1),
@@ -58,7 +67,8 @@ const allPubkeys = computed(() => [
 
 const textEventbeltline = computed(() => {
   const opt: any = {};
-  const line = createTextEventBeltline({
+
+  const line = generalEventEventBeltline.createGeneralEventEventBeltline({
     filters: mergeFilters.value,
     ...opt,
     addUrls: urls?.value,
@@ -135,7 +145,7 @@ const instance = ref(getCurrentInstance());
       :eventList="postEvents"
       withPapawOptionsButtons
       :disabledReply="disabledReply"
-      @eventDeletion="(id) => eventDeletionOne(id)"
+      @eventDeletion="(id) => eventApi.eventDeletionOne(id)"
     />
   </div>
 </template>

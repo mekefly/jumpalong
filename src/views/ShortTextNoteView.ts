@@ -1,4 +1,5 @@
-import { getEventLineById } from "@/api/event";
+import { useNostrContainerGet } from "@/components/NostrContainerProvade";
+import { TYPES } from "@/nostr/nostr";
 import { getSourceUrls } from "@/nostr/staff/createEventSourceTracers";
 import { neventEncodeByEvent, toDeCodeNevent } from "@/utils/nostr";
 import { Event } from "nostr-tools";
@@ -6,6 +7,7 @@ import { Event } from "nostr-tools";
 const pushEvent = ref<Event | null>(null);
 export function useEvent() {
   const route = useRoute();
+  const eventApi = useNostrContainerGet(TYPES.EventApi);
   const value = computed(() => route.params["value"] as string);
 
   const neventOpt = computed(() => {
@@ -22,7 +24,7 @@ export function useEvent() {
       return pushEvent.value;
     }
 
-    const line = getEventLineById(eventId.value, {
+    const line = eventApi.getEventLineById(eventId.value, {
       urls: new Set(neventOpt.value?.relays),
     });
     return line?.feat.useEvent();

@@ -1,10 +1,11 @@
 <script lang="ts" setup>
+import { useNostrContainerGet } from "@/components/NostrContainerProvade";
 import { t } from "@/i18n";
-import { getFollowChannelConfiguration } from "@/nostr/FollowChannel";
+import { TYPES } from "@/nostr/nostr";
 import router from "@/router";
 import { computed } from "vue";
 import ChannelListItemVue from "../components/ChannelListItem.vue";
-const followChannel = getFollowChannelConfiguration();
+const followChannel = useNostrContainerGet(TYPES.FollowChannel);
 
 const channelMap = computed(() => followChannel.getData());
 const channelList = computed(() => channelMap.value.entries());

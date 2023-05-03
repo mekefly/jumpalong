@@ -1,15 +1,23 @@
 <script lang="ts" setup>
-import { getChannelMetadataBeltlineByChannelId } from "@/api/channel";
+import {
+  CahnnelMessageBeltline,
+  CahnnelMessageBeltlineType,
+} from "@/api/channel";
 import { ChannelConfigurationData } from "@/nostr/FollowChannel";
 import EllipsisVue from "./Ellipsis.vue";
+import { useNostrContainerGet } from "./NostrContainerProvade";
 
 const props = defineProps<{
   channelConfigurationData: ChannelConfigurationData;
 }>();
 const { channelConfigurationData } = toRefs(props);
 
+const cahnnelMessageBeltline = useNostrContainerGet<CahnnelMessageBeltline>(
+  CahnnelMessageBeltlineType
+);
+
 const metadataLine = computed(() =>
-  getChannelMetadataBeltlineByChannelId(
+  cahnnelMessageBeltline.getChannelMetadataBeltlineByChannelId(
     channelConfigurationData.value.channelId
   )
 );

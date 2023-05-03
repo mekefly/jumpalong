@@ -1,43 +1,40 @@
 <script lang="ts" setup>
 import { Event } from "nostr-tools";
 
-import {
-  createReactionEventLine,
-  deleteReactions,
-  hasReactions,
-  reactions,
-  sendReactions,
-} from "@/api/like";
+import { LikeApi, reactions } from "@/api/like";
 
+import { TYPES } from "@/nostr/nostr";
 import { useLazyComponent, useOnOK } from "@/utils/use";
 import DrawerVue from "./Drawer.vue";
 import SmileBeamRegularVue from "./icon/SmileBeamRegular.vue";
+import { useNostrContainerGet } from "./NostrContainerProvade";
 import PapawReactionItemVue from "./PapawReactionItem.vue";
 
 const props = defineProps<{
   event: Event;
   size: number;
 }>();
+const likeApi = useNostrContainerGet<LikeApi>(TYPES.LikeApi);
 const event = toRef(props, "event");
 
 const onOK = useOnOK();
 
 const limit = 20;
 const [textEventbeltline, target] = useLazyComponent(() => {
-  return createReactionEventLine({ event: event.value, limit });
+  return likeApi.createReactionEventLine({ event: event.value, limit });
 });
 const reactionMap = computed(
   () => textEventbeltline.value?.feat.getReactionMap() ?? {}
 );
 const activeMap = ref({} as Record<string, boolean>);
 reactions.forEach((type) => {
-  activeMap.value[type] = hasReactions(type as any, event.value.id);
+  activeMap.value[type] = likeApi.hasReactions(type as any, event.value.id);
 });
 function handelSwitchActive(type: string) {
   if (activeMap.value[type]) {
-    deleteReactions(type as any, { eventId: event.value.id, onOK });
+    likeApi.deleteReactions(type as any, { eventId: event.value.id, onOK });
   } else {
-    sendReactions(type as any, event.value, { onOK });
+    likeApi.sendReactions(type as any, event.value, { onOK });
   }
   activeMap.value[type] = !activeMap.value[type];
 }

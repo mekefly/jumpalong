@@ -1,10 +1,12 @@
-import { createGetEventLineByAddressPointer } from "@/api/event";
-import { EventBeltline } from "@/nostr/eventBeltline";
+import { type EventApi } from "@/api/event";
+import { type EventBeltline } from "@/nostr/eventBeltline";
+import { TYPES } from "@/nostr/nostr";
 import { getOnlyTag } from "@/nostr/tag";
 import { toDeCodeAddress } from "@/utils/nostr";
 import { createInjection } from "@/utils/use";
-import { Event } from "nostr-tools";
-import { AddressPointer } from "nostr-tools/lib/nip19";
+import { type Event } from "nostr-tools";
+import { type AddressPointer } from "nostr-tools/lib/nip19";
+import { useNostrContainerGet } from "./NostrContainerProvade";
 
 export type LongFormContentOptions = {
   content: string;
@@ -34,6 +36,7 @@ export function useMarkdownState(
 export function useMarkdownState(
   address: Ref<string | AddressPointer | undefined>
 ): UseMarkdownStateReturnType {
+  const eventApi = useNostrContainerGet<EventApi>(TYPES.EventApi);
   const addressPointer = computed(() => {
     if (!address.value) {
       return null;
@@ -46,7 +49,7 @@ export function useMarkdownState(
   const line = computed(
     () =>
       addressPointer.value &&
-      createGetEventLineByAddressPointer(addressPointer.value, {
+      eventApi.createGetEventLineByAddressPointer(addressPointer.value, {
         urls: new Set(addressPointer.value.relays),
       })
   );

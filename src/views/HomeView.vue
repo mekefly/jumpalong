@@ -1,10 +1,11 @@
 <script lang="ts" setup>
+import { useNostrContainerGet } from "@/components/NostrContainerProvade";
 import { useRichTextEditBoxOpt } from "@/components/RichTextEditBox";
 import RichTextEditBoxVue from "@/components/RichTextEditBox.vue";
 import ScrollbarVue from "@/components/Scrollbar.vue";
 import { t } from "@/i18n";
+import { TYPES } from "@/nostr/nostr";
 import { useHandleSendMessage } from "@/utils/use";
-import contactConfiguration from "../api/Contact";
 import PostList from "../components/PostList.vue";
 
 const logger = loggerScope;
@@ -14,11 +15,10 @@ const message = useMessage();
 
 //需要为显示区域和编辑区域架设一个隧道
 useRichTextEditBoxOpt("home");
+const contactConfiguration = useNostrContainerGet(TYPES.ContactConfiguration);
 
 const pubkeys = computed(() => {
-  const pubkeys = Object.keys(
-    contactConfiguration.getData().contactConfiguration
-  );
+  const pubkeys = Object.keys(contactConfiguration.getContactConfiguration());
   return pubkeys;
 });
 const handleSendEvent = useHandleSendMessage(1);

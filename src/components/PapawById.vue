@@ -1,8 +1,9 @@
 <script lang="ts" setup>
-import { getEventLineById } from "@/api/event";
 import { t } from "@/i18n";
+import { TYPES } from "@/nostr/nostr";
 import { usePushShortTextNote } from "@/views/ShortTextNoteView";
 import { Event } from "nostr-tools";
+import { useNostrContainerGet } from "./NostrContainerProvade";
 import Papaw from "./Papaw.vue";
 import PapawTreeHierarchy from "./PapawTreeHierarchy.vue";
 
@@ -12,8 +13,14 @@ const props = defineProps<{
   pubkey?: string;
   disabledReply?: boolean;
 }>();
+
+const eventApi = useNostrContainerGet(TYPES.EventApi);
+
 const eventLine = computed(() =>
-  getEventLineById(props.id, { urls: props.relays, pubkey: props.pubkey })
+  eventApi.getEventLineById(props.id, {
+    urls: props.relays,
+    pubkey: props.pubkey,
+  })
 );
 const event = computed(() => eventLine.value.feat.useEvent());
 const pushToTextNote = usePushShortTextNote();

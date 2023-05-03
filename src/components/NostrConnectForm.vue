@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { NostrConnectNostrApiImpl } from "@/api/NostrConnect";
 import { t } from "@/i18n";
 import { injectNostrApi, relayConfigurator } from "@/nostr/nostr";
-import { NostrApiMode, setNostrApiMode } from "@/nostr/NostrApi";
+import { NostrApiMode, setNostrApiMode } from "@/nostr/nostrApi/NostrApi";
+import { NostrConnectNostrApiImpl } from "@/nostr/nostrApi/NostrConnectNostrApiImpl";
 import { toDeCodeNprofile } from "@/utils/nostr";
 import { useSetAutocomplete } from "./Login";
 

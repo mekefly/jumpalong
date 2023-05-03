@@ -1,15 +1,12 @@
 <script lang="ts" setup>
-import {
-  getChannelMessageBeltline,
-  getChannelMetadataBeltlineByChannelId,
-} from "@/api/channel";
 import ChannelMessageListVue from "@/components/ChannelMessageList.vue";
 import { autoSetLoadBuffer } from "@/components/LoadProgress";
+import { useNostrContainerGet } from "@/components/NostrContainerProvade";
 import { useRichTextEditBoxOpt } from "@/components/RichTextEditBox";
 import RichTextEditBoxVue from "@/components/RichTextEditBox.vue";
 import ScrollbarVue from "@/components/Scrollbar.vue";
 import { t } from "@/i18n";
-import { getFollowChannelConfiguration } from "@/nostr/FollowChannel";
+import { TYPES } from "@/nostr/nostr";
 import router from "@/router";
 import { useClipboardDialog } from "@/utils/naiveUi";
 import { toDeCodeNevent } from "@/utils/nostr";
@@ -25,7 +22,8 @@ const neventOpt = computed(() => toDeCodeNevent(route.params.value as string));
 const channelId = computed<string | null | undefined>(
   () => neventOpt.value?.id
 );
-const followChannelConfiguration = getFollowChannelConfiguration();
+
+const followChannelConfiguration = useNostrContainerGet(TYPES.FollowChannel);
 
 //需要为显示区域和编辑区域架设一个隧道
 watchEffect(() => {
@@ -38,10 +36,14 @@ const channelConfigurationData = computed(() =>
     : undefined
 );
 
+const cahnnelMessageBeltline = useNostrContainerGet(
+  TYPES.CahnnelMessageBeltline
+);
+
 const relayUrls = computed(() => channelConfigurationData.value?.relayUrls);
 const messageBeltline = computed(() => {
   if (!channelId.value) return;
-  return getChannelMessageBeltline(channelId.value, {
+  return cahnnelMessageBeltline.getChannelMessageBeltline(channelId.value, {
     urls: relayUrls.value,
   });
 });
@@ -53,7 +55,10 @@ const messageList = computed(
 
 const metadataLine = computed(
   () =>
-    channelId.value && getChannelMetadataBeltlineByChannelId(channelId.value)
+    channelId.value &&
+    cahnnelMessageBeltline.getChannelMetadataBeltlineByChannelId(
+      channelId.value
+    )
 );
 const metadata = computed(
   () => metadataLine.value && metadataLine.value.feat.useMetadata()

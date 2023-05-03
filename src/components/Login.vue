@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { PRIVATE_KEY } from "@/api/login";
 import { t } from "@/i18n";
-import { NostrApiMode, setNostrApiMode } from "@/nostr/NostrApi";
 import { ReplaceableEventSyncAbstract } from "@/nostr/ReplaceableEventSyncAbstract";
 import SynchronizerAbstract from "@/nostr/Synchronizer/SynchronizerAbstract";
+import { NostrApiMode, setNostrApiMode } from "@/nostr/nostrApi/NostrApi";
 import { useCacheStorage } from "@/utils/use";
 import AuthorizedFormVue from "./AuthorizedFormVue.vue";
 import LoginFormVue from "./LoginForm.vue";

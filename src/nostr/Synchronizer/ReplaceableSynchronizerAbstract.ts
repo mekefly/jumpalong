@@ -1,9 +1,11 @@
 import { nowSecondTimestamp } from "@/utils/utils";
+import { injectable } from "inversify";
 import { Event, Filter } from "nostr-tools";
 import SynchronizerAbstract, {
   SynchronizerAbstractOption,
 } from "./SynchronizerAbstract";
 
+@injectable()
 export default abstract class ReplaceableSynchronizerAbstract<
   E
 > extends SynchronizerAbstract<E> {
@@ -32,6 +34,7 @@ export default abstract class ReplaceableSynchronizerAbstract<
   async getData(): Promise<E> {
     return this.data;
   }
+
   async getDataKeys(): Promise<Iterable<string>> {
     return [""];
   }

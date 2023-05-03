@@ -1,15 +1,17 @@
 <script lang="ts" setup>
-import { getEventLineById } from "@/api/event";
 import { getUserMetadataLineByPubkey } from "@/api/user";
+import { useNostrContainerGet } from "@/components/NostrContainerProvade";
 import PapawVue from "@/components/Papaw.vue";
 import RelayUrlShowVue from "@/components/RelayUrlShow.vue";
 import SearchChannelItemVue from "@/components/SearchChannelItem.vue";
 import UserInfoVue from "@/components/UserInfo.vue";
 import { EventBeltline } from "@/nostr/eventBeltline";
-import { rootEventBeltline } from "@/nostr/nostr";
+import { TYPES, rootEventBeltline } from "@/nostr/nostr";
 import { createDoNotRepeatStaff } from "@/nostr/staff";
 import { toDeCodeNevent, toDeCodeNprofile } from "@/utils/nostr";
 import { Event, Filter } from "nostr-tools";
+
+const eventApi = useNostrContainerGet(TYPES.EventApi);
 
 const router = useRouter();
 const route = useRoute();
@@ -49,7 +51,7 @@ watch(
       //远程和本地搜索event
       const opt = neventOpt.value;
       const relays = neventOpt.value.relays;
-      const line = getEventLineById(
+      const line = eventApi.getEventLineById(
         opt.id,
         relays && { urls: new Set(relays) }
       );

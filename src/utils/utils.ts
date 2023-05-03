@@ -512,3 +512,7 @@ export async function retry<E>(
 export function toLocaleString(time: number) {
   return new Date(time * 1000).toLocaleString();
 }
+
+export function defaul<REST extends any[]>(...rest: REST): REST[number] {
+  return rest.find((v) => v);
+}

@@ -1,6 +1,6 @@
 import { retry } from "@/utils/utils";
 import { injectNostrApi } from "./nostr";
-import { NostrApiImpl, NotFoundError } from "./NostrApi";
+import { NostrApiImpl, NotFoundError } from "./nostrApi/NostrApi";
 
 export function injectWindowNostr() {
   injectNostrApi({

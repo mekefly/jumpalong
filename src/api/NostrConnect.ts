@@ -1,10 +1,10 @@
-import { createEventBeltlineReactive } from "@/nostr/createEventBeltline";
-import { createEvent, createEventByPrikey } from "@/nostr/event";
 import { EventBeltline } from "@/nostr/eventBeltline";
-import { nostrApi, relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
-import { Nip04, NostrApi } from "@/nostr/NostrApi";
-import { ParameterizedReplaceableEventSyncAbstract } from "@/nostr/ParameterizedReplaceableEventSyncAbstract";
-import { createDoNotRepeatStaff, StaffState } from "@/nostr/staff";
+import { TYPES, nostrApi, rootEventBeltline } from "@/nostr/nostr";
+import {
+  StaffState,
+  createDoNotRepeatStaff,
+  createStaffFactory,
+} from "@/nostr/staff";
 import createMaintainSubscription from "@/nostr/staff/createMaintainSubscription";
 import createTemporaryUniqueEventStaff from "@/nostr/staff/createTemporaryUniqueEventStaff";
 import {
@@ -14,20 +14,220 @@ import {
   useCache,
 } from "@/utils/cache";
 import { CacheOptions } from "@/utils/cache/types";
-import { getPubkeyOrNull } from "@/utils/nostrApiUse";
-import { createId } from "@/utils/utils";
 import EventEmitter from "events";
+import { inject, injectable } from "inversify";
 import {
   Event,
+  UnsignedEvent,
   generatePrivateKey,
   getPublicKey,
-  nip04,
-  UnsignedEvent,
 } from "nostr-tools";
-import { AddressPointer } from "nostr-tools/lib/nip19";
-const kind = 24133;
+import { NostrConnectedSynchronizer } from "../nostr/Synchronizer/NostrConnectedSynchronizer";
+import CreateEventBeltline from "./CreateEventBeltline";
+export const kind = 24133 as any;
+export const CategorizedPeopleListKind = 30000 as any;
 
-function getTempPrikey() {
+@injectable()
+export class NostrConnect {
+  constructor(
+    @inject(TYPES.RootEventBeltline)
+    private rootEventBeltline: EventBeltline,
+    @inject(TYPES.CreateEventBeltline)
+    private createEventBeltline: CreateEventBeltline,
+    @inject(TYPES.NostrConnectedSynchronizer)
+    private nostrConnectedSynchronizer: NostrConnectedSynchronizer
+  ) {}
+  emiter: EventEmitter = new EventEmitter();
+  createNostrConnectEventLine(opts: { pubkey: string }) {
+    const cacheKey = `createNostrConnectEventLine:${opts.pubkey}`;
+    return useCache(
+      cacheKey,
+      () => {
+        const line = this.createEventBeltline
+          .createEventBeltlineReactive()
+          .addFilter({
+            ["#p"]: [opts.pubkey],
+            kinds: [kind],
+          })
+          .addStaff(createMaintainSubscription())
+          .addStaff(createDoNotRepeatStaff())
+          .addStaff(createTemporaryUniqueEventStaff(cacheKey))
+
+          .addStaff(this.cleateNostrConnectStaff())
+          .addReadUrl();
+        return line;
+      },
+      {
+        useLocalStorage: false,
+      }
+    );
+  }
+  private cleateNostrConnectStaff() {
+    const slef = this;
+    return createStaffFactory()(() => {
+      return {
+        push(e: Event) {
+          //拦截是自己发送的请求
+          if (e.pubkey === getTempPubkey()) {
+            return StaffState.BREAK;
+          }
+          slef.toPush(e, this.beltline);
+        },
+        feat: {
+          onRequestAuthorization(
+            listener: (opt: RequestAuthorizationOption) => void
+          ) {
+            slef.emiter.on("requestAuthorization", listener);
+          },
+        },
+      };
+    })();
+  }
+
+  private async toPush(event: Event, line: EventBeltline) {
+    try {
+      const content = await nostrApi.nip04.decrypt(event.pubkey, event.content);
+
+      //解秘来自对方发送的请求
+      const requistOpt: Exclude<RequestOption, "result"> = JSON.parse(content);
+
+      const id: string = (requistOpt as any).id;
+
+      if (
+        !this.nostrConnectedSynchronizer.hasConnected(event.pubkey) &&
+        requistOpt.method !== "connect"
+      ) {
+        return;
+      }
+
+      const notAsking = isNotAskingAnymore(event.pubkey, requistOpt.method);
+      if (notAsking) {
+        this.allow(event, id, requistOpt, line);
+      } else {
+        if (typeof notAsking === "boolean") {
+          this.refuse(event, id, requistOpt, line);
+          return;
+        } else {
+          //询问用户
+          this.emiter.emit("requestAuthorization", {
+            allow: (duration?: number) =>
+              this.allow(event, id, requistOpt, line, duration),
+            refuse: (duration?: number) =>
+              this.refuse(event, id, requistOpt, line, duration),
+            event: event,
+            requistOpt,
+          });
+        }
+      }
+    } catch (error) {}
+  }
+  private async refuse(
+    event: Event,
+    id: string,
+    requistOpt: RequestOption,
+    line: EventBeltline,
+    duration?: number
+  ) {
+    if (duration) {
+      setNotAskingAnymore(event.pubkey, requistOpt.method, false, duration);
+    }
+    const responseResult = {
+      id,
+      error: "refuse:The user has rejected your authorization request",
+    };
+    //内容
+    const content = await nostrApi.nip04.encrypt(
+      event.pubkey,
+      JSON.stringify(responseResult)
+    );
+
+    //发送
+    line.publish(
+      //@ts-ignore
+      { kind, content, tags: [["p", event.pubkey]] },
+      new Set()
+    );
+  }
+  private async allow(
+    event: Event,
+    id: string,
+    requistOpt: RequestOption,
+    line: EventBeltline,
+    duration?: number
+  ) {
+    if (duration) {
+      setNotAskingAnymore(event.pubkey, requistOpt.method, true, duration);
+    }
+    //请求的id
+    let responseResult: any;
+    try {
+      const result = await this.onRequest({
+        senderPubkey: event.pubkey,
+        ...requistOpt,
+      });
+
+      responseResult = { id, result };
+    } catch (e) {
+      responseResult = { id, error: e };
+    }
+
+    //内容
+    const content = await nostrApi.nip04.encrypt(
+      event.pubkey,
+      JSON.stringify(responseResult)
+    );
+
+    //发送
+    line.publish(
+      { kind: kind as any, content, tags: [["p", event.pubkey]] },
+      new Set()
+    );
+  }
+
+  private async onRequest<METHOD extends Method>(
+    opt: OnRequestOptions<METHOD>
+  ): Promise<GetResultType<Method>> {
+    const line = rootEventBeltline.createChild();
+
+    const method = opt.method;
+    if (method === "describe") {
+      return [
+        "describe",
+        "get_public_key",
+        "sign_event",
+        "connect",
+        "disconnect",
+        "delegate",
+        "get_relays",
+        "nip04_encrypt",
+        "nip04_decrypt",
+      ];
+    } else if (method === "get_public_key") {
+      return await nostrApi.getPublicKey();
+    } else if (method === "sign_event") {
+      const _opt: OnRequestOptions<"sign_event"> = opt as any;
+      return await nostrApi.signEvent(..._opt.params);
+    } else if (method === "connect") {
+      await this.nostrConnectedSynchronizer.connect(opt.senderPubkey);
+      return;
+    } else if (method === "disconnect") {
+      this.nostrConnectedSynchronizer.disConnect(opt.senderPubkey);
+      return;
+    } else if (method === "get_relays") {
+      return await nostrApi.getRelays();
+    } else if (method === "nip04_encrypt") {
+      const _opt: OnRequestOptions<"nip04_encrypt"> = opt as any;
+      return await nostrApi.nip04.encrypt(..._opt.params);
+    } else if (method === "nip04_decrypt") {
+      const _opt: OnRequestOptions<"nip04_decrypt"> = opt as any;
+      return await nostrApi.nip04.decrypt(..._opt.params);
+    } else {
+      throw new Error("");
+    }
+  }
+}
+
+export function getTempPrikey() {
   const prikey = localStorage.getItem("__temp_prikey") ?? generatePrivateKey();
   localStorage.setItem("__temp_prikey", prikey);
   return prikey;
@@ -65,151 +265,6 @@ export function isNotAskingAnymore(
     notAskingAnymoreCacheOption
   );
 }
-export function createNostrConnectEventLine(opts: { pubkey: string }) {
-  const nostrConnectedSynchronizer = getNostrConnectedSynchronizer();
-
-  const cacheKey = `createNostrConnectEventLine:${opts.pubkey}`;
-  return useCache(
-    cacheKey,
-    () => {
-      const emiter = new EventEmitter();
-      const line = createEventBeltlineReactive()
-        .addFilter({
-          ["#p"]: [opts.pubkey],
-          kinds: [kind],
-        })
-        .addStaff(createMaintainSubscription())
-        .addStaff(createDoNotRepeatStaff())
-        .addStaff(createTemporaryUniqueEventStaff(cacheKey))
-
-        .addStaff({
-          push(e: Event) {
-            //拦截是自己发送的请求
-            if (e.pubkey === getTempPubkey()) {
-              return StaffState.BREAK;
-            }
-            async function name() {
-              try {
-                const content = await nostrApi.nip04.decrypt(
-                  e.pubkey,
-                  e.content
-                );
-
-                //解秘来自对方发送的请求
-                const requistOpt: Exclude<RequestOption, "result"> =
-                  JSON.parse(content);
-
-                const id: string = (requistOpt as any).id;
-
-                if (
-                  !nostrConnectedSynchronizer.hasConnected(e.pubkey) &&
-                  requistOpt.method !== "connect"
-                ) {
-                  return;
-                }
-
-                const notAsking = isNotAskingAnymore(
-                  e.pubkey,
-                  requistOpt.method
-                );
-                if (notAsking) {
-                  allow();
-                } else {
-                  if (typeof notAsking === "boolean") {
-                    refuse();
-                    return;
-                  } else {
-                    //询问用户
-                    emiter.emit("requestAuthorization", {
-                      allow,
-                      refuse,
-                      event: e,
-                      requistOpt,
-                    });
-                  }
-                }
-                async function refuse(duration?: number) {
-                  if (duration) {
-                    setNotAskingAnymore(
-                      e.pubkey,
-                      requistOpt.method,
-                      false,
-                      duration
-                    );
-                  }
-                  const responseResult = {
-                    id,
-                    error:
-                      "refuse:The user has rejected your authorization request",
-                  };
-                  //内容
-                  const content = await nostrApi.nip04.encrypt(
-                    e.pubkey,
-                    JSON.stringify(responseResult)
-                  );
-
-                  //发送
-                  line.publish(
-                    { kind, content, tags: [["p", e.pubkey]] },
-                    new Set()
-                  );
-                }
-
-                async function allow(duration?: number) {
-                  if (duration) {
-                    setNotAskingAnymore(
-                      e.pubkey,
-                      requistOpt.method,
-                      true,
-                      duration
-                    );
-                  }
-                  //请求的id
-                  const id: string = (requistOpt as any).id;
-                  let responseResult: any;
-                  try {
-                    const result = await onRequest({
-                      senderPubkey: e.pubkey,
-                      ...requistOpt,
-                    });
-
-                    responseResult = { id, result };
-                  } catch (e) {
-                    responseResult = { id, error: e };
-                  }
-
-                  //内容
-                  const content = await nostrApi.nip04.encrypt(
-                    e.pubkey,
-                    JSON.stringify(responseResult)
-                  );
-
-                  //发送
-                  line.publish(
-                    { kind, content, tags: [["p", e.pubkey]] },
-                    new Set()
-                  );
-                }
-              } catch (error) {}
-            }
-            name();
-          },
-          feat: {
-            onRequestAuthorization(
-              listener: (opt: RequestAuthorizationOption) => void
-            ) {
-              emiter.on("requestAuthorization", listener);
-            },
-          },
-        })
-        .addReadUrl();
-      return line;
-    },
-    {
-      useLocalStorage: false,
-    }
-  );
-}
 type Pubkey = string;
 type Plaintext = string;
 type Ciphertext = string;
@@ -220,13 +275,13 @@ type RequestOption = //查看当前客户端具有那些权限
     } & RequestMap[key];
   }[keyof RequestMap] & {};
 
-type Method = keyof RequestMap;
+export type Method = keyof RequestMap;
 type GetParamsType<METHOD extends Method> = RequestMap[METHOD]["params"];
-type CreateOptionType<METHOD extends Method> = {
+export type CreateOptionType<METHOD extends Method> = {
   method: METHOD;
   params: GetParamsType<METHOD>;
 };
-type GetResultType<METHOD extends Method> = RequestMap[METHOD]["result"];
+export type GetResultType<METHOD extends Method> = RequestMap[METHOD]["result"];
 type RequestMap = {
   describe: {
     params: [];
@@ -255,247 +310,7 @@ type RequestMap = {
 };
 
 const ConnectedTable = ref([]);
-type NostrConnectedList = Set<string>;
-export function getNostrConnectedSynchronizer() {
-  return useCache(
-    "getNostrConnectedsynchronizer",
-    () => {
-      const nostrConnectedsynchronizer = new NostrConnectedSynchronizer();
-      nostrConnectedsynchronizer.sync();
-      return nostrConnectedsynchronizer;
-    },
-    { useLocalStorage: false }
-  );
-}
-class NostrConnectedSynchronizer extends ParameterizedReplaceableEventSyncAbstract<NostrConnectedList> {
-  constructor() {
-    super("NostrConnectedsynchronizer", new Set());
-  }
-  async getAddressPointers(): Promise<AddressPointer[]> {
-    const pubkey = await getPubkeyOrNull();
-    if (!pubkey) return [];
-    return [
-      {
-        kind: 30000,
-        identifier: "NostrConnectedsynchronizer",
-        pubkey,
-      },
-    ];
-  }
-  async serializeToData(e: Event): Promise<NostrConnectedList> {
-    return new Set(
-      e.tags.filter((tag) => tag[0] === "p" && tag[1]).map((tag) => tag[1])
-    );
-  }
-  async deserializeToEvent(
-    data: NostrConnectedList,
-    changeAt: number
-  ): Promise<Event> {
-    return await createEvent({
-      kind: 30000,
-      created_at: changeAt,
-      tags: [...Array.from(data, (p) => ["p", p])],
-    });
-  }
-
-  hasConnected(pubkey: string) {
-    return this.getData().has(pubkey);
-  }
-  connect(pubkey: string) {
-    const set = this.getData();
-    if (set.has(pubkey)) {
-      return;
-    }
-    set.add(pubkey);
-    this.toChanged();
-    this.save();
-  }
-  disConnect(pubkey: string) {
-    const set = this.getData();
-    if (!set.has(pubkey)) {
-      return;
-    }
-    set.delete(pubkey);
-    this.toChanged();
-    this.save();
-  }
-}
+export type NostrConnectedList = Set<string>;
 type OnRequestOptions<METHOD extends Method> = CreateOptionType<METHOD> & {
   senderPubkey: string;
 };
-export async function onRequest<METHOD extends Method>(
-  opt: OnRequestOptions<METHOD>
-): Promise<GetResultType<Method>> {
-  const line = rootEventBeltline.createChild();
-
-  const nostrConnectedsynchronizer = getNostrConnectedSynchronizer();
-  const method = opt.method;
-  if (method === "describe") {
-    return [
-      "describe",
-      "get_public_key",
-      "sign_event",
-      "connect",
-      "disconnect",
-      "delegate",
-      "get_relays",
-      "nip04_encrypt",
-      "nip04_decrypt",
-    ];
-  } else if (method === "get_public_key") {
-    return await nostrApi.getPublicKey();
-  } else if (method === "sign_event") {
-    const _opt: OnRequestOptions<"sign_event"> = opt as any;
-    return await nostrApi.signEvent(..._opt.params);
-  } else if (method === "connect") {
-    await nostrConnectedsynchronizer.connect(opt.senderPubkey);
-    return;
-  } else if (method === "disconnect") {
-    nostrConnectedsynchronizer.disConnect(opt.senderPubkey);
-    return;
-  } else if (method === "get_relays") {
-    return await nostrApi.getRelays();
-  } else if (method === "nip04_encrypt") {
-    const _opt: OnRequestOptions<"nip04_encrypt"> = opt as any;
-    return await nostrApi.nip04.encrypt(..._opt.params);
-  } else if (method === "nip04_decrypt") {
-    const _opt: OnRequestOptions<"nip04_decrypt"> = opt as any;
-    return await nostrApi.nip04.decrypt(..._opt.params);
-  } else {
-    throw new Error("");
-  }
-}
-export class NostrConnectNostrApiImpl implements NostrApi {
-  tempPrikey: string;
-  tempPubkey: string;
-  pubkey: string;
-
-  line?: EventBeltline<any>;
-  emiter: EventEmitter;
-
-  nip04: Nip04;
-  constructor(pubkey: string) {
-    const slef = this;
-    this.pubkey = pubkey;
-
-    this.tempPrikey = getTempPrikey();
-    this.tempPubkey = getPublicKey(this.tempPrikey);
-    this.emiter = new EventEmitter();
-
-    this.nip04 = {
-      async encrypt(...rest) {
-        return await slef.request({ method: "nip04_encrypt", params: rest });
-      },
-      async decrypt(...rest) {
-        return await slef.request({ method: "nip04_decrypt", params: rest });
-      },
-    };
-  }
-  async connect() {
-    return await this.request({ method: "connect", params: [this.pubkey] });
-  }
-  async disconnect() {
-    return await this.request({ method: "disconnect", params: [] });
-  }
-  listen() {
-    const slef = this;
-    //监听回应
-    return (this.line = createEventBeltlineReactive()
-      .addFilter({
-        authors: [this.pubkey],
-        kinds: [kind],
-        ["#p"]: [this.tempPubkey],
-      })
-      .addStaff(createMaintainSubscription())
-      .addStaff({
-        push(e) {
-          const name = async () => {
-            try {
-              const resultOpt = JSON.parse(
-                await nip04.decrypt(slef.tempPrikey, slef.pubkey, e.content)
-              );
-              const id = resultOpt.id as string;
-
-              slef.emiter.emit(id, resultOpt);
-            } catch (error) {}
-          };
-          name();
-        },
-      })
-      .addReadUrl());
-  }
-  getLine() {
-    if (this.line) {
-      return this.line;
-    } else {
-      return this.listen();
-    }
-  }
-  async request<METHOD extends Method>(
-    opts: CreateOptionType<METHOD>
-  ): Promise<GetResultType<METHOD>> {
-    return new Promise(async (resolve, reject) => {
-      const id = createId();
-
-      const content = JSON.stringify({
-        id,
-        method: opts.method,
-        params: opts.params,
-      });
-      const encryptContent = await nip04.encrypt(
-        //当前客户端的私钥
-        this.tempPrikey,
-        //要请求的公钥
-        this.pubkey,
-        //请求体
-        content
-      );
-      const event = createEventByPrikey(
-        {
-          kind: 24133,
-          //当前客户端公钥
-          pubkey: this.tempPubkey,
-          content: encryptContent,
-          tags: [["p", this.pubkey]],
-        },
-        //使用当前客户端的私钥签名
-        this.tempPrikey
-      );
-
-      //监听收到回应
-      this.emiter.once(id, (opt) => {
-        if (!opt) return;
-        if (opt.error) {
-          reject(opt.error);
-        } else {
-          resolve(opt.result);
-        }
-      });
-
-      //发送请求
-      await this.getLine().publish(event, relayConfigurator.getWriteList());
-    });
-  }
-
-  async getPublicKey(): Promise<string> {
-    return this.pubkey;
-    // return await this.request({ method: "get_public_key", params: [] });
-  }
-  async getRelays(): Promise<{
-    [url: string]: { read: boolean; write: boolean };
-  }> {
-    return useCache(
-      `getRelays:${this.pubkey}`,
-      async () => {
-        return await this.request({ method: "get_relays", params: [] });
-      },
-      {
-        useLocalStorage: false,
-        cacheError: false,
-      }
-    );
-  }
-  async signEvent(event: UnsignedEvent): Promise<Event> {
-    return await this.request({ method: "sign_event", params: [event] });
-  }
-}

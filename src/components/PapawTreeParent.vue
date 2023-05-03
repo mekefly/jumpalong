@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { getEventLineById } from "@/api/event";
 import { t } from "@/i18n";
-import { config } from "@/nostr/nostr";
+import { TYPES, config } from "@/nostr/nostr";
 import { Event } from "nostr-tools";
+import { useNostrContainerGet } from "./NostrContainerProvade";
 import PapawTree from "./PapawTree.vue";
 import PapawTreeAutoFindParent from "./PapawTreeAutoFindRoot.vue";
 import PapawTreeHierarchyVue from "./PapawTreeHierarchy.vue";
@@ -13,7 +13,12 @@ const props = defineProps<{
   relays: Set<string>;
   chindEvent: Event;
 }>();
-const line = computed(() => getEventLineById(props.id, { urls: props.relays }));
+
+const eventApi = useNostrContainerGet(TYPES.EventApi);
+
+const line = computed(() =>
+  eventApi.getEventLineById(props.id, { urls: props.relays })
+);
 const parentEvent = computed(() => line.value.feat.useEvent());
 
 const isFindParent = ref(false);

@@ -1,20 +1,20 @@
 <script lang="ts" setup>
-import {
-  createNostrConnectEventLine,
-  RequestAuthorizationOption,
-} from "@/api/NostrConnect";
+import { RequestAuthorizationOption } from "@/api/NostrConnect";
 import { t } from "@/i18n";
-import { nostrApi } from "@/nostr/nostr";
+import { nostrApi, TYPES } from "@/nostr/nostr";
 import { usePubkey } from "@/utils/nostrApiUse";
 import Drawer from "./Drawer.vue";
+import { useNostrContainerGet } from "./NostrContainerProvade";
 import Papaw from "./Papaw.vue";
 import PubkeyLink from "./PubkeyLink.vue";
 import Scrollbar from "./Scrollbar.vue";
 
 const pubkey = usePubkey();
+const nostrConnect = useNostrContainerGet(TYPES.NostrConnect);
+
 const line = computed(() => {
   if (pubkey.value) {
-    return createNostrConnectEventLine({ pubkey: pubkey.value });
+    return nostrConnect.createNostrConnectEventLine({ pubkey: pubkey.value });
   } else {
     return;
   }

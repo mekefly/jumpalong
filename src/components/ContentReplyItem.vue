@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-import { getEventLineById } from "@/api/event";
+import { TYPES } from "@/nostr/nostr";
 import { getSourceUrls } from "@/nostr/staff/createEventSourceTracers";
 import { toDeCodeNevent } from "@/utils/nostr";
 import { setAdds } from "@/utils/utils";
 import { Event } from "nostr-tools";
+import { useNostrContainerGet } from "./NostrContainerProvade";
 import PapawVue from "./Papaw.vue";
 
 const props = defineProps<{
@@ -12,6 +13,9 @@ const props = defineProps<{
   event: Event;
 }>();
 const { value, tag, event } = toRefs(props);
+
+const eventApi = useNostrContainerGet(TYPES.EventApi);
+
 const relayUrls = computed(() => {
   const urls = new Set<string>();
   if (tag?.value) {
@@ -31,7 +35,9 @@ const neventOpt = computed(() => toDeCodeNevent(value.value));
 const line = computed(() => {
   if (!neventOpt.value) return;
   if (marker.value !== "reply" && marker.value !== "mention") return;
-  return getEventLineById(neventOpt.value.id, { urls: relayUrls.value });
+  return eventApi.getEventLineById(neventOpt.value.id, {
+    urls: relayUrls.value,
+  });
 });
 const replyEvent = computed(() => line.value?.feat.useEvent());
 </script>

@@ -1,11 +1,13 @@
 <script lang="ts" setup>
-import {
-  getNostrConnectedSynchronizer,
-  getTempPubkey,
-} from "@/api/NostrConnect";
+import { getTempPubkey } from "@/api/NostrConnect";
 import ContactListItem from "@/components/FollowItem.vue";
+import { useNostrContainerGet } from "@/components/NostrContainerProvade";
 import { t } from "@/i18n";
-const nostrConnectedSynchronizer = getNostrConnectedSynchronizer();
+import { TYPES } from "@/nostr/nostr";
+const nostrConnectedSynchronizer = useNostrContainerGet(
+  TYPES.NostrConnectedSynchronizer
+);
+
 const list = computed(() => nostrConnectedSynchronizer.getData());
 function handleDisconnect(pubkey: string) {
   nostrConnectedSynchronizer.disConnect(pubkey);

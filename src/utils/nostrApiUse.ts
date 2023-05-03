@@ -5,7 +5,7 @@ import {
   NostrApiMode,
   NotFoundError,
   PriKeyNostApiImpl,
-} from "@/nostr/NostrApi";
+} from "@/nostr/nostrApi/NostrApi";
 import router from "@/router";
 import { nip19, UnsignedEvent } from "nostr-tools";
 import { useCache } from "./cache";

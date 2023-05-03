@@ -1,10 +1,12 @@
 <script lang="ts" setup>
 import { createPinEventLine } from "@/api/pin";
 import { t } from "@/i18n";
+import { TYPES } from "@/nostr/nostr";
 import { getPinListSync } from "@/nostr/PinListSync";
 import { usePubkey } from "@/utils/nostrApiUse";
 import Follow from "./Follow.vue";
 import FollowerVue from "./Follower.vue";
+import { useNostrContainerGet } from "./NostrContainerProvade";
 import PostListVue from "./PostList.vue";
 import ProfileMoreInfoRelayListVue from "./ProfileMoreInfoRelayList.vue";
 import { InsertDropdownOptionOpt } from "./SMSButtonProvide";
@@ -30,7 +32,10 @@ const unPininsertDropdownOption: InsertDropdownOptionOpt = {
   },
   label: t("unpin"),
 };
-const line = computed(() => createPinEventLine({ pubkey: pubkey.value }));
+const createPinEventLine = useNostrContainerGet(TYPES.CreatePinEventLine);
+const line = computed(() =>
+  createPinEventLine.createPinEventLine({ pubkey: pubkey.value })
+);
 
 const tags = computed(() =>
   isMe.value

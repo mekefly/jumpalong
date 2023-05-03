@@ -1,19 +1,23 @@
 <script lang="ts" setup>
-import { getChannelMetadataBeltlineByChannelId } from "@/api/channel";
 import ChannelMetadataEditVue from "@/components/ChannelMetadataEdit.vue";
+import { useNostrContainerGet } from "@/components/NostrContainerProvade";
 import { t } from "@/i18n";
-import { getFollowChannelConfiguration } from "@/nostr/FollowChannel";
-import { relayConfigurator } from "@/nostr/nostr";
-import { ChannelMetadata } from "@/nostr/staff/createUseChannelMetadata";
+import { TYPES } from "@/nostr/nostr";
+import { type ChannelMetadata } from "@/nostr/staff/createUseChannelMetadata";
 import { toDeCodeNevent } from "@/utils/nostr";
 import { useOnOK } from "@/utils/use";
 
 const message = useMessage();
 const route = useRoute();
+
 const neventOpt = computed(() => toDeCodeNevent(route.params.value as string));
 const eventId = computed(() => neventOpt.value?.id);
 
-const followChannelConfiguration = getFollowChannelConfiguration();
+const followChannelConfiguration = useNostrContainerGet(TYPES.FollowChannel);
+const relayConfigurator = useNostrContainerGet(TYPES.RelayConfigurator);
+const cahnnelMessageBeltline = useNostrContainerGet(
+  TYPES.CahnnelMessageBeltline
+);
 
 const channelMetadata = ref<ChannelMetadata>({});
 
@@ -21,7 +25,9 @@ const channelLine = computed(() => {
   if (!eventId.value) {
     return;
   }
-  return getChannelMetadataBeltlineByChannelId(eventId.value);
+  return cahnnelMessageBeltline.getChannelMetadataBeltlineByChannelId(
+    eventId.value
+  );
 });
 
 const metadata = computed(() => channelLine.value?.feat.useMetadata());

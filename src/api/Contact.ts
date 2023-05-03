@@ -11,6 +11,7 @@ import createUseChannelMetadata, {
   ChannelMetadata,
 } from "@/nostr/staff/createUseChannelMetadata";
 import createWithEvent from "@/nostr/staff/createWithEvent";
+import ReplaceableSynchronizerAbstract from "@/nostr/Synchronizer/ReplaceableSynchronizerAbstract";
 import {
   deserializeTagE,
   deserializeTagP,
@@ -20,9 +21,10 @@ import {
 import { useCache } from "@/utils/cache";
 import { getPubkeyOrNull } from "@/utils/nostrApiUse";
 import { debounce } from "@/utils/utils";
+import { injectable } from "inversify";
 import { Event, Filter } from "nostr-tools";
-import { ReplaceableEventSyncAbstract } from "../nostr/ReplaceableEventSyncAbstract";
 import { getUserMetadataLineByPubkey, UserMetaData } from "./user";
+const logger = loggerScope;
 
 type ContactConfigurationDatas = {
   contactConfiguration: ContactConfigurationType;
@@ -31,12 +33,18 @@ type ContactConfigurationDatas = {
 type ChannelConfigurationType = Map<string, ChannelConfigurationData>;
 export type ChannelConfigurationData = ChannelMetadata & TagE;
 
-class ContactConfiguration extends ReplaceableEventSyncAbstract<ContactConfigurationDatas> {
+@injectable()
+export class ContactConfiguration extends ReplaceableSynchronizerAbstract<ContactConfigurationDatas> {
   constructor() {
-    super("ContactConfiguration", {
+    super("ContactConfiguration");
+    logger.verbose("new ContactConfiguration()");
+  }
+
+  createDefault(): ContactConfigurationDatas {
+    return {
       contactConfiguration: {},
       channelConfiguration: new Map(),
-    });
+    };
   }
 
   async getFilters(): Promise<Filter[]> {
@@ -77,7 +85,7 @@ class ContactConfiguration extends ReplaceableEventSyncAbstract<ContactConfigura
     return { contactConfiguration, channelConfiguration };
   }
   getContactConfiguration() {
-    return this.getData()["contactConfiguration"];
+    return this.getDataSync()["contactConfiguration"];
   }
   public async deserializeToEvent(
     data: ContactConfigurationDatas,
@@ -101,7 +109,7 @@ class ContactConfiguration extends ReplaceableEventSyncAbstract<ContactConfigura
   }
 
   getChannelConfiguration() {
-    return this.getData().channelConfiguration;
+    return this.getDataSync().channelConfiguration;
   }
   getChannelList(): ChannelConfigurationData[] {
     return Array.from(this.getChannelConfiguration()).map(([k, v]) => v);
@@ -112,8 +120,7 @@ class ContactConfiguration extends ReplaceableEventSyncAbstract<ContactConfigura
 
     // 每改变一次加一次，如果中间有新的更新，就会强制停止同步
 
-    const contactConfiguration =
-      this.getDataAndChange()["contactConfiguration"];
+    const contactConfiguration = this.getDataSync()["contactConfiguration"];
 
     const contactMetaData: ContactMetaData = (contactConfiguration[pubkey] = {
       pubkey,
@@ -127,10 +134,10 @@ class ContactConfiguration extends ReplaceableEventSyncAbstract<ContactConfigura
 
     const debounceUpdateMetadata = debounce(
       (metadata: ChannelMetadata, subId?: string) => {
-        if (this.isReChange(changeId)) {
-          line.closeReq();
-          return;
-        }
+        // if (this.isReChange(changeId)) {
+        //   line.closeReq();
+        //   return;
+        // }
 
         Object.assign(contactMetaData, metadata);
         if (metadata.relayUrls && metadata.relayUrls.length > 0) {
@@ -153,7 +160,7 @@ class ContactConfiguration extends ReplaceableEventSyncAbstract<ContactConfigura
 
     // 每改变一次加一次，如果中间有新的更新，就会强制停止同步
 
-    const contactConfiguration = this.getData().contactConfiguration;
+    const contactConfiguration = this.getDataSync().contactConfiguration;
 
     if (contactConfiguration[pubkey] === undefined) return;
     this.toChanged();
@@ -163,18 +170,9 @@ class ContactConfiguration extends ReplaceableEventSyncAbstract<ContactConfigura
     this.save();
   }
   isFollow(pubkey: string) {
-    return Boolean(this.getData()["contactConfiguration"][pubkey]);
+    return Boolean(this.getDataSync()["contactConfiguration"][pubkey]);
   }
 }
-const contactConfiguration: ContactConfiguration = reactive(
-  new ContactConfiguration()
-) as any;
-
-setTimeout(() => {
-  contactConfiguration.sync();
-}, 0);
-
-export default contactConfiguration;
 
 export function getContactListLineByPubkey(
   pubkey: string,

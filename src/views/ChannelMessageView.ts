@@ -1,6 +1,7 @@
 import { useInjectScrollbarInstRef } from "../components/Scrollbar";
 
-import { getFollowChannelConfiguration } from "@/nostr/FollowChannel";
+import { useNostrContainer } from "@/components/NostrContainerProvade";
+import { TYPES } from "@/nostr/nostr";
 import { Event } from "nostr-tools";
 
 export function useAutoScroll(messageList: Ref<Event[]>) {
@@ -39,18 +40,23 @@ export function useAutoScroll(messageList: Ref<Event[]>) {
 export function useJoinAndLeaveChannelHandle(
   eventId: Ref<string | undefined | null>
 ) {
+  const nostrContainer = useNostrContainer();
   const message = useMessage();
+
+  function getFollowChannel() {
+    return nostrContainer.get(TYPES.FollowChannel);
+  }
   function handleJoinChannel() {
     if (!eventId.value) return;
 
-    getFollowChannelConfiguration().joinChannel(eventId.value);
+    getFollowChannel().joinChannel(eventId.value);
 
     message.info("已提交加入群聊的请求");
   }
   function handleLeaveChannel() {
     if (!eventId.value) return;
 
-    getFollowChannelConfiguration().leaveChannel(eventId.value);
+    getFollowChannel().leaveChannel(eventId.value);
 
     message.info("已经提交了离开群聊的请求");
   }

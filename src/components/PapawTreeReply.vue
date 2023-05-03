@@ -1,24 +1,35 @@
 <script lang="ts" setup>
-import { createTextEventBeltline } from "@/api/shortTextEventBeltline";
+import { GeneralEventEventBeltline } from "@/api/GeneralEventEventBeltline";
 import { t } from "@/i18n";
+import { TYPES } from "@/nostr/nostr";
 import { Event } from "nostr-tools";
+import { useNostrContainerGet } from "./NostrContainerProvade";
 import { usePapawFocusState } from "./Papaw";
 import PapawTree from "./PapawTree.vue";
+const logger = loggerScope;
+logger.debug();
 
 const props = defineProps<{ event: Event; noTree?: boolean }>();
 
 const id = computed(() => props.event.id);
 const limit = 5;
+
+const generalEventEventBeltline =
+  useNostrContainerGet<GeneralEventEventBeltline>(
+    TYPES.GeneralEventEventBeltline
+  );
 const line = computed(() =>
-  createTextEventBeltline({
-    limit,
-    filters: [
-      {
-        "#e": [id.value],
-        kinds: [1, 30023],
-      },
-    ],
-  }).addStaffOfSortByCreateAt()
+  generalEventEventBeltline
+    .createGeneralEventEventBeltline({
+      limit,
+      filters: [
+        {
+          "#e": [id.value],
+          kinds: [1, 30023],
+        },
+      ],
+    })
+    .addStaffOfSortByCreateAt()
 );
 const eventList = computed(() => line.value.getList());
 const state = usePapawFocusState();

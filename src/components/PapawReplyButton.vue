@@ -1,10 +1,12 @@
 <script lang="ts" setup>
-import { createTextEventBeltline } from "@/api/shortTextEventBeltline";
+import { GeneralEventEventBeltline } from "@/api/GeneralEventEventBeltline";
+import { TYPES } from "@/nostr/nostr";
 import { getSourceUrls } from "@/nostr/staff/createEventSourceTracers";
 import { useLazyComponent } from "@/utils/use";
 import { usePushShortTextNote } from "@/views/ShortTextNoteView";
 import { Event } from "nostr-tools";
 import MessageOutlinedVue from "./icon/MessageOutlined.vue";
+import { useNostrContainerGet } from "./NostrContainerProvade";
 
 const props = defineProps<{
   event: Event;
@@ -12,14 +14,19 @@ const props = defineProps<{
 }>();
 
 const { event } = toRefs(props);
+const generalEventEventBeltline =
+  useNostrContainerGet<GeneralEventEventBeltline>(
+    TYPES.GeneralEventEventBeltline
+  );
 const pushShortTextNote = usePushShortTextNote();
 function handelPushShortTextNote() {
   pushShortTextNote(event.value);
 }
 const limit = 20;
 const urls = computed(() => getSourceUrls(event.value.id));
+
 const [textEventbeltline, target] = useLazyComponent(() => {
-  return createTextEventBeltline({
+  return generalEventEventBeltline.createGeneralEventEventBeltline({
     filters: [
       {
         "#e": [event.value.id],

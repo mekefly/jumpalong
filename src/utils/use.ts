@@ -1,7 +1,8 @@
+import { useNostrContainerGet } from "@/components/NostrContainerProvade";
 import { useInjectScrollbarInstRef } from "@/components/Scrollbar";
 import { t } from "@/i18n";
 import { EventBeltline } from "@/nostr/eventBeltline";
-import { relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
+import { relayConfigurator, rootEventBeltline, TYPES } from "@/nostr/nostr";
 import { type RelayEmiterResponseEventMap } from "@/nostr/RelayEmiter";
 import autoAddRelayurlByEventIdStaff from "@/nostr/staff/autoAddRelayurlByEventIdStaff";
 import autoAddRelayurlByPubkeyStaff from "@/nostr/staff/autoAddRelayurlByPubkeyStaff";
@@ -21,7 +22,7 @@ import {
   type Ref,
 } from "vue";
 import { useRouter } from "vue-router";
-import { eventDeletion } from "../api/event";
+import { type EventApi } from "../api/event";
 import {
   defaultCacheOptions,
   getCacheOrNull,
@@ -136,6 +137,7 @@ export function useIfTransition(
  * @export
  */
 export function useEvent() {
+  const eventApi = useNostrContainerGet<EventApi>(TYPES.EventApi);
   const ids = new Set();
   const events = ref([] as Event[]);
   const pushEvent = function (e: Event) {
@@ -153,7 +155,7 @@ export function useEvent() {
   };
   const deleteEvent = function (id: string) {
     popEvent(id);
-    eventDeletion([id]);
+    eventApi.eventDeletion([id]);
   };
   const myEvent: Record<
     "push" | "pop" | "delete",
@@ -606,8 +608,18 @@ export function createInjection<
   Argv extends any[],
   Return extends any,
   F extends (...argv: Argv) => Return
->(fun: (...argv: Argv) => Return) {
-  const key = Symbol() as InjectionKey<ReturnType<F>>;
+>(
+  fun: (...argv: Argv) => Return
+): [(...argv: Argv) => Return, () => Return | null];
+export function createInjection<Argv extends any[], Return extends any>(
+  fun: (...argv: Argv) => Return,
+  createDefault: () => Return
+): [(...argv: Argv) => Return, () => Return];
+export function createInjection<Argv extends any[], Return extends any>(
+  fun: (...argv: Argv) => Return,
+  createDefault?: () => Return
+): readonly [(...argv: Argv) => Return, () => Return | null] {
+  const key = Symbol() as InjectionKey<Return>;
   return [
     (...argv: Argv) => {
       const v: Return = fun(...argv);
@@ -615,7 +627,7 @@ export function createInjection<
       return v;
     },
     () => {
-      return inject(key, () => null, true);
+      return inject(key, createDefault ?? (() => null), true);
     },
   ] as const;
 }

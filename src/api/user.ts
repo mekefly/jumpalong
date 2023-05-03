@@ -1,5 +1,5 @@
 import { createEventBeltlineReactive } from "@/nostr/createEventBeltline";
-import { config, rootEventBeltline } from "@/nostr/nostr";
+import { config, rootEventBeltline, TYPES } from "@/nostr/nostr";
 import { createDoNotRepeatStaff } from "@/nostr/staff";
 import autoAddRelayurlByPubkeyStaff from "@/nostr/staff/autoAddRelayurlByPubkeyStaff";
 import createEoseUnSubStaff from "@/nostr/staff/createEoseUnSubStaff";
@@ -16,17 +16,59 @@ import createWithEvent from "@/nostr/staff/createWithEvent";
 import ReplaceableEventMapStaff from "@/nostr/staff/ReplaceableEventMapStaff";
 import { useCache } from "@/utils/cache";
 import { syncInterval, timeout } from "@/utils/utils";
-import { publishEvent } from "./event";
+import { inject, injectable } from "inversify";
+import { type EventApi } from "./event";
 
-export async function sendUserMetadataByPubkey(userMetaData: UserMetaData) {
-  return new Promise<void>(async (resolve, reject) => {
-    setTimeout(reject, 20000);
-    publishEvent({
-      kind: 0,
-      content: JSON.stringify(userMetaData),
+@injectable()
+export class UserApi {
+  constructor(
+    @inject(TYPES.EventApi)
+    private eventApi: EventApi
+  ) {}
+
+  async sendUserMetadataByPubkey(userMetaData: UserMetaData) {
+    return new Promise<void>(async (resolve, reject) => {
+      setTimeout(reject, 20000);
+      this.eventApi.publishEvent({
+        kind: 0,
+        content: JSON.stringify(userMetaData),
+      });
     });
-  });
+  }
+
+  getUserRelayUrlConfigByPubkey(pubkey: string) {
+    return useCache(
+      `getUserRelayUrlConfigByPubkey:${pubkey}`,
+      () => {
+        const kind10002line = reactive(rootEventBeltline.createChild())
+          .addFilter({
+            kinds: [10002],
+            authors: [pubkey],
+          })
+          .addStaff(createLatestEventStaff())
+          .addStaff(ReplaceableEventMapStaff(10002, pubkey)) // 本地缓存
+          .addStaff(createReadWriteListStaff()) // 创建读写配置列表
+          .addStaff(createGetReadWriteListStaff()) // 创建读写配置列表
+          .addStaff(createWithEvent())
+          .addExtends(rootEventBeltline); //请求到的结果从root中也可取到取到
+
+        if (kind10002line.feat.withEvent()) {
+          return kind10002line;
+        }
+
+        //请求10002
+        kind10002line
+          .createChild()
+          .addStaff(autoAddRelayurlByPubkeyStaff(pubkey));
+        return kind10002line;
+      },
+      {
+        useLocalStorage: false,
+      }
+    );
+  }
 }
+
 export function getUserRelayUrlConfigByPubkey(pubkey: string) {
   return useCache(
     `getUserRelayUrlConfigByPubkey:${pubkey}`,

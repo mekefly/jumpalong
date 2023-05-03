@@ -42,7 +42,7 @@
     "mavon-editor": "^3.0.1",
     "minimatch": "^9.0.0",
     "naive-ui": "^2.34.3",
-    "nostr-tools": "1.9.0",
+    "nostr-tools": "1.10.1",
     "reflect-metadata": "^0.1.13",
     "vite-plugin-compression": "^0.5.1",
     "vue": "^3.2.41",

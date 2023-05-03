@@ -1,58 +1,69 @@
-import { injectNostrApi } from "@/nostr/nostr";
+import { injectNostrApi, TYPES } from "@/nostr/nostr";
 import {
   getNostrApiMode,
   NostrApiMode,
   PriKeyNostApiImpl,
   setNostrApiMode,
-} from "@/nostr/NostrApi";
+} from "@/nostr/nostrApi/NostrApi";
 import { ReplaceableEventSyncAbstract } from "@/nostr/ReplaceableEventSyncAbstract";
 import SynchronizerAbstract from "@/nostr/Synchronizer/SynchronizerAbstract";
-import { generatePrivateKey, getPublicKey } from "nostr-tools";
+import { createPrikey } from "@/utils/nostr";
+import { Container, inject, injectable } from "inversify";
+import { getPublicKey } from "nostr-tools";
 
 export const PRIVATE_KEY = "prikey";
+@injectable()
+export class LoginApi {
+  constructor(
+    @inject(TYPES.NostrContainer)
+    private container: Container
+  ) {}
 
-export function createPrikey() {
-  return generatePrivateKey();
-}
-export function loginPrikey(key: string) {
-  localStorage.setItem(PRIVATE_KEY, key);
-  setNostrApiMode(NostrApiMode.PrivateKey);
-  injectNostrApi({ nostrApi: new PriKeyNostApiImpl(key) });
-}
-export function registerPrikey(prikey: string = createPrikey()) {
-  loginPrikey(prikey);
-
-  const pubkey = getPublicKey(prikey);
-  localStorage.setItem("newUserFlag", pubkey);
-
-  return prikey;
-}
-export function logout() {
-  localStorage.removeItem(PRIVATE_KEY);
-  setNostrApiMode(NostrApiMode.NotLogin);
-
-  ReplaceableEventSyncAbstract.clearAll();
-  SynchronizerAbstract.clearAll();
-  setTimeout(() => {
-    location.reload();
-  }, 0);
-}
-
-export function testAndVerifyNewUser() {
-  const newUserFlagPubkey = localStorage.getItem("newUserFlag");
-  const currentPrikey = localStorage.getItem("prikey");
-  const currentPubkey = currentPrikey && getPublicKey(currentPrikey);
-
-  if (
-    getNostrApiMode() === NostrApiMode.PrivateKey &&
-    newUserFlagPubkey &&
-    newUserFlagPubkey === currentPubkey
-  ) {
-    return true;
-  } else {
-    return false;
+  loginPrikey(key: string) {
+    localStorage.setItem(PRIVATE_KEY, key);
+    setNostrApiMode(NostrApiMode.PrivateKey);
+    const nostrApi = new PriKeyNostApiImpl(key);
+    this.container.rebind(TYPES.NostrApi).toDynamicValue(() => nostrApi);
+    injectNostrApi({ nostrApi });
   }
-}
-export function clearNewUserFlag() {
-  localStorage.removeItem("newUserFlag");
+
+  registerPrikey(prikey: string = createPrikey()) {
+    this.loginPrikey(prikey);
+
+    const pubkey = getPublicKey(prikey);
+    localStorage.setItem("newUserFlag", pubkey);
+
+    return prikey;
+  }
+
+  logout() {
+    localStorage.removeItem(PRIVATE_KEY);
+    setNostrApiMode(NostrApiMode.NotLogin);
+
+    ReplaceableEventSyncAbstract.clearAll();
+    SynchronizerAbstract.clearAll();
+    setTimeout(() => {
+      location.reload();
+    }, 0);
+  }
+
+  testAndVerifyNewUser() {
+    const newUserFlagPubkey = localStorage.getItem("newUserFlag");
+    const currentPrikey = localStorage.getItem("prikey");
+    const currentPubkey = currentPrikey && getPublicKey(currentPrikey);
+
+    if (
+      getNostrApiMode() === NostrApiMode.PrivateKey &&
+      newUserFlagPubkey &&
+      newUserFlagPubkey === currentPubkey
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  clearNewUserFlag() {
+    localStorage.removeItem("newUserFlag");
+  }
 }

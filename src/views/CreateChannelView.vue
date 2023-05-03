@@ -1,12 +1,12 @@
 <script lang="ts" setup>
+import { useNostrContainerGet } from "@/components/NostrContainerProvade";
 import { t } from "@/i18n";
-import { getFollowChannelConfiguration } from "@/nostr/FollowChannel";
-import { relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
+import { relayConfigurator, rootEventBeltline, TYPES } from "@/nostr/nostr";
 import { ChannelMetadata } from "@/nostr/staff/createUseChannelMetadata";
 import { useOnOK } from "@/utils/use";
 import ChannelMetadataEditVue from "../components/ChannelMetadataEdit.vue";
 
-const followChannel = getFollowChannelConfiguration();
+const followChannel = useNostrContainerGet(TYPES.FollowChannel);
 
 const message = useMessage();
 const onOK = useOnOK();

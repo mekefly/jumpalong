@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-import { loginPrikey } from "@/api/login";
 import { t } from "@/i18n";
+import { TYPES } from "@/nostr/nostr";
 import { decodeToPrikey } from "@/utils/nostr";
 import { getPublicKey } from "nostr-tools";
 import { useSetAutocomplete } from "./Login";
+import { useNostrContainerFactory } from "./NostrContainerProvade";
 
 const emit = defineEmits<{
   (e: "next"): void;
@@ -16,6 +17,7 @@ const prikeyValue = ref("");
 
 const prikeyInput = useSetAutocomplete("current-password");
 const pubkeyInput = useSetAutocomplete("username");
+const getLoginApi = useNostrContainerFactory(TYPES.LoginApi);
 
 const prikey = computed(() => {
   return decodeToPrikey(prikeyValue.value);
@@ -32,7 +34,7 @@ function handelLogin() {
     return;
   }
   emit("beforeNext");
-  loginPrikey(prikey.value);
+  getLoginApi().loginPrikey(prikey.value);
   emit("next");
 }
 </script>

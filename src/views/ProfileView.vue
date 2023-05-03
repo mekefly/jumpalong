@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import contactConfiguration from "@/api/Contact";
 import { getUserMetadataLineByPubkey } from "@/api/user";
 import profile from "@/assets/profile-2-400x400.png";
 import EllipsisVue from "@/components/Ellipsis.vue";
+import { useNostrContainerGet } from "@/components/NostrContainerProvade";
 import ProfileMoreInfoVue from "@/components/ProfileMoreInfo.vue";
 import ScrollbarVue from "@/components/Scrollbar.vue";
 import UserInformationButtonVue from "@/components/UserInformationButton.vue";
-import { relayConfigurator } from "@/nostr/nostr";
+import { relayConfigurator, TYPES } from "@/nostr/nostr";
 import { toDeCodeNprofile } from "@/utils/nostr";
 import { usePubkey } from "@/utils/nostrApiUse";
 import { useScale } from "@/utils/use";
@@ -15,6 +15,7 @@ import { computed } from "vue";
 const route = useRoute();
 
 const currentPubkey = usePubkey({ intercept: true });
+const contactConfiguration = useNostrContainerGet(TYPES.ContactConfiguration);
 const nprofile = computed(() =>
   currentPubkey.value
     ? nip19.nprofileEncode({

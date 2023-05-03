@@ -1,11 +1,11 @@
 <script lang="ts" setup>
+import { TYPES } from "@/nostr/nostr";
 import { usePubkey } from "@/utils/nostrApiUse";
 import { useElementIntoScreen } from "@/utils/use";
 import { NList } from "naive-ui";
-import contactConfiguration, {
-  getContactListLineByPubkey,
-} from "../api/Contact";
+import { getContactListLineByPubkey } from "../api/Contact";
 import ContactListItemVue from "./FollowItem.vue";
+import { useNostrContainerGet } from "./NostrContainerProvade";
 
 const evaluating = ref(false);
 const props = defineProps<{
@@ -14,6 +14,8 @@ const props = defineProps<{
   active: boolean;
 }>();
 const { pubkey, urls, active } = toRefs(props);
+
+const contactConfiguration = useNostrContainerGet(TYPES.ContactConfiguration);
 
 const contactListLine = computed(() => {
   evaluating.value = !evaluating.value;

@@ -1,12 +1,12 @@
-import { ReplaceableEventSyncAbstract } from "@/nostr/ReplaceableEventSyncAbstract";
 import { Filter } from "nostr-tools";
 import { AddressPointer } from "nostr-tools/lib/nip19";
+import ReplaceableSynchronizerAbstract from "./Synchronizer/ReplaceableSynchronizerAbstract";
 
 export abstract class ParameterizedReplaceableEventSyncAbstract<
   E
-> extends ReplaceableEventSyncAbstract<E> {
-  constructor(name: string, defaul: E) {
-    super(name, defaul);
+> extends ReplaceableSynchronizerAbstract<E> {
+  constructor(name: string) {
+    super(name);
   }
   abstract getAddressPointers(): Promise<AddressPointer[]>;
   public async getFilters(): Promise<Filter[]> {

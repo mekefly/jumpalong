@@ -1,12 +1,15 @@
 import { LocalStorageMap } from "@/utils/cache/cacheKeyList";
 import { getPubkeyOrNull } from "@/utils/nostrApiUse";
 import { setAdds, syncInterval, timeout } from "@/utils/utils";
+import { inject, injectable } from "inversify";
 import { Event, Filter } from "nostr-tools";
 import { EventBeltline, PublishOpt } from "../eventBeltline";
-import { relayConfigurator, rootEventBeltline } from "../nostr";
+import { relayConfigurator, rootEventBeltline, TYPES } from "../nostr";
 import autoAddRelayurlByPubkeyStaff from "../staff/autoAddRelayurlByPubkeyStaff";
 import createEoseUnSubStaff from "../staff/createEoseUnSubStaff";
 import createTimeoutUnSubStaff from "../staff/createTimeoutUnSubStaff";
+import { RelayConfigurator } from "./relayConfigurator";
+const logger = loggerScope;
 
 export type SyncOption = {
   moreUrls?: Set<string>;
@@ -16,10 +19,8 @@ export type SyncOption = {
   isAutoAddRelayurl?: boolean;
 };
 export type SynchronizerAbstractOption = {} & SyncOption;
+@injectable()
 export default abstract class SynchronizerAbstract<E> {
-  private name: string;
-  private eventMap: LocalStorageMap<Event>;
-
   static list: SynchronizerAbstract<any>[] = [];
   static syncAll() {
     for (const item of SynchronizerAbstract.list) {
@@ -33,25 +34,35 @@ export default abstract class SynchronizerAbstract<E> {
     }
   }
 
+  private name: string;
+  private eventMap: LocalStorageMap<Event>;
+
+  //inject
+  @inject(TYPES.RootEventBeltline)
+  private line: EventBeltline<any> = rootEventBeltline;
+  @inject(TYPES.RelayConfiguratorFactory)
+  getRelayConfigurator: () => RelayConfigurator = () => relayConfigurator;
+
   constructor(name: string, opts?: SynchronizerAbstractOption) {
+    //reactive
     const slef = reactive(this);
 
+    //static
     SynchronizerAbstract.list.push(slef as any);
 
+    //init
     this.name = name;
     this.eventMap = new LocalStorageMap(`__key_list:${name}`);
     slef.init(opts);
+
     return slef as any;
   }
   async init(opt?: SynchronizerAbstractOption) {
     await this.readEventMap();
     await this.sync(opt);
   }
-  getRelayConfigurator() {
-    return relayConfigurator;
-  }
   getLine() {
-    return rootEventBeltline;
+    return this.line;
   }
 
   abstract getFilters(): Promise<Filter[]>;
@@ -145,6 +156,7 @@ export default abstract class SynchronizerAbstract<E> {
    * 同步读写列表
    */
   public async sync(opt?: SyncOption) {
+    logger.debug(this.name, "sync", opt);
     await timeout(0);
     const isOnly = Boolean(opt?.onlyUrl);
 

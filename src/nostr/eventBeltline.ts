@@ -1,8 +1,11 @@
-import { type RelayEmiterResponseEventMap } from "@/nostr/relayEmiter";
+import { Logger } from "@/logger/Logger";
 import { RelayConfigurator } from "@/nostr/Synchronizer/relayConfigurator";
+import { type RelayEmiterResponseEventMap } from "@/nostr/relayEmiter";
+import { callLogger } from "@/utils/decorator";
 import { getPubkeyOrNull } from "@/utils/nostrApiUse";
+import { throwNotFoundError } from "@/utils/throw";
 import { EventEmitter } from "events";
-import { Container, inject, injectable } from "inversify";
+import { inject, injectable, optional } from "inversify";
 import { Event, Filter, verifySignature } from "nostr-tools";
 import {
   arrayRemove,
@@ -11,22 +14,23 @@ import {
   searchInsertOnObjectList,
   setAdds,
 } from "../utils/utils";
-import { createEvent } from "./event";
 import { IdGenerator } from "./IdGenerator";
-import { TYPES } from "./nostr";
 import { RelayEmiter } from "./RelayEmiter";
+import { createEvent } from "./event";
+import { TYPES } from "./nostr";
 import { StaffState, type FeatType, type Staff } from "./staff";
 import { createFilterStaff } from "./staff/createFilterStaff";
 import createPushStaff from "./staff/createPushStaff";
 import { deserializeTagR } from "./tag";
+const logger = loggerScope;
 
-const EventBeltlineSetSlef: new (slef: any) => {} = function (
-  this: any,
-  slef: any
-) {
-  (slef as any).__proto__ = this.__proto__;
-  return slef;
-} as any;
+@injectable()
+class EventBeltlineSetSlef {
+  constructor(slef: any) {
+    (slef as any).__proto__ = (this as any).__proto__;
+    return slef;
+  }
+}
 
 let id = 0;
 
@@ -34,15 +38,16 @@ let id = 0;
 export class EventBeltline<
   FEAT extends object = {}
 > extends EventBeltlineSetSlef {
-  @inject(TYPES.NostrContainer)
-  public nostrContainer!: Container;
-
-  @inject(TYPES.RelayConfiguratorFactory)
-  public getRelayConfigurator!: () => RelayConfigurator;
-
   static isEventBeltlin(o: unknown): o is EventBeltline {
-    return typeof o === "object" && Boolean((o as any).__EventBeltline__);
+    return (
+      typeof o === "object" &&
+      (o instanceof EventBeltline || Boolean((o as any).__EventBeltline__))
+    );
   }
+  static logger: Logger = logger;
+
+  public logger: Logger = logger;
+
   // flag
   public __EventBeltline__: true = true;
 
@@ -69,36 +74,60 @@ export class EventBeltline<
   private root: EventBeltline;
 
   // inject
-  @inject(TYPES.IdGenerator)
-  private idGenerator!: IdGenerator;
-  @inject(TYPES.RelayEmiter)
-  private relayEmiter!: RelayEmiter;
+  private idGenerator: IdGenerator;
+  private relayEmiter: RelayEmiter;
+  public getRelayConfigurator: () => RelayConfigurator;
 
   // event
   private eventEmitter = new EventEmitter().setMaxListeners(200);
 
-  constructor(options?: EventBeltlineOptions) {
+  constructor(
+    @inject(Symbol.for("EventBeltline:options"))
+    @optional()
+    options?: EventBeltlineOptions,
+
+    //inject
+    @inject(TYPES.IdGenerator)
+    idGenerator?: IdGenerator,
+    @inject(TYPES.RelayEmiter)
+    relayEmiter?: RelayEmiter,
+    @inject(TYPES.RelayConfiguratorFactory)
+    getRelayConfigurator?: () => RelayConfigurator
+  ) {
     //注入self，比如reactive，然后让整个功能都可响应运转
+    //reactive
     super(options?.slef ?? {});
+
+    // inject
+    this.idGenerator = options?.idGenerator ?? idGenerator ?? new IdGenerator();
+    this.relayEmiter =
+      options?.relayEmiter ??
+      relayEmiter! ??
+      throwNotFoundError("relayEmiter", logger);
+    const relayConfigurator = options?.relayConfigurator;
+    this.getRelayConfigurator = relayConfigurator
+      ? () => relayConfigurator
+      : getRelayConfigurator! ??
+        throwNotFoundError("getRelayConfigurator", logger);
+
+    //init
     this.options = options ?? {};
-    options?.name && (this.name = options.name);
+    if (options) {
+      options.name && (this.name = options.name);
+      options.describe && (this.name = options?.describe);
+    }
+    this.root = options?.root ?? this;
+    this.parent = options?.parent ?? null;
+
+    //init feat
     this.feat = {
       beltline: this,
     } as any;
-    options?.describe && (this.name = options?.describe);
 
-    options?.relayEmiter && (this.relayEmiter = options?.relayEmiter);
-    this.root = options?.root ?? this;
-    this.parent = options?.parent ?? null;
-    options?.relayConfigurator &&
-      (this.getRelayConfigurator = () => options.relayConfigurator as any);
-    options?.idGenerator && (this.idGenerator = options.idGenerator);
-
+    //filter
     this.addFiltersStaff(this.filters, { unshift: true });
 
-    for (const staff of this.staffs) {
-      staff?.initialization?.();
-    }
+    //push
     this.addStaff(createPushStaff());
   }
   public getRelayEmiter() {
@@ -270,6 +299,7 @@ export class EventBeltline<
     this.children.add(line);
     return this;
   }
+  @callLogger()
   public createChild(
     opt?: EventBeltlineOptions & {
       addExtendsFromParent?: boolean;
@@ -385,7 +415,7 @@ export class EventBeltline<
     });
   }
   public async publish(
-    eventPart: Partial<Event>,
+    eventPart: Partial<Event> & { kind?: number },
     urls: Set<string>,
     opt?: PublishOpt
   ) {

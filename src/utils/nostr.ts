@@ -1,5 +1,11 @@
 import { deserializeTagR } from "@/nostr/tag";
-import { Event, EventTemplate, Filter, nip19 } from "nostr-tools";
+import {
+  Event,
+  EventTemplate,
+  Filter,
+  generatePrivateKey,
+  nip19,
+} from "nostr-tools";
 import { AddressPointer, ProfilePointer } from "nostr-tools/lib/nip19";
 import { setAdds } from "./utils";
 
@@ -161,4 +167,8 @@ export function createEventTemplate<EVENT extends Partial<Event>>(
   );
 
   return event as any;
+}
+
+export function createPrikey() {
+  return generatePrivateKey();
 }

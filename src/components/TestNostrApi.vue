@@ -5,7 +5,7 @@ import {
   apiNameList,
   NostrApi,
   testNostr,
-} from "@/nostr/NostrApi";
+} from "@/nostr/nostrApi/NostrApi";
 const props = defineProps<{
   disabled?: boolean;
   nostr: Partial<NostrApi> | undefined;

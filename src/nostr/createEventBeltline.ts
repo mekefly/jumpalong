@@ -4,7 +4,7 @@ import { rootEventBeltline } from "./nostr";
 export type CreateEventBeltlineOptions = EventBeltlineOptions & {
   addExtendsFromParent?: boolean;
   addExtendsFormRoot?: boolean;
-  form?: EventBeltline<any>;
+  from?: EventBeltline<any>;
   targetEventBeltline?: EventBeltline<any>;
 };
 export function createEventBeltline(
@@ -12,7 +12,7 @@ export function createEventBeltline(
 ): EventBeltline<{}> {
   return (
     options?.targetEventBeltline ??
-    (options?.form ?? rootEventBeltline).createChild(Object.assign({}, options))
+    (options?.from ?? rootEventBeltline).createChild(Object.assign({}, options))
   );
 }
 export function createEventBeltlineReactive(
@@ -20,7 +20,7 @@ export function createEventBeltlineReactive(
 ): EventBeltline<{}> {
   return (
     options?.targetEventBeltline ??
-    (options?.form ?? rootEventBeltline).createChild(
+    (options?.from ?? rootEventBeltline).createChild(
       Object.assign({ slef: reactive({}) }, options)
     )
   );

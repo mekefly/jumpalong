@@ -1,30 +1,15 @@
-import { getChannelMetadataBeltlineByChannelId } from "@/api/channel";
-import { getEventLineById } from "@/api/event";
-import { getUserRelayUrlConfigByPubkey } from "@/api/user";
-import { useCache } from "@/utils/cache";
+import { CahnnelMessageBeltline } from "@/api/channel";
+import { EventApi } from "@/api/event";
+import { UserApi } from "@/api/user";
 import { debounce, setAdds } from "@/utils/utils";
+import { inject, injectable } from "inversify";
 import { Event } from "nostr-tools";
 import { AddressPointer } from "nostr-tools/lib/nip19";
-import { createEvent } from "./event";
-import { nostrApi } from "./nostr";
 import { ParameterizedReplaceableEventSyncAbstract } from "./ParameterizedReplaceableEventSyncAbstract";
+import { createEvent } from "./event";
+import { TYPES, nostrApi, nostrContainer } from "./nostr";
 import { ChannelMetadata } from "./staff/createUseChannelMetadata";
 import { deserializeTagE, deserializeTagR } from "./tag";
-export function getFollowChannelConfiguration() {
-  return useCache(
-    "getFollowChannelConfiguration",
-    () => {
-      const followChannel = reactive(new FollowChannel());
-      setTimeout(() => {
-        followChannel.sync();
-      });
-      return followChannel;
-    },
-    {
-      useLocalStorage: false,
-    }
-  );
-}
 
 export type ChannelConfigurationData = {
   channelMeta: ChannelMetadata;
@@ -34,11 +19,22 @@ export type ChannelConfigurationData = {
   event?: Event;
 };
 type ChannelConfigurationType = Map<string, ChannelConfigurationData>;
+@injectable()
 export class FollowChannel extends ParameterizedReplaceableEventSyncAbstract<ChannelConfigurationType> {
+  createDefault(): ChannelConfigurationType {
+    return new Map();
+  }
   identifier: string = "follower-channel";
   kind: number = 30001;
-  constructor() {
-    super("follower-channel", new Map());
+
+  constructor(
+    @inject(TYPES.UserApi)
+    private userApi: UserApi,
+    @inject(TYPES.EventApi)
+    private eventApi: EventApi
+  ) {
+    super("follower-channel");
+    this.sync();
   }
   public async getAddressPointers(): Promise<AddressPointer[]> {
     const pubkey = await nostrApi.getPublicKey();
@@ -94,26 +90,29 @@ export class FollowChannel extends ParameterizedReplaceableEventSyncAbstract<Cha
       tags,
     });
   }
+  getFollowChannel() {
+    return this.getDataSync();
+  }
   hasJoin(eventId: string) {
-    return this.getData().has(eventId);
+    return this.getFollowChannel().has(eventId);
   }
   setChannelmetadata(eventId: string, channelMetadata: ChannelMetadata) {
-    const channelConfigurationData = this.getData().get(eventId);
+    const channelConfigurationData = this.getFollowChannel().get(eventId);
     channelConfigurationData &&
       (channelConfigurationData.channelMeta = channelMetadata);
   }
-  joinChannel(
+  async joinChannel(
     eventId: string,
     opt?: { relays?: [string]; channelMetadata?: ChannelMetadata }
   ) {
     if (!eventId) return;
-    const channelConfiguration = this.getData();
+    const channelConfiguration = this.getFollowChannel();
 
     const channel = channelConfiguration.get(eventId);
     if (channel) {
       return;
     }
-    const changeId = this.toChanged();
+    await this.toChanged();
 
     const channelMetadata: ChannelConfigurationData = {
       channelId: eventId,
@@ -122,7 +121,7 @@ export class FollowChannel extends ParameterizedReplaceableEventSyncAbstract<Cha
     };
 
     if (!opt?.channelMetadata) {
-      this.reqMetadata(eventId, channelMetadata, changeId);
+      this.reqMetadata(eventId, channelMetadata);
     }
 
     channelConfiguration.set(eventId, channelMetadata);
@@ -131,18 +130,21 @@ export class FollowChannel extends ParameterizedReplaceableEventSyncAbstract<Cha
   }
   private reqMetadata(
     channelId: string,
-    channelConfigurationData: ChannelConfigurationData,
-    changeId?: number
+    channelConfigurationData: ChannelConfigurationData
   ) {
-    const line = getChannelMetadataBeltlineByChannelId(channelId);
+    const cahnnelMessageBeltline = nostrContainer.get<CahnnelMessageBeltline>(
+      TYPES.CahnnelMessageBeltline
+    );
+    const line =
+      cahnnelMessageBeltline.getChannelMetadataBeltlineByChannelId(channelId);
 
     const debounceUpdateMetadata = debounce(
       (metadata: ChannelMetadata, subId?: string) => {
         //如果已经更改，就停止更新
-        if (changeId && this.isReChange(changeId)) {
-          line.closeReq();
-          return;
-        }
+        // if (changeId && this.isReChange(changeId)) {
+        //   line.closeReq();
+        //   return;
+        // }
 
         Object.assign(channelConfigurationData.channelMeta, metadata);
 
@@ -156,7 +158,7 @@ export class FollowChannel extends ParameterizedReplaceableEventSyncAbstract<Cha
     line.feat.onHasMetadata(debounceUpdateMetadata);
 
     //获取event
-    const eventLine = getEventLineById(channelId);
+    const eventLine = this.eventApi.getEventLineById(channelId);
     eventLine.feat.onHasEventOnce((e) => {
       const pubkey = e.pubkey;
 
@@ -168,8 +170,9 @@ export class FollowChannel extends ParameterizedReplaceableEventSyncAbstract<Cha
       setAdds(channelConfigurationData.relayUrls, urls);
 
       //请求推荐中继
-      getUserRelayUrlConfigByPubkey(pubkey).feat.onHasReadWriteList(
-        (writableReadableList) => {
+      this.userApi
+        .getUserRelayUrlConfigByPubkey(pubkey)
+        .feat.onHasReadWriteList((writableReadableList) => {
           setAdds(
             channelConfigurationData.relayUrls,
             writableReadableList.writeUrl
@@ -178,8 +181,7 @@ export class FollowChannel extends ParameterizedReplaceableEventSyncAbstract<Cha
             channelConfigurationData.relayUrls,
             writableReadableList.readUrl
           );
-        }
-      );
+        });
     });
   }
 
@@ -188,7 +190,7 @@ export class FollowChannel extends ParameterizedReplaceableEventSyncAbstract<Cha
 
     // 每改变一次加一次，如果中间有新的更新，就会强制停止同步
 
-    const channelConfiguration = this.getData();
+    const channelConfiguration = this.getFollowChannel();
 
     if (!channelConfiguration.has(eventId)) return;
     this.toChanged();
