@@ -20,7 +20,6 @@ export default defineConfig(({ command }) => {
     test: {
       globals: true,
       environment: "happy-dom",
-      include: ["**/logger/**/*.test.ts"],
     },
     base: "./",
     server: {
@@ -34,7 +33,7 @@ export default defineConfig(({ command }) => {
       __VUE_I18N_FULL_INSTALL__: false,
       __VUE_I18N_LEGACY_API__: true,
       __INTLIFY_PROD_DEVTOOLS__: false,
-      loggerScope: {},
+      __DEV__: true,
     },
     plugins: [
       vitePlugin(),

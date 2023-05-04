@@ -8,7 +8,7 @@ export default createStaffFactory()(() => {
         return this.beltline.getList().length > 0;
       },
       async timeoutWithEvent(overtime: number = 2000) {
-        await timeout(2000);
+        await timeout(overtime);
         return (this.beltline.feat as any).withEvent();
       },
     },

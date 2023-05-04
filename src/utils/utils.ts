@@ -1,4 +1,3 @@
-import { config } from "@/nostr/nostr";
 import { useCache } from "./cache";
 
 export function getQueryVariable(variable: string): string {
@@ -336,7 +335,7 @@ export function setAdds<T>(
 export function syncInterval(
   key: any,
   fun: () => void,
-  interval: number = config.syncInterval
+  interval: number = 1000 * 60
 ) {
   if (interval === 0) {
     fun();
@@ -455,7 +454,16 @@ export function randomColorHex() {
     .toString(16)
     .padStart(6, "0")}`;
 }
-export function createTaskQueue(interval = 0) {
+export type TaskQueue = {
+  isRun: boolean;
+  queue: { task: () => void; priority: number }[];
+  interval: number;
+  run(): void;
+  unShift(task: () => void): void;
+  insert(task: () => void, priority: number): void;
+  _run(): void;
+};
+export function createTaskQueue(interval = 0): TaskQueue {
   return {
     isRun: false,
     queue: [] as Array<{ task: () => void; priority: number }>,

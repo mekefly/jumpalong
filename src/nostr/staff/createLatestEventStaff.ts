@@ -40,13 +40,14 @@ export function createLatestEventStaff() {
   const eventEmiter = new EventEmitter();
   eventEmiter.setMaxListeners(1000);
   return createStaff({
-    push(event, eventList, { lastState, subId }) {
-      const oldV = eventList[0];
-      if (!oldV || event.created_at > oldV.created_at) {
-        eventList[0] = event;
-        eventEmiter.emit("update", event, subId);
-      }
-      return StaffState.BREAK;
+    initialization() {
+      this.beltline.feat.pushEvent = function (event, eventList, { subId }) {
+        const oldV = eventList[0];
+        if (!oldV || event.created_at > oldV.created_at) {
+          eventList[0] = event;
+          eventEmiter.emit("update", event, subId);
+        }
+      };
     },
     feat: {
       isHas() {

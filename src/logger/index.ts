@@ -5,7 +5,7 @@ import createIncludePlugin from "./plugin/createIncludePlugin";
 import createLevelFilter from "./plugin/createLevelFilter";
 import createReadConfig from "./plugin/createReadConfig";
 
-function createFactroy() {
+export function createFactroy() {
   return new LoggerFactory()
     .addPlugin(createIncludePlugin())
     .addPlugin(createExcludePlugin())

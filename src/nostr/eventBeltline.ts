@@ -1,6 +1,6 @@
 import { type Logger } from "@/logger/Logger";
-import { type RelayConfiguratorSynchronizer } from "@/nostr/Synchronizer/RelayConfiguratorSynchronizer";
 import { type RelayEmiterResponseEventMap } from "@/nostr/relayEmiter";
+import { type RelayConfiguratorSynchronizer } from "@/nostr/Synchronizer/RelayConfiguratorSynchronizer";
 import { callLogger } from "@/utils/decorator";
 import { getPubkeyOrNull } from "@/utils/nostrApiUse";
 import { throwNotFoundError } from "@/utils/throw";
@@ -14,10 +14,10 @@ import {
   searchInsertOnObjectList,
   setAdds,
 } from "../utils/utils";
-import { IdGenerator } from "./IdGenerator";
-import { type RelayEmiter } from "./RelayEmiter";
 import { createEvent } from "./event";
+import { type IdGenerator } from "./IdGenerator";
 import { TYPES } from "./nostr";
+import { type RelayEmiter } from "./RelayEmiter";
 import { StaffState, type FeatType, type Staff } from "./staff";
 import { createFilterStaff } from "./staff/createFilterStaff";
 import createPushStaff from "./staff/createPushStaff";
@@ -104,7 +104,10 @@ export class EventBeltline<
     logger.info("nostrContainer", nostrContainer);
 
     // inject
-    this.idGenerator = options?.idGenerator ?? idGenerator ?? new IdGenerator();
+    this.idGenerator =
+      options?.idGenerator ??
+      idGenerator ??
+      throwNotFoundError("idGenerator", logger);
     this.relayEmiter =
       options?.relayEmiter ??
       relayEmiter! ??

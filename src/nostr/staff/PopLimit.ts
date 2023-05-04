@@ -5,9 +5,9 @@ import { createStaffFactory } from "./Staff";
 export default createStaffFactory()((limit: number) => {
   const eventEmiter = new EventEmitter();
   return {
-    afterPush(event: Event, eventList) {
-      if (eventList.length > limit) {
-        const popEvent = eventList.pop();
+    push(event: Event, eventList) {
+      if (eventList.length >= limit) {
+        const popEvent = eventList.shift();
         eventEmiter.emit("limit-pop", popEvent);
       }
     },

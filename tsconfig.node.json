@@ -3,7 +3,10 @@
     "composite": true,
     "module": "ESNext",
     "moduleResolution": "Node",
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "include": ["vite.config.ts", "env.d.ts", "**/*.vitePlugin.ts"]
 }

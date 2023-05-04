@@ -1,4 +1,5 @@
-import { Logger } from "@/logger/Logger";
+import { type Logger } from "@/logger/Logger";
+
 const logger = loggerScope;
 
 export function throwNotFoundError(

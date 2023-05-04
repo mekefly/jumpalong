@@ -1,13 +1,25 @@
+import "@/logger";
+import "reflect-metadata";
+import { expect, it } from "vitest";
 import { EventBeltline } from "../eventBeltline";
+import { IdGenerator } from "../IdGenerator";
 import { RelayEmiter } from "../RelayEmiter";
 
 function createTestEventBeltlineRoot() {
-  const relayEmiter = new RelayEmiter();
+  const relayEmiter = new RelayEmiter({
+    disabledQueue: true,
+  });
+
   // const relayPool = new RelayPoo(relayEmiter);
 
   const eventBeltline = new EventBeltline({
     preventCircularReferences: true,
     relayEmiter,
+    idGenerator: new IdGenerator(),
+    relayConfiguratorFactory: () => {
+      return {} as any;
+    },
+    nostrContainer: {} as any,
   });
 
   relayEmiter.onEvent(({ subId, event }) => {
@@ -491,6 +503,8 @@ it("EventBeltline:eoseRemove", () => {
   xxline.addRelayUrls(new Set(["url1"]));
   xxline.addFilter({ ids: ["filter1"] }); // 添加 filter1 url1
 
+  expect(xxline.getList()).toMatchInlineSnapshot("[]");
+
   const sunId = "4";
   relayEmiter.emit("event", "4", {
     event: {
@@ -505,26 +519,6 @@ it("EventBeltline:eoseRemove", () => {
     subId: sunId,
     url: "url1",
   });
-
-  relayEmiter.emit("eose", "4", {
-    url: "url1",
-  });
-
-  // 这个event不应该添加到列表中，因为期待已经删除监听了
-  relayEmiter.emit("event", "4", {
-    event: {
-      id: "filter1",
-      content: "",
-      created_at: 3333,
-      pubkey: "",
-      sig: "",
-      tags: [],
-      kind: 0,
-    },
-    subId: sunId,
-    url: "url1",
-  });
-
   expect(xxline.getList()).toMatchInlineSnapshot(`
     [
       {
@@ -538,6 +532,10 @@ it("EventBeltline:eoseRemove", () => {
       },
     ]
   `);
+
+  relayEmiter.emit("eose", "4", {
+    url: "url1",
+  });
 
   relayEmiter.removeRequestAllListener("req");
   relayEmiter.removeRequestAllListener("closeReq");

@@ -1,6 +1,6 @@
-import { createTaskQueue } from "@/utils/utils";
+import { createTaskQueue, TaskQueue } from "@/utils/utils";
 import EventEmitter from "events";
-import { injectable } from "inversify";
+import { inject, injectable, optional } from "inversify";
 import { Event, Filter } from "nostr-tools";
 import { config } from "./nostr";
 export interface RelayEmiterResponseEventMap {
@@ -39,11 +39,23 @@ type ExcludeUndefined<T> = keyof T extends infer K
 @injectable()
 export class RelayEmiter {
   private eventEmiter = new EventEmitter();
-  private queue = createTaskQueue(
-    config.relayEmiterQueueInterval ?? (config.relayEmiterQueueInterval = 5)
-  );
+  private queue: TaskQueue;
+  private disabledQueue: boolean;
 
-  constructor() {
+  constructor(
+    @inject(Symbol())
+    @optional()
+    options?: {
+      queue?: TaskQueue;
+      disabledQueue?: boolean;
+    }
+  ) {
+    this.disabledQueue = options?.disabledQueue ?? false;
+    this.queue =
+      options?.queue ??
+      createTaskQueue(
+        config.relayEmiterQueueInterval ?? (config.relayEmiterQueueInterval = 5)
+      );
     this.eventEmiter.setMaxListeners(1000);
   }
   emit<E extends keyof RelayEmiterResponseEventMap>(
@@ -64,9 +76,16 @@ export class RelayEmiter {
     if (!this.checkUp(eventName)) {
       return;
     }
-    this.queue.insert(() => {
+    this.queueInsert(() => {
       this.eventEmiter.emit(eventName, v);
     }, config.priority[type]);
+  }
+  queueInsert(task: () => void, priority: number) {
+    if (this.disabledQueue) {
+      task();
+      return;
+    }
+    this.queue.insert(task, priority);
   }
   checkUp(eventName: string) {
     return this.eventEmiter.listenerCount(eventName) > 0;
@@ -125,7 +144,7 @@ export class RelayEmiter {
     if (!this.checkUp(eventName)) {
       return;
     }
-    this.queue.insert(() => {
+    this.queueInsert(() => {
       this.eventEmiter.emit(type, v);
     }, config.priority[type]);
   }
