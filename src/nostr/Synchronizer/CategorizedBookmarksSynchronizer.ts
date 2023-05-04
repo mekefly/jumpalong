@@ -2,8 +2,8 @@ import { useCache } from "@/utils/cache";
 import { getPubkeyOrNull } from "@/utils/nostrApiUse";
 import { Event, Filter } from "nostr-tools";
 import { createEvent } from "../event";
-import { getOnlyTag, TagType } from "../tag";
-import { ParameterizedReplaceableSynchronizerAbstract } from "./ParameterizedReplaceableSynchronizerAbstract";
+import { TagType, getOnlyTag } from "../tag";
+import { ParameterizedReplaceableMapSynchronizerAbstract } from "./abstract/ParameterizedReplaceableMapSynchronizerAbstract";
 
 export type CategorizedBookmarksSynchronizerDataType = {
   name: string;
@@ -11,7 +11,7 @@ export type CategorizedBookmarksSynchronizerDataType = {
   size: number;
 };
 const kind = 30001;
-export default class CategorizedBookmarksSynchronizer extends ParameterizedReplaceableSynchronizerAbstract<CategorizedBookmarksSynchronizerDataType> {
+export default class CategorizedBookmarksSynchronizer extends ParameterizedReplaceableMapSynchronizerAbstract<CategorizedBookmarksSynchronizerDataType> {
   constructor() {
     super("CategorizedBookmarksSynchronizer");
   }

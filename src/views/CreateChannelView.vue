@@ -2,11 +2,11 @@
 import { useNostrContainerGet } from "@/components/NostrContainerProvade";
 import { t } from "@/i18n";
 import { relayConfigurator, rootEventBeltline, TYPES } from "@/nostr/nostr";
-import { ChannelMetadata } from "@/nostr/staff/createUseChannelMetadata";
+import { ChannelMetadata } from "@/types/ChannelMetadata";
 import { useOnOK } from "@/utils/use";
 import ChannelMetadataEditVue from "../components/ChannelMetadataEdit.vue";
 
-const followChannel = useNostrContainerGet(TYPES.FollowChannel);
+const followChannel = useNostrContainerGet(TYPES.FollowChannelSynchronizer);
 
 const message = useMessage();
 const onOK = useOnOK();

@@ -1,7 +1,7 @@
 import { inject, injectable } from "inversify";
-import { TYPES } from "./nostr";
+import { TYPES } from "../nostr";
+import { type RelayEmiter } from "../RelayEmiter";
 import { Relay } from "./Relay";
-import { type RelayEmiter } from "./RelayEmiter";
 import { createWebsocket } from "./websocket";
 const logger = loggerScope;
 

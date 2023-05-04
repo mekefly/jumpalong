@@ -1,5 +1,5 @@
 import { readListKey, writeListKey } from "./relayConfiguratorKeys";
-import { type RelayConfiguration } from "./Synchronizer/relayConfigurator";
+import { type RelayConfiguration } from "./Synchronizer/RelayConfiguratorSynchronizer";
 
 export function deserializeTagR(serializedArray: string[][]): Set<string> {
   const url = new Set<string>();

@@ -3,9 +3,11 @@ import { TYPES } from "@/nostr/nostr";
 import { usePubkey } from "@/utils/nostrApiUse";
 import { useElementIntoScreen } from "@/utils/use";
 import { NList } from "naive-ui";
-import { getContactListLineByPubkey } from "../api/Contact";
 import ContactListItemVue from "./FollowItem.vue";
-import { useNostrContainerGet } from "./NostrContainerProvade";
+import {
+  useNostrContainerAsyncGet,
+  useNostrContainerGet,
+} from "./NostrContainerProvade";
 
 const evaluating = ref(false);
 const props = defineProps<{
@@ -15,11 +17,16 @@ const props = defineProps<{
 }>();
 const { pubkey, urls, active } = toRefs(props);
 
-const contactConfiguration = useNostrContainerGet(TYPES.ContactConfiguration);
+const contactConfiguration = await useNostrContainerAsyncGet(
+  TYPES.ContactConfigurationSynchronizer
+);
+const contactApi = useNostrContainerGet(TYPES.ContactApi);
 
 const contactListLine = computed(() => {
   evaluating.value = !evaluating.value;
-  return getContactListLineByPubkey(pubkey.value, { urls: urls?.value });
+  return contactApi.getContactListLineByPubkey(pubkey.value, {
+    urls: urls?.value,
+  });
 });
 
 const currentPubkey = usePubkey();
@@ -28,7 +35,7 @@ const contactList = computed(() => {
     return [];
   }
   if (pubkey.value === currentPubkey.value) {
-    return contactConfiguration.getContactConfiguration();
+    return Object.values(contactConfiguration.getContactConfiguration());
   }
   return contactListLine.value.feat.getContactList();
 });

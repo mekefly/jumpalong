@@ -1,11 +1,8 @@
 import { t } from "@/i18n";
 import { nostrApi } from "@/nostr/nostr";
-import {
-  getNostrApiMode,
-  NostrApiMode,
-  NotFoundError,
-  PriKeyNostApiImpl,
-} from "@/nostr/nostrApi/NostrApi";
+import { NotFoundNostrApiError } from "@/nostr/nostrApi/error";
+import { getNostrApiMode, NostrApiMode } from "@/nostr/nostrApi/NostrApiMode";
+import { PriKeyNostApiImpl } from "@/nostr/nostrApi/PriKeyNostApiImpl";
 import router from "@/router";
 import { nip19, UnsignedEvent } from "nostr-tools";
 import { useCache } from "./cache";
@@ -22,7 +19,7 @@ export function usePubkey(opt?: { intercept: boolean }) {
         } catch (error) {
           const mode = getNostrApiMode();
           if (
-            error instanceof NotFoundError &&
+            error instanceof NotFoundNostrApiError &&
             mode === NostrApiMode.WindowNostr
           ) {
             dialogApi.error({

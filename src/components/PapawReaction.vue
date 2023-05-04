@@ -7,14 +7,14 @@ import { TYPES } from "@/nostr/nostr";
 import { useLazyComponent, useOnOK } from "@/utils/use";
 import DrawerVue from "./Drawer.vue";
 import SmileBeamRegularVue from "./icon/SmileBeamRegular.vue";
-import { useNostrContainerGet } from "./NostrContainerProvade";
+import { useNostrContainerAsyncGet } from "./NostrContainerProvade";
 import PapawReactionItemVue from "./PapawReactionItem.vue";
 
 const props = defineProps<{
   event: Event;
   size: number;
 }>();
-const likeApi = useNostrContainerGet<LikeApi>(TYPES.LikeApi);
+const likeApi = await useNostrContainerAsyncGet<LikeApi>(TYPES.LikeApi);
 const event = toRef(props, "event");
 
 const onOK = useOnOK();

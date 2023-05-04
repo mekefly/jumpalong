@@ -2,7 +2,8 @@ import { CreateEventBeltlineOptions } from "@/nostr/createEventBeltline";
 import { EventBeltline } from "@/nostr/eventBeltline";
 import { TYPES } from "@/nostr/nostr";
 import { callLogger } from "@/utils/decorator";
-import { inject, injectable, LazyServiceIdentifer } from "inversify";
+import { lazyInject } from "@/utils/inversify";
+import { inject, injectable } from "inversify";
 import { Filter } from "nostr-tools";
 import { GeneralEventEventBeltline } from "./GeneralEventEventBeltline";
 const logger = loggerScope;
@@ -21,7 +22,7 @@ export class CreateShortTextEventBeltline {
   constructor(
     @inject(TYPES.RootEventBeltline)
     private rootEventBeltline: EventBeltline<{}>,
-    @inject(new LazyServiceIdentifer(() => TYPES.GeneralEventEventBeltline))
+    @lazyInject(TYPES.GeneralEventEventBeltline)
     private generalEventEventBeltline: GeneralEventEventBeltline
   ) {}
 

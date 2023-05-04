@@ -1,9 +1,9 @@
 import { Event, Filter } from "nostr-tools";
 import { AddressPointer } from "nostr-tools/lib/nip19";
-import { getOnlyTag } from "../tag";
+import { getOnlyTag } from "../../tag";
 import MapSynchronizerAbstract from "./MapSynchronizerAbstract";
 
-export abstract class ParameterizedReplaceableSynchronizerAbstract<
+export abstract class ParameterizedReplaceableMapSynchronizerAbstract<
   E
 > extends MapSynchronizerAbstract<E> {
   async eventToFilter(event: Event): Promise<Filter[]> {

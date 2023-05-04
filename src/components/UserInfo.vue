@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-import { Event, nip19 } from "nostr-tools";
-import { getUserMetadataLineByPubkey } from "../api/user";
+import { TYPES } from "@/nostr/nostr";
+import { nip19, type Event } from "nostr-tools";
 import profile from "../assets/profile-2-400x400.png";
 import { useLazyComponent } from "../utils/use";
 import EllipsisVue from "./Ellipsis.vue";
+import { useNostrContainerGet } from "./NostrContainerProvade";
 import { getUrlsByEvent } from "./PapawSourceUrl";
 
 const props = defineProps<{
@@ -14,11 +15,15 @@ const props = defineProps<{
 // const urls =
 const { pubkey, created_at } = toRefs(props);
 
+const userApi = useNostrContainerGet(TYPES.UserApi);
+
 const relayUrls = computed(() => props.event && getUrlsByEvent(props.event));
 const [metadata1, target, isShow] = useLazyComponent(() => {
-  return getUserMetadataLineByPubkey(pubkey.value, {
-    urls: relayUrls.value,
-  }).feat.useMetadata();
+  return userApi
+    .getUserMetadataLineByPubkey(pubkey.value, {
+      urls: relayUrls.value,
+    })
+    .feat.useMetadata();
 });
 
 const metadata = computed(() => {

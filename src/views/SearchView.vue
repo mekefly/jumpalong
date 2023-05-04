@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { getUserMetadataLineByPubkey } from "@/api/user";
 import { useNostrContainerGet } from "@/components/NostrContainerProvade";
 import PapawVue from "@/components/Papaw.vue";
 import RelayUrlShowVue from "@/components/RelayUrlShow.vue";
@@ -12,6 +11,7 @@ import { toDeCodeNevent, toDeCodeNprofile } from "@/utils/nostr";
 import { Event, Filter } from "nostr-tools";
 
 const eventApi = useNostrContainerGet(TYPES.EventApi);
+const userApi = useNostrContainerGet(TYPES.UserApi);
 
 const router = useRouter();
 const route = useRoute();
@@ -41,9 +41,12 @@ watch(
       //search人
       //远程和本地搜索
       const relays = profilePointer.value.relays;
-      const line = getUserMetadataLineByPubkey(profilePointer.value.pubkey, {
-        urls: relays && new Set(relays),
-      });
+      const line = userApi.getUserMetadataLineByPubkey(
+        profilePointer.value.pubkey,
+        {
+          urls: relays && new Set(relays),
+        }
+      );
       searchRootLine.addChild(line); //交给searchRoot去管理
       groupEvents.value[0] = line;
     } else if (neventOpt.value) {

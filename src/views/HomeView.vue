@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useNostrContainerGet } from "@/components/NostrContainerProvade";
+import { useNostrContainerAsyncGet } from "@/components/NostrContainerProvade";
 import { useRichTextEditBoxOpt } from "@/components/RichTextEditBox";
 import RichTextEditBoxVue from "@/components/RichTextEditBox.vue";
 import ScrollbarVue from "@/components/Scrollbar.vue";
@@ -15,7 +15,12 @@ const message = useMessage();
 
 //需要为显示区域和编辑区域架设一个隧道
 useRichTextEditBoxOpt("home");
-const contactConfiguration = useNostrContainerGet(TYPES.ContactConfiguration);
+console.log("1111111111111111");
+
+const contactConfiguration = await useNostrContainerAsyncGet(
+  TYPES.ContactConfigurationSynchronizer
+);
+console.log("contactConfiguration", contactConfiguration);
 
 const pubkeys = computed(() => {
   const pubkeys = Object.keys(contactConfiguration.getContactConfiguration());

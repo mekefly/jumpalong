@@ -1,4 +1,4 @@
-import { ParameterizedReplaceableEventSyncAbstract } from "@/nostr/ParameterizedReplaceableEventSyncAbstract";
+import { ParameterizedReplaceableSynchronizerAbstract } from "@/nostr/Synchronizer/abstract/ParameterizedReplaceableSynchronizerAbstract";
 import { createEvent } from "@/nostr/event";
 import { getPubkeyOrNull } from "@/utils/nostrApiUse";
 import { injectable } from "inversify";
@@ -10,7 +10,7 @@ import {
 } from "../../api/NostrConnect";
 
 @injectable()
-export class NostrConnectedSynchronizer extends ParameterizedReplaceableEventSyncAbstract<NostrConnectedList> {
+export class NostrConnectedSynchronizer extends ParameterizedReplaceableSynchronizerAbstract<NostrConnectedList> {
   constructor() {
     super("NostrConnectedsynchronizer");
     this.sync();

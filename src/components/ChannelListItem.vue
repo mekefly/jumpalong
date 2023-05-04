@@ -1,9 +1,6 @@
 <script lang="ts" setup>
-import {
-  CahnnelMessageBeltline,
-  CahnnelMessageBeltlineType,
-} from "@/api/channel";
-import { ChannelConfigurationData } from "@/nostr/FollowChannel";
+import { TYPES } from "@/nostr/nostr";
+import { ChannelConfigurationData } from "@/nostr/Synchronizer/FollowChannelSynchronizer";
 import EllipsisVue from "./Ellipsis.vue";
 import { useNostrContainerGet } from "./NostrContainerProvade";
 
@@ -12,8 +9,8 @@ const props = defineProps<{
 }>();
 const { channelConfigurationData } = toRefs(props);
 
-const cahnnelMessageBeltline = useNostrContainerGet<CahnnelMessageBeltline>(
-  CahnnelMessageBeltlineType
+const cahnnelMessageBeltline = useNostrContainerGet(
+  TYPES.CahnnelMessageBeltline
 );
 
 const metadataLine = computed(() =>

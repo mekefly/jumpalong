@@ -1,29 +1,32 @@
-import { type ContactConfiguration } from "@/api/Contact";
-import type CreateEventBeltline from "@/api/CreateEventBeltline";
-import { GeneralEventEventBeltline } from "@/api/GeneralEventEventBeltline";
-import { type NostrConnect } from "@/api/NostrConnect";
 import { type CahnnelMessageBeltline } from "@/api/channel";
+import { type ContactApi } from "@/api/Contact";
+import type CreateEventBeltline from "@/api/CreateEventBeltline";
 import { type EventApi } from "@/api/event";
+import { type GeneralEventEventBeltline } from "@/api/GeneralEventEventBeltline";
 import { type LikeApi } from "@/api/like";
-import { LoginApi } from "@/api/login";
-import { type CreatePinEventLine } from "@/api/pin";
+import { type LoginApi } from "@/api/login";
+import { type NostrConnect } from "@/api/NostrConnect";
+import { type PinApi } from "@/api/Pin";
 import { type CreateShortTextEventBeltline } from "@/api/shortTextEventBeltline";
 import { type UserApi } from "@/api/user";
-import { NostrConnectedSynchronizer } from "@/nostr/Synchronizer/NostrConnectedSynchronizer";
-import {
-  type RelayEmiterRequestEventMap,
-  type RelayEmiterResponseEventMap,
-} from "@/nostr/relayEmiter";
+import { ContactConfigurationSynchronizer } from "@/nostr/Synchronizer/ContactConfigurationSynchronizer";
+import { type NostrConnectedSynchronizer } from "@/nostr/Synchronizer/NostrConnectedSynchronizer";
 import { withDefault } from "@/utils/utils";
 import { type Container, type interfaces } from "inversify";
 import { type InjectionKey } from "vue";
-import { type FollowChannel } from "./FollowChannel";
-import { type IdGenerator } from "./IdGenerator";
-import { type RelayEmiter } from "./RelayEmiter";
-import { type RelayPool } from "./RelayPool";
-import { type RelayConfigurator } from "./Synchronizer/relayConfigurator";
+import { type NostrApi } from "../types/NostrApi";
 import { type EventBeltline } from "./eventBeltline";
-import { type NostrApi } from "./nostrApi/NostrApi";
+import { type IdGenerator } from "./IdGenerator";
+import {
+  type RelayEmiter,
+  type RelayEmiterRequestEventMap,
+  type RelayEmiterResponseEventMap,
+} from "./RelayEmiter";
+import { type RelayPool } from "./server/RelayPool";
+import { type FollowChannelSynchronizer } from "./Synchronizer/FollowChannelSynchronizer";
+import { type MuteListSynchronizer } from "./Synchronizer/MuteListSynchronizer";
+import { type PinListSynchronizer } from "./Synchronizer/PinListSynchronizer";
+import { type RelayConfiguratorSynchronizer } from "./Synchronizer/RelayConfiguratorSynchronizer";
 
 const createDefaultConfig = () => {
   const v: ConfigType = {
@@ -73,7 +76,7 @@ withDefault(appConfig.value, defaultConfig);
 /**
  * 中继配置器
  */
-export let relayConfigurator: RelayConfigurator = null as any;
+export let relayConfigurator: RelayConfiguratorSynchronizer = null as any;
 export let config: ConfigType = appConfig.value as any as ConfigType;
 
 export let relayEmiter: RelayEmiter = null as any;
@@ -121,7 +124,7 @@ export function injectNostrApi(options: {
   relayEmiter?: RelayEmiter;
   relayPool?: RelayPool;
   rootEventBeltline?: EventBeltline;
-  relayConfigurator?: RelayConfigurator;
+  relayConfigurator?: RelayConfiguratorSynchronizer;
   config?: Partial<ConfigType>;
   nostrApi?: NostrApi;
   nostrContainer?: Container;
@@ -136,37 +139,36 @@ export function injectNostrApi(options: {
 }
 
 export const TYPES = {
-  //core
-  NostrContainer: Symbol.for("NostrContainer") as ContainerKey<Container>,
-
-  //Relay middleware | 中间件，连接层和核心层解耦合
-  RelayEmiter: Symbol.for("RelayEmiter") as ContainerKey<RelayEmiter>,
-  //Connection pool | 连接池
-  RelayPool: Symbol.for("RelayPool") as ContainerKey<RelayPool>,
-  //流水线核心
-  RootEventBeltline: Symbol.for(
-    "RootEventBeltline"
-  ) as ContainerKey<EventBeltline>,
-  //relay配置
-  RelayConfigurator: Symbol.for(
-    "RelayConfigurator"
-  ) as ContainerKey<RelayConfigurator>,
-  //relay工厂
-  RelayConfiguratorFactory: Symbol.for(
-    "RelayConfigurator:Factory"
-  ) as ContainerKey<interfaces.Factory<RelayConfigurator>>,
-  //login | 登录系统
-  NostrApi: Symbol.for("NostrApi") as ContainerKey<NostrApi>,
+  NostrContainer: cbk<Container>("NostrContainer"),
 
   //other
-  //id生成器
-  IdGenerator: Symbol.for("IdGenerator") as ContainerKey<IdGenerator>,
+  //  id生成器
+  IdGenerator: cbk<IdGenerator>("IdGenerator"),
+
+  //core
+  //  Relay middleware | 中间件，连接层和核心层解耦合
+  RelayEmiter: cbk<RelayEmiter>("RelayEmiter"),
+  //  Connection pool | 连接池
+  RelayPool: cbk<RelayPool>("RelayPool"),
+  //  core | 流水线核心
+  RootEventBeltline: cbk<EventBeltline>("RootEventBeltline"),
+  //  relay配置
+  RelayConfiguratorSynchronizer: cbk<RelayConfiguratorSynchronizer>(
+    "RelayConfiguratorSynchronizer"
+  ),
+  //  relay工厂
+  RelayConfiguratorFactory: cbk<
+    interfaces.Factory<RelayConfiguratorSynchronizer>
+  >("RelayConfigurator:Factory"),
+  //  login | 登录系统
+  NostrApi: cbk<NostrApi>("NostrApi"),
+  //  创建事件流水线
+  CreateEventBeltline: cbk<CreateEventBeltline>("CreateEventBeltline"),
 
   //api
-  EventApi: Symbol.for("EventApi") as ContainerKey<EventApi>,
-  LikeApi: Symbol.for("LikeApi") as ContainerKey<LikeApi>,
+  EventApi: cbk<EventApi>("EventApi"),
+  LikeApi: cbk<Promise<LikeApi>>("LikeApi"),
   UserApi: cbk<UserApi>("UserApi"),
-  CreateEventBeltline: cbk<CreateEventBeltline>("CreateEventBeltline"),
   CahnnelMessageBeltline: cbk<CahnnelMessageBeltline>("CahnnelMessageBeltline"),
   CreateShortTextEventBeltline: cbk<CreateShortTextEventBeltline>(
     "CreateShortTextEventBeltline"
@@ -175,15 +177,22 @@ export const TYPES = {
     "GeneralEventEventBeltline"
   ),
   NostrConnect: cbk<NostrConnect>("NostrConnect"),
+  LoginApi: cbk<LoginApi>("loginApi"),
+  ContactApi: cbk<ContactApi>("ContactApi"),
+  PinApi: cbk<PinApi>("PinApi"),
+
+  //Synchronizer
   NostrConnectedSynchronizer: cbk<NostrConnectedSynchronizer>(
     "NostrConnectedSynchronizer"
   ),
-  LoginApi: cbk<LoginApi>("loginApi"),
-
-  //Synchronizer
-  ContactConfiguration: cbk<ContactConfiguration>("ContactConfiguration"),
-  FollowChannel: cbk<FollowChannel>("FollowChannel"),
-  CreatePinEventLine: cbk<CreatePinEventLine>("CreatePinEventLine"),
+  ContactConfigurationSynchronizer: cbk<
+    Promise<ContactConfigurationSynchronizer>
+  >("ContactConfigurationSynchronizer"),
+  FollowChannelSynchronizer: cbk<FollowChannelSynchronizer>(
+    "FollowChannelSynchronizer"
+  ),
+  PinListSynchronizer: cbk<Promise<PinListSynchronizer>>("PinListSynchronizer"),
+  MuteListSynchronizer: cbk<MuteListSynchronizer>("MuteListSynchronizer"),
 };
 
 export type ContainerKey<T> =

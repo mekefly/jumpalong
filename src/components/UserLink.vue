@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-import { getUserMetadataLineByPubkey } from "@/api/user";
+import { TYPES } from "@/nostr/nostr";
 import { toDeCodeNprofile } from "@/utils/nostr";
+import { useNostrContainerGet } from "./NostrContainerProvade";
 
 const props = withDefaults(
   defineProps<{
@@ -13,11 +14,13 @@ const props = withDefaults(
 );
 const { value } = toRefs(props);
 
+const userApi = useNostrContainerGet(TYPES.UserApi);
+
 const profilePointer = computed(() => toDeCodeNprofile(value.value));
 const line = computed(() => {
   if (!profilePointer.value) return;
 
-  return getUserMetadataLineByPubkey(profilePointer.value.pubkey, {
+  return userApi.getUserMetadataLineByPubkey(profilePointer.value.pubkey, {
     urls: new Set(profilePointer.value.relays),
   });
 });

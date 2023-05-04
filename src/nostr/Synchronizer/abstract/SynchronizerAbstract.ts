@@ -3,12 +3,12 @@ import { getPubkeyOrNull } from "@/utils/nostrApiUse";
 import { setAdds, syncInterval, timeout } from "@/utils/utils";
 import { inject, injectable } from "inversify";
 import { Event, Filter } from "nostr-tools";
-import { EventBeltline, PublishOpt } from "../eventBeltline";
-import { relayConfigurator, rootEventBeltline, TYPES } from "../nostr";
-import autoAddRelayurlByPubkeyStaff from "../staff/autoAddRelayurlByPubkeyStaff";
-import createEoseUnSubStaff from "../staff/createEoseUnSubStaff";
-import createTimeoutUnSubStaff from "../staff/createTimeoutUnSubStaff";
-import { RelayConfigurator } from "./relayConfigurator";
+import { EventBeltline, PublishOpt } from "../../eventBeltline";
+import { TYPES, relayConfigurator, rootEventBeltline } from "../../nostr";
+import autoAddRelayurlByPubkeyStaff from "../../staff/autoAddRelayurlByPubkeyStaff";
+import createEoseUnSubStaff from "../../staff/createEoseUnSubStaff";
+import createTimeoutUnSubStaff from "../../staff/createTimeoutUnSubStaff";
+import { RelayConfiguratorSynchronizer } from "../RelayConfiguratorSynchronizer";
 const logger = loggerScope;
 
 export type SyncOption = {
@@ -41,7 +41,8 @@ export default abstract class SynchronizerAbstract<E> {
   @inject(TYPES.RootEventBeltline)
   private line: EventBeltline<any> = rootEventBeltline;
   @inject(TYPES.RelayConfiguratorFactory)
-  getRelayConfigurator: () => RelayConfigurator = () => relayConfigurator;
+  getRelayConfigurator: () => RelayConfiguratorSynchronizer = () =>
+    relayConfigurator;
 
   constructor(name: string, opts?: SynchronizerAbstractOption) {
     //reactive

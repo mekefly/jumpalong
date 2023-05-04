@@ -1,15 +1,16 @@
-import { CahnnelMessageBeltline } from "@/api/channel";
-import { EventApi } from "@/api/event";
-import { UserApi } from "@/api/user";
+import { type CahnnelMessageBeltline } from "@/api/channel";
+import { type EventApi } from "@/api/event";
+import { type UserApi } from "@/api/user";
+import { lazyInject } from "@/utils/inversify";
 import { debounce, setAdds } from "@/utils/utils";
 import { inject, injectable } from "inversify";
-import { Event } from "nostr-tools";
-import { AddressPointer } from "nostr-tools/lib/nip19";
-import { ParameterizedReplaceableEventSyncAbstract } from "./ParameterizedReplaceableEventSyncAbstract";
-import { createEvent } from "./event";
-import { TYPES, nostrApi, nostrContainer } from "./nostr";
-import { ChannelMetadata } from "./staff/createUseChannelMetadata";
-import { deserializeTagE, deserializeTagR } from "./tag";
+import { type Event } from "nostr-tools";
+import { type AddressPointer } from "nostr-tools/lib/nip19";
+import { type ChannelMetadata } from "../../types/ChannelMetadata";
+import { createEvent } from "../event";
+import { nostrApi, TYPES } from "../nostr";
+import { deserializeTagE, deserializeTagR } from "../tag";
+import { ParameterizedReplaceableSynchronizerAbstract } from "./abstract/ParameterizedReplaceableSynchronizerAbstract";
 
 export type ChannelConfigurationData = {
   channelMeta: ChannelMetadata;
@@ -20,21 +21,25 @@ export type ChannelConfigurationData = {
 };
 type ChannelConfigurationType = Map<string, ChannelConfigurationData>;
 @injectable()
-export class FollowChannel extends ParameterizedReplaceableEventSyncAbstract<ChannelConfigurationType> {
-  createDefault(): ChannelConfigurationType {
-    return new Map();
-  }
-  identifier: string = "follower-channel";
+export class FollowChannelSynchronizer extends ParameterizedReplaceableSynchronizerAbstract<ChannelConfigurationType> {
+  identifier: string;
   kind: number = 30001;
 
   constructor(
     @inject(TYPES.UserApi)
     private userApi: UserApi,
     @inject(TYPES.EventApi)
-    private eventApi: EventApi
+    private eventApi: EventApi,
+    @lazyInject(TYPES.CahnnelMessageBeltline)
+    private cahnnelMessageBeltline: CahnnelMessageBeltline
   ) {
-    super("follower-channel");
+    const identifier = "follower-channel";
+    super(identifier);
+    this.identifier = identifier;
     this.sync();
+  }
+  createDefault(): ChannelConfigurationType {
+    return new Map();
   }
   public async getAddressPointers(): Promise<AddressPointer[]> {
     const pubkey = await nostrApi.getPublicKey();
@@ -132,11 +137,10 @@ export class FollowChannel extends ParameterizedReplaceableEventSyncAbstract<Cha
     channelId: string,
     channelConfigurationData: ChannelConfigurationData
   ) {
-    const cahnnelMessageBeltline = nostrContainer.get<CahnnelMessageBeltline>(
-      TYPES.CahnnelMessageBeltline
-    );
     const line =
-      cahnnelMessageBeltline.getChannelMetadataBeltlineByChannelId(channelId);
+      this.cahnnelMessageBeltline.getChannelMetadataBeltlineByChannelId(
+        channelId
+      );
 
     const debounceUpdateMetadata = debounce(
       (metadata: ChannelMetadata, subId?: string) => {

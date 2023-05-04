@@ -1,4 +1,4 @@
-import ReplaceableEventMap from "@/nostr/ReplaceableEventMap";
+import ReplaceableEventMap from "@/nostr/eventMap/LocalMap";
 import { LatestEventStaffFeat } from "../createLatestEventStaff";
 import { createStaffFactory } from "../Staff";
 export default createStaffFactory<LatestEventStaffFeat>()((eventid: string) => {

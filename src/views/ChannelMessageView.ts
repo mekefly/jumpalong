@@ -44,7 +44,7 @@ export function useJoinAndLeaveChannelHandle(
   const message = useMessage();
 
   function getFollowChannel() {
-    return nostrContainer.get(TYPES.FollowChannel);
+    return nostrContainer.get(TYPES.FollowChannelSynchronizer);
   }
   function handleJoinChannel() {
     if (!eventId.value) return;

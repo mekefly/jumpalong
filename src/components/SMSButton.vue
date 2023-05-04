@@ -1,8 +1,7 @@
 <script lang="ts" setup>
 import { t } from "@/i18n";
 import { createAddress } from "@/nostr/event";
-import { getMuteListEventSync } from "@/nostr/MuteList";
-import { getPinListSync } from "@/nostr/PinListSync";
+import { TYPES } from "@/nostr/nostr";
 import router from "@/router";
 import {
   useRecommendEvent,
@@ -19,6 +18,7 @@ import { Event, nip19 } from "nostr-tools";
 import { useBlackData } from "../views/ContentBlacklistView";
 import { useCollect } from "./CollectProvide";
 import MoreIconVue from "./icon/MoreIcon.vue";
+import { useNostrContainerGet } from "./NostrContainerProvade";
 import { useRichTextEditBoxOpt } from "./RichTextEditBox";
 import { Handle, useSMSButton } from "./SMSButtonProvide";
 const message = useMessage();
@@ -45,20 +45,22 @@ const recommendEvent = useRecommendEvent();
 const recommendUser = useRecommendUser();
 const recommendUserMetadata = useRecommendUserMetadata();
 const pushShortTextNote = usePushShortTextNote();
-const muteListEventSync = getMuteListEventSync();
 const onOK = useOnOK();
-const pinListSync = getPinListSync();
+const muteListSynchronizer = useNostrContainerGet(TYPES.MuteListSynchronizer);
+const pinListSynchronizer = await useNostrContainerGet(
+  TYPES.PinListSynchronizer
+);
 const smsButton = useSMSButton();
 const collect = useCollect();
 
 const handleMap = ref<Record<string, Handle>>({
   pin: () => {
-    if (pinListSync.hasByEvent(event.value)) {
+    if (pinListSynchronizer.hasByEvent(event.value)) {
       message.info(t("already_pinned_tip"));
       return;
     }
 
-    pinListSync.pin(event.value, { onOK });
+    pinListSynchronizer.pin(event.value, { onOK });
     message.info(t("request_initiated"));
   },
   close: () => {
@@ -117,7 +119,7 @@ const handleMap = ref<Record<string, Handle>>({
     recommendUserMetadata(event.value.pubkey);
   },
   muteUser() {
-    muteListEventSync.addPubkey(event.value.pubkey, {
+    muteListSynchronizer.addPubkey(event.value.pubkey, {
       onOK,
     });
   },

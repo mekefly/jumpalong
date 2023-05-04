@@ -1,5 +1,5 @@
+import ReplaceableEventMap from "@/nostr/eventMap/LocalMap";
 import { relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
-import ReplaceableEventMap from "@/nostr/ReplaceableEventMap";
 import { Event } from "nostr-tools";
 
 export function useRecommendEvent() {

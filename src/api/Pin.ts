@@ -7,7 +7,7 @@ import { GeneralEventEventBeltline } from "./GeneralEventEventBeltline";
 import { CreateTextEventBeltlineOption } from "./shortTextEventBeltline";
 
 @injectable()
-export class CreatePinEventLine {
+export class PinApi {
   static logger = logger;
   constructor(
     @inject(new LazyServiceIdentifer(() => TYPES.GeneralEventEventBeltline))

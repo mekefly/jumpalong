@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import { t } from "@/i18n";
-import { relayConfigurator } from "@/nostr/nostr";
+import { TYPES } from "@/nostr/nostr";
+import { type UserMetaData } from "@/types/User";
 import { usePubkey } from "@/utils/nostrApiUse";
 import { NButton, NSpace } from "naive-ui";
-import { getUserMetadataLineByPubkey, UserMetaData } from "../api/user";
+import { useNostrContainerGet } from "./NostrContainerProvade";
 import UserMetadataEditingVue from "./UserMetadataEditing.vue";
 
 const message = useMessage();
@@ -13,10 +14,15 @@ const emit = defineEmits<{
 
 const userMetadata = ref<UserMetaData>({});
 
+const userApi = useNostrContainerGet(TYPES.UserApi);
+const relayConfigurator = useNostrContainerGet(
+  TYPES.RelayConfiguratorSynchronizer
+);
+
 const pubkey = usePubkey({ intercept: true });
 const metadataLine = computed(() => {
   if (!pubkey.value) return;
-  return getUserMetadataLineByPubkey(pubkey.value);
+  return userApi.getUserMetadataLineByPubkey(pubkey.value);
 });
 const metadata = computed(
   () => metadataLine.value && metadataLine.value.feat.useMetadata()

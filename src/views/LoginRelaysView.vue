@@ -1,12 +1,14 @@
 <script lang="ts" setup>
-import { testAndVerifyNewUser } from "@/api/login";
+import { useNostrContainerFactory } from "@/components/NostrContainerProvade";
 import RelayConfigVue from "@/components/RelayConfig.vue";
 import ScrollbarVue from "@/components/Scrollbar.vue";
 import TooltipVue from "@/components/Tooltip.vue";
 import { t } from "@/i18n";
-import { relayConfigurator } from "@/nostr/nostr";
+import { relayConfigurator, TYPES } from "@/nostr/nostr";
 
-const isNewUser = ref(testAndVerifyNewUser());
+const getNostrApi = useNostrContainerFactory(TYPES.LoginApi);
+
+const isNewUser = ref(getNostrApi().testAndVerifyNewUser());
 const isNewUserChangeRelayConfig = computed(
   () => isNewUser.value && relayConfigurator.hasChange()
 );

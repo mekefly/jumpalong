@@ -1,9 +1,7 @@
-import ReplaceableEventMap from "@/nostr/ReplaceableEventMap";
-import {
-  ChannelMetadata,
-  parseMetadata,
-} from "@/nostr/staff/createUseChannelMetadata";
+import ReplaceableEventMap from "@/nostr/eventMap/LocalMap";
+import { parseMetadata } from "@/nostr/staff/createUseChannelMetadata";
 import { deserializeTagR, getRootTagE } from "@/nostr/tag";
+import { ChannelMetadata } from "@/types/ChannelMetadata";
 import {
   defaultCacheOptions,
   deleteCache,
@@ -15,6 +13,7 @@ import { MaybeRef } from "@vueuse/core";
 import { MentionOption } from "naive-ui";
 import { Event } from "nostr-tools";
 import { useRichTextEditBoxOpt } from "./RichTextEditBox";
+
 type UserMap = Map<string, { event: Event; metadata: ChannelMetadata }>;
 export function useUserOpt() {
   const userMap = new Map<

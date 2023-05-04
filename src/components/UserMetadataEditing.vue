@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { UserMetaData } from "@/api/user";
 import { t } from "@/i18n";
+import { type UserMetaData } from "@/types/User";
 import UploadButtonVue from "./UploadButton.vue";
 
 const props = defineProps<{

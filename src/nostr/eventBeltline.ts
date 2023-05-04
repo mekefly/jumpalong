@@ -1,12 +1,12 @@
-import { Logger } from "@/logger/Logger";
-import { RelayConfigurator } from "@/nostr/Synchronizer/relayConfigurator";
+import { type Logger } from "@/logger/Logger";
+import { type RelayConfiguratorSynchronizer } from "@/nostr/Synchronizer/RelayConfiguratorSynchronizer";
 import { type RelayEmiterResponseEventMap } from "@/nostr/relayEmiter";
 import { callLogger } from "@/utils/decorator";
 import { getPubkeyOrNull } from "@/utils/nostrApiUse";
 import { throwNotFoundError } from "@/utils/throw";
 import { EventEmitter } from "events";
-import { inject, injectable, optional } from "inversify";
-import { Event, Filter, verifySignature } from "nostr-tools";
+import { inject, injectable, optional, type Container } from "inversify";
+import { verifySignature, type Event, type Filter } from "nostr-tools";
 import {
   arrayRemove,
   getSetIncrement,
@@ -15,13 +15,14 @@ import {
   setAdds,
 } from "../utils/utils";
 import { IdGenerator } from "./IdGenerator";
-import { RelayEmiter } from "./RelayEmiter";
+import { type RelayEmiter } from "./RelayEmiter";
 import { createEvent } from "./event";
 import { TYPES } from "./nostr";
 import { StaffState, type FeatType, type Staff } from "./staff";
 import { createFilterStaff } from "./staff/createFilterStaff";
 import createPushStaff from "./staff/createPushStaff";
 import { deserializeTagR } from "./tag";
+
 const logger = loggerScope;
 
 @injectable()
@@ -76,7 +77,8 @@ export class EventBeltline<
   // inject
   private idGenerator: IdGenerator;
   private relayEmiter: RelayEmiter;
-  public getRelayConfigurator: () => RelayConfigurator;
+  private relayConfiguratorFactory: () => RelayConfiguratorSynchronizer;
+  private nostrContainer: Container;
 
   // event
   private eventEmitter = new EventEmitter().setMaxListeners(200);
@@ -87,16 +89,19 @@ export class EventBeltline<
     options?: EventBeltlineOptions,
 
     //inject
+    @inject(TYPES.NostrContainer)
+    nostrContainer?: Container,
     @inject(TYPES.IdGenerator)
     idGenerator?: IdGenerator,
     @inject(TYPES.RelayEmiter)
     relayEmiter?: RelayEmiter,
     @inject(TYPES.RelayConfiguratorFactory)
-    getRelayConfigurator?: () => RelayConfigurator
+    relayConfiguratorFactory?: () => RelayConfiguratorSynchronizer
   ) {
     //注入self，比如reactive，然后让整个功能都可响应运转
     //reactive
     super(options?.slef ?? {});
+    logger.info("nostrContainer", nostrContainer);
 
     // inject
     this.idGenerator = options?.idGenerator ?? idGenerator ?? new IdGenerator();
@@ -104,11 +109,14 @@ export class EventBeltline<
       options?.relayEmiter ??
       relayEmiter! ??
       throwNotFoundError("relayEmiter", logger);
-    const relayConfigurator = options?.relayConfigurator;
-    this.getRelayConfigurator = relayConfigurator
-      ? () => relayConfigurator
-      : getRelayConfigurator! ??
-        throwNotFoundError("getRelayConfigurator", logger);
+    this.relayConfiguratorFactory =
+      options?.relayConfiguratorFactory ??
+      relayConfiguratorFactory! ??
+      throwNotFoundError("getRelayConfigurator", logger);
+    this.nostrContainer =
+      options?.nostrContainer ??
+      nostrContainer ??
+      throwNotFoundError("nostrContainer", logger);
 
     //init
     this.options = options ?? {};
@@ -130,9 +138,18 @@ export class EventBeltline<
     //push
     this.addStaff(createPushStaff());
   }
+  //inject get
+  public getNostrContainer(): Container {
+    return this.nostrContainer;
+  }
   public getRelayEmiter() {
     return this.relayEmiter;
   }
+  public getRelayConfigurator() {
+    return this.relayConfiguratorFactory();
+  }
+
+  // value get
   public getRoot() {
     this.root;
   }
@@ -211,8 +228,8 @@ export class EventBeltline<
     return this.urls;
   }
   public addReadUrl() {
-    this.getRelayConfigurator &&
-      this.addRelayUrls(this.getRelayConfigurator().getReadList() as any);
+    this.relayConfiguratorFactory &&
+      this.addRelayUrls(this.relayConfiguratorFactory().getReadList() as any);
 
     return this;
   }
@@ -310,9 +327,12 @@ export class EventBeltline<
       Object.assign(
         {},
         {
+          //inject
           relayEmiter: this.relayEmiter,
           idGenerator: this.idGenerator,
-          relayConfigurator: this.getRelayConfigurator(),
+          relayConfiguratorFactory: this.relayConfiguratorFactory,
+          nostrContainer: this.nostrContainer,
+          //value
           root: this.root,
           parent: this,
           slef: {},
@@ -555,8 +575,9 @@ export type EventBeltlineOptions = {
   relayEmiter?: RelayEmiter;
   root?: EventBeltline;
   parent?: EventBeltline;
-  relayConfigurator?: RelayConfigurator;
+  relayConfiguratorFactory?: () => RelayConfiguratorSynchronizer;
   idGenerator?: IdGenerator;
+  nostrContainer?: Container;
 };
 
 export type AddStaffOpt = {

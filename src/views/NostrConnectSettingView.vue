@@ -4,11 +4,11 @@ import ContactListItem from "@/components/FollowItem.vue";
 import { useNostrContainerGet } from "@/components/NostrContainerProvade";
 import { t } from "@/i18n";
 import { TYPES } from "@/nostr/nostr";
-const nostrConnectedSynchronizer = useNostrContainerGet(
+const nostrConnectedSynchronizer = await useNostrContainerGet(
   TYPES.NostrConnectedSynchronizer
 );
 
-const list = computed(() => nostrConnectedSynchronizer.getData());
+const list = computed(() => nostrConnectedSynchronizer.getNostrConnectedList());
 function handleDisconnect(pubkey: string) {
   nostrConnectedSynchronizer.disConnect(pubkey);
 }

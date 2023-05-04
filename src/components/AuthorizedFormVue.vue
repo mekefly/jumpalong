@@ -1,13 +1,10 @@
 <script lang="ts" setup>
 import { t } from "@/i18n";
 import { nostrApi, relayConfigurator } from "@/nostr/nostr";
-import {
-  NostrApi,
-  NostrApiMode,
-  setNostrApiMode,
-} from "@/nostr/nostrApi/NostrApi";
+import { NostrApiMode, setNostrApiMode } from "@/nostr/nostrApi/NostrApiMode";
 
 import { injectWindowNostr } from "@/nostr/injectWindowNostr";
+import { NostrApi } from "@/types/NostrApi";
 import AiddrLink from "./NaddrLink.vue";
 import TestNostrApi from "./TestNostrApi.vue";
 

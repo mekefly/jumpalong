@@ -1,15 +1,18 @@
-import { useCache } from "@/utils/cache";
 import { getPubkeyOrNull } from "@/utils/nostrApiUse";
 import { Event, Filter } from "nostr-tools";
-import { createEvent } from "./event";
-import { PublishOpt } from "./eventBeltline";
-import { ReplaceableEventSyncAbstract } from "./ReplaceableEventSyncAbstract";
-import { getOnlyTag } from "./tag";
+import { createEvent } from "../event";
+import { PublishOpt } from "../eventBeltline";
+import { getOnlyTag } from "../tag";
+import ReplaceableSynchronizerAbstract from "./abstract/ReplaceableSynchronizerAbstract";
 
 type PinList = { tagMap: Map<string, string[]> };
-export class PinListSync extends ReplaceableEventSyncAbstract<PinList> {
+export class PinListSynchronizer extends ReplaceableSynchronizerAbstract<PinList> {
+  kind = 10001 as any;
   constructor() {
-    super("PinListSync", { tagMap: new Map() });
+    super("PinListSync");
+  }
+  createDefault(): PinList {
+    return { tagMap: new Map() };
   }
   async getFilters(): Promise<Filter[]> {
     const pubkey = await getPubkeyOrNull();
@@ -17,7 +20,7 @@ export class PinListSync extends ReplaceableEventSyncAbstract<PinList> {
     return [
       {
         authors: [pubkey],
-        kinds: [10001],
+        kinds: [this.kind],
       },
     ];
   }
@@ -35,8 +38,11 @@ export class PinListSync extends ReplaceableEventSyncAbstract<PinList> {
     return await createEvent({
       tags: [...data.tagMap.values()],
       created_at: changeAt,
-      kind: 10001,
+      kind: this.kind,
     });
+  }
+  public getPinListSync() {
+    return this.getDataSync();
   }
   private createPinTag(event: Event) {
     const kind = event.kind;
@@ -59,21 +65,21 @@ export class PinListSync extends ReplaceableEventSyncAbstract<PinList> {
     }
   }
   public has(tag: string[]) {
-    return this.getData().tagMap.has(JSON.stringify(tag));
+    return this.getPinListSync().tagMap.has(JSON.stringify(tag));
   }
   public hasByEvent(event: Event) {
     const tag = this.createPinTag(event);
     if (!tag) {
       return false;
     }
-    return this.getData().tagMap.has(JSON.stringify(tag));
+    return this.getPinListSync().tagMap.has(JSON.stringify(tag));
   }
   private addPin(tag: string[]) {
-    const data = this.getData();
+    const data = this.getPinListSync();
     data.tagMap.set(JSON.stringify(tag), tag);
   }
   private removePin(tag: string[]) {
-    const data = this.getData();
+    const data = this.getPinListSync();
     data.tagMap.delete(JSON.stringify(tag));
   }
   public async pin(event: Event, opt?: PublishOpt) {
@@ -95,17 +101,4 @@ export class PinListSync extends ReplaceableEventSyncAbstract<PinList> {
     this.toChanged();
     await this.save(opt);
   }
-}
-export function getPinListSync() {
-  return useCache(
-    "getPinListSync",
-    () => {
-      const pinListSync = new PinListSync();
-      setTimeout(() => {
-        pinListSync.sync();
-      }, 0);
-      return pinListSync;
-    },
-    { useLocalStorage: false }
-  );
 }

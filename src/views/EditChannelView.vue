@@ -3,7 +3,7 @@ import ChannelMetadataEditVue from "@/components/ChannelMetadataEdit.vue";
 import { useNostrContainerGet } from "@/components/NostrContainerProvade";
 import { t } from "@/i18n";
 import { TYPES } from "@/nostr/nostr";
-import { type ChannelMetadata } from "@/nostr/staff/createUseChannelMetadata";
+import { type ChannelMetadata } from "@/types/ChannelMetadata";
 import { toDeCodeNevent } from "@/utils/nostr";
 import { useOnOK } from "@/utils/use";
 
@@ -13,8 +13,12 @@ const route = useRoute();
 const neventOpt = computed(() => toDeCodeNevent(route.params.value as string));
 const eventId = computed(() => neventOpt.value?.id);
 
-const followChannelConfiguration = useNostrContainerGet(TYPES.FollowChannel);
-const relayConfigurator = useNostrContainerGet(TYPES.RelayConfigurator);
+const followChannelConfiguration = useNostrContainerGet(
+  TYPES.FollowChannelSynchronizer
+);
+const relayConfigurator = useNostrContainerGet(
+  TYPES.RelayConfiguratorSynchronizer
+);
 const cahnnelMessageBeltline = useNostrContainerGet(
   TYPES.CahnnelMessageBeltline
 );

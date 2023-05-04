@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import ReplaceableEventMap from "@/nostr/ReplaceableEventMap";
+import ReplaceableEventMap from "@/nostr/eventMap/LocalMap";
 import { parseMetadata } from "@/nostr/staff/createUseChannelMetadata";
 import {
   matchTagPlaceholderRegExp,
@@ -208,11 +208,9 @@ function parseTagPlaceholder(
       return ["text", mark] as const;
   }
 }
+type Rows = Array<Array<[string, string, ...any[]]>>;
 
-function parseRow(
-  text: string,
-  rows: Array<Array<[string, string, ...any[]]>>
-) {
+function parseRow(text: string, rows: Rows) {
   text.split("\n").forEach((row) => {
     const cols: Array<[string, string, ...any[]]> = [];
 
@@ -255,7 +253,7 @@ function parseRow(
 }
 
 const rows = computed(() => {
-  const rows: any[] = [];
+  const rows: Rows = [];
   parseRow(event.value.content, rows);
   return rows;
 });
@@ -274,7 +272,7 @@ function handelClick(item: string[], e: MouseEvent) {
     <div>
       <div
         v-for="row in rows"
-        :key="row"
+        :key="String(row)"
         class="w-full flex flex-wrap justify-start items-start"
       >
         <span

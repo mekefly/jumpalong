@@ -1,8 +1,10 @@
+import { injectable } from "inversify";
 import { Filter } from "nostr-tools";
 import { AddressPointer } from "nostr-tools/lib/nip19";
-import ReplaceableSynchronizerAbstract from "./Synchronizer/ReplaceableSynchronizerAbstract";
+import ReplaceableSynchronizerAbstract from "./ReplaceableSynchronizerAbstract";
 
-export abstract class ParameterizedReplaceableEventSyncAbstract<
+@injectable()
+export abstract class ParameterizedReplaceableSynchronizerAbstract<
   E
 > extends ReplaceableSynchronizerAbstract<E> {
   constructor(name: string) {

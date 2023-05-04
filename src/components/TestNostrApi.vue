@@ -1,11 +1,8 @@
 <script lang="ts" setup>
 import { t } from "@/i18n";
-import {
-  ApiListType,
-  apiNameList,
-  NostrApi,
-  testNostr,
-} from "@/nostr/nostrApi/NostrApi";
+import { ApiListType, apiNameList } from "@/nostr/nostrApi/NostrApi";
+import { testNostr } from "@/nostr/nostrApi/test";
+import { NostrApi } from "@/types/NostrApi";
 const props = defineProps<{
   disabled?: boolean;
   nostr: Partial<NostrApi> | undefined;

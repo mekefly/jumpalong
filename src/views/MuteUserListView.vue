@@ -1,11 +1,12 @@
 <script lang="ts" setup>
 import ContactListItem from "@/components/FollowItem.vue";
+import { useNostrContainerGet } from "@/components/NostrContainerProvade";
 import { t } from "@/i18n";
-import { getMuteListEventSync } from "@/nostr/MuteList";
+import { TYPES } from "@/nostr/nostr";
 import { useOnOK } from "@/utils/use";
 
-const muteListEventSync = getMuteListEventSync();
-const MuteList = computed(() => muteListEventSync.getData());
+const muteListEventSync = useNostrContainerGet(TYPES.MuteListSynchronizer);
+const MuteList = computed(() => muteListEventSync.getMuteList());
 const nutePubkeyIdList = computed(() => MuteList.value.publicList);
 const onOK = useOnOK();
 function handleRemoveMute(pubkey: string) {

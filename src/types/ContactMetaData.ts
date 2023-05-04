@@ -1,5 +1,5 @@
 import { PubkeyTag } from "@/nostr/tag";
-import { UserMetaData } from "./user";
+import { UserMetaData } from "@/types/User";
 
 export type ContactMetaData = UserMetaData &
   PubkeyTag & {

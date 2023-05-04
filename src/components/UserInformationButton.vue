@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { t } from "@/i18n";
-import { getNostrApiMode, NostrApiMode } from "@/nostr/nostrApi/NostrApi";
+import { getNostrApiMode, NostrApiMode } from "@/nostr/nostrApi/NostrApiMode";
 import { useRecommendUser, useRecommendUserMetadata } from "@/state/nostr";
 import { usePubkey } from "@/utils/nostrApiUse";
 import { nip19 } from "nostr-tools";

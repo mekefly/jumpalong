@@ -13,6 +13,7 @@ import createRefreshLoadStaff, {
 } from "@/nostr/staff/createRefreshLoadStaff";
 import { useCache } from "@/utils/cache";
 import { callLogger } from "@/utils/decorator";
+import { lazyInject } from "@/utils/inversify";
 import { withDefault } from "@/utils/utils";
 import { createBlackStaff } from "@/views/ContentBlacklistView";
 import { inject, injectable } from "inversify";
@@ -27,7 +28,7 @@ export class GeneralEventEventBeltline {
     @inject(TYPES.RootEventBeltline)
     private rootEventBeltline: EventBeltline<{}>,
 
-    @inject(TYPES.CreateEventBeltline)
+    @lazyInject(TYPES.CreateEventBeltline)
     private createEventBeltline: CreateEventBeltline
   ) {}
 

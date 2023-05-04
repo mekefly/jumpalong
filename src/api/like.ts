@@ -1,12 +1,12 @@
-import ReplaceableEventMap from "@/nostr/ReplaceableEventMap";
-import { type RelayConfigurator } from "@/nostr/Synchronizer/relayConfigurator";
 import { type EventBeltline, type PublishOpt } from "@/nostr/eventBeltline";
+import ReplaceableEventMap from "@/nostr/eventMap/LocalMap";
 import { TYPES } from "@/nostr/nostr";
-import { type NostrApi } from "@/nostr/nostrApi/NostrApi";
 import createEoseUnSubStaff from "@/nostr/staff/createEoseUnSubStaff";
 import { getSourceUrls } from "@/nostr/staff/createEventSourceTracers";
 import createTimeoutUnSubStaff from "@/nostr/staff/createTimeoutUnSubStaff";
+import { type RelayConfiguratorSynchronizer } from "@/nostr/Synchronizer/RelayConfiguratorSynchronizer";
 import { deserializeTagRToReadWriteList } from "@/nostr/tag";
+import { type NostrApi } from "@/types/NostrApi";
 import {
   defaultCacheOptions,
   deleteCache,
@@ -16,11 +16,11 @@ import {
 } from "@/utils/cache";
 import { setAdds, withDefault } from "@/utils/utils";
 import { inject, injectable } from "inversify";
-import { Event } from "nostr-tools";
+import { type Event } from "nostr-tools";
 import type CreateEventBeltline from "./CreateEventBeltline";
-import { GeneralEventEventBeltline } from "./GeneralEventEventBeltline";
-import { EventApi } from "./event";
-import { CreateTextEventBeltlineOption } from "./shortTextEventBeltline";
+import { type EventApi } from "./event";
+import { type GeneralEventEventBeltline } from "./GeneralEventEventBeltline";
+import { type CreateTextEventBeltlineOption } from "./shortTextEventBeltline";
 
 export const reactions = reactive(
   useLocalStorage("reactions", ["+", "-"]).value
@@ -39,7 +39,7 @@ export class LikeApi {
     @inject(TYPES.CreateEventBeltline)
     private createEventBeltline: CreateEventBeltline,
     @inject(TYPES.RelayConfiguratorFactory)
-    private getRelayConfigurator: () => RelayConfigurator,
+    private getRelayConfigurator: () => RelayConfiguratorSynchronizer,
     @inject(TYPES.EventApi)
     private eventApi: EventApi,
     @inject(TYPES.GeneralEventEventBeltline)

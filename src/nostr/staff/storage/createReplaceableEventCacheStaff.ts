@@ -1,4 +1,4 @@
-import replaceableEventMap from "@/nostr/ReplaceableEventMap";
+import replaceableEventMap from "@/nostr/eventMap/LocalMap";
 import { AddressPointer } from "nostr-tools/lib/nip19";
 import { LatestEventStaffFeat } from "../createLatestEventStaff";
 import { createStaffFactory } from "../Staff";

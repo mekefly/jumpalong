@@ -23,7 +23,9 @@ const channelId = computed<string | null | undefined>(
   () => neventOpt.value?.id
 );
 
-const followChannelConfiguration = useNostrContainerGet(TYPES.FollowChannel);
+const followChannelConfiguration = useNostrContainerGet(
+  TYPES.FollowChannelSynchronizer
+);
 
 //需要为显示区域和编辑区域架设一个隧道
 watchEffect(() => {

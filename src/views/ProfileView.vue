@@ -1,8 +1,10 @@
 <script lang="ts" setup>
-import { getUserMetadataLineByPubkey } from "@/api/user";
 import profile from "@/assets/profile-2-400x400.png";
 import EllipsisVue from "@/components/Ellipsis.vue";
-import { useNostrContainerGet } from "@/components/NostrContainerProvade";
+import {
+  useNostrContainerAsyncGet,
+  useNostrContainerGet,
+} from "@/components/NostrContainerProvade";
 import ProfileMoreInfoVue from "@/components/ProfileMoreInfo.vue";
 import ScrollbarVue from "@/components/Scrollbar.vue";
 import UserInformationButtonVue from "@/components/UserInformationButton.vue";
@@ -15,7 +17,12 @@ import { computed } from "vue";
 const route = useRoute();
 
 const currentPubkey = usePubkey({ intercept: true });
-const contactConfiguration = useNostrContainerGet(TYPES.ContactConfiguration);
+
+const contactConfiguration = await useNostrContainerAsyncGet(
+  TYPES.ContactConfigurationSynchronizer
+);
+const userApi = useNostrContainerGet(TYPES.UserApi);
+
 const nprofile = computed(() =>
   currentPubkey.value
     ? nip19.nprofileEncode({
@@ -40,9 +47,11 @@ const urls = computed(
 
 const metadata = computed(() => {
   if (!pubkey.value) return null;
-  return getUserMetadataLineByPubkey(pubkey.value, {
-    urls: urls.value,
-  }).feat.useMetadata();
+  return userApi
+    .getUserMetadataLineByPubkey(pubkey.value, {
+      urls: urls.value,
+    })
+    .feat.useMetadata();
 });
 
 const isFollow = computed(() => {

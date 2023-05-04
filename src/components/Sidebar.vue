@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { t } from "@/i18n";
-import { getNostrApiMode, NostrApiMode } from "@/nostr/nostrApi/NostrApi";
+import { getNostrApiMode, NostrApiMode } from "@/nostr/nostrApi/NostrApiMode";
 import { isFunction } from "@vueuse/core";
 import { NIcon, NMenu, type MenuOption } from "naive-ui";
 import { h } from "vue";

@@ -9,7 +9,6 @@ import TestNostrApi from "@/components/TestNostrApi.vue";
 import TooltipVue from "@/components/Tooltip.vue";
 import { t } from "@/i18n";
 import { nostrApi } from "@/nostr/nostr";
-import { ReplaceableEventSyncAbstract } from "@/nostr/ReplaceableEventSyncAbstract";
 import { usePrikey } from "@/utils/nostrApiUse";
 import { useClipboardDialog } from "../utils/naiveUi";
 
@@ -30,8 +29,6 @@ const loadingBar = useLoadingBar();
 
 //完成时调用
 hook?.setHook(async () => {
-  ReplaceableEventSyncAbstract.syncAll();
-
   const redirected = route.query.redirected as string;
 
   loadingBar.start();

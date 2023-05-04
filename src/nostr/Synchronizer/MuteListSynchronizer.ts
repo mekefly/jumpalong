@@ -1,16 +1,23 @@
-import { useCache } from "@/utils/cache";
 import { getPubkeyOrNull } from "@/utils/nostrApiUse";
+import { injectable } from "inversify";
 import { Event, Filter } from "nostr-tools";
-import { createEvent } from "./event";
-import { PublishOpt } from "./eventBeltline";
-import { ReplaceableEventSyncAbstract } from "./ReplaceableEventSyncAbstract";
+import { createEvent } from "../event";
+import { PublishOpt } from "../eventBeltline";
+import ReplaceableSynchronizerAbstract from "./abstract/ReplaceableSynchronizerAbstract";
 
 export type MuteList = {
   publicList: Set<string>;
 };
-class MuteListEventSync extends ReplaceableEventSyncAbstract<MuteList> {
+
+@injectable()
+export class MuteListSynchronizer extends ReplaceableSynchronizerAbstract<MuteList> {
+  kind: any = 10000;
+
   constructor() {
-    super("MuteListEventSync", { publicList: new Set() });
+    super("MuteListEventSync");
+  }
+  createDefault(): MuteList {
+    return { publicList: new Set() };
   }
   public async getFilters(): Promise<Filter[]> {
     const pubkey = await getPubkeyOrNull();
@@ -31,14 +38,17 @@ class MuteListEventSync extends ReplaceableEventSyncAbstract<MuteList> {
     const tags: string[][] = [...Array.from(data.publicList, (v) => ["p", v])];
 
     const event = await createEvent({
-      kind: 10000,
+      kind: this.kind,
       tags,
       created_at: changeAt,
     });
     return event;
   }
+  getMuteList() {
+    return this.getDataSync();
+  }
   public async addPubkey(pubkey: string, opt?: PublishOpt) {
-    const data = this.getData();
+    const data = this.getMuteList();
     if (data.publicList.has(pubkey)) return;
     data.publicList.add(pubkey);
 
@@ -46,28 +56,11 @@ class MuteListEventSync extends ReplaceableEventSyncAbstract<MuteList> {
     this.save(opt);
   }
   public deletePubkey(pubkey: string, opt?: PublishOpt) {
-    const data = this.getData();
+    const data = this.getMuteList();
     if (!data.publicList.has(pubkey)) return;
     data.publicList.delete(pubkey);
 
     this.toChanged();
     this.save(opt);
   }
-}
-export function getMuteListEventSync() {
-  return useCache(
-    "getMuteListEventSync",
-    () => {
-      const muteListEventSync = new MuteListEventSync();
-
-      setTimeout(() => {
-        muteListEventSync.sync();
-      });
-
-      return muteListEventSync;
-    },
-    {
-      useLocalStorage: false,
-    }
-  );
 }

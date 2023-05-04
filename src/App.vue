@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import { NConfigProvider } from "naive-ui";
 import { theme } from "./app";
-import CollectProvide from "./components/CollectProvide.vue";
-import DrawerProvide from "./components/DrawerProvide.vue";
-import LoadProgressProvideVue from "./components/LoadProgressProvide.vue";
-import NostrConnect from "./components/NostrConnect.vue";
-import NostrContainerProvade from "./components/NostrContainerProvade.vue";
-import UploadProvideVue from "./components/UploadProvide.vue";
 import Main from "./Main.vue";
 
 const logger = loggerScope;
 logger.info();
+const AsyncProvides = defineAsyncComponent(
+  async () => await import("./components/Provides.vue")
+);
 </script>
 
 <template>
@@ -22,29 +19,11 @@ logger.info();
       }"
     >
       <div class="container">
-        <NostrContainerProvade>
-          <DrawerProvide #default="{ id }">
-            <div :id="id" class="w-full h-screen overflow-hidden">
-              <n-dialog-provider>
-                <n-message-provider>
-                  <n-notification-provider :placement="'bottom'">
-                    <n-loading-bar-provider>
-                      <LoadProgressProvideVue>
-                        <UploadProvideVue>
-                          <NostrConnect>
-                            <CollectProvide>
-                              <Main></Main>
-                            </CollectProvide>
-                          </NostrConnect>
-                        </UploadProvideVue>
-                      </LoadProgressProvideVue>
-                    </n-loading-bar-provider>
-                  </n-notification-provider>
-                </n-message-provider>
-              </n-dialog-provider>
-            </div>
-          </DrawerProvide>
-        </NostrContainerProvade>
+        <Suspense>
+          <AsyncProvides>
+            <Main></Main>
+          </AsyncProvides>
+        </Suspense>
       </div>
     </div>
   </n-config-provider>

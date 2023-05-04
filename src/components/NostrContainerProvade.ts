@@ -17,14 +17,21 @@ export function useNostrContainerGet<T>(serviceIdentifier: ContainerKey<T>): T {
   logger.debug("useNostrContainerGet:", serviceIdentifier);
   const nostrContainer = useNostrContainer();
   logger.debug("nostrContainer", nostrContainer);
-
   return nostrContainer.get(serviceIdentifier);
+}
+export async function useNostrContainerAsyncGet<T>(
+  serviceIdentifier: ContainerKey<T>
+): Promise<T> {
+  logger.debug("useNostrContainerAsyncGet:", serviceIdentifier);
+  const nostrContainer = useNostrContainer();
+  logger.debug("nostrContainer", nostrContainer);
+  return nostrContainer.getAsync(serviceIdentifier);
 }
 
 export function useNostrContainerFactory<T>(
   serviceIdentifier: ContainerKey<T>
 ): () => T {
-  logger.debug("useNostrContainerGet:", serviceIdentifier);
+  logger.debug("useNostrContainerFactory:", serviceIdentifier);
   const nostrContainer = useNostrContainer();
   logger.debug("nostrContainer", nostrContainer);
 

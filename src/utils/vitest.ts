@@ -1,6 +1,6 @@
 import { EventBeltline } from "@/nostr/eventBeltline";
 import { Event, Filter } from "nostr-tools";
-import { Relay } from "../nostr/Relay";
+import { Relay } from "../nostr/server/Relay";
 import { ReversePromise } from "../utils/promise";
 export function expectCalled(
   fn: Function = () => {},

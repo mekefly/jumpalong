@@ -2,11 +2,10 @@ import { injectNostrApi, TYPES } from "@/nostr/nostr";
 import {
   getNostrApiMode,
   NostrApiMode,
-  PriKeyNostApiImpl,
   setNostrApiMode,
-} from "@/nostr/nostrApi/NostrApi";
-import { ReplaceableEventSyncAbstract } from "@/nostr/ReplaceableEventSyncAbstract";
-import SynchronizerAbstract from "@/nostr/Synchronizer/SynchronizerAbstract";
+} from "@/nostr/nostrApi/NostrApiMode";
+import { PriKeyNostApiImpl } from "@/nostr/nostrApi/PriKeyNostApiImpl";
+import SynchronizerAbstract from "@/nostr/Synchronizer/abstract/SynchronizerAbstract";
 import { createPrikey } from "@/utils/nostr";
 import { Container, inject, injectable } from "inversify";
 import { getPublicKey } from "nostr-tools";
@@ -40,7 +39,6 @@ export class LoginApi {
     localStorage.removeItem(PRIVATE_KEY);
     setNostrApiMode(NostrApiMode.NotLogin);
 
-    ReplaceableEventSyncAbstract.clearAll();
     SynchronizerAbstract.clearAll();
     setTimeout(() => {
       location.reload();

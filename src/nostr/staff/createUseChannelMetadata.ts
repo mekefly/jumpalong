@@ -1,5 +1,6 @@
 import { Event } from "nostr-tools";
 import { createStaff } from ".";
+import { ChannelMetadata } from "../../types/ChannelMetadata";
 import { EventBeltline } from "../eventBeltline";
 import { deserializeTagR } from "../tag";
 import { LatestEventStaffFeat } from "./createLatestEventStaff";
@@ -45,17 +46,3 @@ export function parseMetadata(event: Event): ChannelMetadata {
   } catch (error) {}
   return data;
 }
-
-/**
- * https://github.com/nostr-protocol/nips/blob/master/28.md
- */
-export type ChannelMetadata = {
-  name?: string; //- Channel name
-  about?: string; //- Channel description
-  picture?: string; //- URL of channel picture
-  relayUrls?: string[];
-  display_name?: string;
-  displayName?: string;
-  username?: string;
-  banner?: string;
-};

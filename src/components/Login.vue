@@ -1,9 +1,8 @@
 <script lang="ts" setup>
 import { PRIVATE_KEY } from "@/api/login";
 import { t } from "@/i18n";
-import { ReplaceableEventSyncAbstract } from "@/nostr/ReplaceableEventSyncAbstract";
-import SynchronizerAbstract from "@/nostr/Synchronizer/SynchronizerAbstract";
-import { NostrApiMode, setNostrApiMode } from "@/nostr/nostrApi/NostrApi";
+import { NostrApiMode, setNostrApiMode } from "@/nostr/nostrApi/NostrApiMode";
+import SynchronizerAbstract from "@/nostr/Synchronizer/abstract/SynchronizerAbstract";
 import { useCacheStorage } from "@/utils/use";
 import AuthorizedFormVue from "./AuthorizedFormVue.vue";
 import LoginFormVue from "./LoginForm.vue";
@@ -19,7 +18,6 @@ function handleBeforeNext() {
   localStorage.removeItem(PRIVATE_KEY);
   setNostrApiMode(NostrApiMode.NotLogin);
 
-  ReplaceableEventSyncAbstract.clearAll();
   SynchronizerAbstract.syncAll();
 }
 function handleNext() {

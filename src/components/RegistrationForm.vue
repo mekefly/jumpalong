@@ -1,13 +1,13 @@
 <script lang="ts" setup>
 import { t } from "@/i18n";
-import { TYPES, relayConfigurator, rootEventBeltline } from "@/nostr/nostr";
+import { relayConfigurator, rootEventBeltline, TYPES } from "@/nostr/nostr";
 import { useOnOK } from "@/utils/use";
 import { generatePrivateKey, getPublicKey, nip19 } from "nostr-tools";
 import { useSetAutocomplete } from "./Login";
 import { useLoginCompleteHook } from "./LoginCompleteHook";
 import {
+  useNostrContainerAsyncGet,
   useNostrContainerFactory,
-  useNostrContainerGet,
 } from "./NostrContainerProvade";
 import UserMetadataEditingVue from "./UserMetadataEditing.vue";
 
@@ -17,8 +17,12 @@ const emit = defineEmits<{
 }>();
 
 const message = useMessage();
-const getFollowChannel = useNostrContainerFactory(TYPES.FollowChannel);
-const contactConfiguration = useNostrContainerGet(TYPES.ContactConfiguration);
+const getFollowChannel = useNostrContainerFactory(
+  TYPES.FollowChannelSynchronizer
+);
+const contactConfiguration = await useNostrContainerAsyncGet(
+  TYPES.ContactConfigurationSynchronizer
+);
 const getNostrApi = useNostrContainerFactory(TYPES.LoginApi);
 
 const prikeyInput = useSetAutocomplete("new-password");

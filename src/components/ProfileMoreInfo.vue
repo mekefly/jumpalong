@@ -1,8 +1,6 @@
 <script lang="ts" setup>
-import { createPinEventLine } from "@/api/pin";
 import { t } from "@/i18n";
 import { TYPES } from "@/nostr/nostr";
-import { getPinListSync } from "@/nostr/PinListSync";
 import { usePubkey } from "@/utils/nostrApiUse";
 import Follow from "./Follow.vue";
 import FollowerVue from "./Follower.vue";
@@ -14,11 +12,13 @@ import SMSButtonProvide from "./SMSButtonProvide.vue";
 
 const props = defineProps<{ pubkey: string; urls?: Set<string> }>();
 const { pubkey } = toRefs(props);
+
+const pinListSync = await useNostrContainerGet(TYPES.PinListSynchronizer);
+const createPinEventLine = useNostrContainerGet(TYPES.PinApi);
+
 const pubkeys = computed(() => [pubkey.value]);
 
 const activePage = ref("homepage");
-
-const pinListSync = getPinListSync();
 
 const currentPublic = usePubkey();
 const isMe = computed(() => currentPublic.value === pubkey.value);
@@ -32,14 +32,13 @@ const unPininsertDropdownOption: InsertDropdownOptionOpt = {
   },
   label: t("unpin"),
 };
-const createPinEventLine = useNostrContainerGet(TYPES.CreatePinEventLine);
 const line = computed(() =>
   createPinEventLine.createPinEventLine({ pubkey: pubkey.value })
 );
 
 const tags = computed(() =>
   isMe.value
-    ? [...pinListSync.getData().tagMap.values()]
+    ? [...pinListSync.getPinListSync().tagMap.values()]
     : line.value.feat.getLatestEvent()?.tags ?? []
 );
 </script>
@@ -67,11 +66,11 @@ const tags = computed(() =>
         :filters="[
           {
             kinds: [30023],
-            authors: [pubkey],
+            authors: pubkeys,
           },
           {
             kinds: [1],
-            authors: [pubkey],
+            authors: pubkeys,
           },
         ]"
         :urls="props.urls"

@@ -1,9 +1,9 @@
 import { EventBeltline } from "@/nostr/eventBeltline";
-import { TYPES, nostrApi, rootEventBeltline } from "@/nostr/nostr";
+import { nostrApi, rootEventBeltline, TYPES } from "@/nostr/nostr";
 import {
-  StaffState,
   createDoNotRepeatStaff,
   createStaffFactory,
+  StaffState,
 } from "@/nostr/staff";
 import createMaintainSubscription from "@/nostr/staff/createMaintainSubscription";
 import createTemporaryUniqueEventStaff from "@/nostr/staff/createTemporaryUniqueEventStaff";
@@ -18,9 +18,9 @@ import EventEmitter from "events";
 import { inject, injectable } from "inversify";
 import {
   Event,
-  UnsignedEvent,
   generatePrivateKey,
   getPublicKey,
+  UnsignedEvent,
 } from "nostr-tools";
 import { NostrConnectedSynchronizer } from "../nostr/Synchronizer/NostrConnectedSynchronizer";
 import CreateEventBeltline from "./CreateEventBeltline";

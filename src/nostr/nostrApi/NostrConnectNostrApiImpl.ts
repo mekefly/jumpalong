@@ -1,21 +1,21 @@
-import { createEventBeltlineReactive } from "@/nostr/createEventBeltline";
 import { createEventByPrikey } from "@/nostr/event";
 import { EventBeltline } from "@/nostr/eventBeltline";
-import { TYPES, relayConfigurator } from "@/nostr/nostr";
-import { Nip04, NostrApi } from "@/nostr/nostrApi/NostrApi";
+import { relayConfigurator, TYPES } from "@/nostr/nostr";
 import createMaintainSubscription from "@/nostr/staff/createMaintainSubscription";
+import { Nip04 } from "@/types/Nip04";
+import { NostrApi } from "@/types/NostrApi";
 import { useCache } from "@/utils/cache";
 import { createId } from "@/utils/utils";
 import EventEmitter from "events";
 import { inject, injectable } from "inversify";
-import { Event, UnsignedEvent, getPublicKey, nip04 } from "nostr-tools";
+import { Event, getPublicKey, nip04, UnsignedEvent } from "nostr-tools";
 import CreateEventBeltline from "../../api/CreateEventBeltline";
 import {
   CreateOptionType,
   GetResultType,
-  Method,
   getTempPrikey,
   kind,
+  Method,
 } from "../../api/NostrConnect";
 
 @injectable()
@@ -58,7 +58,8 @@ export class NostrConnectNostrApiImpl implements NostrApi {
   listen() {
     const slef = this;
     //监听回应
-    return (this.line = createEventBeltlineReactive()
+    return (this.line = this.createEventBeltline
+      .createEventBeltlineReactive()
       .addFilter({
         authors: [this.pubkey],
         kinds: [kind],

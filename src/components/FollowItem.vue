@@ -1,8 +1,9 @@
 <script lang="ts" setup>
-import { getUserMetadataLineByPubkey } from "@/api/user";
+import { TYPES } from "@/nostr/nostr";
 import { useLazyComponent } from "@/utils/use";
 import profile from "../assets/profile-2-400x400.png";
 import Ellipsis from "./Ellipsis.vue";
+import { useNostrContainerGet } from "./NostrContainerProvade";
 
 const props = defineProps<{
   pubkey: string;
@@ -11,8 +12,10 @@ const props = defineProps<{
 }>();
 const { pubkey, name, about } = toRefs(props);
 
+const userApi = useNostrContainerGet(TYPES.UserApi);
+
 const [metadataLine, target] = useLazyComponent(() => {
-  return getUserMetadataLineByPubkey(pubkey.value);
+  return userApi.getUserMetadataLineByPubkey(pubkey.value);
 });
 const metadata = computed(() => metadataLine.value?.feat.useMetadata());
 </script>

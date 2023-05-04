@@ -18,13 +18,14 @@ import {
 } from "@/utils/cache";
 import { getPubkeyOrNull } from "@/utils/nostrApiUse";
 import { debounceWatch } from "@/utils/vue";
+import { injectable } from "inversify";
 import { type Event } from "nostr-tools";
 import { reactive } from "vue";
 import { timeout } from "../../utils/utils";
 import { readListKey, writeListKey } from "../relayConfiguratorKeys";
 import createEoseUnSubStaff from "../staff/createEoseUnSubStaff";
 import createTimeoutUnSubStaff from "../staff/createTimeoutUnSubStaff";
-import ReplaceableSynchronizerAbstract from "./ReplaceableSynchronizerAbstract";
+import ReplaceableSynchronizerAbstract from "./abstract/ReplaceableSynchronizerAbstract";
 
 export const defaultUrls: string[] = (window as any).defaultRelayUrls ?? [
   "wss://no.str.cr",
@@ -49,18 +50,18 @@ export const defaultUrls: string[] = (window as any).defaultRelayUrls ?? [
  *
  * 最高优先级为本地配置
  */
-export class RelayConfigurator extends ReplaceableSynchronizerAbstract<RelayConfiguration> {
+@injectable()
+export class RelayConfiguratorSynchronizer extends ReplaceableSynchronizerAbstract<RelayConfiguration> {
+  constructor() {
+    super("RelayConfigurator", {
+      isAutoAddRelayurl: true,
+    });
+  }
   createDefault(): RelayConfiguration {
     return {
       [readListKey]: new Set(),
       [writeListKey]: new Set(),
     };
-  }
-
-  constructor() {
-    super("RelayConfigurator", {
-      isAutoAddRelayurl: true,
-    });
   }
   public async getFilters() {
     const pubkey = await getPubkeyOrNull();

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import UploadInputVue from "@/components/UploadInput.vue";
-import { ChannelMetadata } from "@/nostr/staff/createUseChannelMetadata";
+import { ChannelMetadata } from "@/types/ChannelMetadata";
 
 const props = defineProps<{
   channelMetadata: ChannelMetadata;

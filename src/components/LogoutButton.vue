@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { t } from "@/i18n";
 import { TYPES } from "@/nostr/nostr";
-import { getNostrApiMode, NostrApiMode } from "@/nostr/nostrApi/NostrApi";
+import { getNostrApiMode, NostrApiMode } from "@/nostr/nostrApi/NostrApiMode";
 import { pushToLogin } from "@/utils/nostrApiUse";
 import { useNostrContainerGet } from "./NostrContainerProvade";
 

@@ -1,11 +1,14 @@
 <script lang="ts" setup>
-import { getUserMetadataLineByPubkey } from "@/api/user";
+import { TYPES } from "@/nostr/nostr";
 import { toNprofile } from "@/utils/nostr";
+import { useNostrContainerGet } from "./NostrContainerProvade";
 
 const props = defineProps<{ pubkey: string }>();
 const { pubkey } = toRefs(props);
 
-const line = computed(() => getUserMetadataLineByPubkey(pubkey.value));
+const userApi = useNostrContainerGet(TYPES.UserApi);
+
+const line = computed(() => userApi.getUserMetadataLineByPubkey(pubkey.value));
 const metadata = computed(() => line.value.feat.useMetadata());
 const nprofile = computed(() => {
   const profilePointer = toNprofile(pubkey.value);

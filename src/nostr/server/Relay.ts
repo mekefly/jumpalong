@@ -4,7 +4,7 @@ import {
   type Event,
   type Filter,
 } from "nostr-tools";
-import { type RelayEmiter } from "./RelayEmiter";
+import { type RelayEmiter } from "../RelayEmiter";
 import { RelayPool } from "./RelayPool";
 
 const logger = loggerScope;

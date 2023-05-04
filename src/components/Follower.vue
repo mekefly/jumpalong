@@ -1,8 +1,9 @@
 <script lang="ts" setup>
+import { TYPES } from "@/nostr/nostr";
 import { useElementIntoScreen } from "@/utils/use";
 import { NList } from "naive-ui";
-import { getFollowerLineByPubkey } from "../api/Contact";
 import ContactListItemVue from "./FollowItem.vue";
+import { useNostrContainerGet } from "./NostrContainerProvade";
 import { useLoad } from "./Refresh";
 const props = defineProps<{
   pubkey: string;
@@ -11,7 +12,11 @@ const props = defineProps<{
 }>();
 const { pubkey, active } = toRefs(props);
 
-const flowerLine = computed(() => getFollowerLineByPubkey(pubkey.value));
+const contactApi = useNostrContainerGet(TYPES.ContactApi);
+
+const flowerLine = computed(() =>
+  contactApi.getFollowerLineByPubkey(pubkey.value)
+);
 const eventList = computed(() => {
   return flowerLine.value.getList();
 });

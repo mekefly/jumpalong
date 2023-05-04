@@ -1,42 +1,116 @@
-import { ContactConfiguration } from "@/api/Contact";
-import CreateEventBeltline from "@/api/CreateEventBeltline";
-import { GeneralEventEventBeltline } from "@/api/GeneralEventEventBeltline";
-import { NostrConnect } from "@/api/NostrConnect";
 import { CahnnelMessageBeltline } from "@/api/channel";
+import { ContactApi } from "@/api/Contact";
+import CreateEventBeltline from "@/api/CreateEventBeltline";
 import { EventApi } from "@/api/event";
-import { LikeApi } from "@/api/like";
+import { GeneralEventEventBeltline } from "@/api/GeneralEventEventBeltline";
 import { LoginApi, PRIVATE_KEY } from "@/api/login";
-import { CreatePinEventLine } from "@/api/pin";
+import { NostrConnect } from "@/api/NostrConnect";
+import { PinApi } from "@/api/Pin";
 import { CreateShortTextEventBeltline } from "@/api/shortTextEventBeltline";
 import { UserApi } from "@/api/user";
-import { NostrConnectedSynchronizer } from "@/nostr/Synchronizer/NostrConnectedSynchronizer";
 import { NostrConnectNostrApiImpl } from "@/nostr/nostrApi/NostrConnectNostrApiImpl";
+import { NostrConnectedSynchronizer } from "@/nostr/Synchronizer/NostrConnectedSynchronizer";
 import { Container, interfaces } from "inversify";
-import { FollowChannel } from "./FollowChannel";
-import { IdGenerator } from "./IdGenerator";
-import { RelayEmiter } from "./RelayEmiter";
-import { RelayPool } from "./RelayPool";
-import { RelayConfigurator } from "./Synchronizer/relayConfigurator";
 import { EventBeltline } from "./eventBeltline";
+import { IdGenerator } from "./IdGenerator";
 import { createNostrApiImpl, injectWindowNostr } from "./injectWindowNostr";
-import { TYPES, injectNostrApi } from "./nostr";
+import { injectNostrApi, TYPES } from "./nostr";
+import { NostrApiImpl } from "./nostrApi/NostrApiImpl";
 import {
-  NostrApi,
-  NostrApiImpl,
-  NostrApiMode,
-  PriKeyNostApiImpl,
   getNostrApiMode,
+  NostrApiMode,
   setNostrApiMode,
-} from "./nostrApi/NostrApi";
+} from "./nostrApi/NostrApiMode";
+import { PriKeyNostApiImpl } from "./nostrApi/PriKeyNostApiImpl";
+import { RelayEmiter } from "./RelayEmiter";
+import { RelayPool } from "./server/RelayPool";
+import { FollowChannelSynchronizer } from "./Synchronizer/FollowChannelSynchronizer";
+import { MuteListSynchronizer } from "./Synchronizer/MuteListSynchronizer";
+import { RelayConfiguratorSynchronizer } from "./Synchronizer/RelayConfiguratorSynchronizer";
 
 const logger = loggerScope;
 
-export function initializeRuntime() {
-  const mode = getNostrApiMode();
-
-  logger.silly("Container");
+export function createNostrContainer() {
+  logger.silly("createNostrContainer");
   //Container
-  const nostrContainer = new Container();
+  const nostrContainer = new Container({ skipBaseClassChecks: true });
+
+  //绑定容器
+  bindContainer(nostrContainer);
+
+  //绑定核心
+  bindCore(nostrContainer);
+
+  //绑定同步器
+  bindSynchronizer(nostrContainer);
+
+  //绑定api层
+  bindApi(nostrContainer);
+
+  return nostrContainer;
+}
+function bindCore(nostrContainer: Container) {
+  bindNostrApi(nostrContainer);
+
+  logger.silly("IdGenerator");
+  //IdGenerator
+  nostrContainer.bind(TYPES.IdGenerator).to(IdGenerator).inSingletonScope();
+
+  logger.silly("NostrApi");
+
+  //RelayEmiter
+  logger.silly("RelayEmiter");
+  nostrContainer.bind(TYPES.RelayEmiter).to(RelayEmiter).inSingletonScope();
+  const relayEmiter = nostrContainer.get(TYPES.RelayEmiter);
+  injectNostrApi({ relayEmiter });
+
+  //RelayPool
+  logger.silly("RelayPool");
+  nostrContainer.bind(TYPES.RelayPool).to(RelayPool).inSingletonScope();
+  const relayPool = nostrContainer.get(TYPES.RelayPool);
+  injectNostrApi({ relayPool });
+
+  //RelayConfiguratorFactory
+  logger.silly("RelayConfiguratorFactory");
+  nostrContainer.bind(TYPES.RelayConfiguratorFactory).toFactory(() => {
+    return () => nostrContainer.get(TYPES.RelayConfiguratorSynchronizer);
+  });
+
+  //RootEventBeltline
+  logger.silly("RootEventBeltline");
+  nostrContainer
+    .bind(TYPES.RootEventBeltline)
+    .to(EventBeltline)
+    .inSingletonScope();
+  const rootEventBeltline = nostrContainer.get(TYPES.RootEventBeltline);
+
+  injectNostrApi({ rootEventBeltline });
+
+  relayEmiter.onEvent(({ subId, event, url }) => {
+    rootEventBeltline.pushEvent(event, { subId });
+  });
+
+  //RelayConfigurator
+  logger.silly("RelayConfiguratorSynchronizer");
+  nostrContainer
+    .bind(TYPES.RelayConfiguratorSynchronizer)
+    .to(RelayConfiguratorSynchronizer)
+    .inSingletonScope();
+  const relayConfigurator = nostrContainer.get<RelayConfiguratorSynchronizer>(
+    TYPES.RelayConfiguratorSynchronizer
+  );
+
+  injectNostrApi({ relayConfigurator });
+
+  //CreateEventBeltline
+  logger.silly("CreateEventBeltline");
+  nostrContainer
+    .bind(TYPES.CreateEventBeltline)
+    .to(CreateEventBeltline)
+    .inSingletonScope();
+}
+
+function bindContainer(nostrContainer: Container) {
   nostrContainer
     .bind(TYPES.NostrContainer)
     .toDynamicValue(() => nostrContainer)
@@ -48,19 +122,17 @@ export function initializeRuntime() {
   injectNostrApi({
     nostrContainer: nostrContainer,
   });
+}
 
-  logger.silly("IdGenerator");
-  //IdGenerator
-  nostrContainer.bind(TYPES.IdGenerator).to(IdGenerator).inSingletonScope();
-
-  logger.silly("NostrApi");
+function bindNostrApi(nostrContainer: Container) {
+  const mode = getNostrApiMode();
   //NostrApi
   switch (mode) {
     case NostrApiMode.WindowNostr:
       injectWindowNostr();
 
       nostrContainer
-        .bind<NostrApi>(TYPES.NostrApi)
+        .bind(TYPES.NostrApi)
         .toDynamicValue(() => createNostrApiImpl())
         .inSingletonScope();
       break;
@@ -73,7 +145,7 @@ export function initializeRuntime() {
       }
 
       nostrContainer
-        .bind<NostrApi>(TYPES.NostrApi)
+        .bind(TYPES.NostrApi)
         .toDynamicValue(() => new PriKeyNostApiImpl(prikey ?? undefined))
         .inSingletonScope();
       break;
@@ -86,7 +158,7 @@ export function initializeRuntime() {
         break;
       }
       nostrContainer
-        .bind<NostrApi>(TYPES.NostrApi)
+        .bind(TYPES.NostrApi)
         .toDynamicValue(() => new NostrConnectNostrApiImpl(pubkey))
         .inSingletonScope();
       break;
@@ -95,153 +167,126 @@ export function initializeRuntime() {
       setNostrApiMode(NostrApiMode.NotLogin); //取消登录
 
       nostrContainer
-        .bind<NostrApi>(TYPES.NostrApi)
+        .bind(TYPES.NostrApi)
         .toDynamicValue(() => new NostrApiImpl())
         .inSingletonScope();
       break;
   }
   injectNostrApi({ nostrApi: nostrContainer.get(TYPES.NostrApi) });
-
-  //RelayEmiter
-  logger.silly("RelayEmiter");
-  nostrContainer
-    .bind<RelayEmiter>(TYPES.RelayEmiter)
-    .to(RelayEmiter)
-    .inSingletonScope();
-  const relayEmiter = nostrContainer.get<RelayEmiter>(TYPES.RelayEmiter);
-  injectNostrApi({ relayEmiter });
-
-  //RelayPool
-  logger.silly("RelayPool");
-  nostrContainer
-    .bind<RelayPool>(TYPES.RelayPool)
-    .to(RelayPool)
-    .inSingletonScope();
-  const relayPool = nostrContainer.get<RelayPool>(TYPES.RelayPool);
-  injectNostrApi({ relayPool });
-
-  //RelayConfiguratorFactory
-  logger.silly("RelayConfiguratorFactory");
-  nostrContainer
-    .bind<interfaces.Factory<RelayConfigurator>>(TYPES.RelayConfiguratorFactory)
-    .toFactory(() => {
-      return () => {
-        const relayConfigurator = nostrContainer.get<RelayConfigurator>(
-          TYPES.RelayConfigurator
-        );
-        return relayConfigurator;
-      };
-    });
-
-  //RootEventBeltline
-  logger.silly("RootEventBeltline");
-  nostrContainer
-    .bind<EventBeltline>(TYPES.RootEventBeltline)
-    .to(EventBeltline)
-    .inSingletonScope();
-  const rootEventBeltline = nostrContainer.get<EventBeltline>(
-    TYPES.RootEventBeltline
-  );
-
-  injectNostrApi({ rootEventBeltline });
-
-  relayEmiter.onEvent(({ subId, event, url }) => {
-    rootEventBeltline.pushEvent(event, { subId });
-  });
-
-  //RelayConfigurator
-  logger.silly("RelayConfigurator");
-  nostrContainer
-    .bind<RelayConfigurator>(TYPES.RelayConfigurator)
-    .toDynamicValue(() => reactive(new RelayConfigurator()) as any)
-    .inSingletonScope();
-  const relayConfigurator = nostrContainer.get<RelayConfigurator>(
-    TYPES.RelayConfigurator
-  );
-
-  injectNostrApi({ relayConfigurator });
-  //CreateEventBeltline
-
-  logger.silly("CreateEventBeltline");
-  nostrContainer
-    .bind<CreateEventBeltline>(TYPES.CreateEventBeltline)
-    .to(CreateEventBeltline)
+}
+function createAsyncDynamicValue<T>(
+  asyncContainer: () => Promise<interfaces.Newable<T>>
+): interfaces.DynamicValue<Promise<T>> {
+  return async (context) => {
+    const constructor = await asyncContainer();
+    return context.container.resolve(constructor);
+  };
+}
+function bindSynchronizer(container: Container) {
+  //Synchronizer
+  //PinListSynchronizer
+  logger.silly("PinListSynchronizer");
+  container
+    .bind(TYPES.PinListSynchronizer)
+    .toDynamicValue(
+      createAsyncDynamicValue(
+        async () =>
+          (await import("@/nostr/Synchronizer/PinListSynchronizer"))
+            .PinListSynchronizer
+      )
+    )
     .inSingletonScope();
 
+  //NostrConnectedSynchronizer
+  logger.silly("NostrConnectedSynchronizer");
+  container
+    .bind(TYPES.NostrConnectedSynchronizer)
+    .to(NostrConnectedSynchronizer)
+    .inSingletonScope();
+
+  //ContactConfiguration
+  logger.silly("ContactConfigurationSynchronizer");
+  container
+    .bind(TYPES.ContactConfigurationSynchronizer)
+    .toDynamicValue(
+      createAsyncDynamicValue(
+        async () =>
+          (
+            await import(
+              "@/nostr/Synchronizer/ContactConfigurationSynchronizer"
+            )
+          ).ContactConfigurationSynchronizer
+      )
+    );
+
+  //MuteListSynchronizer
+  logger.silly("MuteListSynchronizer");
+  container
+    .bind(TYPES.MuteListSynchronizer)
+    .to(MuteListSynchronizer)
+    .inSingletonScope();
+
+  //FollowChannel
+  logger.silly("FollowChannelSynchronizer");
+  container
+    .bind(TYPES.FollowChannelSynchronizer)
+    .to(FollowChannelSynchronizer)
+    .inSingletonScope();
+}
+function bindApi(nostrContainer: Container) {
   //GeneralEventEventBeltline
   logger.silly("GeneralEventEventBeltline");
   nostrContainer
-    .bind<GeneralEventEventBeltline>(TYPES.GeneralEventEventBeltline)
+    .bind(TYPES.GeneralEventEventBeltline)
     .to(GeneralEventEventBeltline)
     .inSingletonScope();
 
   //CreateShortTextEventBeltline
   logger.silly("CreateShortTextEventBeltline");
   nostrContainer
-    .bind<CreateShortTextEventBeltline>(TYPES.CreateShortTextEventBeltline)
+    .bind(TYPES.CreateShortTextEventBeltline)
     .to(CreateShortTextEventBeltline)
     .inSingletonScope();
 
   //CreatePinEventLine
   logger.silly("CreatePinEventLine");
-  nostrContainer
-    .bind(TYPES.CreatePinEventLine)
-    .to(CreatePinEventLine)
-    .inSingletonScope();
-
-  // CahnnelMessageBeltline
-  logger.silly("CahnnelMessageBeltline");
-  nostrContainer
-    .bind<CahnnelMessageBeltline>(TYPES.CahnnelMessageBeltline)
-    .to(CahnnelMessageBeltline)
-    .inSingletonScope();
-
-  //ContactConfiguration
-  logger.silly("ContactConfiguration");
-  nostrContainer
-    .bind(TYPES.ContactConfiguration)
-    .to(ContactConfiguration)
-    .inSingletonScope();
+  nostrContainer.bind(TYPES.PinApi).to(PinApi).inSingletonScope();
 
   //EventApi
   logger.silly("EventApi");
   nostrContainer.bind(TYPES.EventApi).to(EventApi).inSingletonScope();
 
+  // CahnnelMessageBeltline
+  logger.silly("CahnnelMessageBeltline");
+  nostrContainer
+    .bind(TYPES.CahnnelMessageBeltline)
+    .to(CahnnelMessageBeltline)
+    .inSingletonScope();
+
   //LikeApi
   logger.silly("LikeApi");
-  nostrContainer.bind(TYPES.LikeApi).to(LikeApi).inSingletonScope();
+  nostrContainer
+    .bind(TYPES.LikeApi)
+    .toDynamicValue(
+      createAsyncDynamicValue(
+        async () => await (await import("@/api/like")).LikeApi
+      )
+    )
+    .inSingletonScope();
 
   //UserApi
   logger.silly("UserApi");
   nostrContainer.bind(TYPES.UserApi).to(UserApi).inSingletonScope();
 
-  //FollowChannel
-  logger.silly("FollowChannel");
-  nostrContainer.bind(TYPES.FollowChannel).to(FollowChannel).inSingletonScope();
-
-  //api
   //NostrConnect
   logger.silly("NostrConnect");
   nostrContainer.bind(TYPES.NostrConnect).to(NostrConnect).inSingletonScope();
 
-  //api
-  //NostrConnectedSynchronizer
-  logger.silly("NostrConnectedSynchronizer");
-  nostrContainer
-    .bind(TYPES.NostrConnectedSynchronizer)
-    .to(NostrConnectedSynchronizer)
-    .inSingletonScope();
-
-  //api
-  //NostrConnectedSynchronizer
+  //LoginApi
   logger.silly("LoginApi");
   nostrContainer.bind(TYPES.LoginApi).to(LoginApi).inSingletonScope();
 
-  return {
-    nostrContainer,
-    relayEmiter,
-    relayPool,
-    rootEventBeltline,
-    relayConfigurator,
-  };
+  //ContactApi
+  logger.silly("ContactApi");
+  nostrContainer.bind(TYPES.ContactApi).to(ContactApi).inSingletonScope();
 }

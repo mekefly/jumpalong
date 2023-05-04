@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import { getUserRelayUrlConfigByPubkey } from "@/api/user";
 import { t } from "@/i18n";
-import { relayConfigurator } from "@/nostr/nostr";
+import { TYPES, relayConfigurator } from "@/nostr/nostr";
 import { WritableReadableList } from "@/nostr/tag";
 import router from "@/router";
 import { getPubkeyOrNull } from "@/utils/nostrApiUse";
+import { useNostrContainerGet } from "./NostrContainerProvade";
 import RelayAddButtonVue from "./RelayAddButton.vue";
 import RelayConnectListVue from "./RelayConnectList.vue";
 import RelayReadableButtonVue from "./RelayReadableButton.vue";
@@ -14,8 +14,11 @@ const props = defineProps<{
   active: boolean;
 }>();
 const { pubkey } = toRefs(props);
+const userApi = useNostrContainerGet(TYPES.UserApi);
 
-const line = computed(() => getUserRelayUrlConfigByPubkey(pubkey.value));
+const line = computed(() =>
+  userApi.getUserRelayUrlConfigByPubkey(pubkey.value)
+);
 const readWriteList = computedAsync<WritableReadableList | undefined>(
   async () => {
     if (pubkey.value === ((await getPubkeyOrNull()) ?? "")) {
