@@ -16,7 +16,7 @@ import {
   setCache,
   useCache,
 } from "@/utils/cache";
-import { getPubkeyOrNull } from "@/utils/nostrApiUse";
+import { getPubkeyOrNull } from "@/utils/nostrApi";
 import { debounceWatch } from "@/utils/vue";
 import { injectable } from "inversify";
 import { type Event } from "nostr-tools";

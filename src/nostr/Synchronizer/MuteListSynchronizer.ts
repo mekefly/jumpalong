@@ -1,4 +1,4 @@
-import { getPubkeyOrNull } from "@/utils/nostrApiUse";
+import { getPubkeyOrNull } from "@/utils/nostrApi";
 import { injectable } from "inversify";
 import { Event, Filter } from "nostr-tools";
 import { createEvent } from "../event";

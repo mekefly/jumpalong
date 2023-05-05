@@ -1,6 +1,5 @@
 import { syncInterval } from "@/utils/utils";
 import { createOneEventStaff, createStaff, StaffThisType } from ".";
-import { rootEventBeltline } from "../nostr";
 import { deserializeTagR } from "../tag";
 import autoAddRelayurlByPubkeyStaff from "./autoAddRelayurlByPubkeyStaff";
 import createEoseUnSubStaff from "./createEoseUnSubStaff";
@@ -24,14 +23,13 @@ export default function autoAddRelayurlByEventIdStaff(
     initialization() {
       let stop = false;
       const slef = this;
-      const line = rootEventBeltline
+      const line = this.beltline
         .createChild({
           describe: "获取id通过id",
         })
         .addFilter({ ids: [eventId], limit: 1 })
         .addStaff(createOneEventStaff())
         .addStaff(createWithEvent())
-        .addFilter({ ids: [eventId], limit: 1 })
         .addStaff(createEoseUnSubStaff())
         .addStaff(createTimeoutUnSubStaff());
 
@@ -49,7 +47,7 @@ export default function autoAddRelayurlByEventIdStaff(
 
       line.addStaff(getCacheStaff(eventId));
       if (line.feat.withEvent()) return;
-      line.addExtends(rootEventBeltline);
+      line.addExtends(this.beltline.getRoot());
       if (line.feat.withEvent()) return;
 
       const req = () => {

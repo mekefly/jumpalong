@@ -1,4 +1,4 @@
-import { getPubkeyOrNull } from "@/utils/nostrApiUse";
+import { getPubkeyOrNull } from "@/utils/nostrApi";
 import { Event, Filter } from "nostr-tools";
 import { createEvent } from "../event";
 import { PublishOpt } from "../eventBeltline";

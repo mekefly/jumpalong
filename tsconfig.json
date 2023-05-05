@@ -10,7 +10,12 @@
     "isolatedModules": true,
     "esModuleInterop": true,
     "lib": ["ESNext", "DOM"],
-    "types": ["vitest/globals", "naive-ui/volar", "reflect-metadata"],
+    "types": [
+      "vitest/globals",
+      "naive-ui/volar",
+      "reflect-metadata",
+      "vitest/importMeta"
+    ],
     "skipLibCheck": true,
     "noEmit": true,
     "paths": {

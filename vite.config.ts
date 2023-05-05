@@ -13,13 +13,17 @@ import vitePlugin from "./src/logger/logger.vitePlugin";
 
 // @ts-ignore
 // https://vitejs.dev/config/
-export default defineConfig(({ command }) => {
+export default defineConfig((opt) => {
+  const { command, mode } = opt;
+
   const isProd = command === "build";
+  const isTest = mode === "test";
 
   return {
     test: {
       globals: true,
       environment: "happy-dom",
+      include: ["**/GeneralEventEventBeltline.test.ts"],
     },
     base: "./",
     server: {
@@ -33,7 +37,9 @@ export default defineConfig(({ command }) => {
       __VUE_I18N_FULL_INSTALL__: false,
       __VUE_I18N_LEGACY_API__: true,
       __INTLIFY_PROD_DEVTOOLS__: false,
-      __DEV__: true,
+      __DEV__: !isProd,
+      __PROD__: isProd,
+      __TEST__: isTest,
     },
     plugins: [
       vitePlugin(),

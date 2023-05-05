@@ -1,12 +1,12 @@
 import { createEventTemplate } from "@/utils/nostr";
-import { getPubkeyOrNull, signEvent } from "@/utils/nostrApiUse";
+import { getPubkeyOrNull, signEvent } from "@/utils/nostrApi";
 import * as secp256k1 from "@noble/secp256k1";
 import {
   Event,
-  UnsignedEvent,
   getEventHash,
   nip19,
   signEvent as toolsSignEvent,
+  UnsignedEvent,
 } from "nostr-tools";
 import { getSourceUrls } from "./staff/createEventSourceTracers";
 import { deserializeTagR, getOnlyTag } from "./tag";

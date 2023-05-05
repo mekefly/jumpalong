@@ -1,8 +1,8 @@
 import { useCache } from "@/utils/cache";
-import { getPubkeyOrNull } from "@/utils/nostrApiUse";
+import { getPubkeyOrNull } from "@/utils/nostrApi";
 import { Event, Filter } from "nostr-tools";
 import { createEvent } from "../event";
-import { TagType, getOnlyTag } from "../tag";
+import { getOnlyTag, TagType } from "../tag";
 import { ParameterizedReplaceableMapSynchronizerAbstract } from "./abstract/ParameterizedReplaceableMapSynchronizerAbstract";
 
 export type CategorizedBookmarksSynchronizerDataType = {

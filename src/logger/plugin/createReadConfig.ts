@@ -9,8 +9,14 @@ export default function createReadConfig<Config = {}>() {
 
     loggerFactory.assignConfig(logger_config);
 
-    if (__DEV__) {
+    if (__TEST__) {
       //开发环境
+      assignConfig(loggerFactory, ".test.ts");
+
+      return _logger;
+    }
+    if (__DEV__) {
+      //测试配置
       assignConfig(loggerFactory, ".dev.ts");
     } else {
       //生产环境

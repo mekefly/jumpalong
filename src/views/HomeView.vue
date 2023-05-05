@@ -15,12 +15,10 @@ const message = useMessage();
 
 //需要为显示区域和编辑区域架设一个隧道
 useRichTextEditBoxOpt("home");
-console.log("1111111111111111");
 
 const contactConfiguration = await useNostrContainerAsyncGet(
   TYPES.ContactConfigurationSynchronizer
 );
-console.log("contactConfiguration", contactConfiguration);
 
 const pubkeys = computed(() => {
   const pubkeys = Object.keys(contactConfiguration.getContactConfiguration());

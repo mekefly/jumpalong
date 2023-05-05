@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { t } from "@/i18n";
-import { TYPES, relayConfigurator } from "@/nostr/nostr";
+import { relayConfigurator, TYPES } from "@/nostr/nostr";
 import { WritableReadableList } from "@/nostr/tag";
 import router from "@/router";
-import { getPubkeyOrNull } from "@/utils/nostrApiUse";
+import { getPubkeyOrNull } from "@/utils/nostrApi";
 import { useNostrContainerGet } from "./NostrContainerProvade";
 import RelayAddButtonVue from "./RelayAddButton.vue";
 import RelayConnectListVue from "./RelayConnectList.vue";

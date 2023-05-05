@@ -2,10 +2,9 @@ import { t } from "@/i18n";
 import { nostrApi } from "@/nostr/nostr";
 import { NotFoundNostrApiError } from "@/nostr/nostrApi/error";
 import { getNostrApiMode, NostrApiMode } from "@/nostr/nostrApi/NostrApiMode";
-import { PriKeyNostApiImpl } from "@/nostr/nostrApi/PriKeyNostApiImpl";
-import router from "@/router";
-import { nip19, UnsignedEvent } from "nostr-tools";
 import { useCache } from "./cache";
+import { pushToLogin } from "./login";
+import { getPrikeyOrNull } from "./nostrApi";
 
 export function usePubkey(opt?: { intercept: boolean }) {
   return useCache(
@@ -50,48 +49,10 @@ export function usePubkey(opt?: { intercept: boolean }) {
     }
   );
 }
-export async function getPubkeyOrNull(opt?: { intercept: boolean }) {
-  try {
-    return await nostrApi.getPublicKey();
-  } catch (error) {
-    opt?.intercept && pushToLogin();
-    return null;
-  }
-}
 export function usePrikey() {
   const prikey = ref<string | null>(null);
   getPrikeyOrNull().then((item) => {
     prikey.value = item;
   });
   return prikey;
-}
-export async function getPrikeyOrNull() {
-  if (getNostrApiMode() === NostrApiMode.PrivateKey) {
-    try {
-      return nip19.nsecEncode((nostrApi as PriKeyNostApiImpl).getPrikey());
-    } catch (error) {}
-  }
-  return null;
-}
-
-export async function signEvent(
-  event: UnsignedEvent,
-  opt?: { intercept: boolean }
-) {
-  try {
-    return await nostrApi.signEvent(event);
-  } catch (error) {
-    if (getNostrApiMode() === NostrApiMode.NotLogin) {
-      if (opt?.intercept) {
-        pushToLogin();
-      }
-    }
-
-    throw error;
-  }
-}
-export function pushToLogin(
-  redirected: string = router.currentRoute.value.fullPath
-) {
-  router.push({ name: "login", query: { redirected } });
 }

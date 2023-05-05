@@ -1,4 +1,4 @@
-import { Logger } from "@/logger/Logger";
+import { type Logger } from "@/logger/Logger";
 
 export const callLogger = () => {
   return function (target: any, name: string, descriptor: PropertyDescriptor) {

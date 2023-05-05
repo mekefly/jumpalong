@@ -18,7 +18,10 @@ import { Event, nip19 } from "nostr-tools";
 import { useBlackData } from "../views/ContentBlacklistView";
 import { useCollect } from "./CollectProvide";
 import MoreIconVue from "./icon/MoreIcon.vue";
-import { useNostrContainerGet } from "./NostrContainerProvade";
+import {
+  useNostrContainerAsyncGet,
+  useNostrContainerGet,
+} from "./NostrContainerProvade";
 import { useRichTextEditBoxOpt } from "./RichTextEditBox";
 import { Handle, useSMSButton } from "./SMSButtonProvide";
 const message = useMessage();
@@ -47,7 +50,7 @@ const recommendUserMetadata = useRecommendUserMetadata();
 const pushShortTextNote = usePushShortTextNote();
 const onOK = useOnOK();
 const muteListSynchronizer = useNostrContainerGet(TYPES.MuteListSynchronizer);
-const pinListSynchronizer = await useNostrContainerGet(
+const pinListSynchronizer = await useNostrContainerAsyncGet(
   TYPES.PinListSynchronizer
 );
 const smsButton = useSMSButton();

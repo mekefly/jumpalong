@@ -1,7 +1,7 @@
 import { useCache } from "@/utils/cache";
 import { debounce, syncInterval } from "@/utils/utils";
 import { createStaff, StaffThisType } from ".";
-import { config, rootEventBeltline } from "../nostr";
+import { config } from "../nostr";
 import createAutomaticRandomRequestStaff, {
   createAutomaticRandomRequestWithEventAutoClose,
 } from "./automaticRandomRequestStaff";
@@ -35,72 +35,78 @@ export default function autoAddRelayurlByPubkeyStaff(
       const line = useCache(
         `autoAddRelayurlByPubkey:${pubkey}`,
         () => {
-          const line = slefBeltline.createChild();
-          const autoAddReqLine = line
+          const urlsLine = slefBeltline.createChild();
+          const mergeRequestLine = urlsLine
             .createChild()
             .addStaff(createTimeoutUnSubStaff()) // 超时关闭
             .addStaff(createEoseUnSubStaff()) // 自动关闭订阅
             .addStaff(createDoNotRepeatStaff()); //不重复;
 
-          const kind10002 = autoAddReqLine
+          //10002是用户建议的relay读写列表
+          const kind10002 = mergeRequestLine
             .createChild()
-            //10002是用户建议的relay读写列表
-            .addFilter({
-              kinds: [10002],
-              authors: [pubkey],
-            })
-
             .addStaff(createLatestEventStaff()) //创建最新事件
             .addStaff(ReplaceableEventMapStaff(10002, pubkey)) // 本地缓存
             .addStaff(createReadWriteListStaff()) // 创建读写配置列表
             .addStaff(createWithEvent())
+
+            //合并请求
             .onAddFilters((filters) => {
-              autoAddReqLine.addFilters(filters);
-            });
+              mergeRequestLine.addFilters(filters);
+            })
+            .addFilter({
+              kinds: [10002],
+              authors: [pubkey],
+            })
+            .addExtends(mergeRequestLine);
 
           kind10002.feat.onHasReadWriteList((readWrite) => {
-            line.addRelayUrls(readWrite.writeUrl);
+            urlsLine.addRelayUrls(readWrite.writeUrl);
           });
+
+          //查找kind2url
+          const kind2line = mergeRequestLine
+            .createChild()
+            .addStaff({
+              push(e) {
+                urlsLine.addRelayUrl(e.content);
+              },
+            })
+
+            //合并请求
+            .onAddFilters((filters) => {
+              mergeRequestLine.addFilters(filters);
+            })
+            .addFilter({ kinds: [2], authors: [pubkey] })
+            .addExtends(mergeRequestLine);
 
           //间隔同步
           syncInterval(
             `createAddRelayUrlGraspClues:${pubkey}`,
             () => {
-              autoAddReqLine.addRelayUrls(line.getRelayUrls());
+              mergeRequestLine.addRelayUrls(urlsLine.getRelayUrls());
 
               const debounceOnAddRelayUrls = debounce((urls: Set<string>) => {
-                autoAddReqLine.addRelayUrls(urls);
+                mergeRequestLine.addRelayUrls(urls);
               }, 1000);
-              line.onAddRelayUrlsAfter(debounceOnAddRelayUrls);
+              urlsLine.onAddRelayUrlsAfter(debounceOnAddRelayUrls);
             },
             config.syncInterval6
           );
 
-          const kind2line = autoAddReqLine
-            .createChild()
-            .addFilter({ kinds: [2], authors: [pubkey] })
-
-            .onAddFilters((filters) => {
-              autoAddReqLine.addFilters(filters);
-            })
-            .addStaff({
-              push(e) {
-                line.addRelayUrl(e.content);
-              },
-            });
-
           const req = async () => {
             if (kind10002.feat.withEvent()) return;
 
-            autoAddReqLine.addExtends(rootEventBeltline);
+            mergeRequestLine.addExtends(slefBeltline.getRoot());
             if (kind10002.feat.withEvent()) return;
 
             if (opts?.urls) {
-              autoAddReqLine.addRelayUrls(opts.urls);
+              mergeRequestLine.addRelayUrls(opts.urls);
               if (await kind10002.feat.timeoutWithEvent()) return;
             }
 
-            autoAddReqLine.addReadUrl();
+            mergeRequestLine.addReadUrl();
+
             if (await kind10002.feat.timeoutWithEvent()) return;
 
             //随缘算法
@@ -111,10 +117,12 @@ export default function autoAddRelayurlByPubkeyStaff(
           };
           req();
 
-          return line;
+          return urlsLine;
         },
         { useLocalStorage: false }
       );
+
+      slefBeltline.addRelayUrls(line.getRelayUrls());
       const debounceOnAddRelayUrls = debounce((urls: Set<string>) => {
         slefBeltline.addRelayUrls(urls);
       }, 1000);

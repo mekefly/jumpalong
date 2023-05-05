@@ -1,6 +1,6 @@
-import { ParameterizedReplaceableSynchronizerAbstract } from "@/nostr/Synchronizer/abstract/ParameterizedReplaceableSynchronizerAbstract";
 import { createEvent } from "@/nostr/event";
-import { getPubkeyOrNull } from "@/utils/nostrApiUse";
+import { ParameterizedReplaceableSynchronizerAbstract } from "@/nostr/Synchronizer/abstract/ParameterizedReplaceableSynchronizerAbstract";
+import { getPubkeyOrNull } from "@/utils/nostrApi";
 import { injectable } from "inversify";
 import { Event } from "nostr-tools";
 import { AddressPointer } from "nostr-tools/lib/nip19";

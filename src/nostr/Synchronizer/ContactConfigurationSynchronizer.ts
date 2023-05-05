@@ -11,7 +11,7 @@ import {
 } from "@/nostr/tag";
 import { ContactConfigurationType } from "@/types/Contact";
 import { ContactMetaData } from "@/types/ContactMetaData";
-import { getPubkeyOrNull } from "@/utils/nostrApiUse";
+import { getPubkeyOrNull } from "@/utils/nostrApi";
 import { debounce } from "@/utils/utils";
 import { inject, injectable } from "inversify";
 import { type Event, type Filter } from "nostr-tools";

@@ -18,7 +18,8 @@ import { withDefault } from "@/utils/utils";
 import { createBlackStaff } from "@/views/ContentBlacklistView";
 import { inject, injectable } from "inversify";
 import CreateEventBeltline from "./CreateEventBeltline";
-import { CreateTextEventBeltlineOption } from "./shortTextEventBeltline";
+import { type CreateTextEventBeltlineOption } from "./shortTextEventBeltline";
+
 const logger = loggerScope;
 
 @injectable()
@@ -34,7 +35,6 @@ export class GeneralEventEventBeltline {
 
   @callLogger()
   createGeneralEventEventBeltline(opts: CreateTextEventBeltlineOption) {
-    logger.debug("createGeneralEventEventBeltline", this);
     return useCache(
       `createShortTextEventBeltline:${JSON.stringify(opts.filters)}`,
       () => {
@@ -55,15 +55,15 @@ export class GeneralEventEventBeltline {
           .addStaff(createRefreshLoadStaff(filters, limit)) //添加刷新和加载功能
           .addStaff(createEventSourceTracersForRefreshLoadStaff()) // 给刷新和加载添加源头追踪
           .addStaffOfReverseSortByCreateAt(); // 通过创建时间反排序
+
         logger.debug("filters", textEventBeltline);
+
         if (filters.length === 0) return textEventBeltline;
+
         textEventBeltline
           .addReadUrl()
           .addRelayUrls(opts.urls)
           .addRelayUrls(opts.addUrls);
-
-        opts.urls ||
-          textEventBeltline.addStaff(autoAddRelayUrlByFilter({ filters }));
 
         if (opts.pubkeys) {
           for (const pubkey of opts.pubkeys) {
@@ -72,7 +72,8 @@ export class GeneralEventEventBeltline {
             );
           }
         } else {
-          textEventBeltline.addStaff(autoAddRelayUrlByFilter({ filters }));
+          opts.urls ||
+            textEventBeltline.addStaff(autoAddRelayUrlByFilter({ filters }));
         }
 
         textEventBeltline.feat.firstLoad();

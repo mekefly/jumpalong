@@ -9,7 +9,7 @@ import { type NostrConnect } from "@/api/NostrConnect";
 import { type PinApi } from "@/api/Pin";
 import { type CreateShortTextEventBeltline } from "@/api/shortTextEventBeltline";
 import { type UserApi } from "@/api/user";
-import { ContactConfigurationSynchronizer } from "@/nostr/Synchronizer/ContactConfigurationSynchronizer";
+import { type ContactConfigurationSynchronizer } from "@/nostr/Synchronizer/ContactConfigurationSynchronizer";
 import { type NostrConnectedSynchronizer } from "@/nostr/Synchronizer/NostrConnectedSynchronizer";
 import { withDefault } from "@/utils/utils";
 import { type Container, type interfaces } from "inversify";
@@ -23,6 +23,7 @@ import {
   type RelayEmiterResponseEventMap,
 } from "./RelayEmiter";
 import { type RelayPool } from "./server/RelayPool";
+import { type AutoRandomRequestStaff } from "./staff/automaticRandomRequestStaff";
 import { type FollowChannelSynchronizer } from "./Synchronizer/FollowChannelSynchronizer";
 import { type MuteListSynchronizer } from "./Synchronizer/MuteListSynchronizer";
 import { type PinListSynchronizer } from "./Synchronizer/PinListSynchronizer";
@@ -144,6 +145,7 @@ export const TYPES = {
   //other
   //  id生成器
   IdGenerator: cbk<IdGenerator>("IdGenerator"),
+  AutoRandomRequestStaff: cbk<AutoRandomRequestStaff>("AutoRandomRequestStaff"),
 
   //core
   //  Relay middleware | 中间件，连接层和核心层解耦合

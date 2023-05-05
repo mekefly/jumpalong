@@ -1,0 +1,89 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`GeneralEventEventBeltline:pubkeys 1`] = `
+[
+  {
+    "filters": [
+      {
+        "authors": [
+          "public1",
+        ],
+        "limit": 10,
+      },
+    ],
+    "subId": "0",
+    "url": "wss://test.com",
+  },
+]
+`;
+
+exports[`GeneralEventEventBeltline:pubkeys 2`] = `
+[
+  {
+    "filters": [
+      {
+        "authors": [
+          "public1",
+        ],
+        "limit": 10,
+      },
+    ],
+    "subId": "1",
+    "url": "wss://test1.com",
+  },
+]
+`;
+
+exports[`GeneralEventEventBeltline:pubkeys 4`] = `
+[
+  {
+    "filters": [
+      {
+        "authors": [
+          "public1",
+        ],
+        "kinds": [
+          10002,
+        ],
+      },
+      {
+        "authors": [
+          "public1",
+        ],
+        "kinds": [
+          2,
+        ],
+      },
+    ],
+    "subId": "2",
+    "url": "wss://test.com",
+  },
+]
+`;
+
+exports[`GeneralEventEventBeltline:pubkeys 5`] = `
+[
+  {
+    "filters": [
+      {
+        "authors": [
+          "public1",
+        ],
+        "kinds": [
+          10002,
+        ],
+      },
+      {
+        "authors": [
+          "public1",
+        ],
+        "kinds": [
+          2,
+        ],
+      },
+    ],
+    "subId": "3",
+    "url": "wss://test1.com",
+  },
+]
+`;

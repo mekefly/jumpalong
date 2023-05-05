@@ -24,6 +24,7 @@ import {
 import { PriKeyNostApiImpl } from "./nostrApi/PriKeyNostApiImpl";
 import { RelayEmiter } from "./RelayEmiter";
 import { RelayPool } from "./server/RelayPool";
+import { AutoRandomRequestStaff } from "./staff/automaticRandomRequestStaff";
 import { FollowChannelSynchronizer } from "./Synchronizer/FollowChannelSynchronizer";
 import { MuteListSynchronizer } from "./Synchronizer/MuteListSynchronizer";
 import { RelayConfiguratorSynchronizer } from "./Synchronizer/RelayConfiguratorSynchronizer";
@@ -85,6 +86,11 @@ function bindCore(nostrContainer: Container) {
   const rootEventBeltline = nostrContainer.get(TYPES.RootEventBeltline);
 
   injectNostrApi({ rootEventBeltline });
+
+  nostrContainer
+    .bind(TYPES.AutoRandomRequestStaff)
+    .to(AutoRandomRequestStaff)
+    .inSingletonScope();
 
   relayEmiter.onEvent(({ subId, event, url }) => {
     rootEventBeltline.pushEvent(event, { subId });

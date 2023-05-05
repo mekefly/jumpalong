@@ -4,7 +4,10 @@ import { TYPES } from "@/nostr/nostr";
 import { usePubkey } from "@/utils/nostrApiUse";
 import Follow from "./Follow.vue";
 import FollowerVue from "./Follower.vue";
-import { useNostrContainerGet } from "./NostrContainerProvade";
+import {
+  useNostrContainerAsyncGet,
+  useNostrContainerGet,
+} from "./NostrContainerProvade";
 import PostListVue from "./PostList.vue";
 import ProfileMoreInfoRelayListVue from "./ProfileMoreInfoRelayList.vue";
 import { InsertDropdownOptionOpt } from "./SMSButtonProvide";
@@ -13,7 +16,7 @@ import SMSButtonProvide from "./SMSButtonProvide.vue";
 const props = defineProps<{ pubkey: string; urls?: Set<string> }>();
 const { pubkey } = toRefs(props);
 
-const pinListSync = await useNostrContainerGet(TYPES.PinListSynchronizer);
+const pinListSync = await useNostrContainerAsyncGet(TYPES.PinListSynchronizer);
 const createPinEventLine = useNostrContainerGet(TYPES.PinApi);
 
 const pubkeys = computed(() => [pubkey.value]);

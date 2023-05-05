@@ -8,6 +8,7 @@ export { };
 declare global {
   var logger: typeof import("./").logger;
   var __DEV__: boolean;
+  var __TEST__: boolean;
   var intoLoggerScope: logger;
   var loggerScope: Logger;
 }

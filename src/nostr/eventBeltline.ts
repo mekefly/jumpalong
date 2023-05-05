@@ -2,7 +2,7 @@ import { type Logger } from "@/logger/Logger";
 import { type RelayEmiterResponseEventMap } from "@/nostr/relayEmiter";
 import { type RelayConfiguratorSynchronizer } from "@/nostr/Synchronizer/RelayConfiguratorSynchronizer";
 import { callLogger } from "@/utils/decorator";
-import { getPubkeyOrNull } from "@/utils/nostrApiUse";
+import { getPubkeyOrNull } from "@/utils/nostrApi";
 import { throwNotFoundError } from "@/utils/throw";
 import { EventEmitter } from "events";
 import { inject, injectable, optional, type Container } from "inversify";
@@ -154,7 +154,7 @@ export class EventBeltline<
 
   // value get
   public getRoot() {
-    this.root;
+    return this.root;
   }
   public getExtends() {
     return this.extends;

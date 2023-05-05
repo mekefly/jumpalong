@@ -1,7 +1,8 @@
+import { inject, injectable } from "inversify";
 import { Filter } from "nostr-tools";
 import { createStaff, createStaffFactory, StaffThisType } from ".";
 import { EventBeltline } from "../eventBeltline";
-import { relayConfigurator, rootEventBeltline } from "../nostr";
+import { relayConfigurator, TYPES } from "../nostr";
 import createEoseUnSubStaff from "./createEoseUnSubStaff";
 import { LatestEventStaffFeat } from "./createLatestEventStaff";
 
@@ -13,7 +14,8 @@ export type AutomaticRandomRequestStaffFeat = {
   startAutomaticRandomRequestStaff: () => void;
   stopAutomaticRandomRequestStaff: () => void;
 };
-class AutoRandomRequestStaff {
+@injectable()
+export class AutoRandomRequestStaff {
   interval = 3_000;
   maximumTimes = 30;
   setToBeAdded = new Set<string>();
@@ -23,7 +25,10 @@ class AutoRandomRequestStaff {
   private eventBeltline!: EventBeltline;
   filterMap = new Map<string, Filter>();
 
-  constructor() {}
+  constructor(
+    @inject(TYPES.RootEventBeltline)
+    private rootEventBeltline: EventBeltline
+  ) {}
   stop() {
     clearInterval(this.timer);
     this.timer = undefined;
@@ -35,7 +40,7 @@ class AutoRandomRequestStaff {
   getEventBeltline() {
     return (
       this.eventBeltline ??
-      (this.eventBeltline = rootEventBeltline.createChild())
+      (this.eventBeltline = this.rootEventBeltline.createChild())
     );
   }
   startProcessing() {
@@ -92,19 +97,18 @@ class AutoRandomRequestStaff {
 
   addFilter(filters: Filter[]) {
     for (const filter of filters) {
-      autoRandomRequestStaff.filterMap.set(JSON.stringify(filter), filter);
+      this.filterMap.set(JSON.stringify(filter), filter);
     }
-    autoRandomRequestStaff.startProcessing();
+    this.startProcessing();
   }
   removeFilters(filters: Filter[]) {
     if (!filters) return;
 
     for (const filter of filters) {
-      autoRandomRequestStaff.filterMap.delete(JSON.stringify(filter));
+      this.filterMap.delete(JSON.stringify(filter));
     }
   }
 }
-export const autoRandomRequestStaff = new AutoRandomRequestStaff();
 
 //随缘算法
 
@@ -116,6 +120,8 @@ export const autoRandomRequestStaff = new AutoRandomRequestStaff();
 export default function createAutomaticRandomRequestStaff() {
   let filters: Filter[] | null = null;
   let isStop = false;
+
+  let autoRandomRequestStaff: AutoRandomRequestStaff;
 
   function stopAutomaticRandomRequestStaff() {
     isStop = true;
@@ -138,6 +144,10 @@ export default function createAutomaticRandomRequestStaff() {
 
   return createStaff({
     initialization() {
+      autoRandomRequestStaff = this.beltline
+        .getNostrContainer()
+        .get(TYPES.AutoRandomRequestStaff);
+
       startAutomaticRandomRequestStaff.apply(this);
     },
     feat: {
