@@ -18,6 +18,7 @@ This program is a web client of Nostr, provides a beautiful interface and intera
 - [x] Event deletion
 - [x] Search Event
 - [x] Channels
+- [x] Internationalization Editor
 
 ## [Nips](https://github.com/nostr-protocol/nips)
 

@@ -28,7 +28,7 @@ const limit = 20;
   <div class="flex items-center justify-between">
     <n-space class="flex justify-around py-4 box-border">
       <PapawReplyButtonVue :size="size" :event="event" />
-      <n-button text @click="() => message.error(t('message.not_implemented'))">
+      <n-button text @click="() => message.error(t('not_implemented'))">
         <n-icon :size="size">
           <CloudLightning />
         </n-icon>

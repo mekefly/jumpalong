@@ -4,6 +4,7 @@ import {
   debounce,
   isNaN,
   isNumberAndNotNaN,
+  prettifyStringify,
   reverseSearchInsertOnObjectList,
   searchInsertOnObjectList,
   timeout,
@@ -313,4 +314,46 @@ it("createDynamicColor", () => {
 });
 it("createDynamicRelativeValue", () => {
   expect(createDynamicRelativeValue(100, 0, 200)).toMatchSnapshot();
+});
+it("print", () => {
+  expect(prettifyStringify({})).toMatchInlineSnapshot(`
+    "{
+        
+    }"
+  `);
+});
+it("print:1", () => {
+  expect(
+    prettifyStringify({
+      xxxx: `
+    `,
+    })
+  ).toMatchInlineSnapshot(`
+    "{
+        \\"xxxx\\": \\"\\\\n    \\"
+    }"
+  `);
+});
+it("print:1", () => {
+  expect(prettifyStringify([])).toMatchInlineSnapshot(`
+    "[
+        
+    ]"
+  `);
+});
+it("print:1", () => {
+  expect(prettifyStringify(["1"])).toMatchInlineSnapshot(`
+    "[
+        \\"1\\"
+    ]"
+  `);
+});
+it("print:1", () => {
+  expect(prettifyStringify([{ x: "1" }])).toMatchInlineSnapshot(`
+    "[
+        {
+            \\"x\\": \\"1\\"
+        }
+    ]"
+  `);
 });

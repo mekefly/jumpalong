@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import i18n, { setLang, SUPPORT_LOCALES, t } from "@/i18n";
+import i18n, { getSupportLocales, setLang, t } from "@/i18n";
 
 const languageOptions = ref(
-  SUPPORT_LOCALES.map((locale) => {
+  Array.from(getSupportLocales(), (locale) => {
     return {
       label: t(locale),
       key: locale,

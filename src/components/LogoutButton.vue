@@ -12,7 +12,7 @@ function handelLogout() {
   if (isLogin.value) {
     dialog.warning({
       title: t("warning"),
-      content: t("message.logout_dialog_content"),
+      content: t("logout_dialog_content"),
       positiveText: t("yes"),
       negativeText: t("no"),
       onPositiveClick: () => {

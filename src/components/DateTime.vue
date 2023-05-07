@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { t } from "@/i18n";
+import i18n, { t } from "@/i18n";
 import { useNowSecondTimestamp } from "@/utils/use";
 const props = defineProps<{ secondTimestamp: number }>();
 const { secondTimestamp } = toRefs(props);
@@ -8,7 +8,7 @@ const comeFromBefore = computed(() => {
   return nowSecondTimestamp.value - secondTimestamp.value;
 });
 const dataString = computed(() =>
-  new Date(secondTimestamp.value * 1000).toLocaleDateString()
+  i18n.global.d(new Date(secondTimestamp.value * 1000), "short")
 );
 </script>
 

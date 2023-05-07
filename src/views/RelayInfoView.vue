@@ -68,7 +68,7 @@ async function req() {
 
               dialog.warning({
                 title: t("warning"),
-                content: t("message.relay_info_view_verified"),
+                content: t("relay_info_view_verified"),
                 positiveText: t("yes"),
                 negativeText: t("no"),
                 onPositiveClick: () => {

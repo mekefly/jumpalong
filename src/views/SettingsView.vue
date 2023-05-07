@@ -48,6 +48,12 @@ function handelClearCache() {
 
 <template>
   <n-list clickable hoverable>
+    <n-list-item @click="() => $router.push({ name: 'language-settings' })">
+      <n-thing :title="t('language_settings')"> </n-thing>
+      <template #suffix>
+        <n-icon><ArrowForwardIosRoundVue /></n-icon>
+      </template>
+    </n-list-item>
     <n-list-item
       @click="() => $router.push({ name: 'content-blacklist-view' })"
     >

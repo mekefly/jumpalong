@@ -23,7 +23,7 @@ export default defineConfig((opt) => {
     test: {
       globals: true,
       environment: "happy-dom",
-      include: ["**/GeneralEventEventBeltline.test.ts"],
+      // include: ["**/GeneralEventEventBeltline.test.ts"],
     },
     base: "./",
     server: {

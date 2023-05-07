@@ -15,7 +15,7 @@ const optsRef = ref(
 function broadcast() {
   const opts = relayConfigurator.broadcast({ slef: reactive({}) });
   if (!opts) {
-    msg.error(t("message.broadcast_error_message"));
+    msg.error(t("broadcast_error_message"));
     return;
   }
 
@@ -36,8 +36,8 @@ const theme = useThemeVars();
   <TooltipVue
     :tooltip="
       relayConfigurator.hasChange()
-        ? t('tips.broadcast_has_change_tip')
-        : t('tips.broadcast_no_change_tip')
+        ? t('broadcast_has_change_tip')
+        : t('broadcast_no_change_tip')
     "
   >
     <n-button

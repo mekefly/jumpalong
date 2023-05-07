@@ -524,3 +524,36 @@ export function toLocaleString(time: number) {
 export function defaul<REST extends any[]>(...rest: REST): REST[number] {
   return rest.find((v) => v);
 }
+export function prettifyStringify(obj: any, space: string = "    ") {
+  function getSpacing(numberOfSpaces: number) {
+    let x = "";
+    for (let i = 0; i < numberOfSpaces; i++) {
+      x += space;
+    }
+    return x;
+  }
+  let recur = (obj: any, numberOfSpaces: number): string => {
+    const _getSpacing = () => getSpacing(numberOfSpaces);
+    if (Array.isArray(obj)) {
+      // array
+      return `[\n${_getSpacing()}${obj
+        .map((value) => `${recur(value, numberOfSpaces + 1)}`)
+        .join(`,\n${_getSpacing()}`)}\n${getSpacing(numberOfSpaces - 1)}]`;
+    } else if (typeof obj === "object" && obj !== null) {
+      //object
+      return `{\n${_getSpacing()}${Object.entries(obj)
+        .map(
+          ([key, value]) =>
+            //key: value
+            `${JSON.stringify(key)}: ${recur(value, numberOfSpaces + 1)}`
+        )
+        .join(`,\n${_getSpacing()}`)}\n${getSpacing(numberOfSpaces - 1)}}`;
+    } else if (typeof obj === "string") {
+      //string
+      return JSON.stringify(obj);
+    } else {
+      return JSON.stringify(obj);
+    }
+  };
+  return recur(obj, 1);
+}

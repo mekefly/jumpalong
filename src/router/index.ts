@@ -98,6 +98,11 @@ const router = createRouter({
           component: () => import("../views/SettingsView.vue"),
         },
         {
+          path: "/settings/language",
+          name: "language-settings",
+          component: () => import("../views/LanguageSettingsView.vue"),
+        },
+        {
           path: "/about",
           component: () => import("../views/AboutView.vue"),
         },

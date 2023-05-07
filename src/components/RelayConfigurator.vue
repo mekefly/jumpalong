@@ -33,11 +33,11 @@ function addRelay() {
 const message = useMessage();
 function handleSave() {
   relayConfigurator.save();
-  message.success(t("message.relay_configurator_save_message"));
+  message.success(t("relay_configurator_save_message"));
 }
 function handleSync() {
   relayConfigurator.sync();
-  message.success(t("message.relay_configurator_sync_message"));
+  message.success(t("relay_configurator_sync_message"));
 }
 const updateTime = computed(() => {
   const updateAt = relayConfigurator.getUpdateAt();
@@ -79,7 +79,7 @@ const updateTime = computed(() => {
         <TooltipVue
           :tooltip="
             !relayConfigurator.hasChange()
-              ? t('tips.currently_not_modified')
+              ? t('currently_not_modified')
               : t('tips.save_changes')
           "
         >
@@ -95,8 +95,8 @@ const updateTime = computed(() => {
         <TooltipVue
           :tooltip="
             relayConfigurator.hasChange()
-              ? t('tips.relay_configurator_sync_has_change_tip')
-              : t('tips.relay_configurator_sync_no_change_tip')
+              ? t('relay_configurator_sync_has_change_tip')
+              : t('relay_configurator_sync_no_change_tip')
           "
         >
           <n-button

@@ -18,11 +18,7 @@ const subIdSize = computed(() => relayPool.allSubIds.size);
         {{ subIdSize }}
       </span>
     </template>
-    {{
-      t(
-        `tips.current_number_of_subscriptions_including_temporary_subscriptions`
-      )
-    }}
+    {{ t(`current_number_of_subscriptions_including_temporary_subscriptions`) }}
   </n-tooltip>
   /
   <n-tooltip trigger="hover">
@@ -35,7 +31,7 @@ const subIdSize = computed(() => relayPool.allSubIds.size);
         {{ poolSize }}
       </span>
     </template>
-    {{ t("tips.number_of_current_and_continued_connections") }}
+    {{ t("number_of_current_and_continued_connections") }}
   </n-tooltip>
 </template>
 
