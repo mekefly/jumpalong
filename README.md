@@ -50,7 +50,7 @@ This program is a web client of Nostr, provides a beautiful interface and intera
 - [ ] NIP-33: Parameterized Replaceable Events
 - [ ] NIP-36: Sensitive Content
 - [ ] NIP-40: Expiration Timestamp
-- [ ] NIP-42: Authentication of clients to relays
+- [x] NIP-42: Authentication of clients to relays
 - [x] NIP-50: Keywords filter
 - [ ] NIP-56: Reporting
 - [ ] NIP-57: Lightning Zaps
@@ -79,10 +79,10 @@ This program is a web client of Nostr, provides a beautiful interface and intera
 |    10000    |            Mute List             |   51    |     ✅     |
 |    10001    |             Pin List             |   51    |     ✅     |
 |    10002    |       Relay List Metadata        |   65    |     ✅     |
-|    22242    |      Client Authentication       |   42    |            |
+|    22242    |      Client Authentication       |   42    |     ✅     |
 |    24133    |          Nostr Connect           |   46    |     ✅     |
 |    30000    |     Categorized People List      |   51    |            |
-|    30001    |    Categorized Bookmark List     |   51    |            |
+|    30001    |    Categorized Bookmark List     |   51    |     ✅     |
 |    30008    |          Profile Badges          |   58    |            |
 |    30009    |         Badge Definition         |   58    |            |
 |    30017    |     Create or update a stall     |   15    |            |
@@ -102,7 +102,7 @@ This program is a web client of Nostr, provides a beautiful interface and intera
 |  NOTICE  |     used to send human-readable messages to clients     |    1    |     ✅     |
 |   EOSE   | used to notify clients all stored events have been sent |    1    |     ✅     |
 |    OK    |    used to notify clients if an EVENT was successful    |   20    |     ✅     |
-|   AUTH   |         used to send authentication challenges          |   42    |            |
+|   AUTH   |         used to send authentication challenges          |   42    |     ✅     |
 |  COUNT   |     used to send requested event counts to clients      |   45    |            |
 
 ## 技术

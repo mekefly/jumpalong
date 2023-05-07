@@ -11,6 +11,7 @@ import { UserApi } from "@/api/user";
 import { NostrConnectNostrApiImpl } from "@/nostr/nostrApi/NostrConnectNostrApiImpl";
 import { NostrConnectedSynchronizer } from "@/nostr/Synchronizer/NostrConnectedSynchronizer";
 import { Container, interfaces } from "inversify";
+import { AuthenticationOfClientsToRelays } from "./AuthenticationOfClientsToRelays";
 import { EventBeltline } from "./eventBeltline";
 import { IdGenerator } from "./IdGenerator";
 import { createNostrApiImpl, injectWindowNostr } from "./injectWindowNostr";
@@ -47,6 +48,15 @@ export function createNostrContainer() {
 
   //绑定api层
   bindApi(nostrContainer);
+
+  logger.silly("AuthenticationOfClientsToRelays");
+  //IdGenerator
+  nostrContainer
+    .bind(TYPES.AuthenticationOfClientsToRelays)
+    .to(AuthenticationOfClientsToRelays)
+    .inSingletonScope();
+
+  nostrContainer.get(TYPES.AuthenticationOfClientsToRelays);
 
   return nostrContainer;
 }

@@ -42,7 +42,12 @@ export function verifySignature(event: Event & { sig: string }): boolean {
   );
 }
 
-export async function createEvent(options: Partial<Event>): Promise<Event> {
+export async function createEvent(
+  options: Partial<Event>,
+  opt?: {
+    intercept?: boolean;
+  }
+): Promise<Event> {
   const pubkey = await getPubkeyOrNull({ intercept: true });
 
   let event: UnsignedEvent & Partial<Event> = Object.assign(
@@ -54,7 +59,7 @@ export async function createEvent(options: Partial<Event>): Promise<Event> {
   event.id = getEventHash(event);
 
   event = await signEvent(event, {
-    intercept: true,
+    intercept: opt?.intercept ?? true,
   });
 
   return event as Event;

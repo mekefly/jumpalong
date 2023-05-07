@@ -11,6 +11,7 @@ export interface RelayEmiterResponseEventMap {
   notice: { url: string; message: string };
   event: { url: string; event: Event; subId: string };
   close: { url: string };
+  auth: { url: string; challenge: string };
 }
 export interface RelayEmiterRequestEventMap {
   req: {
@@ -27,6 +28,7 @@ export interface RelayEmiterRequestEventMap {
     url: string;
   };
   close: { url: string };
+  auth: { url: string; event: Event };
 }
 type ExcludeUndefined<T> = keyof T extends infer K
   ? K extends keyof T
@@ -95,8 +97,38 @@ export class RelayEmiter {
 
     this.emit("event", subId, opt);
   }
+
   onEvent(callBack: (v: RelayEmiterResponseEventMap["event"]) => void) {
     this.eventEmiter.on("event", callBack);
+  }
+  /**
+   * 中继到本地验证请求
+   * @param opt
+   */
+  emitAuth(opt: RelayEmiterResponseEventMap["auth"]) {
+    this.eventEmiter.emit("auth", opt);
+  }
+
+  /**
+   * @param callBack
+   */
+  onAuth(callBack: (v: RelayEmiterResponseEventMap["auth"]) => void) {
+    this.eventEmiter.on("auth", callBack);
+  }
+
+  /**
+   * 发出本地到中继验证回应
+   * @param url
+   * @param event
+   */
+  emitReqAuth(url: string, event: Event) {
+    this.eventEmiter.emit("req-auth", { url, event });
+  }
+  /**
+   * @param callBack
+   */
+  onReqAuth(callBack: (v: RelayEmiterRequestEventMap["auth"]) => void) {
+    this.eventEmiter.on("req-auth", callBack);
   }
   on<E extends keyof RelayEmiterResponseEventMap>(
     type: E,

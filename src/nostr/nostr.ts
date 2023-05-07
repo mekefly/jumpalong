@@ -15,6 +15,7 @@ import { withDefault } from "@/utils/utils";
 import { type Container, type interfaces } from "inversify";
 import { type InjectionKey } from "vue";
 import { type NostrApi } from "../types/NostrApi";
+import { AuthenticationOfClientsToRelays } from "./AuthenticationOfClientsToRelays";
 import { type EventBeltline } from "./eventBeltline";
 import { type IdGenerator } from "./IdGenerator";
 import {
@@ -146,6 +147,9 @@ export const TYPES = {
   //  id生成器
   IdGenerator: cbk<IdGenerator>("IdGenerator"),
   AutoRandomRequestStaff: cbk<AutoRandomRequestStaff>("AutoRandomRequestStaff"),
+  AuthenticationOfClientsToRelays: cbk<AuthenticationOfClientsToRelays>(
+    "AuthenticationOfClientsToRelays"
+  ),
 
   //core
   //  Relay middleware | 中间件，连接层和核心层解耦合

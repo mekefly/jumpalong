@@ -50,6 +50,10 @@ export class RelayPool {
       }
       relay.close();
     });
+    this.relayEmiter.onReqAuth(async ({ url, event }) => {
+      const relay = await this.getRelay(url);
+      relay.auth(event);
+    });
   }
 
   public getPool() {

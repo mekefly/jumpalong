@@ -76,6 +76,11 @@ export class Relay {
             this.closePublish(eventId);
             break;
           case "AUTH":
+            const challenge = data[1];
+            this.relayEmiter.emitAuth({
+              url: this.ws.url,
+              challenge,
+            });
             break;
           default:
             break;
@@ -85,7 +90,11 @@ export class Relay {
       return;
     }
   }
+  auth(event: Event) {
+    this.send(["AUTH", event]);
+  }
   send(v: [string, ...any]) {
+    logger.http("send:", v[0], this.ws.url, v);
     (window as any).sendCount++;
     this.ws.send(JSON.stringify(v));
   }
@@ -93,8 +102,6 @@ export class Relay {
     return Math.random().toString().slice(2);
   }
   req(filters: Filter[], subId = this.createSubId()) {
-    logger.debug("websocket:req:", filters, this.ws.url);
-
     this.addSubId(subId);
     try {
       this.send(["REQ", subId, ...filters]);
@@ -111,7 +118,6 @@ export class Relay {
     this.autoClose();
   }
   publish(e: Event) {
-    logger.debug("websocket:publish", this.ws.url, e);
     this.send(["EVENT", e]);
     this.publishIds.add(e.id);
 
