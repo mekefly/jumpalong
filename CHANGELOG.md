@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.7.0-test.1](https://github.com/mekefly/jumpalong/compare/v0.6.0-test.1...v0.7.0-test.1) (2023-05-08)
+
+
+### ✅ Tests | 测试
+
+* Unit testing and bug fixing ([0972a22](https://github.com/mekefly/jumpalong/commit/0972a223295b0106a4c70319f9a90a0e652e4340))
+
+
+### ♻️ Code Refactoring | 代码重构
+
+* Build size control,Add some ioc ([9421727](https://github.com/mekefly/jumpalong/commit/942172722962e24d0379ccbcf14f738d97a58b21))
+* GeneralEventEventBeltline.test And fixing bugs ([1dadb0b](https://github.com/mekefly/jumpalong/commit/1dadb0bf7906cf10c34bec154ba6d26a5545c270))
+* ioc ([e5c9218](https://github.com/mekefly/jumpalong/commit/e5c921844e16ba940df27b9298724661625ee0e1))
+* logger ([4fbba2c](https://github.com/mekefly/jumpalong/commit/4fbba2c21bc85545853119b52ca6251e9250e16b))
+* Refactoring the API layer using ioc ([14b05fc](https://github.com/mekefly/jumpalong/commit/14b05fcd393703b9f2200d8e14e6bb910ce4ca20))
+
+
+### ✨ Features | 新功能
+
+* Add Collections ([5010b10](https://github.com/mekefly/jumpalong/commit/5010b107343074f4ebb3e44d029ed6407c178c6f))
+* Internationalization Editor ([58c8591](https://github.com/mekefly/jumpalong/commit/58c8591f4679822fc50f1dedaa1373f819916f97))
+* logger exclude ([b898c30](https://github.com/mekefly/jumpalong/commit/b898c30ecdcb721e659fc940a856eea53ce52991))
+* NIP-42 ([0e3c092](https://github.com/mekefly/jumpalong/commit/0e3c092e5bdfc9514cf7bf9d87d5829312ecedc0))
+
 ## [0.6.0-test.1](https://github.com/mekefly/jumpalong/compare/v0.6.0-test.0...v0.6.0-test.1) (2023-04-18)
 
 
