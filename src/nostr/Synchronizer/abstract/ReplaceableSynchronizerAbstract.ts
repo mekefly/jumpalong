@@ -2,7 +2,7 @@ import { nowSecondTimestamp } from "@/utils/utils";
 import { injectable } from "inversify";
 import { Event, Filter } from "nostr-tools";
 import SynchronizerAbstract, {
-  SynchronizerAbstractOption,
+  type SynchronizerAbstractOption,
 } from "./SynchronizerAbstract";
 
 @injectable()

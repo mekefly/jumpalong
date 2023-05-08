@@ -7,7 +7,7 @@ import { computed } from "vue";
 import ChannelListItemVue from "../components/ChannelListItem.vue";
 const followChannel = useNostrContainerGet(TYPES.FollowChannelSynchronizer);
 
-const channelMap = computed(() => followChannel.getData());
+const channelMap = computed(() => followChannel.getFollowChannel());
 const channelList = computed(() => channelMap.value.entries());
 function handleCreate() {
   router.push({ name: "create-channel" });

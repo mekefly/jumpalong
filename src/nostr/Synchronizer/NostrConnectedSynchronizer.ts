@@ -13,7 +13,6 @@ import {
 export class NostrConnectedSynchronizer extends ParameterizedReplaceableSynchronizerAbstract<NostrConnectedList> {
   constructor() {
     super("NostrConnectedsynchronizer");
-    this.sync();
   }
   createDefault(): NostrConnectedList {
     return new Set();

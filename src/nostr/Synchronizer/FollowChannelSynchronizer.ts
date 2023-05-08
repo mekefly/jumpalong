@@ -1,8 +1,7 @@
 import { type CahnnelMessageBeltline } from "@/api/channel";
 import { type EventApi } from "@/api/event";
 import { type UserApi } from "@/api/user";
-import { lazyInject } from "@/utils/inversify";
-import { debounce, setAdds } from "@/utils/utils";
+import { debounce, setAdds, timeout } from "@/utils/utils";
 import { inject, injectable } from "inversify";
 import { type Event } from "nostr-tools";
 import { type AddressPointer } from "nostr-tools/lib/nip19";
@@ -30,13 +29,13 @@ export class FollowChannelSynchronizer extends ParameterizedReplaceableSynchroni
     private userApi: UserApi,
     @inject(TYPES.EventApi)
     private eventApi: EventApi,
-    @lazyInject(TYPES.CahnnelMessageBeltline)
+    @inject(TYPES.CahnnelMessageBeltline)
     private cahnnelMessageBeltline: CahnnelMessageBeltline
   ) {
     const identifier = "follower-channel";
     super(identifier);
     this.identifier = identifier;
-    this.sync();
+    console.log("this", this, this.cahnnelMessageBeltline);
   }
   createDefault(): ChannelConfigurationType {
     return new Map();
@@ -133,10 +132,13 @@ export class FollowChannelSynchronizer extends ParameterizedReplaceableSynchroni
 
     this.save();
   }
-  private reqMetadata(
+  private async reqMetadata(
     channelId: string,
     channelConfigurationData: ChannelConfigurationData
   ) {
+    console.log("this.cahnnelMessageBeltline", this.cahnnelMessageBeltline);
+
+    await timeout(0);
     const line =
       this.cahnnelMessageBeltline.getChannelMetadataBeltlineByChannelId(
         channelId
