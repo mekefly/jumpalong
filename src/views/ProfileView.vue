@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import profile from "@/assets/profile-2-400x400.png";
 import EllipsisVue from "@/components/Ellipsis.vue";
+import CloudLightning from "@/components/icon/CloudLightning.vue";
 import {
   useNostrContainerAsyncGet,
   useNostrContainerGet,
@@ -8,7 +9,9 @@ import {
 import ProfileMoreInfoVue from "@/components/ProfileMoreInfo.vue";
 import ScrollbarVue from "@/components/Scrollbar.vue";
 import UserInformationButtonVue from "@/components/UserInformationButton.vue";
+import { useZaps } from "@/components/ZapsPrivider";
 import { relayConfigurator, TYPES } from "@/nostr/nostr";
+import { useUserMetadata } from "@/state/metadata";
 import { toDeCodeNprofile } from "@/utils/nostr";
 import { usePubkey } from "@/utils/nostrApiUse";
 import { useScale } from "@/utils/use";
@@ -45,14 +48,8 @@ const urls = computed(
   () => profilePointer.value?.relays && new Set(profilePointer.value?.relays)
 );
 
-const metadata = computed(() => {
-  if (!pubkey.value) return null;
-  return userApi
-    .getUserMetadataLineByPubkey(pubkey.value, {
-      urls: urls.value,
-    })
-    .feat.useMetadata();
-});
+const metadata = useUserMetadata(pubkey);
+const zaps = useZaps();
 
 const isFollow = computed(() => {
   if (!pubkey.value) return false;
@@ -69,6 +66,12 @@ async function handelClick() {
   }
 }
 const [target] = useScale(0.3);
+function handleReward() {
+  if (!pubkey.value) {
+    return;
+  }
+  zaps?.reward(pubkey.value);
+}
 </script>
 
 <template>
@@ -117,6 +120,19 @@ const [target] = useScale(0.3);
               {{ metadata?.name ?? profilePointer?.pubkey.slice(0, 10) }}
             </EllipsisVue>
           </h1>
+
+          <n-button
+            text
+            v-if="metadata?.lud16"
+            class="flex items-center mb-2"
+            @click="handleReward"
+          >
+            <n-icon> <CloudLightning /> </n-icon>
+            <span class="ml-1">
+              {{ metadata?.lud16 }}
+            </span>
+          </n-button>
+
           <div
             class="w-full"
             :style="{

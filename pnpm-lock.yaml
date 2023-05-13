@@ -12,6 +12,7 @@ specifiers:
   '@vueuse/components': ^9.13.0
   '@vueuse/core': ^9.3.1
   autoprefixer: ^10.4.12
+  bech32: ^2.0.0
   cac: ^6.7.14
   compressing: ^1.9.0
   cordova-android: 10.1.2
@@ -47,11 +48,13 @@ specifiers:
   vue-i18n: '9'
   vue-router: ^4.1.5
   vue-tsc: ^1.0.8
+  webln: ^0.3.2
 
 dependencies:
   '@noble/secp256k1': 1.7.1
   '@vueuse/components': 9.13.0_vue@3.2.41
   '@vueuse/core': 9.3.1_vue@3.2.41
+  bech32: registry.npmmirror.com/bech32/2.0.0
   cordova-android: 10.1.2
   events: 3.3.0
   inversify: registry.npmmirror.com/inversify/6.0.1
@@ -65,6 +68,7 @@ dependencies:
   vue: 3.2.41
   vue-i18n: 9.2.2_vue@3.2.41
   vue-router: 4.1.6_vue@3.2.41
+  webln: registry.npmmirror.com/webln/0.3.2
 
 devDependencies:
   '@rollup/plugin-replace': 5.0.2
@@ -4904,6 +4908,28 @@ packages:
     version: 4.3.5
     dev: true
 
+  registry.npmmirror.com/@types/chrome/0.0.74:
+    resolution: {integrity: sha512-hzosS5CkQcIKCgxcsV2AzbJ36KNxG/Db2YEN/erEu7Boprg+KpMDLBQqKFmSo+JkQMGqRcicUyqCowJpuT+C6A==, registry: http://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@types/chrome/-/chrome-0.0.74.tgz}
+    name: '@types/chrome'
+    version: 0.0.74
+    dependencies:
+      '@types/filesystem': registry.npmmirror.com/@types/filesystem/0.0.32
+    dev: false
+
+  registry.npmmirror.com/@types/filesystem/0.0.32:
+    resolution: {integrity: sha512-Yuf4jR5YYMR2DVgwuCiP11s0xuVRyPKmz8vo6HBY3CGdeMj8af93CFZX+T82+VD1+UqHOxTq31lO7MI7lepBtQ==, registry: http://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@types/filesystem/-/filesystem-0.0.32.tgz}
+    name: '@types/filesystem'
+    version: 0.0.32
+    dependencies:
+      '@types/filewriter': registry.npmmirror.com/@types/filewriter/0.0.29
+    dev: false
+
+  registry.npmmirror.com/@types/filewriter/0.0.29:
+    resolution: {integrity: sha512-BsPXH/irW0ht0Ji6iw/jJaK8Lj3FJemon2gvEqHKpCdDCeemHa+rI3WBGq5z7cDMZgoLjY40oninGxqk+8NzNQ==, registry: http://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@types/filewriter/-/filewriter-0.0.29.tgz}
+    name: '@types/filewriter'
+    version: 0.0.29
+    dev: false
+
   registry.npmmirror.com/@types/node/16.18.25:
     resolution: {integrity: sha512-rUDO6s9Q/El1R1I21HG4qw/LstTHCPO/oQNAwI/4b2f9EWvMnqt4d3HJwPMawfZ3UvodB8516Yg+VAq54YM+eA==, registry: http://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@types/node/-/node-16.18.25.tgz}
     name: '@types/node'
@@ -5049,6 +5075,12 @@ packages:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==, registry: http://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/balanced-match/-/balanced-match-1.0.2.tgz}
     name: balanced-match
     version: 1.0.2
+
+  registry.npmmirror.com/bech32/2.0.0:
+    resolution: {integrity: sha512-LcknSilhIGatDAsY1ak2I8VtGaHNhgMSYVxFrGLXv+xLHytaKZKcaUJJUE7qmBr7h33o5YQwP55pMI0xmkpJwg==, registry: http://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/bech32/-/bech32-2.0.0.tgz}
+    name: bech32
+    version: 2.0.0
+    dev: false
 
   registry.npmmirror.com/binary-extensions/2.2.0:
     resolution: {integrity: sha512-jDctJ/IVQbZoJykoeHbhXpOlNBqGNcwXJKJog42E5HDPUwQTSdjCHdihjj0DlnheQ7blbT6dHOafNAiS8ooQKA==, registry: http://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/binary-extensions/-/binary-extensions-2.2.0.tgz}
@@ -6461,6 +6493,14 @@ packages:
       - supports-color
       - terser
     dev: true
+
+  registry.npmmirror.com/webln/0.3.2:
+    resolution: {integrity: sha512-YYT83aOCLup2AmqvJdKtdeBTaZpjC6/JDMe8o6x1kbTYWwiwrtWHyO//PAsPixF3jwFsAkj5DmiceB6w/QSe7Q==, registry: http://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/webln/-/webln-0.3.2.tgz}
+    name: webln
+    version: 0.3.2
+    dependencies:
+      '@types/chrome': registry.npmmirror.com/@types/chrome/0.0.74
+    dev: false
 
   registry.npmmirror.com/well-known-symbols/2.0.0:
     resolution: {integrity: sha512-ZMjC3ho+KXo0BfJb7JgtQ5IBuvnShdlACNkKkdsqBmYw3bPAaJfPeYUo6tLUaT5tG/Gkh7xkpBhKRQ9e7pyg9Q==, registry: http://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/well-known-symbols/-/well-known-symbols-2.0.0.tgz}

@@ -5,6 +5,7 @@ import LoadProgressProvideVue from "@/components/LoadProgressProvide.vue";
 import NostrConnect from "@/components/NostrConnect.vue";
 import NostrContainerProvade from "@/components/NostrContainerProvade.vue";
 import UploadProvideVue from "@/components/UploadProvide.vue";
+import ZapsPrivider from "./ZapsPrivider.vue";
 </script>
 
 <template>
@@ -19,7 +20,9 @@ import UploadProvideVue from "@/components/UploadProvide.vue";
                   <UploadProvideVue>
                     <NostrConnect>
                       <CollectProvide>
-                        <slot></slot>
+                        <ZapsPrivider>
+                          <slot></slot>
+                        </ZapsPrivider>
                       </CollectProvide>
                     </NostrConnect>
                   </UploadProvideVue>

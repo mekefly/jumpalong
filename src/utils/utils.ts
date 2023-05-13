@@ -557,3 +557,11 @@ export function prettifyStringify(obj: any, space: string = "    ") {
   };
   return recur(obj, 1);
 }
+
+export function strToArrayLikeNumber(str: string): ArrayLike<number> {
+  const l = [];
+  for (let index = 0; index < str.length; index++) {
+    l.push(str.charCodeAt(index));
+  }
+  return l;
+}

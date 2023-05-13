@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { t } from "@/i18n";
-import { TYPES, config } from "@/nostr/nostr";
+import { config, TYPES } from "@/nostr/nostr";
 import { Event } from "nostr-tools";
 import { useNostrContainerGet } from "./NostrContainerProvade";
 import PapawTree from "./PapawTree.vue";
@@ -67,7 +67,7 @@ if (refreshState) {
         {{ t("load_parent") }}
       </n-button>
     </div>
-    <n-empty v-else :description="t('not_found')" size="huge"> </n-empty>
+    <n-empty v-else :description="t('not_found_post')" size="huge"> </n-empty>
     <PapawTreeHierarchyVue>
       <PapawTree :event="chindEvent"></PapawTree>
     </PapawTreeHierarchyVue>

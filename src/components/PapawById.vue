@@ -35,7 +35,7 @@ const pushToTextNote = usePushShortTextNote();
 
   <div v-else>
     <n-empty
-      :description="t('not_found')"
+      :description="t('not_found_post')"
       size="huge"
       :click="() => pushToTextNote(id)"
     />

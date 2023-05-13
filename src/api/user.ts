@@ -88,7 +88,7 @@ export class UserApi {
           })
           .addStaff(createLatestEventStaff())
           .addStaff(ReplaceableEventMapStaff(0, pubkey)) //可替换事件缓存
-          .addStaff(createUseChannelMetadata())
+          .addStaff(createUseChannelMetadata<UserMetaData>())
           .addStaff(createEoseUnSubStaff())
           .addStaff(createTimeoutUnSubStaff())
           .addStaff(createWithEvent());

@@ -9,11 +9,9 @@ import { getUrlsByEvent } from "./PapawSourceUrl";
 
 const props = defineProps<{
   pubkey: string;
-  created_at: number;
   event?: Event;
 }>();
-// const urls =
-const { pubkey, created_at } = toRefs(props);
+const { pubkey } = toRefs(props);
 
 const userApi = useNostrContainerGet(TYPES.UserApi);
 

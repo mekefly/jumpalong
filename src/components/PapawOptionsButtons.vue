@@ -1,11 +1,10 @@
 <script lang="ts" setup>
-import { t } from "@/i18n";
 import { useOnOK } from "@/utils/use";
 import { useThemeVars } from "naive-ui";
 import { Event } from "nostr-tools";
-import CloudLightning from "./icon/CloudLightning.vue";
 import PapawReactionVue from "./PapawReaction.vue";
 import PapawReplyButtonVue from "./PapawReplyButton.vue";
+import ZapsButton from "./ZapsButton.vue";
 
 const props = defineProps<{
   event: Event;
@@ -13,8 +12,6 @@ const props = defineProps<{
 }>();
 
 const { event, deleteEvent } = toRefs(props);
-
-const message = useMessage();
 
 const onOK = useOnOK();
 const theme = useThemeVars();
@@ -28,11 +25,7 @@ const limit = 20;
   <div class="flex items-center justify-between">
     <n-space class="flex justify-around py-4 box-border">
       <PapawReplyButtonVue :size="size" :event="event" />
-      <n-button text @click="() => message.error(t('not_implemented'))">
-        <n-icon :size="size">
-          <CloudLightning />
-        </n-icon>
-      </n-button>
+      <ZapsButton :size="size" :event="event" />
     </n-space>
     <PapawReactionVue :size="size" :event="event" />
   </div>

@@ -6,4 +6,5 @@ export interface UserMetaData extends Metadata {
   displayName?: string;
   username?: string;
   banner?: string;
+  lud16?: string;
 }

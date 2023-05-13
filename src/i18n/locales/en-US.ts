@@ -224,7 +224,9 @@ export default createI18nConfig({
     add_relay: "Add Realy",
     successfully_added: "Successfully added",
 
-    not_found: "Not Found",
+    not_found_post: "Not Found Post",
+    not_found: "Not found",
+
     enable_papaw_tree: "Enable Tree Message Bubble",
     mention: "Mention",
     load_parent_success: "Load parent papaw success!",
@@ -307,6 +309,7 @@ export default createI18nConfig({
     delete: "Delete",
 
     language_settings: "Language Settings",
+    pay: "Pay",
 
     //message
     relay_configurator_save_message:
@@ -321,6 +324,9 @@ export default createI18nConfig({
     clear_local_storage_warning:
       "Are you sure you want to clean up localStorage? LocalStorage is the local storage provided by the browser. You need to back up the private key and remember it a bit",
     cleanup_succeeded: "Cleanup succeeded",
+    incorrect_lightning_address: "Incorrect lightning address",
+    payment_failed: "Payment failed",
+    failed_to_generate_invoice: "Failed to generate invoice",
 
     //dialog
     do_you_want_to_discard_the_changes: `Do you want to discard the changes?`,

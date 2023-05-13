@@ -60,6 +60,12 @@ const { userMetadata } = toRefs(props);
     :placeholder="t('nip5')"
     v-model:value="userMetadata.nip05"
   />
+  <n-input
+    class="mt-2"
+    type="text"
+    :placeholder="`${t('lud16')}: username@domain.xxx`"
+    v-model:value="userMetadata.lud16"
+  />
 </template>
 
 <style scoped></style>

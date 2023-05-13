@@ -1,48 +1,38 @@
+import { Metadata } from "@/types/MetaData";
 import { Event } from "nostr-tools";
-import { createStaff } from ".";
-import { ChannelMetadata } from "../../types/ChannelMetadata";
-import { EventBeltline } from "../eventBeltline";
+import { createStaffFactory } from ".";
 import { deserializeTagR } from "../tag";
 import { LatestEventStaffFeat } from "./createLatestEventStaff";
 
-export default function createUseChannelMetadata(): {
-  feat: {
-    useMetadata(this: {
-      beltline: EventBeltline<LatestEventStaffFeat>;
-    }): ChannelMetadata;
-    onHasMetadata(
-      this: { beltline: EventBeltline<LatestEventStaffFeat> },
-      callback: (channelMetaData: ChannelMetadata, subId?: string) => void
-    ): void;
-  };
-} {
-  return createStaff({
+export default createStaffFactory<LatestEventStaffFeat>()(<
+  D extends Metadata
+>() => {
+  return {
     feat: {
-      useMetadata() {
+      useMetadata<Defaul = Partial<D>>(d: Defaul = {} as Defaul): D | Defaul {
+        //@ts-ignore
         const event = this.beltline.feat.getLatestEvent();
-        if (!event) return {};
-        return parseMetadata(event);
+        if (!event) return d as any;
+        return parseMetadata<D>(event);
       },
-      onHasMetadata(
-        callback: (channelMetaData: ChannelMetadata, subId?: string) => void
-      ) {
+      onHasMetadata(callback: (metadata: D, subId?: string) => void) {
         this.beltline.feat.onHasLatestEvent((event, subId) => {
-          callback(parseMetadata(event), subId);
+          callback(parseMetadata<D>(event), subId);
         });
       },
     },
-  });
-}
+  };
+});
 
 /**
  * https://github.com/nostr-protocol/nips/blob/master/28.md
  */
-export function parseMetadata(event: Event): ChannelMetadata {
-  let data: ChannelMetadata = {};
+export function parseMetadata<D extends Metadata>(event: Event): D {
+  let data: any = {} as any;
   try {
     const s = deserializeTagR(event.tags);
-    data.relayUrls = [...s];
-    event && (data = JSON.parse(event.content));
+    data = JSON.parse(event.content);
+    (data.relayUrls ?? (data.relayUrls = [])).push([...s]);
   } catch (error) {}
   return data;
 }

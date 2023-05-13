@@ -221,7 +221,8 @@ const message: I18nLocalConfig = {
     add_relay: "添加中继",
     successfully_added: "添加成功",
 
-    not_found: "没有找到帖子",
+    not_found_post: "没有找到帖子",
+    not_found: "没有找到",
 
     enable_papaw_tree: "启用树形展示消息",
     mention: "引用",
@@ -298,6 +299,7 @@ const message: I18nLocalConfig = {
     delete: "删除",
 
     language_settings: "语言设置",
+    pay: "支付",
 
     //message
     relay_configurator_save_message:
@@ -311,6 +313,9 @@ const message: I18nLocalConfig = {
     clear_local_storage_warning:
       "您确定要清理localStorage吗？localStorage是浏览器提供的本地存储，您需要备份一下私钥和稍微记忆一下中续",
     cleanup_succeeded: "清理成功",
+    incorrect_lightning_address: "闪电地址不正确",
+    payment_failed: "支付失败",
+    failed_to_generate_invoice: "生成发票失败",
 
     //dialog
     do_you_want_to_discard_the_changes: `您要放弃修改吗？`,

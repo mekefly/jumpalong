@@ -35,7 +35,6 @@ export class FollowChannelSynchronizer extends ParameterizedReplaceableSynchroni
     const identifier = "follower-channel";
     super(identifier);
     this.identifier = identifier;
-    console.log("this", this, this.cahnnelMessageBeltline);
   }
   createDefault(): ChannelConfigurationType {
     return new Map();
@@ -136,8 +135,6 @@ export class FollowChannelSynchronizer extends ParameterizedReplaceableSynchroni
     channelId: string,
     channelConfigurationData: ChannelConfigurationData
   ) {
-    console.log("this.cahnnelMessageBeltline", this.cahnnelMessageBeltline);
-
     await timeout(0);
     const line =
       this.cahnnelMessageBeltline.getChannelMetadataBeltlineByChannelId(
