@@ -21,9 +21,25 @@ export default defineConfig((opt) => {
 
   return {
     test: {
+      browser: {
+        // enabled: true,
+        name: "chrome", // browser name is required
+      },
       globals: true,
       environment: "happy-dom",
-      // include: ["**/GeneralEventEventBeltline.test.ts"],
+      include: [
+        "EventLine",
+        "Staff",
+
+        //staff
+        "EventStaff",
+        "WebSocketFactoryStaff",
+        "PoolStaff",
+
+        // utils
+        "object",
+        "LineEmitter",
+      ].map((item) => `**/${item}.test.ts`),
     },
     base: "./",
     server: {

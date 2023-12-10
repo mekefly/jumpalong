@@ -5,12 +5,14 @@ export default function (
   globalKey: string = "logger"
 ) {
   function createStatement(_path: string) {
-    return `window[Symbol.for('${key}')].create(${JSON.stringify(_path)})`;
+    return `window[Symbol.for('${key}')].create(${JSON.stringify(_path)});`;
   }
 
   function createPath(path: string) {
     return relative(resolve(), path).replace(/\\/g, "/");
   }
+  console.log("333");
+  
   return replace({
     preventAssignment: true,
     values: {
@@ -19,9 +21,15 @@ export default function (
 
         return `const ${globalKey} = ${createStatement(_path)}`;
       },
-      ["loggerScope"]: (path: string) => {
+
+      // 可以添加一个`//@LoggerScope`这样的标志来添加一个文件局部使用的logger
+      ["@LoggerScope"]: (path: string) => {
         const _path = createPath(path);
 
+        return `@LoggerScope\nimport {logger:_logger} from "@/logger";const ${globalKey} = _logger.create(${JSON.stringify(_path)})`;
+      },
+      ["loggerScope"]: (path: string, ...rest) => {
+        const _path = createPath(path);
         return createStatement(_path);
       },
     },

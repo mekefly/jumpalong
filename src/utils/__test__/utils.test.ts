@@ -46,17 +46,29 @@ it("debounce", async () => {
 });
 it("searchInsertOnObjectList", () => {
   expect(
-    searchInsertOnObjectList([{ v: 1 }, { v: 2 }, { v: 3 }], 1, "v")
+    searchInsertOnObjectList(
+      [{ v: 1 }, { v: 2 }, { v: 3 }],
+      1,
+      (item) => item.v
+    )
   ).toMatchInlineSnapshot("0");
 });
 it("searchInsertOnObjectList", () => {
   expect(
-    searchInsertOnObjectList([{ v: 1 }, { v: 2 }, { v: 3 }], 2, "v")
+    searchInsertOnObjectList(
+      [{ v: 1 }, { v: 2 }, { v: 3 }],
+      2,
+      (item) => item.v
+    )
   ).toMatchInlineSnapshot("1");
 });
 it("searchInsertOnObjectList", () => {
   expect(
-    searchInsertOnObjectList([{ v: 1 }, { v: 2 }, { v: 3 }], 3, "v")
+    searchInsertOnObjectList(
+      [{ v: 1 }, { v: 2 }, { v: 3 }],
+      3,
+      (item) => item.v
+    )
   ).toMatchInlineSnapshot("2");
 });
 
@@ -76,7 +88,7 @@ it("searchInsertOnObjectList", () => {
         { v: 100 },
       ],
       20,
-      "v"
+      (item) => item.v
     )
   ).toMatchInlineSnapshot("4");
 });
@@ -97,7 +109,7 @@ it("searchInsertOnObjectList", () => {
         { v: 100 },
       ],
       21,
-      "v"
+      (item) => item.v
     )
   ).toMatchInlineSnapshot("5");
 });
@@ -117,7 +129,7 @@ it("searchInsertOnObjectList", () => {
         { v: 100 },
       ],
       88,
-      "v"
+      (item) => item.v
     )
   ).toMatchInlineSnapshot("7");
 });
@@ -136,7 +148,7 @@ it("reverseSearchInsertOnObjectList", () => {
       { v: 1 }, //9
     ],
     33,
-    "v"
+    (item) => item.v
   );
   expect(v).toMatchInlineSnapshot("4");
 });
@@ -156,7 +168,7 @@ it("reverseSearchInsertOnObjectList", () => {
       { v: 1 }, //9
     ],
     32,
-    "v"
+    (item) => item.v
   );
   expect(v).toMatchInlineSnapshot("5");
 });
@@ -175,7 +187,7 @@ it("reverseSearchInsertOnObjectList", () => {
       { v: 1 }, //9
     ],
     88,
-    "v"
+    (item) => item.v
   );
   expect(v).toMatchInlineSnapshot("2");
 });
@@ -194,7 +206,7 @@ it("reverseSearchInsertOnObjectList", () => {
       { v: 1 }, //9
     ],
     100,
-    "v"
+    (item) => item.v
   );
   expect(v).toMatchInlineSnapshot("0");
 });
@@ -213,7 +225,7 @@ it("reverseSearchInsertOnObjectList", () => {
       { v: 1 }, //9
     ],
     190,
-    "v"
+    (item) => item.v
   );
   expect(v).toMatchInlineSnapshot("0");
 });
@@ -233,7 +245,7 @@ it("reverseSearchInsertOnObjectList", () => {
       { v: 1 }, //9
     ],
     1,
-    "v"
+    (item) => item.v
   );
   expect(v).toMatchInlineSnapshot("9");
 });
@@ -252,7 +264,7 @@ it("reverseSearchInsertOnObjectList", () => {
       { v: 1 }, //9
     ],
     -10,
-    "v"
+    (item) => item.v
   );
   expect(v).toMatchInlineSnapshot("10");
 });
@@ -260,7 +272,7 @@ it("reverseSearchInsertOnObjectList", () => {
   const arr: { v: number }[] = [];
 
   [10, 343, 4348937, 0, 3, 32].forEach((item) => {
-    const index = reverseSearchInsertOnObjectList(arr, item, "v");
+    const index = reverseSearchInsertOnObjectList(arr, item, (item) => item.v);
     arr.splice(index, 0, { v: item });
   });
 
@@ -292,11 +304,34 @@ it("searchInsertOnObjectList", () => {
   const arr: { v: number }[] = [];
 
   [10, 343, 4348937, 0, 3, 32].forEach((item) => {
-    const index = searchInsertOnObjectList(arr, item, "v");
+    const index = searchInsertOnObjectList(arr, item, (item) => {
+      return item.v;
+    });
     arr.splice(index, 0, { v: item });
   });
 
-  expect(arr).toMatchInlineSnapshot("true");
+  expect(arr).toMatchInlineSnapshot(`
+    [
+      {
+        "v": 0,
+      },
+      {
+        "v": 3,
+      },
+      {
+        "v": 10,
+      },
+      {
+        "v": 32,
+      },
+      {
+        "v": 343,
+      },
+      {
+        "v": 4348937,
+      },
+    ]
+  `);
 });
 it("isNaN", () => {
   expect(isNaN(NaN)).toMatchSnapshot();

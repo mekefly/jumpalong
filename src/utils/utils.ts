@@ -149,30 +149,19 @@ export function throttle<F extends (...rest: any) => any>(
     return f(...rest);
   };
 }
-export function searchInsertOnObjectList<
-  E extends object,
-  K1 extends keyof E,
-  K2 extends keyof E[K1],
-  K3 extends keyof E[K1][K2],
-  K4 extends keyof E[K1][K2][K3],
-  K5 extends keyof E[K1][K2][K3][K4]
->(
+export function searchInsertOnObjectList<E extends object>(
   objList: E[],
   target: number,
-  ...keys: [
-    K1,
-    K2 | void,
-    K3 | void,
-    K4 | void,
-    K5 | void,
-    ...(string | symbol | number | void)[]
-  ]
+  getValue: (item: E) => number
 ) {
   const len = objList.length;
-  const _getValue = (index: number) => getValue(objList[index], keys as any);
+  const _getValue = (index: number) => {
+    return getValue(objList[index]);
+  };
 
   // 两边
-  if (target < _getValue(0)) return 0;
+  if (objList.length === 0 || target < _getValue(0)) return 0;
+
   if (target > _getValue(len - 1)) return len;
 
   // 二分法
@@ -191,27 +180,13 @@ export function searchInsertOnObjectList<
   }
   return left;
 }
-export function reverseSearchInsertOnObjectList<
-  E extends object,
-  K1 extends keyof E,
-  K2 extends keyof E[K1],
-  K3 extends keyof E[K1][K2],
-  K4 extends keyof E[K1][K2][K3],
-  K5 extends keyof E[K1][K2][K3][K4]
->(
+export function reverseSearchInsertOnObjectList<E extends object>(
   objList: E[],
   target: number,
-  ...keys: [
-    K1,
-    K2 | void,
-    K3 | void,
-    K4 | void,
-    K5 | void,
-    ...(string | symbol | number | void)[]
-  ]
+  getValue: (item: E) => number
 ) {
   const len = objList.length;
-  const _getValue = (index: number) => getValue(objList[index], keys as any);
+  const _getValue = (index: number) => getValue(objList[index]);
 
   // 两边
   if (target > _getValue(0)) return 0;

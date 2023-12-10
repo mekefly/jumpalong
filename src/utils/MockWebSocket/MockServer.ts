@@ -28,10 +28,7 @@ export class MockServer {
   emit<e extends eType>(type: e, v: EventMap[e]) {
     this.eventEmitter.emit(type, v);
   }
-  on<e extends eType>(
-    type: e,
-    callBack: (this: typeof this, v: EventMap[e]) => void
-  ) {
+  on<e extends eType>(type: e, callBack: (this: this, v: EventMap[e]) => void) {
     this.eventEmitter.on(type, callBack.bind(this));
   }
   allowConnections(mockWebSocket: MockWebSocket) {
