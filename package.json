@@ -2,6 +2,7 @@
   "name": "jumpalong",
   "displayName": "Jumpalong",
   "version": "0.7.0-test.2",
+  "type": "module",
   "description": "Jumpalong is a nostr client",
   "author": {
     "name": "mekefly",
@@ -10,10 +11,12 @@
   },
   "scripts": {
     "dev": "vite",
+    "build1": "node scripts/build.js",
     "build": "run-p type-check build-only",
     "vite-build-android": "pnpm build-only --config vite.config.android.ts",
     "preview": "vite preview",
     "unit": "vitest  --root src/",
+    "test": "vitest",
     "build-only": "vite build",
     "type-check": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
     "release": "pnpm standard-version",
@@ -23,15 +26,37 @@
     "release:patch:test": "npm run release -- --release-as patch --prerelease test && pnpm deploy-test && pnpm build-android",
     "release:minor:test": "npm run release -- --release-as minor --prerelease test && pnpm deploy-test && pnpm build-android",
     "release:major:test": "npm run release -- --release-as major --prerelease test && pnpm deploy-test && pnpm build-android",
-    "script": "node scripts",
+    "script": "node scripts2",
     "re-script": "node scripts --reBuild",
     "run-deploy": "pnpm script deploy $",
     "deploy-test": "pnpm script deploy $ --test",
     "build-android": "pnpm script build-android",
     "auto-release:patch:test": "pnpm script release --patch",
-    "auto-release:patch:prod": "pnpm script release --patch --test=false"
+    "auto-release:patch:prod": "pnpm script release --patch --test=false",
+    "test-unit": "vitest -c vitest.unit.config.ts",
+    "lint": "eslint --cache --ext .ts packages/*/{src,__tests__}/**.ts",
+    "test-e2e": "node scripts/build.js vue -f global -d && vitest -c vitest.e2e.config.ts",
+    "test-dts": "run-s build-dts test-dts-only",
+    "check": "tsc --incremental --noEmit"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint-staged && pnpm check",
+    "commit-msg": "node scripts/verifyCommit.js"
+  },
+  "lint-staged": {
+    "*.{js,json}": [
+      "prettier --write"
+    ],
+    "*.ts?(x)": [
+      "eslint",
+      "prettier --parser=typescript --write"
+    ]
+  },
+  "engines": {
+    "node": ">=18.12.0"
   },
   "dependencies": {
+    "@jumpalong/logger": "workspace:*",
     "@noble/secp256k1": "^1.7.1",
     "@vitest/browser": "^0.34.6",
     "@vueuse/components": "^9.13.0",
@@ -54,11 +79,27 @@
     "webln": "^0.3.2"
   },
   "devDependencies": {
-    "@rollup/plugin-replace": "^5.0.2",
+    "@vue/consolidate": "0.17.3",
+    "@rollup/plugin-json": "^6.0.1",
+    "magic-string": "^0.30.5",
+    "@babel/parser": "^7.23.5",
+    "execa": "^8.0.1",
+    "pretty-bytes": "^6.1.1",
+    "picocolors": "^1.0.0",
+    "rollup-plugin-polyfill-node": "^0.12.0",
+    "@rollup/plugin-terser": "^0.4.4",
+    "rollup-plugin-esbuild": "^6.1.0",
+    "@rollup/plugin-alias": "^5.0.1",
+    "@codspeed/vitest-plugin": "^2.3.1",
+    "@rollup/plugin-commonjs": "^22.0.2",
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "@rollup/plugin-replace": "^5.0.5",
     "@types/mockdate": "^3.0.0",
     "@types/node": "^16.11.68",
+    "@types/prettier": "^2.7.0",
     "@types/shelljs": "^0.8.11",
     "@vitejs/plugin-vue": "^3.1.2",
+    "@vue/reactivity": "^3.2.38",
     "@vue/test-utils": "^2.1.0",
     "@vue/tsconfig": "^0.1.3",
     "autoprefixer": "^10.4.12",
@@ -69,20 +110,25 @@
     "minimist": "^1.2.8",
     "mockdate": "^3.0.5",
     "npm-run-all": "^4.1.5",
-    "picocolors": "^1.0.0",
     "postcss": "^8.4.18",
     "process": "^0.11.10",
+    "rollup": "^4.8.0",
+    "rollup-plugin-terser": "^7.0.2",
+    "rollup-plugin-typescript2": "^0.36.0",
     "sass": "^1.61.0",
     "shelljs": "^0.8.5",
     "standard-version": "^9.5.0",
     "stylus": "^0.59.0",
     "tailwindcss": "^3.2.1",
-    "typescript": "~5.0.4",
+    "tslib": "^2.6.2",
+    "typescript": "^5.2.2",
     "unplugin-auto-import": "^0.14.3",
     "unplugin-vue-components": "^0.24.0",
-    "vite": "^3.2.5",
+    "vite": "^5.0.5",
     "vite-auto-import-resolvers": "^3.0.5",
-    "vitest": "^0.31.4",
+    "vitest": "^1.0.4",
     "vue-tsc": "^1.0.8"
-  }
+  },
+  "unpkg": "dist/jumpalong.iife.js",
+  "jsdelivr": "dist/jumpalong.iife.js"
 }

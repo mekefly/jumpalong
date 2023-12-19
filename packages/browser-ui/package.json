@@ -1,0 +1,14 @@
+{
+  "name": "@jumpalong/browser-ui",
+  "version": "0.0.0-bate.0",
+  "description": "",
+  "types": "dist/types/index.d.ts",
+  "buildOptions": {
+    "help": "disableBuild  这将会禁止通用构建脚本",
+    "disableBuild": true
+  },
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
+}

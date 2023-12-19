@@ -1,0 +1,23 @@
+{
+  "name":"@jumpalong/nostr-runtime",
+  "version":"0.0.0-bate.0",
+  "description":"",
+  "types":"dist/types/index.d.ts",
+  "scripts":{
+
+  },
+  "keywords":[
+
+  ],
+  "author":"",
+  "license":"MIT",
+  "dependencies":{
+    "@jumpalong/logger":"workspace:*",
+    "@jumpalong/shared":"workspace:*",
+    "nostr-tools":"^1.17.0"
+  },
+  "unpkg":"dist/jumpalong-nostr-runtime.iife.js",
+  "jsdelivr":"dist/jumpalong-nostr-runtime.iife.js",
+  "module":"dist/jumpalong-nostr-runtime.esm.js",
+  "main":"dist/jumpalong-nostr-runtime.cjs.js"
+}

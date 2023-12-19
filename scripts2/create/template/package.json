@@ -1,0 +1,10 @@
+{
+  "name": "--package--name--",
+  "version": "0.0.0-bate.0",
+  "description": "",
+  "types": "dist/types/index.d.ts",
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
+}

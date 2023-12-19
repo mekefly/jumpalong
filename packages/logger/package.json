@@ -1,0 +1,23 @@
+{
+  "name":"@jumpalong/logger",
+  "version":"0.0.0-bate.0",
+  "description":"",
+  "types":"src/index",
+  "scripts":{
+
+  },
+  "keywords":[
+
+  ],
+  "type":"module",
+  "exports":{
+    "./globals": {
+      "types": "./globals.d.ts"
+    }
+  },
+  "author":"",
+  "license":"MIT",
+  "module":"dist/jumpalong-logger.esm.js",
+  "unpkg":"dist/jumpalong-logger.iife.js",
+  "jsdelivr":"dist/jumpalong-logger.iife.js"
+}

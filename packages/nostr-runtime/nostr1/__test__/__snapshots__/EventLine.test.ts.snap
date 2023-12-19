@@ -1,0 +1,18 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`assignFeat 1`] = `
+EventLineFactory {
+  "core": EventLineEmitter {
+    "emitter": LineEmitter {
+      "_returnEmitter": null,
+      "events": {},
+      "isRunMap": Map {},
+    },
+    "feat": [Circular],
+    "mod": [Circular],
+    "xx": 1,
+  },
+  "staffNames": Set {},
+  "staffs": Set {},
+}
+`;

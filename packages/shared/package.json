@@ -1,0 +1,29 @@
+{
+  "name": "@jumpalong/shared",
+  "version": "0.0.0-bate.0",
+  "author": "mekefly",
+  "license": "MIT",
+  "description": "",
+  "main": "index.js",
+  "module": "dist/shared.esm-bundler.js",
+  "types": "dist/shared.d.ts",
+  "files": [
+    "index.js",
+    "dist"
+  ],
+  "sideEffects": false,
+  "buildOptions": {
+    "formats": [
+      "esm-bundler",
+      "cjs"
+    ]
+  },
+  "keywords": [
+    "jumpalong",
+    "nostr"
+  ],
+  "bugs": {
+    "url": "https://github.com/vuejs/core/issues"
+  },
+  "homepage": "https://github.com/vuejs/core/tree/main/packages/shared#readme"
+}
