@@ -1,120 +1,116 @@
 <script lang="ts" setup>
-import { EventApi } from "@/api/event";
-import PapawVueList from "@/components/PapawList.vue";
-import { t } from "@/i18n";
-import { TYPES } from "@/nostr/nostr";
-import { useElementIntoScreen } from "@/utils/use";
-import { Event, Filter } from "nostr-tools";
-import { useNostrContainerGet } from "./NostrContainerProvade";
-import PapawByAddr from "./PapawByAddr.vue";
-import PapawById from "./PapawById.vue";
-import { useLoad } from "./Refresh";
-const logger = loggerScope;
-logger.debug();
+import PapawVueList from '../components/PapawList.vue'
+import { useElementIntoScreen } from '../utils/use'
+import { Event, Filter } from 'nostr-tools'
+import PapawByAddr from './PapawByAddr.vue'
+import PapawById from './PapawById.vue'
+import { useEventLine } from './ProvideEventLine'
+import { EventApiStaff } from '@jumpalong/nostr-runtime'
+import { useLoad } from './Refresh'
+
+logger.debug()
 
 const props = withDefaults(
   defineProps<{
-    urls?: Set<string>;
-    pubkeys?: string[];
-    filter?: Filter;
-    filters?: Filter[];
-    pushEvent?: (e: Event) => void;
-    active?: boolean;
-    disabledLoad?: boolean;
-    disabledEmpty?: boolean;
-    limit?: number;
-    reverseSort?: boolean;
-    disabledReply?: boolean;
-    tags?: string[][];
+    urls?: Set<string>
+    pubkeys?: string[]
+    filter?: Filter
+    filters?: Filter[]
+    pushEvent?: (e: Event) => void
+    active?: boolean
+    disabledLoad?: boolean
+    disabledEmpty?: boolean
+    limit?: number
+    reverseSort?: boolean
+    disabledReply?: boolean
+    tags?: string[][]
   }>(),
   {
     active: true,
   }
-);
+)
 const emit = defineEmits<{
-  (e: "update:pushEvent", v: (e: Event) => void): void;
-}>();
-const { pubkeys: pubkey, filter, filters, urls, active } = toRefs(props);
-const message = useMessage();
-const eventApi = useNostrContainerGet<EventApi>(TYPES.EventApi);
+  (e: 'update:pushEvent', v: (e: Event) => void): void
+}>()
+const { pubkeys: pubkey, filter, filters, urls, active } = toRefs(props)
+const message = useMessage()
+let eventLine = useEventLine(EventApiStaff)
 
 const mergeFilters = computed(() => {
-  const _filters = filters?.value ? [...filters.value] : [];
+  const _filters = filters?.value ? [...filters.value] : []
 
-  filter?.value && _filters.push(filter.value);
+  filter?.value && _filters.push(filter.value)
   pubkey?.value &&
-    _filters.push(
-      ...pubkey.value.map((pubkey) => {
-        return {
-          kinds: [30023, 1],
-          authors: [pubkey],
-        } as Filter;
-      })
-    );
+    _filters.push({
+      kinds: [30023, 1],
+      authors: pubkey.value,
+      limit: 1,
+    })
 
-  return _filters;
-});
+  return _filters
+})
 
-const generalEventEventBeltline = useNostrContainerGet(
-  TYPES.GeneralEventEventBeltline
-);
-logger.silly("generalEventEventBeltline", generalEventEventBeltline);
+// const generalEventEventBeltline = useNostrContainerGet(
+//   TYPES.GeneralEventEventBeltline
+// )
+// logger.silly('generalEventEventBeltline', generalEventEventBeltline)
 
 const allPubkeys = computed(() => [
   ...(pubkey?.value ?? []),
-  ...mergeFilters.value.map((filter) => filter.authors ?? []).flat(1),
-]);
+  ...mergeFilters.value.map(filter => filter.authors ?? []).flat(1),
+])
 
 const textEventbeltline = computed(() => {
-  const opt: any = {};
+  const opt: any = {}
 
-  const line = generalEventEventBeltline.createGeneralEventEventBeltline({
+  console.log('commonEventList')
+
+  const line = eventLine.cachedCommonEventList({
     filters: mergeFilters.value,
     ...opt,
-    addUrls: urls?.value,
+    urls: urls?.value,
     pubkeys: allPubkeys.value,
     limit: props.limit,
-  });
+  })
 
-  props.reverseSort && line.addStaffOfSortByCreateAt();
+  // props.reverseSort && line.addStaffOfSortByCreateAt()
 
-  return line;
-});
+  return line
+})
 
-const loadOptions = useLoad(textEventbeltline, active);
+useLoad(textEventbeltline, active)
 
-onUnmounted(() => {
-  textEventbeltline.value?.closeReq();
-});
+const postEvents = computed(() => textEventbeltline.value?.getList())
 
-const postEvents = computed(() => textEventbeltline.value?.getList());
+// setInterval(() => {
+//   console.log('postEvents', postEvents.value)
+// }, 1000)
 
-emit("update:pushEvent", (e: Event) => {
-  textEventbeltline.value?.pushEvent(e);
-});
+// emit('update:pushEvent', (e: Event) => {
+//   textEventbeltline.value?.pushEvent(e)
+// })
 const isLoading = computed(
-  () =>
-    textEventbeltline.value?.feat.loadBufferOpt.isLoading ||
-    textEventbeltline.value?.feat.refreshBufferOpt.isLoading
-);
-defineExpose({
-  postEvents,
-  ...loadOptions,
-});
-const divRef = ref(undefined);
-useElementIntoScreen(divRef, {
-  active: active ?? ref(true),
-});
-
-const instance = ref(getCurrentInstance());
+  () => false
+  // textEventbeltline.value?.feat.loadBufferOpt.isLoading ||
+  // textEventbeltline.value?.feat.refreshBufferOpt.isLoaDing
+)
+// defineExpose({
+//   postEvents,
+//   ...loadOptions,
+// })
+// const divRef = ref(undefined)
+// useElementIntoScreen(divRef, {
+//   active: active ?? ref(true),
+// })
 </script>
 
 <template>
   <div ref="divRef">
     <div
       class="py-20 flex items-center justify-center"
-      v-if="!disabledLoad && isLoading && postEvents && postEvents.length === 0"
+      v-if="postEvents && postEvents.length === 0"
     >
+      <!-- v-if="!disabledLoad && isLoading && postEvents && postEvents.length === 0" -->
       <n-spin size="medium" />
     </div>
 
@@ -145,7 +141,6 @@ const instance = ref(getCurrentInstance());
       :eventList="postEvents"
       withPapawOptionsButtons
       :disabledReply="disabledReply"
-      @eventDeletion="(id) => eventApi.eventDeletionOne(id)"
     />
   </div>
 </template>

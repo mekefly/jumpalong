@@ -7,32 +7,47 @@ it('add pool', () => {
     .add(createStaff('web-socket-factory', l => l))
     .add(PoolStaff)
   expect(objectFilter(m1, 'deep', 'no:emitter')).toMatchInlineSnapshot(`
-        {
-          "core": {
-            "allSubIds": Set {},
-            "closeRelay": [Function],
-            "createRelay": [Function],
-            "feat": [Circular],
-            "getPool": [Function],
-            "getRelay": [Function],
-            "getRelayFromPool": [Function],
-            "listen": [Function],
-            "mod": [Circular],
-            "pool": {},
-          },
-          "staffNames": Set {
-            "web-socket-factory",
-          },
-          "staffs": Set {
-            [Function],
-            [Function],
-            [Function],
-            [Function],
-            [Function],
-            [Function],
-          },
-        }
-      `)
+    {
+      "core": {
+        "allSubIds": Set {},
+        "closeRelay": [Function],
+        "createId": [Function],
+        "createRelay": [Function],
+        "emitEvent": [Function],
+        "feat": [Circular],
+        "getPool": [Function],
+        "getRelay": [Function],
+        "getRelayFromPool": [Function],
+        "listen": [Function],
+        "mod": [Circular],
+        "pool": {},
+        "publish": [Function],
+        "publishes": [Function],
+        "sub": [Function],
+        "subs": [Function],
+      },
+      "id": 0,
+      "parent": null,
+      "staffNames": Set {
+        "web-socket-factory",
+        "pool-staff",
+        "create-id",
+      },
+      "staffs": Set {
+        [Function],
+        [Function],
+        [Function],
+        [Function],
+        [Function],
+        [Function],
+        [Function],
+        [Function],
+        [Function],
+        [Function],
+        [Function],
+      },
+    }
+  `)
 })
 
 it('add pool', async () => {
@@ -44,7 +59,7 @@ it('add pool', async () => {
           l.assignFeat({
             async webSocketFactory() {
               return {}
-            }
+            },
           }),
           l
         )

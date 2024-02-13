@@ -1,10 +1,14 @@
 <script lang="ts" setup>
-import { t } from "@/i18n";
-import { relayPool } from "@/nostr/nostr";
-import { createDynamicColor } from "@/utils/utils";
+import { createDynamicColor } from '@jumpalong/shared'
+import { t } from '../i18n'
+import { PoolStaff } from '@jumpalong/nostr-runtime'
+import { useEventLine } from './ProvideEventLine'
+let line = useEventLine(PoolStaff)
 
-const poolSize = computed(() => relayPool.getPool().size);
-const subIdSize = computed(() => relayPool.allSubIds.size);
+console.log('line.relayPool', line.relayPool)
+
+const poolSize = computed(() => line.relayPool.getPool().size)
+const subIdSize = computed(() => line.relayPool.allSubIds.size)
 </script>
 
 <template>
@@ -31,7 +35,7 @@ const subIdSize = computed(() => relayPool.allSubIds.size);
         {{ poolSize }}
       </span>
     </template>
-    {{ t("number_of_current_and_continued_connections") }}
+    {{ t('number_of_current_and_continued_connections') }}
   </n-tooltip>
 </template>
 

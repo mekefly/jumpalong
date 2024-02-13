@@ -6,8 +6,4 @@ import { Metadata } from './Metadata'
 
 export interface ChannelMetadata extends Metadata {
   relayUrls?: string[]
-  display_name?: string
-  displayName?: string
-  username?: string
-  banner?: string
 }

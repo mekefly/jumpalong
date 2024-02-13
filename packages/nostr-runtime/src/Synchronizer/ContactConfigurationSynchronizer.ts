@@ -3,7 +3,10 @@ import { ContactConfigurationType } from 'packages/browser-ui/src/types/Contact'
 import ReplaceableSynchronizerAbstract from './abstract/ReplaceableSynchronizerAbstract'
 import { ChannelMetadata } from 'nostr-tools/nip28'
 import { TagE, deserializeTagP, serializeTagE } from '../event/tag'
-import { EventLine } from '..'
+import { EventLine, Pubkey, UserApiStaff, createClassStaff } from '..'
+import { ContactMetaData } from '../types/ContactMetaData'
+import { debounce } from '@jumpalong/shared'
+import { UserApi } from 'packages/browser-ui/src/api/user'
 
 export type ContactConfigurationDatas = {
   contactConfiguration: ContactConfigurationType
@@ -13,6 +16,15 @@ export type ChannelConfigurationData = ChannelMetadata & TagE
 type ChannelConfigurationType = Map<string, ChannelConfigurationData>
 
 export class ContactConfigurationSynchronizer extends ReplaceableSynchronizerAbstract<ContactConfigurationType> {
+  static Staff = createClassStaff(
+    'contactConfiguration',
+    ContactConfigurationSynchronizer,
+    [],
+    mod => {
+      return mod
+    }
+  )
+
   constructor(line: EventLine<{}>) {
     super(line, 'ContactConfiguration')
     logger.verbose('new ContactConfiguration()')
@@ -26,7 +38,7 @@ export class ContactConfigurationSynchronizer extends ReplaceableSynchronizerAbs
     const pubkey = await this.getLine().getPubkeyOrNull()
     if (!pubkey) return []
 
-    return [{ kinds: [3], authors: [pubkey] }]
+    return [{ kinds: [3], authors: [pubkey.toHex()] }]
   }
 
   public async serializeToData(e: Event) {
@@ -39,7 +51,7 @@ export class ContactConfigurationSynchronizer extends ReplaceableSynchronizerAbs
     return contactConfiguration
   }
   getContactConfiguration() {
-    return this.getDataSync()['contactConfiguration']
+    return this.getDataSync()
   }
   public async deserializeToEvent(
     data: ContactConfigurationType,
@@ -58,58 +70,70 @@ export class ContactConfigurationSynchronizer extends ReplaceableSynchronizerAbs
     })
   }
 
-  follow(pubkey?: string, relayUrl?: string, name?: string) {
+  follow(pubkey?: string | Pubkey, relayUrl?: string, name?: string) {
     if (!pubkey) return
+    pubkey = Pubkey.fromMaybeHex(pubkey)
+
+    //已关注就不会执行
+    if (this.isFollow(pubkey.toHex())) return
 
     // 每改变一次加一次，如果中间有新的更新，就会强制停止同步
     const contactConfiguration = this.getDataSync()
 
-    const contactMetaData: ContactMetaData = (contactConfiguration[pubkey] = {
-      pubkey,
+    const contactMetaData: ContactMetaData = (contactConfiguration[
+      pubkey.toHex()
+    ] = {
+      pubkey: pubkey.toHex(),
       name: name ?? '',
       relayUrl: relayUrl ?? '',
     })
 
     const changeId = this.toChanged()
 
-    const line = this.userApi.getUserMetadataLineByPubkey(pubkey)
+    const line = this.getLine()
+      .add(UserApiStaff)
+      .getUserMetadataLineByPubkey(pubkey)
 
     const debounceUpdateMetadata = debounce(
-      (metadata: ChannelMetadata, subId?: string) => {
+      (metadata: ContactMetaData, subId?: string) => {
         // if (this.isReChange(changeId)) {
         //   line.closeReq();
         //   return;
         // }
         Object.assign(contactMetaData, metadata)
-        if (metadata.relayUrls && metadata.relayUrls.length > 0) {
-          contactMetaData.relayUrl = metadata.relayUrls[0]
-        } else {
-          const url = line.getUrlBySubId(subId ?? '')
-          if (url) {
-            contactMetaData.relayUrl = url
-          }
-        }
+        // if (metadata.relayUrls && metadata.relayUrls.length > 0) {
+        //   contactMetaData.relayUrl = metadata.relayUrls[0]
+        // } else {
+        //   const url = line.getUrlBySubId(subId ?? '')
+        //   if (url) {
+        //     contactMetaData.relayUrl = url
+        //   }
+        // }
       }
     )
 
     this.save()
-    line.feat.onHasMetadata(debounceUpdateMetadata)
+    line.onHasMetadata(debounceUpdateMetadata)
   }
 
-  unFollow(pubkey?: string) {
+  unFollow(pubkey?: string | Pubkey) {
     if (!pubkey) return
+    pubkey = Pubkey.fromMaybeHex(pubkey)
+
+    //未关注就不需要执行
+    if (!this.isFollow(pubkey.toHex())) return
 
     // 每改变一次加一次，如果中间有新的更新，就会强制停止同步
-    const contactConfiguration = this.getDataSync().contactConfiguration
+    const contactConfiguration = this.getDataSync()
 
-    if (contactConfiguration[pubkey] === undefined) return
+    if (contactConfiguration[pubkey.toHex()] === undefined) return
+    delete contactConfiguration[pubkey.toHex()]
     this.toChanged()
-
-    delete contactConfiguration[pubkey]
-
     this.save()
   }
-  isFollow(pubkey: string) {
-    return Boolean(this.getDataSync()['contactConfiguration'][pubkey])
+  isFollow(pubkey: string | Pubkey) {
+    return Boolean(
+      this.getDataSync()[typeof pubkey === 'string' ? pubkey : pubkey.toHex()]
+    )
   }
 }

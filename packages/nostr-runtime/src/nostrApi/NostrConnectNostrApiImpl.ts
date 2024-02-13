@@ -5,13 +5,11 @@ import { NostrApi } from './interface/NostrApi'
 import { Nip04 } from './interface/Nip04'
 import CreateEventBeltline from 'packages/browser-ui/src/api/CreateEventBeltline'
 import {
-  DefineSubEventStaff,
   EventLine,
   EventLineFactory,
   createStaff,
 } from '..'
 import { getTempPrikey } from 'packages/browser-ui/src/api/NostrConnect'
-import SubManagerStaff from '../staff/staffs/manager/SubManagerStaff'
 
 export class NostrConnectNostrApiImpl implements NostrApi {
   tempPrikey: string
@@ -50,7 +48,7 @@ export class NostrConnectNostrApiImpl implements NostrApi {
     //监听回应
     return (this.line = this.line.mod
       .createAsATemplate()
-      .chain('addFilter', {
+      .chaining('addFilter', {
         authors: [this.pubkey],
         kinds: [kind],
         ['#p']: [this.tempPubkey],
@@ -148,7 +146,7 @@ export class NostrConnectNostrApiImpl implements NostrApi {
     return await this.request({ method: 'sign_event', params: [event] })
   }
 }
-let xx = createStaff(DefineSubEventStaff, ({ mod, line }) => {
+let xx = createStaff(({ mod, line }) => {
   line.on('sub', url => {
     line.on(
       'desub',

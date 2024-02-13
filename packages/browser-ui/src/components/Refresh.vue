@@ -1,39 +1,40 @@
 <script lang="ts" setup>
-import { useLimitMovement } from "@/utils/use";
-import { debounce } from "@/utils/utils";
-import { provideRefreshState } from "./Refresh";
-import { useInjectScrollbarInstRef } from "./Scrollbar";
+import { useLimitMovement } from '../utils/useUtils'
+import { debounce, throttle } from '@jumpalong/shared'
+import { provideRefreshState } from './Refresh'
+import { useInjectScrollbarInstRef } from './Scrollbar'
+$LoggerScope()
 
 const props = withDefaults(
   defineProps<{
-    refreshable?: boolean;
-    loadable?: boolean;
-    triggerDistance?: number;
-    maxShifting?: number;
-    containerRef?: HTMLElement | null | undefined;
+    refreshable?: boolean
+    loadable?: boolean
+    triggerDistance?: number
+    maxShifting?: number
+    containerRef?: HTMLElement | null | undefined
   }>(),
   {
     triggerDistance: 150,
     maxShifting: 200,
   }
-);
+)
 
 const emit = defineEmits<{
-  (e: "refresh"): void;
-  (e: "load"): void;
-}>();
-const { refreshable, loadable, containerRef, maxShifting } = toRefs(props);
+  (e: 'refresh'): void
+  (e: 'load'): void
+}>()
+const { refreshable, loadable, containerRef, maxShifting } = toRefs(props)
 
-const { emit: injectionEmit } = provideRefreshState();
+const { emit: injectionEmit } = provideRefreshState()
 function refresh() {
-  if (!refreshable?.value) return;
-  emit("refresh");
-  injectionEmit?.("refresh");
+  if (!refreshable?.value) return
+  emit('refresh')
+  injectionEmit?.('refresh')
 }
 function load() {
-  if (!loadable?.value) return;
-  emit("load");
-  injectionEmit?.("load");
+  if (!loadable?.value) return
+  emit('load')
+  injectionEmit?.('load')
 }
 
 const {
@@ -41,97 +42,122 @@ const {
   moveScale: workRatio,
   add,
   remake,
-} = useLimitMovement(maxShifting);
-let lastY: null | number = null;
-const { x, y, arrivedState } = useScroll(containerRef);
+} = useLimitMovement(maxShifting)
+let lastY: null | number = null
+const { x, y, arrivedState } = useScroll(containerRef)
+
+let autoLoad = throttle(() => {
+  logger.debug('auto-load')
+  injectionEmit('auto-load')
+}, 2000)
+
+let autoRefresh = throttle(() => {
+  logger.debug('auto-refresh')
+  injectionEmit('auto-refresh')
+}, 2000)
+watchEffect(() => {
+  //距离底部距离小于一定距离触发自动加载事件
+  if (!containerRef.value) return
+  if (!containerRef.value.children[0]) return
+  let contentHeight =
+    containerRef.value.children[0]?.getBoundingClientRect().height
+  let bottomRollPosition =
+    y.value + containerRef.value.getBoundingClientRect().height
+
+  if (contentHeight - bottomRollPosition < contentHeight / 2) {
+    autoLoad()
+  } else if (y.value < contentHeight / 2) {
+    autoRefresh()
+  }
+})
 
 const reset = debounce(() => {
-  trigger();
+  trigger()
 
-  homing();
-  transition.value = true;
-}, 500);
+  homing()
+  transition.value = true
+}, 500)
 useEventListener(
   containerRef,
-  "mousewheel",
+  'mousewheel',
   (e: any) => {
-    if (!(arrivedState.bottom || arrivedState.top)) return;
+    if (!(arrivedState.bottom || arrivedState.top)) return
 
-    reset();
-    add(-e.wheelDeltaY / 3);
-    transition.value = true;
+    reset()
+    add(-e.wheelDeltaY / 3)
+    transition.value = true
   },
   { passive: true }
-);
+)
 useEventListener(
   containerRef,
-  "touchmove",
+  'touchmove',
   (e: TouchEvent) => {
-    if (!(arrivedState.bottom || arrivedState.top)) return;
-    const clientY = e.touches[0].clientY;
-    if (!clientY) return;
+    if (!(arrivedState.bottom || arrivedState.top)) return
+    const clientY = e.touches[0].clientY
+    if (!clientY) return
     if (lastY) {
-      add(lastY - clientY);
+      add(lastY - clientY)
     }
-    lastY = clientY;
-    transition.value = false;
+    lastY = clientY
+    transition.value = false
   },
   { passive: true }
-);
+)
 useEventListener(
   containerRef,
-  "touchend",
+  'touchend',
   (e: TouchEvent) => {
     //如果不是顶部和底部的话，就忽略
-    if (!(arrivedState.bottom || arrivedState.top)) return;
-    trigger();
+    if (!(arrivedState.bottom || arrivedState.top)) return
+    trigger()
 
-    homing();
-    transition.value = true;
+    homing()
+    transition.value = true
   },
   { passive: true }
-);
+)
 //自动复原
 watchEffect(() => {
-  if (arrivedState.bottom || arrivedState.top) return;
-  homing();
-  transition.value = true;
-});
+  if (arrivedState.bottom || arrivedState.top) return
+  homing()
+  transition.value = true
+})
 function trigger() {
   if (Math.abs(totalTravelDistanceY.value) > props.triggerDistance) {
     if (totalTravelDistanceY.value > 0) {
-      load();
+      load()
     } else if (totalTravelDistanceY.value < 0) {
-      refresh();
+      refresh()
     }
   }
 }
 function homing() {
-  remake();
-  lastY = null;
+  remake()
+  lastY = null
 }
-const transition = ref(false);
-const scrollbarInst = useInjectScrollbarInstRef();
+const transition = ref(false)
+const scrollbarInst = useInjectScrollbarInstRef()
 
 // 限制反向拖动
 const shifting = computed(() => {
   if (totalTravelDistanceY.value < 0) {
     if (arrivedState.top) {
-      return totalTravelDistanceY.value;
+      return totalTravelDistanceY.value
     }
   }
   if (totalTravelDistanceY.value > 0) {
-    const target = scrollbarInst?.containerRef.value;
+    const target = scrollbarInst?.containerRef.value
 
     if (
       arrivedState.bottom ||
       (target && target.offsetHeight === target.scrollHeight) //解决
     ) {
-      return totalTravelDistanceY.value;
+      return totalTravelDistanceY.value
     }
   }
-  return 0;
-});
+  return 0
+})
 </script>
 
 <template>

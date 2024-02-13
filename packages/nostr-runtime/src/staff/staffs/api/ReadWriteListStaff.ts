@@ -1,7 +1,7 @@
 import {
   WritableReadableList,
   deserializeTagRToReadWriteList,
-} from 'packages/nostr-runtime/src/event/tag'
+} from '../../../event/tag'
 import { createStaff } from '../..'
 import LatestEventStaff from '../eventStaff/LatestEventStaff'
 

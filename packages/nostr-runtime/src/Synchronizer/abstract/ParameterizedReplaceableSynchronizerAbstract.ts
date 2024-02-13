@@ -1,21 +1,21 @@
-import { injectable } from "inversify";
-import { Filter } from "nostr-tools";
-import { AddressPointer } from "nostr-tools/lib/nip19";
-import ReplaceableSynchronizerAbstract from "./ReplaceableSynchronizerAbstract";
+import { injectable } from 'inversify'
+import { Filter } from 'nostr-tools'
+import ReplaceableSynchronizerAbstract from './ReplaceableSynchronizerAbstract'
+import type { AddressPointer } from 'nostr-tools/nip19'
 
 @injectable()
 export abstract class ParameterizedReplaceableSynchronizerAbstract<
   E
 > extends ReplaceableSynchronizerAbstract<E> {
-  constructor(name: string) {
-    super(name);
+  constructor(line: any, name: string) {
+    super(line, name)
   }
-  abstract getAddressPointers(): Promise<AddressPointer[]>;
+  abstract getAddressPointers(): Promise<AddressPointer[]>
   public async getFilters(): Promise<Filter[]> {
-    return (await this.getAddressPointers()).map((addressPointer) => ({
+    return (await this.getAddressPointers()).map(addressPointer => ({
       kinds: [addressPointer.kind],
       authors: [addressPointer.pubkey],
-      ["#d"]: [addressPointer.identifier],
-    }));
+      ['#d']: [addressPointer.identifier],
+    }))
   }
 }

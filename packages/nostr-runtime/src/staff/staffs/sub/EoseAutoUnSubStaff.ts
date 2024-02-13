@@ -1,14 +1,18 @@
-import { DefineSubEventStaff, EoseStaff, PoolStaff, createStaff } from '../..'
+import { CreateChildHookStaff } from '..'
+import { createStaff } from '../../staff'
+import SubStaff from './SubStaff'
 
 export default createStaff(
-  EoseStaff,
-  PoolStaff,
-  DefineSubEventStaff,
+  () => [SubStaff, CreateChildHookStaff],
   factory => {
     let line = factory.out()
-    line.on(`eose`, (subId, url) => {
-      line.emitWithOption('desub', [subId, url])
+
+    line.onCreateChildDep<typeof line>(l => {
+      l.on('eose', (subId, url) => {
+        l.relayPool.getLine().emit('desub', subId, url)
+      })
     })
+
     return factory
   }
 )

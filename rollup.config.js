@@ -13,6 +13,7 @@ import esbuild from 'rollup-plugin-esbuild'
 import alias from '@rollup/plugin-alias'
 import { entries } from './scripts/aliases.js'
 import { constEnum } from './scripts/const-enum.js'
+import { resolve as rootResolve, relative } from 'path'
 
 if (!process.env.TARGET) {
   throw new Error('TARGET package must be specified via --environment flag.')
@@ -37,33 +38,33 @@ const [enumPlugin, enumDefines] = constEnum()
 const outputConfigs = {
   'esm-bundler': {
     file: resolve(`dist/${name}.esm-bundler.js`),
-    format: `es`
+    format: `es`,
   },
   'esm-browser': {
     file: resolve(`dist/${name}.esm-browser.js`),
-    format: `es`
+    format: `es`,
   },
   cjs: {
     file: resolve(`dist/${name}.cjs.js`),
-    format: `cjs`
+    format: `cjs`,
   },
   global: {
     file: resolve(`dist/${name}.global.js`),
-    format: `iife`
+    format: `iife`,
   },
   // runtime-only builds, for main "vue" package only
   'esm-bundler-runtime': {
     file: resolve(`dist/${name}.runtime.esm-bundler.js`),
-    format: `es`
+    format: `es`,
   },
   'esm-browser-runtime': {
     file: resolve(`dist/${name}.runtime.esm-browser.js`),
-    format: 'es'
+    format: 'es',
   },
   'global-runtime': {
     file: resolve(`dist/${name}.runtime.global.js`),
-    format: 'iife'
-  }
+    format: 'iife',
+  },
 }
 
 const defaultFormats = ['esm-bundler', 'cjs']
@@ -87,9 +88,9 @@ if (process.env.NODE_ENV === 'production') {
   })
 }
 
-export default packageConfigs
+export default Promise.all(packageConfigs)
 
-function createConfig(format, output, plugins = []) {
+async function createConfig(format, output, plugins = []) {
   if (!output) {
     console.log(pico.yellow(`invalid format: "${format}"`))
     process.exit(1)
@@ -157,7 +158,7 @@ function createConfig(format, output, plugins = []) {
         : `true`,
       __FEATURE_PROD_DEVTOOLS__: isBundlerESMBuild
         ? `__VUE_PROD_DEVTOOLS__`
-        : `false`
+        : `false`,
     }
 
     if (!isBundlerESMBuild) {
@@ -186,14 +187,14 @@ function createConfig(format, output, plugins = []) {
         'context.onError(': `/*#__PURE__*/ context.onError(`,
         'emitError(': `/*#__PURE__*/ emitError(`,
         'createCompilerError(': `/*#__PURE__*/ createCompilerError(`,
-        'createDOMCompilerError(': `/*#__PURE__*/ createDOMCompilerError(`
+        'createDOMCompilerError(': `/*#__PURE__*/ createDOMCompilerError(`,
       })
     }
 
     if (isBundlerESMBuild) {
       Object.assign(replacements, {
         // preserve to be handled by bundlers
-        __DEV__: `!!(process.env.NODE_ENV !== 'production')`
+        __DEV__: `!!(process.env.NODE_ENV !== 'production')`,
       })
     }
 
@@ -202,7 +203,7 @@ function createConfig(format, output, plugins = []) {
       Object.assign(replacements, {
         'process.env': '({})',
         'process.platform': '""',
-        'process.stdout': 'null'
+        'process.stdout': 'null',
       })
     }
 
@@ -232,7 +233,7 @@ function createConfig(format, output, plugins = []) {
         // for @vue/compiler-sfc / server-renderer
         ...['path', 'url', 'stream'],
         // somehow these throw warnings for runtime-* package builds
-        ...treeShakenDeps
+        ...treeShakenDeps,
       ]
     }
   }
@@ -253,7 +254,7 @@ function createConfig(format, output, plugins = []) {
         'teacup/lib/express',
         'arc-templates/dist/es5',
         'then-pug',
-        'then-jade'
+        'then-jade',
       ]
     }
 
@@ -263,10 +264,10 @@ function createConfig(format, output, plugins = []) {
         ? [
             commonJS({
               sourceMap: false,
-              ignore: cjsIgnores
+              ignore: cjsIgnores,
             }),
             ...(format === 'cjs' ? [] : [polyfillNode()]),
-            nodeResolve()
+            nodeResolve(),
           ]
         : []
 
@@ -278,12 +279,16 @@ function createConfig(format, output, plugins = []) {
     // Global and Browser ESM builds inlines everything so that they can be
     // used alone.
     external: resolveExternal(),
+    define: {
+      __dirname: JSON.stringify(__dirname),
+    },
     plugins: [
+      createLoggerScopePlugin()(),
       json({
-        namedExports: false
+        namedExports: false,
       }),
       alias({
-        entries
+        entries,
       }),
       enumPlugin,
       ...resolveReplace(),
@@ -292,10 +297,10 @@ function createConfig(format, output, plugins = []) {
         sourceMap: output.sourcemap,
         minify: false,
         target: isServerRenderer || isNodeBuild ? 'es2019' : 'es2015',
-        define: resolveDefine()
+        define: resolveDefine(),
       }),
       ...resolveNodePlugins(),
-      ...plugins
+      ...plugins,
     ],
     output,
     onwarn: (msg, warn) => {
@@ -304,15 +309,15 @@ function createConfig(format, output, plugins = []) {
       }
     },
     treeshake: {
-      moduleSideEffects: false
-    }
+      moduleSideEffects: false,
+    },
   }
 }
 
 function createProductionConfig(format) {
   return createConfig(format, {
     file: resolve(`dist/${name}.${format}.prod.js`),
-    format: outputConfigs[format].format
+    format: outputConfigs[format].format,
   })
 }
 
@@ -321,17 +326,138 @@ function createMinifiedConfig(format) {
     format,
     {
       file: outputConfigs[format].file.replace(/\.js$/, '.prod.js'),
-      format: outputConfigs[format].format
+      format: outputConfigs[format].format,
     },
     [
       terser({
         module: /^esm/.test(format),
         compress: {
           ecma: 2015,
-          pure_getters: true
+          pure_getters: true,
         },
-        safari10: true
-      })
+        safari10: true,
+      }),
     ]
   )
+}
+
+function createLoggerScopePlugin() {
+  function relativeRootPath(path) {
+    let packagesRoot = 'packages'
+    let p = path.lastIndexOf(packagesRoot)
+    return p === -1 ? path : path.slice(p + packagesRoot.length + 1)
+  }
+  function transformRows(rows, id, flags) {
+    let isWithLoggerImport = false
+    let opts = null
+    rows = rows.map(item => {
+      if (
+        flags.some(flag => {
+          var _a, _b
+          let str = item.trim()
+          if (typeof flag === 'string') {
+            return str.startsWith(flag)
+          } else {
+            let match = str.match(flag)
+            if (!match) {
+              return false
+            }
+            let entry =
+              (_b = (_a = match.groups) == null ? void 0 : _a.flag) == null
+                ? void 0
+                : _b.split(',').map(f => [f, true])
+            if (!entry) {
+              return true
+            }
+            opts = Object.fromEntries(entry)
+            return flag.test(str)
+          }
+        })
+      ) {
+        isWithLoggerImport = true
+        return `let logger = __loggerFactory.create(${JSON.stringify(
+          //@ts-ignore
+          relativeRootPath(id)
+            .replaceAll('\\', '/')
+            .replaceAll('../', '')
+            .replaceAll('..\\', '')
+          //删除所有../
+        )}${opts ? `, ${JSON.stringify(opts)}` : ''}); //@LoggerScope`
+      } else {
+        return item
+      }
+    })
+    if (!isWithLoggerImport) {
+      return
+    }
+    return rows
+  }
+  function searchVueScript(rows) {
+    let start = 0
+    let end = rows.length - 1
+    for (let i = 0; i < rows.length; i++) {
+      let row = rows[i]
+      if (row.trim().startsWith('<script')) {
+        start = i + 1
+        break
+      }
+    }
+    for (let i = rows.length - 1; i >= 0; i--) {
+      let row = rows[i]
+      if (row.trim().startsWith('</script>')) {
+        end = i - 1
+        break
+      }
+    }
+    return [start, end]
+  }
+  function transform(code, id, flags) {
+    let path = id.replaceAll('\\', '/')
+    if (!path.includes('/src/')) {
+      return
+    }
+    let rows = code.split('\n')
+    if (id.endsWith('.vue')) {
+      const [start, end] = searchVueScript(rows)
+      if (start >= end) {
+        return
+      }
+      let v = transformRows(rows.slice(start, end + 1), id, flags)
+      if (!v) return
+      return {
+        code: [...rows.slice(0, start), ...v, ...rows.slice(end + 1)].join(
+          '\n'
+        ),
+        map: null,
+      }
+    } else if (id.endsWith('.ts') || id.endsWith('.js')) {
+      let v = transformRows(rows, id, flags)
+      if (!v) return
+      return {
+        code: v.join('\n'),
+        map: null,
+      }
+    }
+  }
+  function loggerScopePlugin(options = {}) {
+    let {
+      excludes,
+      flags = [
+        '//@LoggerScope',
+        '$LoggerScope()',
+        new RegExp(`^\\$LoggerScope\\((|["'](?<flag>[a-zA-Z]*)['"])\\)$`),
+        // 'LoggerScope',
+        // 'LoggerScope()',
+      ],
+    } = options
+    return {
+      name: 'loggerScopePlugin',
+      transform(code, id) {
+        if (excludes && excludes.some(exclude => id.includes(exclude))) return
+        return transform(code, id, flags)
+      },
+    }
+  }
+
+  return loggerScopePlugin
 }

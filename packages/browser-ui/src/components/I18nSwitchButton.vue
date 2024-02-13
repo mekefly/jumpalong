@@ -1,19 +1,32 @@
 <script lang="ts" setup>
-import i18n, { getSupportLocales, setLang, t } from "@/i18n";
+import i18n, {
+  getSupportLocales,
+  setLang,
+  t,
+  loadLocaleMessages,
+} from '../i18n'
 
-const languageOptions = ref(
-  Array.from(getSupportLocales(), (locale) => {
-    return {
-      label: t(locale),
-      key: locale,
-    };
-  })
-);
+const languageOptions = asyncComputed(() => {
+  return Promise.all(
+    Array.from(getSupportLocales(), async locale => {
+      await loadLocaleMessages(i18n, locale)
+      console.log(
+        `i18n.global.tc('local-name', locale)`,
+        i18n.global.tc('local-name', locale)
+      )
+
+      return {
+        label: i18n.global.tc('local-name', locale) ?? t(locale),
+        key: locale,
+      }
+    })
+  )
+})
 
 function handleLanguageSelect(key: string) {
-  setLang(key as any);
+  setLang(key as any)
 }
-const locale = computed(() => i18n.global.locale);
+const locale = computed(() => i18n.global.locale)
 </script>
 
 <template>
@@ -22,7 +35,9 @@ const locale = computed(() => i18n.global.locale);
     :options="languageOptions"
     @select="handleLanguageSelect"
   >
-    <n-button quaternary>{{ t(locale) }}</n-button>
+    <n-button quaternary>{{
+      i18n.global.tc('local-name', locale) ?? t(locale)
+    }}</n-button>
   </n-dropdown>
 </template>
 

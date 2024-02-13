@@ -1,53 +1,46 @@
 <script lang="ts" setup>
-import { TYPES } from "@/nostr/nostr";
-import { nip19, type Event } from "nostr-tools";
-import profile from "../assets/profile-2-400x400.png";
-import { useLazyComponent } from "../utils/use";
-import EllipsisVue from "./Ellipsis.vue";
-import { useNostrContainerGet } from "./NostrContainerProvade";
-import { getUrlsByEvent } from "./PapawSourceUrl";
+import { nip19, type Event } from 'nostr-tools'
+import profile from '../assets/profile-2-400x400.png'
+import { useLazyComponent } from '../utils/use'
+import EllipsisVue from './Ellipsis.vue'
+import { getUrlsByEvent } from './PapawSourceUrl'
+import { Pubkey, UserApiStaff } from '@jumpalong/nostr-runtime'
+import { useEventLine } from './ProvideEventLine'
 
 const props = defineProps<{
-  pubkey: string;
-  event?: Event;
-}>();
-const { pubkey } = toRefs(props);
+  pubkey: string
+  event?: Event
+}>()
+const { pubkey } = toRefs(props)
+let line = useEventLine(UserApiStaff)
 
-const userApi = useNostrContainerGet(TYPES.UserApi);
+const relayUrls = computed(() => props.event && getUrlsByEvent(props.event))
+const [metadataLine, target, isShow] = useLazyComponent(() => {
 
-const relayUrls = computed(() => props.event && getUrlsByEvent(props.event));
-const [metadata1, target, isShow] = useLazyComponent(() => {
-  return userApi
-    .getUserMetadataLineByPubkey(pubkey.value, {
-      urls: relayUrls.value,
-    })
-    .feat.useMetadata();
-});
+  return line.getUserMetadataLineByPubkey(Pubkey.fromHex(pubkey.value))
+})
+const metadata = computed(() => metadataLine.value?.getMetadata())
 
-const metadata = computed(() => {
-  return metadata1.value;
-});
-
-const router = useRouter();
+const router = useRouter()
 function routerPush(pubkey: string) {
   router.push(
     `/profile/${nip19.nprofileEncode({
       pubkey,
       relays: [...(relayUrls.value ?? [])],
     })}`
-  );
+  )
 }
 
 const name = computed(() => {
-  if (!metadata.value) return pubkey.value.slice(0, 10);
-  for (const key of ["name", "display_name", "displayName", "username"]) {
-    const n = (metadata.value as any)[key];
+  if (!metadata.value) return pubkey.value.slice(0, 10)
+  for (const key of ['name', 'display_name', 'displayName', 'username']) {
+    const n = (metadata.value as any)[key]
     if (n?.length ?? 0 > 0) {
-      return n;
+      return n
     }
   }
-  return pubkey.value.slice(0, 10);
-});
+  return pubkey.value.slice(0, 10)
+})
 </script>
 
 <template>

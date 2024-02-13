@@ -1,16 +1,16 @@
 <script lang="ts" setup>
-import { t } from "@/i18n";
-import RelayUrlShowVue from "./RelayUrlShow.vue";
+import RelayUrlShowVue from './RelayUrlShow.vue'
 
 const props = defineProps<{
-  urls: Iterable<string>;
-  title?: string;
-  loadable?: boolean;
-}>();
+  urls: Iterable<string>
+  title?: string
+  loadable?: boolean
+}>()
+const { urls, loadable } = toRefs(props)
 
 const isEmpty = computed(
   () => props.urls[Symbol.iterator]().next().done === true
-);
+)
 </script>
 
 <template>
@@ -24,7 +24,7 @@ const isEmpty = computed(
 
     <n-empty v-else-if="isEmpty" size="large" :description="t('empty_text')" />
 
-    <n-list-item class="flex" v-for="url in urls" :key="url">
+    <n-list-item class="flex" v-for="url in props.urls" :key="url">
       <RelayUrlShowVue :url="url"> </RelayUrlShowVue>
       <template #suffix>
         <div class="flex items-center flex-shrink-0 w-max">

@@ -1,24 +1,24 @@
 <script lang="ts" setup>
-import { useOnOK } from "@/utils/use";
-import { useThemeVars } from "naive-ui";
-import { Event } from "nostr-tools";
-import PapawReactionVue from "./PapawReaction.vue";
-import PapawReplyButtonVue from "./PapawReplyButton.vue";
-import ZapsButton from "./ZapsButton.vue";
+// import { useOnOK } from "@/utils/use";
+import { useThemeVars } from 'naive-ui'
+import { Event } from 'nostr-tools'
+import PapawReactionVue from './PapawReaction.vue'
+import PapawReplyButtonVue from './PapawReplyButton.vue'
+import ZapsButton from './ZapsButton.vue'
 
 const props = defineProps<{
-  event: Event;
-  deleteEvent?: (id: string) => void;
-}>();
+  event: Event
+  deleteEvent?: (id: string) => void
+}>()
 
-const { event, deleteEvent } = toRefs(props);
+const { event, deleteEvent } = toRefs(props)
 
-const onOK = useOnOK();
-const theme = useThemeVars();
+// const onOK = useOnOK();
+const theme = useThemeVars()
 
-const size = ref(18);
+const size = ref(18)
 
-const limit = 20;
+const limit = 20
 </script>
 
 <template>

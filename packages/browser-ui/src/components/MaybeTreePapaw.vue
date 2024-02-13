@@ -1,14 +1,14 @@
 <script lang="ts" setup>
-import { Event } from "nostr-tools";
-import { useMaybeTreePapaw } from "./MaybeTreePapaw";
-import PapawVue from "./Papaw.vue";
-import PapawTreeVue from "./PapawTree.vue";
+import { Event } from 'nostr-tools'
+import { useMaybeTreePapaw } from './MaybeTreePapaw'
+import PapawVue from './Papaw.vue'
+import PapawTreeVue from './PapawTree.vue'
 const props = defineProps<{
-  event: Event;
-  withPapawOptionsButtons?: boolean;
-  disabledReply?: boolean;
-}>();
-const { useTree } = useMaybeTreePapaw() ?? {};
+  event: Event
+  withPapawOptionsButtons?: boolean
+  disabledReply?: boolean
+}>()
+const { useTree } = useMaybeTreePapaw() ?? {}
 </script>
 
 <template>

@@ -1,25 +1,28 @@
 <script lang="ts" setup>
-import { t } from "@/i18n";
-import { useThemeVars } from "naive-ui";
-import { relayConfigurator } from "../nostr/nostr";
-import TooltipVue from "./Tooltip.vue";
-const msg = useMessage();
+import { useThemeVars } from 'naive-ui'
+import TooltipVue from './Tooltip.vue'
+import { useEventLine } from './ProvideEventLine'
+import { RelayConfiguratorSynchronizerStaff } from '@jumpalong/nostr-runtime'
+let line = useEventLine(RelayConfiguratorSynchronizerStaff)
+let relayConfigurator = line.relayConfigurator
+
+const msg = useMessage()
 const optsRef = ref(
   null as null | {
-    numberOfErrors: number;
-    numberOfSuccesses: number;
-    numberOfOvertime: number;
-    total: number;
+    numberOfErrors: number
+    numberOfSuccesses: number
+    numberOfOvertime: number
+    total: number
   }
-);
+)
 function broadcast() {
-  const opts = relayConfigurator.broadcast({ slef: reactive({}) });
+  const opts = relayConfigurator.broadcast({ slef: reactive({}) })
   if (!opts) {
-    msg.error(t("broadcast_error_message"));
-    return;
+    msg.error(t('broadcast_error_message'))
+    return
   }
 
-  optsRef.value = opts;
+  optsRef.value = opts
 }
 
 const isLoading = computed(
@@ -28,8 +31,8 @@ const isLoading = computed(
       (optsRef.value?.numberOfErrors ?? 0) +
       (optsRef.value?.numberOfOvertime ?? 0) <
     (optsRef.value?.total ?? 0)
-);
-const theme = useThemeVars();
+)
+const theme = useThemeVars()
 </script>
 
 <template>
@@ -46,7 +49,7 @@ const theme = useThemeVars();
       :loading="isLoading"
       :disabled="isLoading || relayConfigurator.hasChange()"
     >
-      {{ isLoading ? t("success_timeout_failure_total") : t("broadcast") }}
+      {{ isLoading ? t('success_timeout_failure_total') : t('broadcast') }}
 
       <span v-if="optsRef">
         <span

@@ -1,8 +1,7 @@
 <script lang="ts" setup>
-import { t } from "@/i18n";
-import router from "@/router";
+import router from "../router";
 import { Event } from "nostr-tools";
-import { AddressPointer } from "nostr-tools/lib/nip19";
+import { AddressPointer } from "nostr-tools/nip19";
 import DateTime from "./DateTime.vue";
 import {
   useArticeSetting,
@@ -10,6 +9,7 @@ import {
   useMarkdownState,
 } from "./Markdown";
 import MavonEditor from "./MavonEditor.vue";
+import {computed}from "vue"
 
 const props = defineProps<{
   identifier?: string;

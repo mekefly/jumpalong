@@ -1,86 +1,88 @@
 <script lang="ts" setup>
-import { t } from "@/i18n";
-import { createEventTemplate } from "@/utils/nostr";
-import { createId, debounce } from "@/utils/utils";
-import { EventTemplate } from "nostr-tools";
-import ContentVue from "./Content.vue";
-import EmojiBoxVue from "./EmojiBox.vue";
-import ArrowExportUp20Filled from "./icon/ArrowExportUp20Filled.vue";
-import CloseVue from "./icon/Close.vue";
-import Edit16FilledVue from "./icon/Edit16Filled.vue";
-import ReadOutlinedVue from "./icon/ReadOutlined.vue";
-import RelayContent from "./RelayContent.vue";
+import { createId, debounce } from '@jumpalong/shared'
+import { EventTemplate } from 'nostr-tools'
+import ContentVue from './Content.vue'
+import EmojiBoxVue from './EmojiBox.vue'
+import ArrowExportUp20Filled from './icon/ArrowExportUp20Filled.vue'
+import CloseVue from './icon/Close.vue'
+import Edit16FilledVue from './icon/Edit16Filled.vue'
+import ReadOutlinedVue from './icon/ReadOutlined.vue'
+import RelayContent from './RelayContent.vue'
 import {
   useDragFileUpload,
   usePasteFile,
   useRichTextEditBoxOpt,
-} from "./RichTextEditBox";
-import RichTextEditBoxInputVue from "./RichTextEditBoxInput.vue";
-import ScrollbarVue from "./Scrollbar.vue";
-import { useUpload } from "./Upload";
-import UploadButtonVue from "./UploadButton.vue";
+} from './RichTextEditBox'
+import RichTextEditBoxInputVue from './RichTextEditBoxInput.vue'
+import ScrollbarVue from './Scrollbar.vue'
+import { useUpload } from './Upload'
+import UploadButtonVue from './UploadButton.vue'
+import { useEventLine } from './ProvideEventLine'
+import { LoginStaff } from '@jumpalong/nostr-runtime'
+import { ref } from 'vue'
 
-const richTextEditBoxOpt = useRichTextEditBoxOpt();
+let line = useEventLine(LoginStaff)
+const richTextEditBoxOpt = useRichTextEditBoxOpt()
 
 const emit = defineEmits<{
-  (e: "send", event: EventTemplate): void;
-}>();
+  (e: 'send', event: EventTemplate): void
+}>()
 
-const rawValue = ref("");
-const event = ref<EventTemplate>(createEventTemplate({}));
+const rawValue = ref('')
+const event = ref<EventTemplate>(line.createEventTemplate({}))
 
-const isEnter = ref(false);
-const isEdit = ref(false);
+const isEnter = ref(false)
+const isEdit = ref(false)
 
-const target = ref(null as HTMLElement | null);
-onClickOutside(target, (event) => {
-  isEnter.value = false;
-  isEdit.value = false;
-});
+const target: Ref<HTMLElement | null> = ref(null)
+onClickOutside(target as any, event => {
+  isEnter.value = false
+  isEdit.value = false
+})
 
 function handleChange(str: string, options: { tags: string[][] }) {
-  event.value = createEventTemplate({
+  event.value = line.createEventTemplate({
     content: str,
     tags: options.tags,
-  });
+  })
 }
 
 function handleSend() {
-  emit("send", event.value);
+  emit('send', event.value)
 }
 const handelLeave = debounce(() => {
-  isEnter.value = false;
-}, 2000);
+  isEnter.value = false
+}, 2000)
 const handleEnter = () => {
-  handelLeave.clear?.();
-  isEnter.value = true;
-};
+  handelLeave.clear?.()
+  isEnter.value = true
+}
 function handelBlur() {
-  isEdit.value = false;
+  isEdit.value = false
 }
 function handelClick(emoji: string) {
-  rawValue.value += emoji;
+  rawValue.value += emoji
 }
-const isShowEmojiBox = ref(false);
-const upload = useUpload();
+const isShowEmojiBox = ref(false)
+const upload = useUpload()
 async function uploadFile(file: File) {
-  const key = `$$${createId()}$$`;
+  const key = `$$${createId()}$$`
   if (rawValue.value.length === 0) {
-    rawValue.value += `${key}\n`;
+    rawValue.value += `${key}\n`
   } else {
-    rawValue.value += `\n${key}\n`;
+    rawValue.value += `\n${key}\n`
   }
 
-  const opt = await upload(file);
+  const opt = await upload(file)
 
-  rawValue.value = rawValue.value.replace(key, opt.url);
+  rawValue.value = rawValue.value.replace(key, opt.url)
 }
 
-usePasteFile(target, uploadFile);
+usePasteFile(target, uploadFile)
 
-useDragFileUpload(target, uploadFile, {});
+useDragFileUpload(target, uploadFile, {})
 function handelClear() {
-  richTextEditBoxOpt.emitRichTextEditBox("clear");
+  richTextEditBoxOpt.emitRichTextEditBox('clear')
 }
 
 enum SizeMode {
@@ -88,9 +90,9 @@ enum SizeMode {
   Common = 1,
   Minsize = 2,
 }
-const sizeMode = useLocalStorage("__rich_size_mode", 2);
+const sizeMode = useLocalStorage('__rich_size_mode', 2)
 function handleChangeSize() {
-  sizeMode.value = (1 + sizeMode.value) % 3;
+  sizeMode.value = (1 + sizeMode.value) % 3
 }
 </script>
 
@@ -175,7 +177,7 @@ function handleChangeSize() {
             type="primary"
             @click="handleSend"
           >
-            {{ t("send") }}
+            {{ t('send') }}
           </n-button>
         </div>
       </div>

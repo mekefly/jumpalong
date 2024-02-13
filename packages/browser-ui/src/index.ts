@@ -1,3 +1,1 @@
-export function name() {
-  
-}
+export {}

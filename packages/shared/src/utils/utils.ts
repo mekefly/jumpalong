@@ -92,7 +92,7 @@ export function log(base: number, n: number) {
 }
 
 /**
- * 防抖
+ * 防抖,先不执行，等待时间后执行，如果等待时间内再次执行，上次执行取消
  * @param f
  * @param delay
  * @returns
@@ -148,12 +148,13 @@ export function throttle<F extends (...rest: any) => any>(
     return f(...rest)
   }
 }
-export function searchInsertOnObjectList<E extends object>(
+export function searchInsertOnObjectList<E>(
   objList: E[],
   target: E,
   getValue: (item: E) => number
 ) {
   const len = objList.length
+  if (len === 0) return 0
   const _getValue = (index: number) => {
     return getValue(objList[index])
   }
@@ -181,12 +182,29 @@ export function searchInsertOnObjectList<E extends object>(
   }
   return left
 }
-export function reverseSearchInsertOnObjectList<E extends object>(
+export function insertOnObjectList<E>(
+  objList: E[],
+  target: E,
+  getValue: (item: E) => number
+) {
+  let i = searchInsertOnObjectList<E>(objList, target, getValue)
+  objList.splice(i, 0, target)
+}
+export function reverseInsertOnObjectList<E>(
+  objList: E[],
+  target: E,
+  getValue: (item: E) => number
+) {
+  let i = reverseSearchInsertOnObjectList<E>(objList, target, getValue)
+  objList.splice(i, 0, target)
+}
+export function reverseSearchInsertOnObjectList<E>(
   objList: E[],
   target: E,
   getValue: (item: E) => number
 ) {
   const len = objList.length
+  if (len === 0) return 0
   const _getValue = (index: number) => getValue(objList[index])
   let targetValue = getValue(target)
 
@@ -300,6 +318,24 @@ export function setAdds<T>(
     }
   }
   return set
+}
+export function setExcludes(set: Set<string>, excludes: Set<string>) {
+  for (const item of set) {
+    excludes.has(item) && set.delete(item)
+  }
+  return set
+}
+export function setMap<T, V>(
+  set: Set<T>,
+  call: (item: T, index: number, set: Set<T>) => V
+): Set<V> {
+  let setV = new Set<V>()
+  let index = 0
+  for (const item of set) {
+    setV.add(call(item, index, set))
+    index++
+  }
+  return setV
 }
 
 export function _new<Args extends any[]>(
@@ -472,4 +508,81 @@ export function strToArrayLikeNumber(str: string): ArrayLike<number> {
     l.push(str.charCodeAt(index))
   }
   return l
+}
+
+export function createVote<T>(options?: { max?: number; min?: number }) {
+  let { max, min = 0 } = options ?? {}
+  let ballotBox = new Array()
+  return {
+    add(vote: T) {
+      max && ballotBox.length >= max && ballotBox.pop()
+      ballotBox.unshift(vote)
+    },
+    getBallotBox() {
+      return ballotBox
+    },
+    isValidVote() {
+      return ballotBox.length >= min
+    },
+    takeCountOfVotes(): Map<T, number> {
+      let result: Map<T, number> = new Map()
+      ballotBox.forEach(item => {
+        let n = result.get(item)
+        if (n) {
+          result.set(item, n + 1)
+          return
+        }
+        result.set(item, 1)
+      })
+      return result
+    },
+    rate(l: T, r: T) {
+      let countOfVotes = this.takeCountOfVotes()
+
+      let lCount = countOfVotes.get(l) ?? 0
+      let rConut = countOfVotes.get(r) ?? 0
+      console.log(lCount, rConut)
+
+      return lCount / rConut
+    },
+    proportion(m: T) {
+      let countOfVotes = this.takeCountOfVotes()
+
+      let lCount = countOfVotes.get(m) ?? 0
+      return lCount / ballotBox.length
+    },
+  }
+}
+export function createGetAndInit<T, REST extends any[]>(
+  get: (...rest: REST) => T | null | undefined,
+  init: (...rest: REST) => T
+): (...rest: REST) => T {
+  return (...rest) => get(...rest) || init(...rest)
+}
+export function copyDep<T>(v: T): T {
+  let t = typeof v
+  if (t === 'object') {
+    if (Array.isArray(v)) {
+      return v.map(item => copyDep(item)) as any
+    } else {
+      let o = Object.fromEntries(
+        Object.entries(v as any).map(([key, value]) => [key, copyDep(value)])
+      ) as any
+      o.__proto__ = (v as any).__proto__
+      return o
+    }
+  } else if (t === 'function') {
+    return v
+  } else {
+    return v
+  }
+}
+
+export function copy<T extends object>(v: T): T {
+  return Object.fromEntries(
+    Object.entries(v).map(([key, value]) => [key, copyDep(value)])
+  ) as any
+}
+export function call<E>(f: () => E): E {
+  return f()
 }

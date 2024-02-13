@@ -1,39 +1,44 @@
-import { Event } from 'nostr-tools'
+import type { Event } from 'nostr-tools'
 import { createStaff } from '../../staff'
+import { listenerFlags } from '../../../eventLine/LineEmitter'
 
+type PropType = [subId: string, event: Event, url: string]
+type ReturnType = boolean | void
 export default createStaff(mod => {
   let _mod = mod
-    .defineEmit<
-      'event',
-      [subId: string, event: Event, url: string],
-      boolean | void
-    >()
-    .defineEmit<
-      `event:${string}`,
-      [subId: string, event: Event, url: string],
-      boolean
-    >()
+    .defineEmit<'event', PropType, ReturnType>()
+    .defineEmit<`event:${string}`, PropType, ReturnType>()
     .assignFeat({
       /**
+       *
        * 发送一个event
        * @param subId
        * @param event
        * @param url
        */
-      emitEvent(subId: string, event: Event, url: string = 'local') {
-        let createStopBubbling = (type: string) => (stop: boolean | void) => {
-          console.log('stop', stop)
-          if (stop === true) {
-            this.stop(type as any)
-          }
+      async emitEvent(subId: string, event: Event, url: string = 'local') {
+        await this.emit(
+          {
+            types: [`event`, `event:${subId}`],
+            onReturn: (stopFlag, { stop }) => stopFlag && stop(),
+          },
+          subId,
+          event,
+          url
+        )
+      },
+      onEvent(
+        f: (...rest: PropType) => ReturnType,
+        opt?: listenerFlags & {
+          subId?: string
         }
-        this.emitWithOption('event', [subId, event, url], {
-          returnListener: createStopBubbling('event')
-        })
-        this.emitWithOption(`event:${subId}`, [subId, event, url], {
-          returnListener: createStopBubbling(`event:${subId}`)
-        })
-      }
+      ) {
+        if (opt?.subId) {
+          this.on(`event:${opt.subId}`, f, opt)
+        } else {
+          this.on('event', f, opt)
+        }
+      },
     })
 
   return _mod

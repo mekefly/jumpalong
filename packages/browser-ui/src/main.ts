@@ -1,14 +1,25 @@
-import "reflect-metadata";
-import "./logger";
-import "./style.css";
+import './logger'
+import '@jumpalong/nostr-runtime'
+import './style.css'
 
-import { createApp } from "vue";
-import App from "./App.vue";
-import i18n from "./i18n";
-import router from "./router";
+import { createApp } from 'vue'
+import App from './App.vue'
+import i18n from './i18n'
+import router from './router'
+$LoggerScope('disabled')
 
-const app = createApp(App);
+logger.info('this is main')
 
-app.use(router);
-app.use(i18n);
-app.mount("#app");
+const app = createApp(App)
+
+app.use(router)
+app.use(i18n)
+app._instance
+app.config.globalProperties.t = t
+app.mount('#app')
+
+declare module 'vue' {
+  export interface ComponentCustomProperties {
+    t: typeof t
+  }
+}

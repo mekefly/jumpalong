@@ -1,46 +1,40 @@
 <script lang="ts" setup>
-import { GeneralEventEventBeltline } from "@/api/GeneralEventEventBeltline";
-import { t } from "@/i18n";
-import { TYPES } from "@/nostr/nostr";
-import { Event } from "nostr-tools";
-import { useNostrContainerGet } from "./NostrContainerProvade";
-import { usePapawFocusState } from "./Papaw";
-import PapawTree from "./PapawTree.vue";
-const logger = loggerScope;
-logger.debug();
+import { Event } from 'nostr-tools'
+import { useNostrContainerGet } from './NostrContainerProvade'
+import { usePapawFocusState } from './Papaw'
+import PapawTree from './PapawTree.vue'
+import { useEventLine } from './ProvideEventLine'
+import { EventApiStaff } from '@jumpalong/nostr-runtime'
+logger.debug()
 
-const props = defineProps<{ event: Event; noTree?: boolean }>();
+const props = defineProps<{ event: Event; noTree?: boolean }>()
 
-const id = computed(() => props.event.id);
-const limit = 5;
+const id = computed(() => props.event.id)
+const limit = 5
 
-const generalEventEventBeltline =
-  useNostrContainerGet<GeneralEventEventBeltline>(
-    TYPES.GeneralEventEventBeltline
-  );
+const generalEventEventBeltline = useEventLine(EventApiStaff)
 const line = computed(() =>
   generalEventEventBeltline
-    .createGeneralEventEventBeltline({
+    .textEventBeltline({
       limit,
       filters: [
         {
-          "#e": [id.value],
+          '#e': [id.value],
           kinds: [1, 30023],
         },
       ],
     })
-    .addStaffOfSortByCreateAt()
-);
-const eventList = computed(() => line.value.getList());
-const state = usePapawFocusState();
+)
+const eventList = computed(() => line.value.getList())
+const state = usePapawFocusState()
 watchEffect(() => {
   if (state?.parents.value.has(id.value)) {
     if (state.focusEvent.value) {
-      line.value.pushEvent(state.focusEvent.value);
+      line.value.pushEvent(state.focusEvent.value)
     }
   }
-});
-const postLength = computed(() => eventList.value.length ?? 0);
+})
+const postLength = computed(() => eventList.value.length ?? 0)
 </script>
 
 <template>
@@ -50,7 +44,7 @@ const postLength = computed(() => eventList.value.length ?? 0);
     class="w-full flex justify-center items-center py-2"
   >
     <n-button class="w-full" text @click="() => line.feat.load()">
-      {{ t("load_more") }}
+      {{ t('load_more') }}
     </n-button>
   </div>
 </template>

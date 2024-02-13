@@ -1,10 +1,10 @@
-import { Event } from "nostr-tools";
-import { createStaff } from "../Staff";
+import { Event } from 'nostr-tools'
+import { createStaff } from '../../../src/staff/staff'
 
-export default createStaff((mod) => {
+export default createStaff(mod => {
   let _mod = mod
     .defineEmit<
-      "event",
+      'event',
       [subId: string, event: Event, url: string],
       boolean | void
     >()
@@ -20,21 +20,21 @@ export default createStaff((mod) => {
        * @param event
        * @param url
        */
-      emitEvent(subId: string, event: Event, url: string = "local") {
+      emitEvent(subId: string, event: Event, url: string = 'local') {
         let createStopBubbling = (type: string) => (stop: boolean | void) => {
-          console.log("stop", stop);
+          console.log('stop', stop)
           if (stop === true) {
-            this.stop(type as any);
+            this.stop(type as any)
           }
-        };
-        this.emit("event", [subId, event, url], {
-          returnListener: createStopBubbling("event"),
-        });
-        this.emit(`event:${subId}`, [subId, event, url], {
+        }
+        this.emitWithOption('event', [subId, event, url], {
+          returnListener: createStopBubbling('event'),
+        })
+        this.emitWithOption(`event:${subId}`, [subId, event, url], {
           returnListener: createStopBubbling(`event:${subId}`),
-        });
+        })
       },
-    });
+    })
 
-  return _mod;
-});
+  return _mod
+})

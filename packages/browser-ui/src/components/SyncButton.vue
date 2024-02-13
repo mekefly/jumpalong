@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { t } from "@/i18n";
 import SyncAltVue from "./icon/SyncAlt.vue";
 import { useSyncState } from "./SyncButton";
 import Tooltip from "./Tooltip.vue";

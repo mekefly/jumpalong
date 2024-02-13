@@ -13,7 +13,6 @@ import { NInput, NScrollbar } from "naive-ui";
 
 const message = useMessage();
 const dialog = useDialog();
-const logger = loggerScope;
 logger.info();
 
 const isChangeLocalConfigJson = ref(false);

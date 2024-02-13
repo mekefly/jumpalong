@@ -1,114 +1,117 @@
 <script lang="ts" setup>
-import { config } from "@/nostr/nostr";
-import { useCanceleableClick, useLazyShow } from "@/utils/use";
-import { arrayRemove, timeout } from "@/utils/utils";
-import { usePushShortTextNote } from "@/views/ShortTextNoteView";
-import { vOnLongPress } from "@vueuse/components";
-import { Event } from "nostr-tools";
-import DateTime from "./DateTime.vue";
-import DrawerProvide from "./DrawerProvide.vue";
-import LazyItemDisabled from "./LazyItemDisabled.vue";
-import { useNewMessageState } from "./NewMessage";
-import { usePapawFocusState } from "./Papaw";
-import PapawOptionsButtons from "./PapawOptionsButtons.vue";
-import PapawSourceUrl from "./PapawSourceUrl.vue";
-import PapawTreeHierarchy from "./PapawTreeHierarchy.vue";
-import { useInjectScrollbarInstRef } from "./Scrollbar";
-import SMSButton from "./SMSButton.vue";
-import UserInfo from "./UserInfo.vue";
+import { useCanceleableClick, useLazyShow } from '../utils/use'
+import { arrayRemove, timeout } from '../utils/utils'
+// import { usePushShortTextNote } from '../views/ShortTextNoteView'
+import { vOnLongPress } from '@vueuse/components'
+import { Event } from 'nostr-tools'
+import DateTime from './DateTime.vue'
+import DrawerProvide from './DrawerProvide.vue'
+import LazyItemDisabled from './LazyItemDisabled.vue'
+import { useNewMessageState } from './NewMessage'
+import { usePapawFocusState } from './Papaw'
+import PapawOptionsButtons from './PapawOptionsButtons.vue'
+import PapawSourceUrl from './PapawSourceUrl.vue'
+import PapawTreeHierarchy from './PapawTreeHierarchy.vue'
+import { useInjectScrollbarInstRef } from './Scrollbar'
+import SMSButton from './SMSButton.vue'
+import UserInfo from './UserInfo.vue'
+import { ConfigStaff } from '@jumpalong/nostr-runtime'
+import { useEventLine } from './ProvideEventLine'
+const line = useEventLine(ConfigStaff)
+const config = line.getConfig()
 
 const props = withDefaults(
   defineProps<{
-    event: Event;
-    deleteEvent?: (id: string) => void;
-    withPapawOptionsButtons?: boolean;
-    disabledReply?: boolean;
+    event: Event
+    deleteEvent?: (id: string) => void
+    withPapawOptionsButtons?: boolean
+    disabledReply?: boolean
   }>(),
   {
     withPapawOptionsButtons: true,
   }
-);
+)
 const emit = defineEmits<{
-  (e: "update:showSMS", v: boolean): void;
-}>();
+  (e: 'update:showSMS', v: boolean): void
+}>()
 
 const [target, isShow] = useLazyShow(undefined, {
   preloadDistance: 0,
-});
+})
 
-const { event, deleteEvent } = toRefs(props);
+const { event, deleteEvent } = toRefs(props)
 
-const isLongPress = ref(false);
+const isLongPress = ref(false)
 
-const showSMS = ref(false);
+const showSMS = ref(false)
 function handelLongPress() {
-  showSMS.value = !showSMS.value;
-  isLongPress.value = true;
+  showSMS.value = !showSMS.value
+  isLongPress.value = true
 }
 
-const contentRef = ref();
-const pushShortText = usePushShortTextNote();
+const contentRef = ref()
+// const pushShortText = usePushShortTextNote()
 const { isPress } = useCanceleableClick(contentRef, () => {
-  pushShortText(event.value);
-});
+  // pushShortText(event.value)
+})
 
-const scrollbarOpt = useInjectScrollbarInstRef();
+const scrollbarOpt = useInjectScrollbarInstRef()
 const scrollToThis = async () => {
-  const _target = target.value as HTMLElement;
-  if (!_target) return;
-  if (!scrollbarOpt) return;
+  const _target = target.value as HTMLElement
+  if (!_target) return
+  if (!scrollbarOpt) return
 
-  const rect = _target.getBoundingClientRect();
+  const rect = _target.getBoundingClientRect()
 
-  isShow.value = true;
-  await timeout(0);
+  isShow.value = true
+  await timeout(0)
   scrollbarOpt.scrollbarInst.value?.scrollBy({
     top:
       rect.top -
       (scrollbarOpt.containerRef.value?.getBoundingClientRect().top ?? 0),
-    behavior: "smooth",
-  });
-  twinkle();
-};
+    behavior: 'smooth',
+  })
+  twinkle()
+}
 
-const jumpList = useNewMessageState()?.jumpList;
+const jumpList = useNewMessageState()?.jumpList
 
-jumpList?.value.push(scrollToThis);
+jumpList?.value.push(scrollToThis)
 
-const focuState = usePapawFocusState();
+const focuState = usePapawFocusState()
 const focus = computed(() => {
-  const focusEvent = focuState?.focusEvent.value;
+  const focusEvent = focuState?.focusEvent.value
   if (!focusEvent) {
-    return false;
+    return false
   }
   if (focusEvent.id === event.value.id) {
-    return true;
+    return true
   }
-  return false;
-});
+  return false
+})
 
 watchEffect(() => {
   if (focus.value) {
-    scrollToThis();
+    scrollToThis()
   }
-});
+})
 watch(isShow, () => {
   if (isShow.value) {
-    if (!jumpList?.value) return;
+    if (!jumpList?.value) return
 
-    arrayRemove(jumpList.value, scrollToThis);
+    arrayRemove(jumpList.value, scrollToThis)
   }
-});
-const isTwinkle = ref(false);
+})
+const isTwinkle = ref(false)
 function twinkle() {
-  isTwinkle.value = true;
+  isTwinkle.value = true
   setTimeout(() => {
-    isTwinkle.value = false;
-  }, 1000);
+    isTwinkle.value = false
+  }, 1000)
 }
 
 function handelDeleteEvent(e: string) {
-  deleteEvent?.value?.(e);
+  deleteEvent?.value?.(e)
 }
 </script>
 

@@ -17,7 +17,7 @@ export class PinListSynchronizer extends ReplaceableSynchronizerAbstract<PinList
     if (!pubkey) return []
     return [
       {
-        authors: [pubkey],
+        authors: [pubkey.toHex()],
         kinds: [this.kind],
       },
     ]

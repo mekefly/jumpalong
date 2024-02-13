@@ -1,32 +1,32 @@
 <script lang="ts" setup>
-import { t } from "@/i18n";
-import { Event } from "nostr-tools";
-import Content from "./Content.vue";
-import Markdown from "./Markdown.vue";
-import PapawReactionItem from "./PapawReactionItem.vue";
-import PapawWarp from "./PapawWarp.vue";
-import RelayContent from "./RelayContent.vue";
+import { Event } from 'nostr-tools'
+import Content from './Content.vue'
+import PapawWarp from './PapawWarp.vue'
+// import Markdown from './Markdown.vue'
+// import PapawReactionItem from './PapawReactionItem.vue'
+// import PapawWarp from './PapawWarp.vue'
+// import RelayContent from './RelayContent.vue'
 
 const props = withDefaults(
   defineProps<{
-    event: Event;
-    deleteEvent?: (id: string) => void;
-    withPapawOptionsButtons?: boolean;
-    disabledReply?: boolean;
+    event: Event
+    deleteEvent?: (id: string) => void
+    withPapawOptionsButtons?: boolean
+    disabledReply?: boolean
   }>(),
   {
     withPapawOptionsButtons: true,
   }
-);
-const { event, deleteEvent } = toRefs(props);
+)
+const { event, deleteEvent } = toRefs(props)
 
 function handelDeleteEvent(e: string) {
-  deleteEvent?.value?.(e);
+  deleteEvent?.value?.(e)
 }
 
-const contentRef = ref();
-const kind = computed(() => event.value.kind);
-const content = computed(() => event.value.content);
+const contentRef = ref()
+const kind = computed(() => event.value.kind)
+const content = computed(() => event.value.content)
 </script>
 
 <template>
@@ -45,7 +45,7 @@ const content = computed(() => event.value.content);
         :disabledReply="disabledReply"
       />
 
-      <span v-else-if="kind === 3"> {{ t("the_user_has_followed_you") }} </span>
+      <!-- <span v-else-if="kind === 3"> {{ t("the_user_has_followed_you") }} </span>
       <span v-else-if="kind === 7">
         <PapawReactionItem
           :events="[]"
@@ -54,12 +54,12 @@ const content = computed(() => event.value.content);
           :active="true"
         />
         <RelayContent v-if="!disabledReply" :event="event" />
-      </span>
+      </span> -->
 
-      <span v-else-if="kind === 30023">
+      <!-- <span v-else-if="kind === 30023">
         <Markdown :event="event"></Markdown>
       </span>
-      <span v-else>{{ event.content }}</span>
+      <span v-else>{{ event.content }}</span> -->
     </template>
     <template #reply><slot name="reply"></slot></template>
   </PapawWarp>

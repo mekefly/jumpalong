@@ -1,59 +1,53 @@
 <script lang="ts" setup>
-import { t } from "@/i18n";
-import { TYPES } from "@/nostr/nostr";
-import { type UserMetaData } from "@/types/User";
-import { usePubkey } from "@/utils/nostrApiUse";
-import { NButton, NSpace } from "naive-ui";
-import { useNostrContainerGet } from "./NostrContainerProvade";
-import UserMetadataEditingVue from "./UserMetadataEditing.vue";
+import {
+  AddPublishStaff,
+  UserApiStaff,
+  type UserMetaData,
+  LoginStaff,
+} from '@jumpalong/nostr-runtime'
+import { NButton, NSpace } from 'naive-ui'
+import { useEventLine, usePubkey } from '../components/ProvideEventLine'
+import UserMetadataEditingVue from './UserMetadataEditing.vue'
+import { useOnOK } from '../utils/use'
 
-const message = useMessage();
+const message = useMessage()
 const emit = defineEmits<{
-  (e: "close"): void;
-}>();
+  (e: 'close'): void
+}>()
+let line = useEventLine(UserApiStaff, LoginStaff)
 
-const userMetadata = ref<UserMetaData>({});
+const userMetadata = ref<UserMetaData>({})
 
-const userApi = useNostrContainerGet(TYPES.UserApi);
-const relayConfigurator = useNostrContainerGet(
-  TYPES.RelayConfiguratorSynchronizer
-);
-
-const pubkey = usePubkey({ intercept: true });
+const pubkey = usePubkey()
 const metadataLine = computed(() => {
-  if (!pubkey.value) return;
-  return userApi.getUserMetadataLineByPubkey(pubkey.value);
-});
+  if (!pubkey.value) return
+  return line.getUserMetadataLineByPubkey(pubkey.value)
+})
 const metadata = computed(
-  () => metadataLine.value && metadataLine.value.feat.useMetadata()
-);
+  () => metadataLine.value && metadataLine.value.feat.getMetadata()
+)
 watchEffect(() => {
-  if (!metadata.value) return;
-  userMetadata.value = metadata.value;
-});
+  if (!metadata.value) return
+  userMetadata.value = metadata.value
+})
 
-const loading = ref(false);
+let onOK = useOnOK()
+const loading = ref(false)
 async function send() {
-  loading.value = true;
-  metadataLine.value?.publish(
-    {
+  loading.value = true
+
+  let l = line?.add(AddPublishStaff)
+  l.addPublish(
+    await line.createEvent({
       content: JSON.stringify(userMetadata.value),
       kind: 0,
-    },
-    relayConfigurator.getWriteList(),
+      tags: metadataLine.value?.getLatestEvent()?.tags ?? [],
+    }),
     {
-      addUrl: true,
-      onOK({ ok, url }) {
-        loading.value = false;
-
-        if (ok) {
-          message.success(`已成功提交到${url}`);
-        } else {
-          message.error(`提交到${url}失败`);
-        }
-      },
+      onOK,
     }
-  );
+  )
+  l.initedAddWrite()
 }
 </script>
 
@@ -71,7 +65,7 @@ async function send() {
 
       <n-space center>
         <n-button type="tertiary" @click="() => emit('close')">
-          {{ t("cancel") }}
+          {{ t('cancel') }}
         </n-button>
         <n-tooltip trigger="hover">
           <template #trigger>
@@ -81,7 +75,7 @@ async function send() {
               :loading="loading"
               :disabled="loading"
             >
-              {{ t("submit") }}
+              {{ t('submit') }}
             </n-button>
           </template>
           如果加载不到合适的信息，那可能是relays设置不对请尝试配置一下

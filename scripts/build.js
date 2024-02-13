@@ -50,9 +50,13 @@ async function run() {
   if (writeSize) await fs.mkdir(sizeDir, { recursive: true })
   const removeCache = scanEnums()
   try {
-    const resolvedTargets = targets.length
+    // let sortList = ['logger-vite-plugin', 'logger']
+    let resolvedTargets = targets.length
       ? fuzzyMatchTarget(targets, buildAllMatching)
       : allTargets
+    // resolvedTargets = [...new Set([...sortList, ...resolvedTargets])]
+
+    console.log(resolvedTargets)
     await buildAll(resolvedTargets)
     await checkAllSizes(resolvedTargets)
     if (buildTypes) {
@@ -63,10 +67,10 @@ async function run() {
           'build-dts',
           ...(targets.length
             ? ['--environment', `TARGETS:${resolvedTargets.join(',')}`]
-            : [])
+            : []),
         ],
         {
-          stdio: 'inherit'
+          stdio: 'inherit',
         }
       )
     }
@@ -144,10 +148,12 @@ async function build(target) {
         `TARGET:${target}`,
         formats ? `FORMATS:${formats}` : ``,
         prodOnly ? `PROD_ONLY:true` : ``,
-        sourceMap ? `SOURCE_MAP:true` : ``
+        sourceMap ? `SOURCE_MAP:true` : ``,
       ]
         .filter(Boolean)
-        .join(',')
+        .join(','),
+
+      '-w',
     ],
     { stdio: 'inherit' }
   )
@@ -212,7 +218,7 @@ async function checkFileSize(filePath) {
         file: fileName,
         size: file.length,
         gzip: gzipped.length,
-        brotli: brotli.length
+        brotli: brotli.length,
       }),
       'utf-8'
     )

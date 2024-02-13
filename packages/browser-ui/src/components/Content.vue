@@ -1,33 +1,34 @@
 <script lang="ts" setup>
-import ReplaceableEventMap from "@/nostr/eventMap/LocalMap";
-import { parseMetadata } from "@/nostr/staff/createUseChannelMetadata";
+// import { localMap } from '@jumpalong/nostr-runtime'
+// import { parseMetadata } from "@jumpalong/nostr-runtime";
 import {
   matchTagPlaceholderRegExp,
   matchTagRegExp,
   matchUrlRegExp,
-} from "@/utils/RegExpUtils";
-import { useLazyShow } from "@/utils/use";
-import { isNumberAndNotNaN } from "@/utils/utils";
-import { Event, nip19 } from "nostr-tools";
-import ContentReplyItemVue from "./ContentReplyItem.vue";
-import ContentWebsiteVue from "./ContentWebsite.vue";
-import AiddrLink from "./NaddrLink.vue";
-import RelayContent from "./RelayContent.vue";
-import UserLinkVue from "./UserLink.vue";
+  isNumberAndNotNaN,
+} from '@jumpalong/shared'
+import { useLazyShow } from '../utils/use'
+import { Event, nip19 } from 'nostr-tools'
+// import ContentReplyItemVue from './ContentReplyItem.vue'
+import ContentWebsiteVue from './ContentWebsite.vue'
+import AiddrLink from './NaddrLink.vue'
+// import RelayContent from './RelayContent.vue'
+import UserLinkVue from './UserLink.vue'
+import { parseMetadata } from '@jumpalong/nostr-runtime'
 
 const props = defineProps<{
-  event: Event;
-  contenteditable?: boolean;
-  disabledReply?: boolean;
-}>();
-const { event, contenteditable } = toRefs(props);
+  event: Event
+  contenteditable?: boolean
+  disabledReply?: boolean
+}>()
+const { event, contenteditable } = toRefs(props)
 
 type ParseHandel = (
   next: (text: string) => void,
   text: string,
   cols: string[][],
   event: Event
-) => void;
+) => void
 
 function matchAll(
   text: string,
@@ -39,26 +40,26 @@ function matchAll(
     regExpMatchArray: RegExpMatchArray
   ) => void
 ) {
-  let last = 0;
-  const regExpStringIterator = regExp[Symbol.matchAll](text);
+  let last = 0
+  const regExpStringIterator = regExp[Symbol.matchAll](text)
   for (const regExpMatchArray of regExpStringIterator) {
-    let index = regExpMatchArray["index"];
-    let matchText = regExpMatchArray[0] as string;
+    let index = regExpMatchArray['index']
+    let matchText = regExpMatchArray[0] as string
 
     // 判断非数字和nan
-    if (!isNumberAndNotNaN(index)) continue;
+    if (!isNumberAndNotNaN(index)) continue
     //间隔部分两个标签之间的文本 #[0]
     if (index - last > 0) {
-      onText(text.slice(last, index));
+      onText(text.slice(last, index))
     }
 
-    onMatchText(matchText, index, regExpMatchArray);
+    onMatchText(matchText, index, regExpMatchArray)
 
-    last = index + matchText.length;
+    last = index + matchText.length
   }
 
   if (text.length - last > 0) {
-    onText(text.slice(last));
+    onText(text.slice(last))
   }
 }
 
@@ -70,17 +71,17 @@ const parseHandelList: ParseHandel[] = [
     matchAll(
       text,
       matchTagPlaceholderRegExp(),
-      (text) => {
-        next(text);
+      text => {
+        next(text)
       },
       (mark, _, regExpMatchArray) => {
-        let markIndex = regExpMatchArray[1] as string;
-        if (!mark) return;
-        if (!markIndex) return;
+        let markIndex = regExpMatchArray[1] as string
+        if (!mark) return
+        if (!markIndex) return
 
-        cols.push(parseTagPlaceholder(mark, markIndex, event.tags) as any);
+        cols.push(parseTagPlaceholder(mark, markIndex, event.tags) as any)
       }
-    );
+    )
   },
   (next, text, cols, event) => {
     //&notexxxx &nevent
@@ -88,17 +89,17 @@ const parseHandelList: ParseHandel[] = [
     matchAll(
       text,
       /(nostr:|&|@)((naddr)[a-zA-Z0-9]+)/g,
-      (text) => {
-        next(text);
+      text => {
+        next(text)
       },
       (_, _1, regExpMatchArray) => {
-        const value = regExpMatchArray[2];
+        const value = regExpMatchArray[2]
 
-        if (!value) return;
+        if (!value) return
 
-        cols.push(["naddr", value]);
+        cols.push(['naddr', value])
       }
-    );
+    )
   },
   (next, text, cols, event) => {
     //&notexxxx &nevent
@@ -106,17 +107,17 @@ const parseHandelList: ParseHandel[] = [
     matchAll(
       text,
       /(nostr:|&|@)((nevent|note)[a-zA-Z0-9]+)/g,
-      (text) => {
-        next(text);
+      text => {
+        next(text)
       },
       (_, _1, regExpMatchArray) => {
-        const value = regExpMatchArray[2];
+        const value = regExpMatchArray[2]
 
-        if (!value) return;
+        if (!value) return
 
-        cols.push(["e", value]);
+        cols.push(['e', value])
       }
-    );
+    )
   },
   (next, text, cols, event) => {
     //#npubxxxx #nprofile
@@ -124,16 +125,16 @@ const parseHandelList: ParseHandel[] = [
     matchAll(
       text,
       /(nostr:|@)((nprofile|npub)[a-zA-Z0-9]+)/g,
-      (text) => {
-        next(text);
+      text => {
+        next(text)
       },
       (_, _1, regExpMatchArray) => {
-        const value = regExpMatchArray[2];
-        if (!value) return;
+        const value = regExpMatchArray[2]
+        if (!value) return
 
-        cols.push(["p", `@${value}`, value]);
+        cols.push(['p', `@${value}`, value])
       }
-    );
+    )
   },
   (next, text, cols, event) => {
     //#xxx #yyy #zzz
@@ -141,37 +142,37 @@ const parseHandelList: ParseHandel[] = [
     matchAll(
       text,
       matchTagRegExp(),
-      (text) => {
-        next(text);
+      text => {
+        next(text)
       },
       (_, index, regExpMatchArray) => {
-        const tag = regExpMatchArray[1];
-        if (!tag) return;
-        cols.push(["t", `#${tag}`, tag]);
+        const tag = regExpMatchArray[1]
+        if (!tag) return
+        cols.push(['t', `#${tag}`, tag])
       }
-    );
+    )
   },
   (_, text, cols) => {
-    cols.push(["text", text]);
+    cols.push(['text', text])
   },
-];
+]
 
 function parseCol(text: string, clos: string[][], event: Event) {
   const createNext = (index: number) => {
-    const parseHandel = parseHandelList[index];
+    const parseHandel = parseHandelList[index]
     if (!parseHandel) {
-      return () => {};
+      return () => {}
     }
     return (text: string) => {
       if (!text) {
-        return;
+        return
       }
-      parseHandel(createNext(index + 1), text, clos, event);
-    };
-  };
+      parseHandel(createNext(index + 1), text, clos, event)
+    }
+  }
 
-  const toParse = createNext(0);
-  toParse(text);
+  const toParse = createNext(0)
+  toParse(text)
 }
 
 function parseTagPlaceholder(
@@ -179,90 +180,90 @@ function parseTagPlaceholder(
   markIndex: string,
   tags: string[][]
 ) {
-  const index = parseInt(markIndex);
+  const index = parseInt(markIndex)
 
-  if (!isNumberAndNotNaN(index)) return ["text", mark];
-  const tag = tags[index];
-  if (!tag) return ["text", mark];
-  const data = tag[1];
-  if (!data) return ["text", mark];
+  if (!isNumberAndNotNaN(index)) return ['text', mark]
+  const tag = tags[index]
+  if (!tag) return ['text', mark]
+  const data = tag[1]
+  if (!data) return ['text', mark]
 
   switch (tag[0]) {
-    case "p":
-      const pubkey = data;
-      const event = ReplaceableEventMap.kind0.get(pubkey);
-      const nprofilte = nip19.nprofileEncode({ pubkey: data });
-      if (event) {
-        const metadata = parseMetadata(event);
+    case 'p':
+    // const pubkey = data
+    // const event = localMap.kind0.get(pubkey)
+    // const nprofilte = nip19.nprofileEncode({ pubkey: data })
+    // if (event) {
+    //   const metadata = parseMetadata(event)
 
-        return ["p", `@${metadata.name}`, nprofilte] as const;
-      }
+    //   return ['p', `@${metadata.name}`, nprofilte] as const
+    // }
 
-      return ["p", `@${nprofilte}`, nprofilte] as const;
-    case "e":
-      const nevent = nip19.neventEncode({ id: data });
-      return ["e", nevent] as const;
-    case "t":
-      return ["t", `#${data}`, data] as const;
+    // return ['p', `@${nprofilte}`, nprofilte] as const
+    case 'e':
+      const nevent = nip19.neventEncode({ id: data })
+      return ['e', nevent] as const
+    case 't':
+      return ['t', `#${data}`, data] as const
     default:
-      return ["text", mark] as const;
+      return ['text', mark] as const
   }
 }
-type Rows = Array<Array<[string, string, ...any[]]>>;
+type Rows = Array<Array<[string, string, ...any[]]>>
 
 function parseRow(text: string, rows: Rows) {
-  text.split("\n").forEach((row) => {
-    const cols: Array<[string, string, ...any[]]> = [];
+  text.split('\n').forEach(row => {
+    const cols: Array<[string, string, ...any[]]> = []
 
     matchAll(
       row,
       matchUrlRegExp(),
-      (text) => {
-        parseCol(text, cols, event.value);
+      text => {
+        parseCol(text, cols, event.value)
       },
       (matchText, index, regExpMatchArray) => {
-        let url = matchText as string;
+        let url = matchText as string
 
         //url部分
         if (
-          [".jpg", ".jpeg", ".png", ".gif", ".bmp"].some((suffix) =>
+          ['.jpg', '.jpeg', '.png', '.gif', '.bmp'].some(suffix =>
             url.endsWith(suffix)
           )
         ) {
-          cols.push(["img", url, url]);
+          cols.push(['img', url, url])
         } else if (
-          [".mov", ".mp4", ".av1"].some((suffix) => url.endsWith(suffix))
+          ['.mov', '.mp4', '.av1'].some(suffix => url.endsWith(suffix))
         ) {
-          cols.push(["video", url, url]);
+          cols.push(['video', url, url])
         } else {
           if (row === url) {
             //一个url占用一整行
-            cols.push(["website", url, url]);
+            cols.push(['website', url, url])
           } else {
             //如果是内嵌url就直接展示
-            cols.push(["url", url, url]);
+            cols.push(['url', url, url])
           }
         }
       }
-    );
+    )
 
-    cols.push(["enter", ""]);
+    cols.push(['enter', ''])
 
-    rows.push(cols);
-  });
+    rows.push(cols)
+  })
 }
 
 const rows = computed(() => {
-  const rows: Rows = [];
-  parseRow(event.value.content, rows);
-  return rows;
-});
-const [target, show] = useLazyShow();
+  const rows: Rows = []
+  parseRow(event.value.content, rows)
+  return rows
+})
+const [target, show] = useLazyShow()
 function handelClick(item: string[], e: MouseEvent) {
   if (
-    ["e", "p", "url", "website", "img", "video", "t"].some((v) => item[0] === v)
+    ['e', 'p', 'url', 'website', 'img', 'video', 't'].some(v => item[0] === v)
   ) {
-    e.stopPropagation();
+    e.stopPropagation()
   }
 }
 </script>
@@ -280,11 +281,9 @@ function handelClick(item: string[], e: MouseEvent) {
           :key="item[1]"
           class="flex justify-start items-start"
           :class="{
-            'w-full': ['e', 'website', 'img', 'video'].some(
-              (v) => item[0] === v
-            ),
+            'w-full': ['e', 'website', 'img', 'video'].some(v => item[0] === v),
           }"
-          @click="(e) => handelClick(item, e)"
+          @click="e => handelClick(item, e)"
         >
           <div v-if="item[0] === 'img'">
             <n-image class="img w-full" :src="item[1]" />
@@ -319,12 +318,12 @@ function handelClick(item: string[], e: MouseEvent) {
 
           <AiddrLink v-else-if="item[0] === 'naddr'" :addr="item[1]" />
           <UserLinkVue v-else-if="item[0] === 'p'" :value="item[2]" />
-          <ContentReplyItemVue
+          <!-- <ContentReplyItemVue
             v-else-if="item[0] === 'e'"
             :event="event"
             :value="item[1]"
             :tag="item[2]"
-          />
+          /> -->
           <a
             v-else-if="item[0] === 'url'"
             class="break-words block"
@@ -351,7 +350,7 @@ function handelClick(item: string[], e: MouseEvent) {
         </span>
       </div>
     </div>
-    <RelayContent v-if="!disabledReply && show" :event="event" />
+    <!-- <RelayContent v-if="!disabledReply && show" :event="event" /> -->
   </div>
 </template>
 

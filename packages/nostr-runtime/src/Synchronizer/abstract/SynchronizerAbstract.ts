@@ -1,46 +1,45 @@
+import '@jumpalong/logger'
+
 import {
   LocalStorageMap,
+  ReversePromise,
+  cached,
   setAdds,
-  syncInterval,
-  timeout,
 } from '@jumpalong/shared'
-// import { getPubkeyOrNull } from '@/utils/nostrApi'
-import { inject, injectable } from 'inversify'
-import { Event, Filter } from 'nostr-tools'
-import { RelayConfiguratorSynchronizer } from '../RelayConfiguratorSynchronizer'
-import { EventLine, EventLineFactory } from '../../eventLine'
-import {
-  AddFiltersStaff,
-  AddFiltersStaffConfigType,
-  CreateIdStaff,
-  CreateIdStaffConfigType,
-  DefinePublishEventStaff,
-  DefineSubEventStaff,
-  DefineSubEventStaffConfigType,
-  RelayConfiguratorSynchronizerStaff,
-  RelayConfiguratorSynchronizerStaffConfigType,
-  RelayEmitterStaff,
-  StaffConfigType,
-} from '../../staff'
-import AddStaff from '../../staff/staffs/staff/AddStaff'
+import type { Event, Filter } from 'nostr-tools'
+import { EventLineFactory } from '../../eventLine'
+import { type RelayConfiguratorSynchronizer } from '../RelayConfiguratorSynchronizer'
+import ReactiveClass from '../../reactive/ReactiveClass'
+
+import AutoAddUrlByGlobalDiscoveryUserStaff from '../../staff/staffs/globalDiscoveryUser/AutoAddUrlByGlobalDiscoveryUserStaff'
+import NostrApiStaff from '../../staff/staffs/login/NostrApiStaff'
 import EoseAutoUnSubStaff from '../../staff/staffs/sub/EoseAutoUnSubStaff'
 import TimeoutAutoUnSubStaff from '../../staff/staffs/sub/TimeoutAutoUnSubStaff'
-import { NostrApiImpl } from '../../nostrApi/NostrApiImpl'
-import NostrApiStaff from '../../staff/staffs/loggin/NostrApiStaff'
-import ManagerStaff from '../../staff/staffs/manager/managerStaff'
-const logger = loggerScope
+import AutoAddKind10002UrlStaff from '../../staff/staffs/globalDiscoveryUser/AutoAddKind10002UrlStaff'
+import CreateIdStaff from '../../staff/staffs/common/CreateIdStaff'
+import RelayConfiguratorSynchronizerStaff from '../../staff/staffs/synchronizer/RelayConfiguratorSynchronizerStaff'
+import AddStaff from '../../staff/staffs/staff/AddStaff'
+import ManagerStaff from '../../staff/staffs/manager/ManagerStaff'
+import SubStaff from '../../staff/staffs/sub/SubStaff'
+import RelayEmitterStaff from '../../staff/staffs/server/RelayEmitterStaff'
+import PublishStaff from '../../staff/staffs/publish/PublishStaff'
+import LoginStaff from '../../staff/staffs/login/LoginStaff'
+import GlobalDiscoveryUserStaff from '../../staff/staffs/globalDiscoveryUser/GlobalDiscoveryUserStaff'
+$LoggerScope()
 
 export type SyncOption = {
   moreUrls?: Set<string>
-  onlyUrl?: string
   onEvent?(e: Event, url: string): void
   onPush?(url: string): void
   isAutoAddRelayUrl?: boolean
+  autoSync?: boolean
 }
 export type SynchronizerAbstractOption = {} & SyncOption
-@injectable()
-export default abstract class SynchronizerAbstract<E> {
+export default abstract class SynchronizerAbstract<E> extends ReactiveClass {
   static list: SynchronizerAbstract<any>[] = []
+  static add(synchronizer: SynchronizerAbstract<any>) {
+    SynchronizerAbstract.list.push(synchronizer)
+  }
   static syncAll() {
     for (const item of SynchronizerAbstract.list) {
       item.sync()
@@ -53,37 +52,67 @@ export default abstract class SynchronizerAbstract<E> {
     }
   }
 
+  private options: SynchronizerAbstractOption
   private name: string
   private eventMap: LocalStorageMap<Event>
+  private getMod = cached(
+    () =>
+      this.parentLine
+        .createChild()
+        .add(
+          CreateIdStaff,
+          RelayConfiguratorSynchronizerStaff,
+          SubStaff,
+          AddStaff,
+          ManagerStaff,
+          RelayEmitterStaff,
+          PublishStaff,
+          NostrApiStaff,
+          LoginStaff,
+          GlobalDiscoveryUserStaff,
+          EoseAutoUnSubStaff,
+          TimeoutAutoUnSubStaff,
+          AutoAddUrlByGlobalDiscoveryUserStaff
+        )
+        .add(mod => {
+          return mod.defineEmit<'synchronizer-update', [event: Event]>(
+            'synchronizer-update'
+          )
+        }).mod
+  )
+  private _ready = new ReversePromise()
+  public async onInited(l?: () => void) {
+    l && this._ready.promise.then(l)
+    return this._ready.promise
+  }
 
   constructor(
-    private line = new EventLineFactory()
-      .add(RelayConfiguratorSynchronizerStaff)
-      .add(DefineSubEventStaff)
-      .add(CreateIdStaff)
-      .add(AddStaff)
-      .add(ManagerStaff)
-      .add(RelayEmitterStaff)
-      .add(DefinePublishEventStaff)
-      .add(NostrApiStaff)
-      .createAsATemplate(),
+    private parentLine = new EventLineFactory().out(),
     name: string,
     opts?: SynchronizerAbstractOption
   ) {
-    this.line = line.mod.createAsATemplate()
-    //static
-    SynchronizerAbstract.list.push(this as any)
+    super(parentLine)
+    //添加到同步列表
+    SynchronizerAbstract.add(this)
+
     //init
+    this.options = opts ?? {}
     this.name = name
     this.eventMap = new LocalStorageMap(`__key_list:${name}`)
     this.init(opts)
   }
+
   async init(opt?: SynchronizerAbstractOption) {
     await this.readEventMap()
-    await this.sync(opt)
+    opt?.autoSync && (await this.sync())
+    this._ready.toResolve()
+  }
+
+  getParentLine() {
+    return this.parentLine
   }
   getLine() {
-    return this.line
+    return this.getMod().out()
   }
 
   abstract getFilters(): Promise<Filter[]>
@@ -174,97 +203,155 @@ export default abstract class SynchronizerAbstract<E> {
   // }
 
   private getRelayConfigurator(): RelayConfiguratorSynchronizer {
-    return this.line.relayConfiguratorSynchronizer
+    return this.getLine().relayConfigurator
+  }
+  public async syncOne(url: string, opts?: SyncOption) {
+    logger.debug(this.name, 'syncOne')
+
+    const urls: Set<string> = new Set()
+    urls.add(url)
+
+    let filters = await this.getFilters()
+    if (filters.length === 0) return
+
+    let l = await this._sync(filters, opts)
+    l.on('synchronizer-update', e => {
+      l.publishes(
+        setAdds(
+          new Set(),
+          this.getRelayConfigurator().getWriteList(),
+          this.getRelayConfigurator().getReadList()
+        ),
+        e
+      )
+    })
+
+    l.addUrls(urls)
   }
   /**
    * 同步读写列表
    */
-  public async sync(opt?: SyncOption) {
-    logger.debug(this.name, 'sync', opt)
-    await timeout(0)
-    const isOnly = Boolean(opt?.onlyUrl)
+  public async sync(opts: SyncOption = {}) {
+    opts = Object.assign({}, this.options, opts)
 
-    const localUrls: Set<string> = new Set()
-    const urls: Set<string> = opt?.onlyUrl
-      ? new Set<string>().add(opt.onlyUrl)
-      : setAdds(
-          new Set(),
-          localUrls,
-          this.getRelayConfigurator().getWriteList(),
-          this.getRelayConfigurator().getReadList(),
-          opt?.moreUrls
-        )
-    syncInterval(
-      `cache:${this.name}:${JSON.stringify(opt)}`,
-      async () => {
-        let filters = await this.getFilters()
-        if (filters.length === 0) return
+    logger.silly(this.name, 'sync', opts, this.options)
 
-        const slef = this
-        const withEvent = new Set()
-        const line = this.line
-          .chain('addFilters', filters)
-          //执行的事件回调
-          .on('sub', (subId, url) => {
-            //中继不存在某事件的回调
-            this.line.on(`eose:${subId}`, (subId, url) => {
-              //中继不存在此事件
-              if (!withEvent.has(url)) {
-                const list = slef.eventMap.getValues()
-                for (const event of list) {
-                  slef.line.chain('publish', url, event)
-                  // .publishes()
-                  // .emitWithOption('publish',[event], new Set<string>().add(url), {
-                  //   autoPublishToTagR: false
-                  // })
-                }
-
-                opt?.onPush?.(url)
-              }
-            })
-          })
-          .mod.add(EoseAutoUnSubStaff)
-          .add(TimeoutAutoUnSubStaff)
-
-        if (!isOnly) {
-          setTimeout(async () => {
-            this.line.addUrls(urls)
-            if (urls.size > 0 && !opt?.isAutoAddRelayUrl) return
-            const pubkey = this.line.getPubkeyOrNull()
-            if (!pubkey) return
-            //TODO: 没有重构完成自动根据pubkey添加url
-            // line.addStaff(autoAddRelayurlByPubkeyStaff(pubkey))
-          })
-        }
-
-        const oldUrl = new Set<string>()
-
-        //更旧的数据列表
-        this.line.on('event', (url, event, subId) => {
-          this.syncByEvent(event, subId, url, oldUrl)
-        })
-
-        // !opt?.onlyUrl && line.addExtends(rootEventBeltline)
-
-        // const events = this.eventMap.getValues()
-        // for (const event of events) {
-        //   rootEventBeltline.pushEvent(event)
-        // }
-      },
-      10_000
+    const urls: Set<string> = setAdds(
+      new Set(),
+      this.getRelayConfigurator().getWriteList(),
+      this.getRelayConfigurator().getReadList(),
+      opts?.moreUrls
     )
+    logger.silly('sync:urls', urls)
+
+    let filters = await this.getFilters()
+    if (filters.length === 0) return
+
+    logger.silly('sync:filters', filters)
+
+    let l = await (
+      await this._sync(filters, opts)
+    ).add(AutoAddKind10002UrlStaff)
+
+    logger.silly('sync:urls', l)
+
+    l.addUrls(urls)
+    for (const filter of filters) {
+      if (!filter.authors) continue
+      for (const pubkey of filter.authors) {
+        l.autoAdd10002(pubkey)
+      }
+    }
+
+    logger.silly(
+      'sync:addUrls:',
+      urls,
+      'isAutoAddRelayUrl:',
+      opts.isAutoAddRelayUrl
+    )
+
+    if (!opts.isAutoAddRelayUrl) {
+      return
+    }
+    const pubkey = await l.getPubkeyOrNull()
+    if (!pubkey) return
+
+    //全球发现获取url
+    l.autoAddUrlByGlobalDiscoveryUser(pubkey)
   }
 
-  private async syncByEvent(
-    e: Event,
-    subId: string,
-    url: string,
-    oldUrl: Set<string>
+  /**
+   * 此算法会拿到最新的创建时间当最版本，
+   * 当得到一个event时超过本地版本，
+   * 本地版本更新，上一个版本的所有url列表(currentVersionUrls)全部更新
+   * 当本地超过url云端版本时，本地发布到云端，并放到currentVersionUrls列表
+   * 这样当所有的事件获取一遍后，所有云端的事件全部将是最新版本
+   * @param opts
+   * @returns
+   */
+  private async _sync(filters: Filter[], opts: SyncOption = {}) {
+    const currentVersionUrls = new Set<string>()
+    let l = this.getMod().createChild().out()
+
+    this.firstPublish(l, currentVersionUrls, opts)
+
+    l.addFilters(filters)
+
+    logger.debug('_sync', currentVersionUrls)
+
+    //更旧的数据列表
+    l.relayPool.getLine().on('event', (url, event, subId) => {
+      opts.onEvent?.(event, url)
+      this.syncEvent(l, event, url, currentVersionUrls)
+    })
+
+    return l
+  }
+  private async firstPublish(
+    l: ReturnType<typeof this.getLine>,
+    currentVersionUrls: Set<string>,
+    opts: SyncOption
   ) {
+    const withEventUrlList = new Set<string>()
+    l.relayPool
+      .getLine()
+      .on('eose', (subId, url) => {
+        if (withEventUrlList.has(url)) {
+          return
+        }
+
+        //中继不存在此事件
+        const list = this.eventMap.getValues()
+
+        //就发布此事事件
+        for (const event of list) {
+          l.publish(url, event)
+        }
+        currentVersionUrls.add(url)
+        withEventUrlList.add(url)
+
+        //发布事件回调用
+        opts?.onPush?.(url)
+      })
+      .on('event', url => {
+        withEventUrlList.add(url)
+      })
+  }
+
+  private async syncEvent(
+    l: ReturnType<typeof this.getLine>,
+    e: Event,
+    url: string | undefined,
+    currentVersionUrls: Set<string>
+  ) {
+    //url不存在应该就是本地或存储上下载下来的event，而不是relay,目前没有提供对应的删除更新方法
+
     const key = await this.createKeyByEvent(e)
     const updateAt = this.getUpdateAt(key)
 
     if (!updateAt || e.created_at > updateAt) {
+      console.log('sync', updateAt, e.created_at)
+
       //远程更新到本地
       //更新本地内存上的数据
       this.setData(key, await this.serializeToData(e))
@@ -272,17 +359,18 @@ export default abstract class SynchronizerAbstract<E> {
       this.setLocalEvent(e)
 
       // oldUrl是之前所有请求过的连接，发现远程 更 新，就将event从新发布到其他不是最新的中继上去
-      this.line.publishes(oldUrl, e)
+      l.publishes(currentVersionUrls, e)
+      l.emit('synchronizer-update', e)
     } else if (e.created_at < updateAt && url) {
       //本地更新到远程
       const localEvent = await this.getEvent(key)
 
-      localEvent && this.line.publish(url, localEvent)
+      localEvent && l.publish(url, localEvent)
     }
 
-    //url不存在应该就是本地或存储上下载下来的event，而不是relay,目前没有提供对应的删除更新方法
     if (!url) return
-    oldUrl.add(url)
+
+    currentVersionUrls.add(url)
   }
 
   /**
@@ -292,9 +380,8 @@ export default abstract class SynchronizerAbstract<E> {
     const keys = [...(await this.getDataKeys())]
 
     for (const key of keys) {
-      const isChangeed = await this.getIsChanged(key)
-
-      if (!isChangeed) continue
+      const isChanged = await this.getIsChanged(key)
+      if (!isChanged) continue
 
       const changeAt = await this.getChangeAt(key)
       if (!changeAt) continue
@@ -312,6 +399,7 @@ export default abstract class SynchronizerAbstract<E> {
       await this.changesSaved(key)
       //发布
       await this.publish(event)
+      // this.sync()
     }
   }
   /**
@@ -320,7 +408,10 @@ export default abstract class SynchronizerAbstract<E> {
    * @param opt
    */
   private async publish(event: Event) {
-    await this.line.publishes(this.getRelayConfigurator().getWriteList(), event)
+    await this.getLine().publishes(
+      this.getRelayConfigurator().getWriteList(),
+      event
+    )
   }
 
   clear() {

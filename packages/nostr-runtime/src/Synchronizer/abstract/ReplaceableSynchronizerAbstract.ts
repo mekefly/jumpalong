@@ -1,11 +1,9 @@
-import { nowSecondTimestamp } from '@/utils/utils'
-import { injectable } from 'inversify'
+import { nowSecondTimestamp } from '@jumpalong/shared'
 import { Event, Filter } from 'nostr-tools'
 import SynchronizerAbstract, {
-  type SynchronizerAbstractOption
+  type SynchronizerAbstractOption,
 } from './SynchronizerAbstract'
 
-@injectable()
 export default abstract class ReplaceableSynchronizerAbstract<
   E
 > extends SynchronizerAbstract<E> {

@@ -1,12 +1,17 @@
 import { createStaff } from '../../staff'
-import UrlListStaff from './UrlListStaff'
 
-export default createStaff(UrlListStaff, line => {
+export default createStaff(line => {
   return (
     line
       // 定义事件
       .defineEmit<'add-urls', [urls: Set<string>]>()
+      .assignOwnFeat(() => ({
+        urlList: new Set<string>(),
+      }))
       .assignFeat({
+        getUrls() {
+          this.urlList
+        },
         addUrl(url: string) {
           this.addUrls(new Set([url]))
         },

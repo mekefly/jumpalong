@@ -1,6 +1,6 @@
-import { Event } from "nostr-tools";
-import { createStaff } from "../../staff";
+import type { Event } from 'nostr-tools'
+import { createStaff } from '../../staff'
 
-export default createStaff((line) => {
-  return line.defineEmit<"auth",[url:string,event:Event]>();
-});
+export default createStaff(line => {
+  return line.defineEmit<'auth', [url: string, event: Event]>()
+})

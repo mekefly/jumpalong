@@ -1,100 +1,99 @@
-import { matchNostrBuildResponseText } from "@/utils/RegExpUtils";
-import { createId, myRequest, timeout } from "@/utils/utils";
-import EventEmitter from "events";
+import { matchNostrBuildResponseText } from '../utils/RegExpUtils'
+import { createId, myRequest, timeout } from '../utils/utils'
+import EventEmitter from 'events'
 import {
   type UploadCustomRequestOptions,
   type UploadFileInfo,
   type UploadInst,
-} from "naive-ui";
-const logger = loggerScope;
-logger.info();
+} from 'naive-ui'
+logger.info()
 
-const evemtEmiter = new EventEmitter();
-const uploadRef = ref(null as UploadInst | null);
-const fileList: Ref<UploadFileInfo[]> = ref<UploadFileInfo[]>([]);
+const evemtEmiter = new EventEmitter()
+const uploadRef = ref(null as UploadInst | null)
+const fileList: Ref<UploadFileInfo[]> = ref<UploadFileInfo[]>([])
 
 export function useUploadRef() {
-  return uploadRef;
+  return uploadRef
 }
 export function useOpenOpenFileDialog() {
   return () => {
-    (uploadRef.value?.openOpenFileDialog as any)?.();
-  };
+    ;(uploadRef.value?.openOpenFileDialog as any)?.()
+  }
 }
 function useSubmit() {
   return async (uploadFileInfo: UploadFileInfo) => {
-    const l = fileList.value;
-    fileList.value = [uploadFileInfo];
-    await timeout(0);
-    (uploadRef.value?.submit as any)();
-    await timeout(0);
-    fileList.value = l;
-    fileList.value.push(uploadFileInfo);
-  };
+    const l = fileList.value
+    fileList.value = [uploadFileInfo]
+    await timeout(0)
+    ;(uploadRef.value?.submit as any)()
+    await timeout(0)
+    fileList.value = l
+    fileList.value.push(uploadFileInfo)
+  }
 }
-const isShow = ref(false);
+const isShow = ref(false)
 export function useShow() {
   return {
     isShow,
     show() {
-      isShow.value = true;
+      isShow.value = true
     },
     hidden() {
-      isShow.value = false;
+      isShow.value = false
     },
-  };
+  }
 }
 
-const id: any = undefined;
+const id: any = undefined
 export function useShortDisplay() {
   watch(isShow, () => {
-    clearTimeout(id);
-  });
+    clearTimeout(id)
+  })
 
   return () => {
-    clearTimeout(id);
+    clearTimeout(id)
 
-    isShow.value = true;
+    isShow.value = true
     setTimeout(() => {
-      isShow.value = false;
-    }, 3000);
-  };
+      isShow.value = false
+    }, 3000)
+  }
 }
 
 export function useUpload() {
-  const submit = useSubmit();
-  const shortDisplay = useShortDisplay();
+  const submit = useSubmit()
+  const shortDisplay = useShortDisplay()
 
   return async (file: File) => {
     return new Promise<UploadFinishEventOpt>((resolve, reject) => {
-      shortDisplay();
+      shortDisplay()
 
       const uploadFileInfo: UploadFileInfo = {
         id: createId(),
         name: file.name,
         file,
-        status: "pending" as const,
-      };
+        status: 'pending' as const,
+      }
 
-      evemtEmiter.once(uploadFileInfo.id, (value) => {
-        resolve(value);
-      });
+      evemtEmiter.once(uploadFileInfo.id, value => {
+        resolve(value)
+      })
 
-      submit(uploadFileInfo);
-    });
-  };
+      submit(uploadFileInfo)
+    })
+  }
 }
 export function useFileList() {
-  return fileList;
+  return fileList
 }
 export type UploadFinishEventOpt = {
-  file: UploadFileInfo;
-  url: string;
-};
+  file: UploadFileInfo
+  url: string
+}
 
 export function useCustomRequest() {
-  const message = useMessage();
-  const shortDisplay = useShortDisplay();
+  const message = useMessage()
+  const shortDisplay = useShortDisplay()
   const customRequest = async ({
     file,
     data,
@@ -105,40 +104,40 @@ export function useCustomRequest() {
     onError,
     onProgress,
   }: UploadCustomRequestOptions) => {
-    const formData = new FormData();
+    const formData = new FormData()
 
-    formData.append("fileToUpload", file.file as File);
-    const formurl = "https://nostr.build/upload.php";
+    formData.append('fileToUpload', file.file as File)
+    const formurl = 'https://nostr.build/upload.php'
 
     myRequest(formurl, {
-      method: "post",
+      method: 'post',
       body: formData,
       onProgress,
     })
       .then(({ text }) => {
-        const responseText = text;
+        const responseText = text
 
         const regExpMatchArray =
-          matchNostrBuildResponseText()[Symbol.match](responseText);
+          matchNostrBuildResponseText()[Symbol.match](responseText)
 
-        if (!regExpMatchArray) return Promise.reject("没有找到url");
-        const url = regExpMatchArray[0];
-        if (!url) return Promise.reject("");
+        if (!regExpMatchArray) return Promise.reject('没有找到url')
+        const url = regExpMatchArray[0]
+        if (!url) return Promise.reject('')
 
-        file.url = url;
+        file.url = url
 
-        onFinish();
-        evemtEmiter.emit(file.id, { file, url });
-        message.success("上传成功");
-        shortDisplay();
+        onFinish()
+        evemtEmiter.emit(file.id, { file, url })
+        message.success('上传成功')
+        shortDisplay()
       })
-      .catch((e) => {
-        message.error("上传失败", e);
-        logger.error("上传失败", e);
+      .catch(e => {
+        message.error('上传失败', e)
+        logger.error('上传失败', e)
 
-        onError();
-      });
-  };
+        onError()
+      })
+  }
 
-  return customRequest;
+  return customRequest
 }

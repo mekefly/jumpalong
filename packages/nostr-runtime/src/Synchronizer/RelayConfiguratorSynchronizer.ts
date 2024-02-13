@@ -1,25 +1,15 @@
-import {
-  defaultCacheOptions,
-  deleteCache,
-  setCache,
-  timeout,
-  useCache,
-} from '@jumpalong/shared'
+import { defaultCacheOptions, deleteCache, useCache } from '@jumpalong/shared'
 import { type Event } from 'nostr-tools'
-import { debounceWatch } from 'packages/shared/src/vue'
-import { reactive } from 'vue'
-import { EventLine } from '..'
 import {
   deserializeRelayConfiguration,
-  deserializeTagRToReadWriteList,
   serializeRelayConfiguration,
 } from '../event/tag'
-import { ReadAndWriteConfigurationMap } from '../event/types'
-import ConfigStaff from '../staff/staffs/config/ConfigStaff'
-import EoseAutoUnSubStaff from '../staff/staffs/sub/EoseAutoUnSubStaff'
-import TimeoutAutoUnSubStaff from '../staff/staffs/sub/TimeoutAutoUnSubStaff'
+import { type EventLine, type EventLineFactory } from '../eventLine'
 import ReplaceableSynchronizerAbstract from './abstract/ReplaceableSynchronizerAbstract'
+import { createClassStaff } from '../staff'
+import { RelayConfiguration } from '../types'
 
+let id = 0
 export const defaultUrls: string[] = (window as any).defaultRelayUrls ?? [
   'wss://no.str.cr',
   'wss://no-str.org',
@@ -42,8 +32,17 @@ export const defaultUrls: string[] = (window as any).defaultRelayUrls ?? [
  * 3. 在保存本地配置后，也会同步发往云端，但是发布行为不一定会成功
  *
  * 最高优先级为本地配置
+ * 同步方法将云端取回本地
  */
 export class RelayConfiguratorSynchronizer extends ReplaceableSynchronizerAbstract<RelayConfiguration> {
+  static Staff = createClassStaff(
+    'relayConfigurator',
+    RelayConfiguratorSynchronizer,
+    [],
+    mod => {
+      return mod
+    }
+  )
   constructor(line: EventLine<{}>) {
     super(line, 'RelayConfigurator', {
       isAutoAddRelayUrl: true,
@@ -65,7 +64,7 @@ export class RelayConfiguratorSynchronizer extends ReplaceableSynchronizerAbstra
     return [
       {
         kinds: [10002],
-        authors: [pubkey],
+        authors: [pubkey.toHex()],
       },
     ]
   }
@@ -86,6 +85,7 @@ export class RelayConfiguratorSynchronizer extends ReplaceableSynchronizerAbstra
       tags,
       created_at: changeAt,
     })
+
     return event
   }
 
@@ -119,7 +119,7 @@ export class RelayConfiguratorSynchronizer extends ReplaceableSynchronizerAbstra
   public addRead(url: string) {
     this.toChanged()
     this.getRule(url)['read'] = true
-    this.getConfiguration().write.add(url)
+    this.getConfiguration().read.add(url)
   }
   public remoteRead(url: string) {
     this.toChanged()
@@ -178,17 +178,16 @@ export class RelayConfiguratorSynchronizer extends ReplaceableSynchronizerAbstra
     })
 
     const halReply = new Set()
-    this.getLine().on(
-      `ok:${localEvent.id}`,
-      (eventId, { ok, message, url }) => {
+    this.getLine()
+      .relayPool.getLine()
+      .on(`ok:${localEvent.id}`, (eventId, { ok, message, url }) => {
         halReply.add(url)
         if (ok) {
           opt.numberOfSuccesses += 1
         } else {
           opt.numberOfErrors += 1
         }
-      }
-    )
+      })
 
     this.getLine().publishes(url, localEvent)
 
@@ -206,7 +205,7 @@ export class RelayConfiguratorSynchronizer extends ReplaceableSynchronizerAbstra
   getOtherUrls() {
     const arr = useCache(
       getOtherUrlsCacheKey,
-      this.toGetRelayUrls.bind(this),
+      () => this.getLine().getGlobalUrls(),
       getOtherUrlsCacheOptions
     )
 
@@ -217,66 +216,67 @@ export class RelayConfiguratorSynchronizer extends ReplaceableSynchronizerAbstra
     } else {
       //这里可能得到了一个对象{}，原因是set在被序列化后就是一个obj，但是后面的更新算法没有执行，没有把obj替换为数组，这可能是加载完成之前就点击了刷新按钮造成的，所以认为需要删除缓存
       deleteCache(getOtherUrlsCacheKey)
-      return this.toGetRelayUrls()
+      return this.getLine().getGlobalUrls()
     }
   }
-  toGetRelayUrls() {
-    const otherList = reactive(new Set<string>())
-    const line = this.getLine()
-      .mod.add(EoseAutoUnSubStaff)
-      .add(TimeoutAutoUnSubStaff)
-      .add(ConfigStaff)
-      .createAsATemplate()
-      .chain('addFilter', { kinds: [10002], limit: 100 })
-      .on('event', (url, e) => {
-        const { write: writeUrl, read: readUrl } =
-          deserializeTagRToReadWriteList(e.tags)
-        for (const url of writeUrl) {
-          otherList.add(url)
-        }
-        for (const url of readUrl) {
-          otherList.add(url)
-        }
-      })
+  //   toGetRelayUrls() {
+  //     const otherList = reactive(new Set<string>())
+  //     const line = this.getLine()
+  //       .mod.createAsATemplateMod()
+  //       .add(EoseAutoUnSubStaff)
+  //       .add(TimeoutAutoUnSubStaff)
+  //       .add(ConfigStaff)
+  //       .out()
+  //       .chain('addFilter', { kinds: [10002], limit: 100 })
+  //       .on('event', (url, e) => {
+  //         const { write: writeUrl, read: readUrl } =
+  //           deserializeTagRToReadWriteList(e.tags)
+  //         for (const url of writeUrl) {
+  //           otherList.add(url)
+  //         }
+  //         for (const url of readUrl) {
+  //           otherList.add(url)
+  //         }
+  //       })
 
-    setTimeout(async () => {
-      const urls = Array.from(
-        new Set(
-          [...this.getReadList(), ...this.getWriteList(), ...defaultUrls].slice(
-            0,
-            10
-          )
-        )
-      )
+  //     setTimeout(async () => {
+  //       const urls = Array.from(
+  //         new Set(
+  //           [...this.getReadList(), ...this.getWriteList(), ...defaultUrls].slice(
+  //             0,
+  //             10
+  //           )
+  //         )
+  //       )
 
-      let index = 0
+  //       let index = 0
 
-      while (
-        otherList.size < (line.config.getOtherUrlsRequestLimitSize ?? 50)
-      ) {
-        await timeout(2000)
+  //       while (
+  //         otherList.size < (line.config.getOtherUrlsRequestLimitSize ?? 50)
+  //       ) {
+  //         await timeout(2000)
 
-        const url = urls[index]
-        if (!url) return
+  //         const url = urls[index]
+  //         if (!url) return
 
-        line.addUrl(url)
+  //         line.addUrl(url)
 
-        index++
-      }
-    }, 0)
+  //         index++
+  //       }
+  //     }, 0)
 
-    debounceWatch(
-      otherList,
-      () => {
-        setCache(getOtherUrlsCacheKey, [...otherList], getOtherUrlsCacheOptions)
-      },
-      {
-        deep: true,
-      }
-    )
+  //     debounceWatch(
+  //       otherList,
+  //       () => {
+  //         setCache(getOtherUrlsCacheKey, [...otherList], getOtherUrlsCacheOptions)
+  //       },
+  //       {
+  //         deep: true,
+  //       }
+  //     )
 
-    return otherList
-  }
+  //     return otherList
+  //   }
 }
 
 export function getEventTagRelayUrl(e: Event) {
@@ -293,10 +293,4 @@ const getOtherUrlsCacheOptions = {
   ...defaultCacheOptions,
   useLocalStorage: true,
   duration: 1000 * 60,
-}
-
-export type RelayConfiguration = {
-  read: Set<string>
-  write: Set<string>
-  config: ReadAndWriteConfigurationMap
 }

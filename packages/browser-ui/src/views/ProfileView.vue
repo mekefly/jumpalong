@@ -1,153 +1,97 @@
 <script lang="ts" setup>
-import profile from "@/assets/profile-2-400x400.png";
-import EllipsisVue from "@/components/Ellipsis.vue";
-import CloudLightning from "@/components/icon/CloudLightning.vue";
 import {
-  useNostrContainerAsyncGet,
-  useNostrContainerGet,
-} from "@/components/NostrContainerProvade";
-import ProfileMoreInfoVue from "@/components/ProfileMoreInfo.vue";
-import ScrollbarVue from "@/components/Scrollbar.vue";
-import UserInformationButtonVue from "@/components/UserInformationButton.vue";
-import { useZaps } from "@/components/ZapsPrivider";
-import { relayConfigurator, TYPES } from "@/nostr/nostr";
-import { useUserMetadata } from "@/state/metadata";
-import { toDeCodeNprofile } from "@/utils/nostr";
-import { usePubkey } from "@/utils/nostrApiUse";
-import { useScale } from "@/utils/use";
-import { nip19 } from "nostr-tools";
-import { computed } from "vue";
-const route = useRoute();
+  LoginStaff,
+  Pubkey,
+  RelayConfiguratorSynchronizerStaff,
+  Synchronizer,
+  toDeCodeNprofile,
+} from '@jumpalong/nostr-runtime'
+import { computed } from 'vue'
+import Profile from '../components/Profile.vue'
+import {
+  useEventLine,
+  useIsMe,
+  usePubkey,
+} from '../components/ProvideEventLine'
+import { useZaps } from '../components/ZapsPrivider'
+import { NButton } from 'naive-ui'
+import UserInformationButton from '../components/UserInformationButton.vue'
 
-const currentPubkey = usePubkey({ intercept: true });
+const route = useRoute()
+const zaps = useZaps()
+const currentPubkey = usePubkey()
 
-const contactConfiguration = await useNostrContainerAsyncGet(
-  TYPES.ContactConfigurationSynchronizer
-);
-const userApi = useNostrContainerGet(TYPES.UserApi);
+const line = useEventLine(
+  // RelayConf
+  // Synchronizer.RelayConfiguratorSynchronizer.Staff,
+  RelayConfiguratorSynchronizerStaff,
+  Synchronizer.ContactConfigurationSynchronizer.Staff,
+  LoginStaff
+)
 
-const nprofile = computed(() =>
-  currentPubkey.value
-    ? nip19.nprofileEncode({
-        pubkey: currentPubkey.value,
-        relays: Array.from(relayConfigurator.getWriteList()),
-      })
-    : ""
-);
-const hash = computed(() => (route.params.value as string) ?? nprofile.value);
+const contactConfiguration = computed(() => line.contactConfiguration)
+
+const hashValue = computed(() => route.params.value as string)
 
 const profilePointer = computed(() => {
-  return toDeCodeNprofile(hash.value);
-});
+  return hashValue.value && toDeCodeNprofile(hashValue.value)
+})
 
-const isItMe = computed(
-  () => profilePointer.value?.pubkey === currentPubkey.value
-);
-const pubkey = computed(() => profilePointer.value?.pubkey);
-const urls = computed(
-  () => profilePointer.value?.relays && new Set(profilePointer.value?.relays)
-);
-
-const metadata = useUserMetadata(pubkey);
-const zaps = useZaps();
+const pubkey = computed(() => {
+  if (!profilePointer.value) {
+    return currentPubkey.value
+  }
+  return Pubkey.fromHex(profilePointer.value.pubkey)
+})
+const isItMe = useIsMe(pubkey)
+const urls = computed(() => {
+  if (!profilePointer.value) {
+    return line.relayConfigurator.getWriteList()
+  }
+  return new Set(profilePointer.value.relays)
+})
 
 const isFollow = computed(() => {
-  if (!pubkey.value) return false;
-  return contactConfiguration.isFollow(pubkey.value);
-});
+  if (!pubkey.value) return false
+  return contactConfiguration.value.isFollow(pubkey.value)
+})
 async function handelClick() {
   if (!pubkey.value) {
-    return;
+    return
   }
   if (isFollow.value) {
-    await contactConfiguration.unFollow(pubkey.value);
+    await contactConfiguration.value.unFollow(pubkey.value)
   } else {
-    await contactConfiguration.follow(pubkey.value);
+    await contactConfiguration.value.follow(pubkey.value)
   }
 }
-const [target] = useScale(0.3);
 function handleReward() {
   if (!pubkey.value) {
-    return;
+    return
   }
-  zaps?.reward(pubkey.value);
+  zaps?.reward(pubkey.value)
 }
 </script>
 
 <template>
-  <div v-if="pubkey" class="w-full h-full flex flex-col">
-    <ScrollbarVue class="flex-shrink flex-1 h-0" refreshable loadable>
-      <div class="flex flex-col">
-        <div ref="target" class="h-0 w-full relative flex-shrink-0" :style="{}">
-          <n-image
-            v-if="metadata?.banner ?? metadata?.picture"
-            :src="metadata?.banner ?? metadata?.picture"
-            object-fit="cover"
-            class="w-full h-full banner"
-          />
-          <NAvatar
-            class="absolute bottom-0 left-2"
-            :style="{
-              transform: `translate(0,50%)`,
-            }"
-            round
-            :size="100"
-            :src="metadata?.picture ?? profile"
-          />
-        </div>
-        <div>
-          <div class="flex items-center justify-end px-8 mt-4">
-            <n-space>
-              <n-button
-                class="ml-4"
-                v-if="!isItMe"
-                strong
-                round
-                :type="isFollow ? 'warning' : 'primary'"
-                @click="handelClick"
-              >
-                {{ isFollow ? "UnFollow" : "Follow" }}
-              </n-button>
+  <Profile v-if="pubkey" :pubkey="pubkey" :urls="urls">
+    <template #right>
+      <NButton
+        class="ml-4"
+        v-if="isItMe"
+        strong
+        round
+        :type="isFollow ? 'warning' : 'primary'"
+        @click="handelClick"
+      >
+        {{ isFollow ? 'UnFollow' : 'Follow' }}
+      </NButton>
 
-              <div v-if="pubkey">
-                <UserInformationButtonVue :pubkey="pubkey" />
-              </div>
-            </n-space>
-          </div>
-
-          <h1 class="flex items-center">
-            <EllipsisVue>
-              {{ metadata?.name ?? profilePointer?.pubkey.slice(0, 10) }}
-            </EllipsisVue>
-          </h1>
-
-          <n-button
-            text
-            v-if="metadata?.lud16"
-            class="flex items-center mb-2"
-            @click="handleReward"
-          >
-            <n-icon> <CloudLightning /> </n-icon>
-            <span class="ml-1">
-              {{ metadata?.lud16 }}
-            </span>
-          </n-button>
-
-          <div
-            class="w-full"
-            :style="{
-              'word-break': 'break-all',
-              'text-overflow': 'ellipsis',
-              'word-wrap': 'break-word',
-            }"
-          >
-            {{ metadata?.about }}
-          </div>
-        </div>
+      <div v-if="pubkey">
+        <UserInformationButton :pubkey="pubkey" />
       </div>
-      <ProfileMoreInfoVue v-if="pubkey" :pubkey="pubkey" :urls="urls" />
-    </ScrollbarVue>
-  </div>
+    </template>
+  </Profile>
 </template>
 
 <style scoped>

@@ -1,29 +1,29 @@
 <script lang="ts" setup>
-import { t } from "@/i18n";
-import { TYPES } from "@/nostr/nostr";
-import { usePushShortTextNote } from "@/views/ShortTextNoteView";
-import { Event } from "nostr-tools";
-import { useNostrContainerGet } from "./NostrContainerProvade";
-import Papaw from "./Papaw.vue";
-import PapawTreeHierarchy from "./PapawTreeHierarchy.vue";
+import { usePushShortTextNote } from '../views/ShortTextNoteView'
+import { useNostrContainerGet } from './NostrContainerProvade'
+import Papaw from './Papaw.vue'
+import PapawTreeHierarchy from './PapawTreeHierarchy.vue'
+import { EventApiStaff } from '@jumpalong/nostr-runtime'
+import { useEventLine } from './ProvideEventLine'
+import { NEmpty } from 'naive-ui'
 
 const props = defineProps<{
-  id: string;
-  relays?: Set<string>;
-  pubkey?: string;
-  disabledReply?: boolean;
-}>();
+  id: string
+  relays?: Set<string>
+  pubkey?: string
+  disabledReply?: boolean
+}>()
 
-const eventApi = useNostrContainerGet(TYPES.EventApi);
+const eventApi = useEventLine(EventApiStaff)
 
 const eventLine = computed(() =>
-  eventApi.getEventLineById(props.id, {
+  eventApi.getEventById(props.id, {
     urls: props.relays,
-    pubkey: props.pubkey,
+    pubkeys: props.pubkey ? [props.pubkey] : undefined,
   })
-);
-const event = computed(() => eventLine.value.feat.useEvent());
-const pushToTextNote = usePushShortTextNote();
+)
+const event = computed(() => eventLine.value.feat.getLatestEvent())
+const pushToTextNote = usePushShortTextNote()
 </script>
 
 <template>
@@ -34,13 +34,13 @@ const pushToTextNote = usePushShortTextNote();
   </Papaw>
 
   <div v-else>
-    <n-empty
+    <NEmpty
       :description="t('not_found_post')"
       size="huge"
       :click="() => pushToTextNote(id)"
     />
     <PapawTreeHierarchy>
-      <slot name="reply" :event="(event as Event | undefined)" />
+      <slot name="reply" :event="event" />
     </PapawTreeHierarchy>
   </div>
 </template>

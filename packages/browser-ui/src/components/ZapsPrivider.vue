@@ -8,7 +8,6 @@ import Drawer from "./Drawer.vue";
 import UserInfo from "./UserInfo.vue";
 import { provideZaps } from "./ZapsPrivider";
 
-const logger = loggerScope;
 logger.info();
 
 const { pubkey, eventId, show } = provideZaps();

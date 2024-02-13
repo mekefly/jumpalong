@@ -1,26 +1,35 @@
-import { minimatch } from "minimatch";
-import { Logger } from "../Logger";
-import { createPlugin } from "../LoggerFactory";
+import { minimatch } from 'minimatch'
+import { Logger } from '../Logger'
+import { createPlugin } from '../LoggerFactory'
 
-type ExcludeConfig = { exclude?: string[] };
+type ExcludeConfig = { exclude?: string[] }
+export function excludeFilter(path: string, exclude?: string[]) {
+  if (!exclude) return true
+  return !exclude.some(include => {
+    return minimatch(path, include)
+  })
+}
 export default function createExcludePlugin(isStatic: boolean = true) {
   return createPlugin((logger, loggerFactory) => {
-    const _logger = logger as Logger<ExcludeConfig>;
+    const _logger = logger as Logger<ExcludeConfig>
+    const exclude = _logger.getConfig().exclude
 
-    const excludeFilter = (exclude: string[]) => {
-      return !exclude.some((include) => {
-        return minimatch(logger.path, include);
-      });
-    };
-
-    const exclude = _logger.getConfig().exclude ?? [];
     if (isStatic) {
-      const isClude = excludeFilter(exclude);
+      const isClude = excludeFilter(logger.path, exclude)
 
-      _logger.addFilter(() => isClude);
+      _logger.emitter.on('created', () => {
+        !isClude && _logger.factory.global?.info('exclude:', _logger.path)
+      })
+
+      _logger.addFilter(() => isClude)
     } else {
-      _logger.addFilter(() => excludeFilter(exclude));
+      _logger.emitter.on('created', () => {
+        !excludeFilter(logger.path, exclude) &&
+          _logger.factory.global?.info('exclude:', _logger.path)
+      })
+
+      _logger.addFilter(() => excludeFilter(logger.path, exclude))
     }
-    return _logger;
-  });
+    return _logger
+  })
 }

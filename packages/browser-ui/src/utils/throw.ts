@@ -1,6 +1,5 @@
 import { type Logger } from "@/logger/Logger";
 
-const logger = loggerScope;
 
 export function throwNotFoundError(
   name: string,

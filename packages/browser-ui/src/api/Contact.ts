@@ -12,7 +12,6 @@ import { lazyInject } from "@/utils/inversify";
 import { injectable } from "inversify";
 import CreateEventBeltline from "./CreateEventBeltline";
 
-export const logger = loggerScope;
 
 @injectable()
 export class ContactApi {

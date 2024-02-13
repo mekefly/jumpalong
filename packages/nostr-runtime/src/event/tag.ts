@@ -1,5 +1,4 @@
-import { type RelayConfiguration } from './relayConfigurator'
-import { readListKey, writeListKey } from './relayConfiguratorKeys'
+import { RelayConfiguration } from '../Synchronizer/RelayConfiguratorSynchronizer'
 import { ReadAndWriteConfigurationMap } from './types'
 
 export function deserializeTagR(serializedArray: string[][]): Set<string> {
@@ -55,36 +54,68 @@ export type WritableReadableList = {
 }
 export function serializeRelayConfiguration(
   relayConfiguration: ReadAndWriteConfigurationMap
-) {
-  const tags: string[][] = []
-  for (const url in relayConfiguration) {
-    const { read, write } = relayConfiguration[url]
+): string[][] {
+  return Object.entries(relayConfiguration).map(([url, { read, write }]) => {
     let tag = ['r', url]
     if (read) {
       if (write) {
-        continue
+        //读写
+        return tag
       } else {
+        //只读
         tag.push('read')
       }
     } else {
+      //只写
       tag.push('write')
     }
+    return tag
+  })
+}
+export function parseRelayConfiguration(tags?: string[][]) {
+  const readUrl = new Set<string>()
+  const writeUrl = new Set<string>()
+  const config: ReadAndWriteConfigurationMap = {}
+  if (tags) {
+    for (const item of tags) {
+      if (item[0] === 'r') {
+        if (item[2] === 'read') {
+          readUrl.add(item[1])
+          config[item[1]] = { read: true, write: false }
+        } else if (item[2] === 'write') {
+          writeUrl.add(item[1])
+          config[item[1]] = { read: false, write: true }
+        } else {
+          readUrl.add(item[1])
+          writeUrl.add(item[1])
+          config[item[1]] = { read: true, write: true }
+        }
+      }
+    }
   }
-  return tags
+  return { read: readUrl, write: writeUrl, config }
 }
 export function deserializeRelayConfiguration(serializedArray?: string[][]) {
   const { read: readUrl, write: writeUrl } =
     deserializeTagRToReadWriteList(serializedArray)
+
   const relayConfiguration: RelayConfiguration = {
-    [readListKey]: readUrl,
-    [writeListKey]: writeUrl,
+    read: readUrl,
+    write: writeUrl,
+    config: {},
   }
 
   for (const url of readUrl) {
-    ;(relayConfiguration[url] ?? (relayConfiguration[url] = {}))['read'] = true
+    ;(relayConfiguration.config[url] ??
+      (relayConfiguration.config[url] = { read: false, write: false }))[
+      'read'
+    ] = true
   }
   for (const url of writeUrl) {
-    ;(relayConfiguration[url] ?? (relayConfiguration[url] = {}))['write'] = true
+    ;(relayConfiguration.config[url] ??
+      (relayConfiguration.config[url] = { read: false, write: false }))[
+      'write'
+    ] = true
   }
   return { relayConfiguration, readUrl, writeUrl }
 }

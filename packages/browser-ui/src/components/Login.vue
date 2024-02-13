@@ -1,27 +1,30 @@
 <script lang="ts" setup>
-import { PRIVATE_KEY } from "@/api/login";
-import { t } from "@/i18n";
-import { NostrApiMode, setNostrApiMode } from "@/nostr/nostrApi/NostrApiMode";
-import SynchronizerAbstract from "@/nostr/Synchronizer/abstract/SynchronizerAbstract";
-import { useCacheStorage } from "@/utils/use";
-import AuthorizedFormVue from "./AuthorizedFormVue.vue";
-import LoginFormVue from "./LoginForm.vue";
-import NostrConnectForm from "./NostrConnectForm.vue";
-import RegistrationFormVue from "./RegistrationForm.vue";
+// import { PRIVATE_KEY } from '../api/login'
+// import { UserApi } from '../api/user'
+import { LoginStaff, NostrApiMode, PRIVATE_KEY } from '@jumpalong/nostr-runtime'
+import { useCacheStorage } from '../utils/use'
+import AuthorizedFormVue from './AuthorizedFormVue.vue'
+import LoginFormVue from './LoginForm.vue'
+import NostrConnectForm from './NostrConnectForm.vue'
+import { useEventLine } from './ProvideEventLine'
+import RegistrationFormVue from './RegistrationForm.vue'
+const line = useEventLine(LoginStaff)
+
+// console.log('SynchronizerAbstract', SynchronizerAbstract)
 
 const emit = defineEmits<{
-  (e: "next"): void;
-}>();
+  (e: 'next'): void
+}>()
 
-const activeName = useCacheStorage("__login-active-name", "signin");
+const activeName = useCacheStorage('__login-active-name', 'signin')
 function handleBeforeNext() {
-  localStorage.removeItem(PRIVATE_KEY);
-  setNostrApiMode(NostrApiMode.NotLogin);
+  localStorage.removeItem(PRIVATE_KEY)
+  line.setNostrApiMode(NostrApiMode.NotLogin)
 
-  SynchronizerAbstract.syncAll();
+  // SynchronizerAbstract.syncAll()
 }
 function handleNext() {
-  emit("next");
+  emit('next')
 }
 </script>
 

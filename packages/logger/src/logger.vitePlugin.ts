@@ -32,7 +32,7 @@ export default function (
       ['loggerScope']: (path: string, ...rest) => {
         const _path = createPath(path)
         return createStatement(_path)
-      }
-    }
+      },
+    },
   })
 }

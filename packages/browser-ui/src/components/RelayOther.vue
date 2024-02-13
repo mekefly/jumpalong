@@ -1,32 +1,64 @@
 <script lang="ts" setup>
-import { t } from "@/i18n";
-import { debounce } from "@/utils/utils";
-import { relayConfigurator } from "../nostr/nostr";
-import AccountTreeRoundVue from "./icon/AccountTreeRound.vue";
-import RelayAddButtonVue from "./RelayAddButton.vue";
-import RelayConnectListVue from "./RelayConnectListCard.vue";
-import SyncButtonVue from "./SyncButton.vue";
+import { debounce } from '@jumpalong/shared'
+import AccountTreeRoundVue from './icon/AccountTreeRound.vue'
+import RelayAddButtonVue from './RelayAddButton.vue'
+import RelayConnectListVue from './RelayConnectListCard.vue'
+import SyncButtonVue from './SyncButton.vue'
+import { useEventLine } from './ProvideEventLine'
+import {
+  GlobalDiscoveryUserStaff,
+  GlobalUrlsStaff,
+  LoginStaff,
+} from '@jumpalong/nostr-runtime'
+import MdSearch from './icon/MdSearch.vue'
+import { asyncWitchComputed, useAsyncData } from '../utils/use'
 
-const searchValue = ref("");
-const otherList = ref<string[]>([]);
-const list = computed(() => relayConfigurator.getOtherList());
-function filterOtherList() {
-  if (searchValue.value === "") {
-    otherList.value = Array.from(list.value);
-    return;
+let globalUrlsLine = reactive(useEventLine(GlobalUrlsStaff))
+let GlobalDiscoveryUserLine = useEventLine(GlobalDiscoveryUserStaff)
+let loginLine = useEventLine(LoginStaff)
+
+globalUrlsLine.fetchGlobalUrls()
+const searchValue = ref('')
+const otherList = ref<string[]>([])
+
+const pubkey = useAsyncData(() => loginLine.getPubkeyOrNull())
+// let flag = useUpdateFlag()
+
+const list = asyncWitchComputed([pubkey], async ([pubkey]) => {
+  if (!pubkey) {
+    return
   }
-  otherList.value = Array.from(list.value).filter((item) =>
-    item.includes(searchValue.value)
-  );
-}
-filterOtherList();
-const filterOtherListDebounce = debounce(filterOtherList, 1000);
+  return [
+    ...(pubkey
+      ? await GlobalDiscoveryUserLine.autoGlobalDiscoveryUserByPubkey(
+          pubkey,
+          9999999
+        )
+      : await GlobalDiscoveryUserLine.autoGetGlobalUrls()),
+  ]
+})
 
-watch([searchValue, list], filterOtherListDebounce, { deep: true });
+// setInterval(() => {
+//   flag.refreshWithDep(GlobalDiscoveryUserLine.getGlobalUrls().size)
+// }, 1000)
+function filterOtherList() {
+  if (!list.value) return
+  if (searchValue.value === '') {
+    otherList.value = list.value
+    return
+  }
+  otherList.value = Array.from(list.value).filter(item =>
+    item.includes(searchValue.value)
+  )
+}
+filterOtherList()
+const filterOtherListDebounce = debounce(filterOtherList, 1000)
+
+watch([searchValue, list], filterOtherListDebounce, { deep: true })
 </script>
 
 <template>
-  <RelayConnectListVue loadable :urls="otherList" :title="t('more')">
+  <RelayConnectListVue :urls="otherList" :title="t('more')">
     <template #header-extra>
       <div class="flex items-center justify-center flex-shrink flex-grow">
         <div class="flex-shrink-0 flex justify-center items-center">

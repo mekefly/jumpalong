@@ -1,57 +1,63 @@
 <script lang="ts" setup>
-import Copy16FilledVue from "@/components/icon/Copy16Filled.vue";
-import FloatingCardVue from "@/components/LoginCard.vue";
+import { NostrApiStaff, LoginStaff } from '@jumpalong/nostr-runtime'
+import Copy16FilledVue from '../components/icon/Copy16Filled.vue'
+import FloatingCardVue from '../components/LoginCard.vue'
 import {
   useLoginCompleteHook,
   useLoginCompleteHooks,
-} from "@/components/LoginCompleteHook";
-import TestNostrApi from "@/components/TestNostrApi.vue";
-import TooltipVue from "@/components/Tooltip.vue";
-import { t } from "@/i18n";
-import { nostrApi } from "@/nostr/nostr";
-import { usePrikey } from "@/utils/nostrApiUse";
-import { useClipboardDialog } from "../utils/naiveUi";
+} from '../components/LoginCompleteHook'
+import { useEventLine } from '../components/ProvideEventLine'
+import TestNostrApi from '../components/TestNostrApi.vue'
+import TooltipVue from '../components/Tooltip.vue'
+// import { nostrApi } from "@/nostr/nostr";
+// import { usePrikey } from "@/utils/nostrApiUse";
+import { useClipboardDialog } from '../utils/naiveUi'
+import { useAsyncComputed } from '../utils/use'
 
-const clipboard = useClipboardDialog();
+let line = useEventLine(NostrApiStaff, LoginStaff)
 
-const prikey = usePrikey();
+const clipboard = useClipboardDialog()
+
+const prikey = useAsyncComputed(async () =>
+  (await line.getPrikeyOrNull())?.getNsec()
+)
 
 function handleClipboard() {
-  if (!prikey.value) return;
-  clipboard(prikey.value);
+  if (!prikey.value) return
+  clipboard(prikey.value)
 }
-const value = ref();
+const value = ref()
 
-const router = useRouter();
-const route = useRoute();
-const hook = useLoginCompleteHook();
-const loadingBar = useLoadingBar();
+const router = useRouter()
+const route = useRoute()
+const hook = useLoginCompleteHook()
+const loadingBar = useLoadingBar()
 
 //完成时调用
 hook?.setHook(async () => {
-  const redirected = route.query.redirected as string;
+  const redirected = route.query.redirected as string
 
-  loadingBar.start();
+  loadingBar.start()
   setTimeout(() => {
     if (!redirected) {
       router.push({
-        name: "article",
+        name: 'article',
         params: {
-          value: t("help_article"),
+          value: t('help_article'),
         },
-      });
-      return;
+      })
+      return
     }
 
-    router.push(redirected);
-  }, 2000);
-});
+    router.push(redirected)
+  }, 2000)
+})
 
-const hooks = useLoginCompleteHooks();
+const hooks = useLoginCompleteHooks()
 async function handleNext() {
-  loadingBar.start();
+  loadingBar.start()
 
-  await hooks?.runHook();
+  await hooks?.runHook()
 }
 </script>
 
@@ -76,12 +82,12 @@ async function handleNext() {
         </template>
       </n-input>
       <n-alert class="mt-2" :title="t('note')" type="warning">
-        {{ t("keep_private_key_prompt") }}
+        {{ t('keep_private_key_prompt') }}
       </n-alert>
 
-      <TestNostrApi :nostr="nostrApi"></TestNostrApi>
+      <TestNostrApi :nostr="line.nostrApi"></TestNostrApi>
       <n-checkbox class="mt-2" v-model:checked="value">
-        {{ t("i_have_saved_my_private_key_properly") }}
+        {{ t('i_have_saved_my_private_key_properly') }}
       </n-checkbox>
 
       <slot name="prev-step"></slot>

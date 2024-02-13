@@ -1,9 +1,8 @@
 <script lang="ts" setup>
-import LoginCompleteHook from "@/components/LoginCompleteHook.vue";
-import LoginCompleteHookProvide from "@/components/LoginCompleteHookProvide.vue";
-import { t } from "@/i18n";
+import LoginCompleteHook from '../components/LoginCompleteHook.vue'
+import LoginCompleteHookProvide from '../components/LoginCompleteHookProvide.vue'
 
-import { useLoginStepsState } from "./LoginStepsView";
+import { useLoginStepsState } from './LoginStepsView'
 const {
   withPrevStep,
   withNestStep,
@@ -12,10 +11,10 @@ const {
   current,
   name,
   numberOfSteps,
-} = useLoginStepsState();
+} = useLoginStepsState()
 async function handelNext(next: () => any) {
-  await next?.();
-  await nextStep();
+  await next?.()
+  await nextStep()
 }
 </script>
 
@@ -40,7 +39,7 @@ async function handelNext(next: () => any) {
                 class="w-full"
                 @click="prevStep"
               >
-                {{ t("previous_step") }}
+                {{ t('previous_step') }}
               </n-button>
             </template>
             <template #next-step="{ disabled, next }">
@@ -50,7 +49,7 @@ async function handelNext(next: () => any) {
                 class="w-full"
                 @click="() => handelNext(next)"
               >
-                {{ withNestStep ? t("next_step") : t("complete") }}
+                {{ withNestStep ? t('next_step') : t('complete') }}
               </n-button>
             </template>
           </component>

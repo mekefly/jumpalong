@@ -1,21 +1,19 @@
-import { LoggerFactory } from "./LoggerFactory";
-import creaateConsoleLog from "./plugin/creaateConsoleLog";
-import createExcludePlugin from "./plugin/createExcludePlugin";
-import createIncludePlugin from "./plugin/createIncludePlugin";
-import createLevelFilter from "./plugin/createLevelFilter";
-import createReadConfig from "./plugin/createReadConfig";
+import { loggerAssignConfig, logger } from '@jumpalong/logger'
+//@LoggerScope
+console.log(import.meta.glob('./config/*.ts'))
 
-export function createFactroy() {
-  return new LoggerFactory()
-    .addPlugin(createIncludePlugin())
-    .addPlugin(createExcludePlugin())
-    .addPlugin(creaateConsoleLog())
-    .addPlugin(createLevelFilter())
-    .addPlugin(createReadConfig())
-
-    .provideFactoryGlobal()
-    .provideRootGlobal();
+if (__TEST__) {
+  await loggerAssignConfig(logger, import.meta.glob('./config/*.ts'), [
+    'test.ts',
+  ])
+  logger.info('info')
 }
-export const loggerFactory = createFactroy();
-export const createLogger = (path: string) => loggerFactory.create(path);
-export const logger = loggerFactory.getGlobal();
+
+if (__DEV__) {
+  await loggerAssignConfig(logger, import.meta.glob('./config/*.ts'), [
+    'dev.ts',
+  ])
+  logger.info('info')
+}
+
+console.log(__DEV__)

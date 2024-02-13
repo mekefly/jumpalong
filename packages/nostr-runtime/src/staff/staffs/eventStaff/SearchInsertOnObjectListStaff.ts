@@ -1,17 +1,8 @@
-import { EventLineFactory } from '@jumpalong/nostr-runtime'
-import { searchInsertOnObjectList } from '@jumpalong/shared'
-import { InsertObjectListStaffConfigType, createStaff } from '../..'
+import { insertOnObjectList } from '@jumpalong/shared'
+import { createStaff } from '../../staff'
 
-let staff = createStaff('insertObjectList', ({ mod, line }) => {
+export default createStaff('insertOnObjectList', ({ mod, line }) => {
   return mod.assignFeat({
-    insertObjectList<E extends object>(
-      objList: E[],
-      value: E,
-      getValue: (item: E) => number
-    ) {
-      let index = searchInsertOnObjectList(objList, value, getValue)
-      objList.splice(index, 0, value)
-    },
-  }) as any as EventLineFactory<InsertObjectListStaffConfigType>
+    insertOnObjectList,
+  })
 })
-export default staff

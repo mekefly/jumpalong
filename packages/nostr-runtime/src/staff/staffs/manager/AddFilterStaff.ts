@@ -1,18 +1,38 @@
 import { Filter } from 'nostr-tools'
 import { createStaff } from '../../staff'
-import FilterListStaff from './FilterListStaff'
+import AddUrlStaff from './AddUrlStaff'
+import CreateHookStaff from '../common/extends/CreateHookStaff'
+import PublishStaff from '../publish/PublishStaff'
+import SubStaff from '../sub/SubStaff'
+import FilterStaff from './FilterStaff'
+import { CreateChildHookStaff } from '../..'
 
-export default createStaff(FilterListStaff, line => {
-  return (
-    line
+export default createStaff(
+  () => [
+    AddUrlStaff,
+    CreateChildHookStaff,
+    PublishStaff,
+    SubStaff,
+    FilterStaff,
+  ],
+  'add-filter-staff',
+  mod => {
+    let mod1 = mod
       // 定义事件
       .defineEmit<'add-filters', [filters: Filter[]]>()
+      .assignOwnFeat(() => ({
+        filterMap: new Map<string, Filter>(),
+      }))
       .assignFeat({
+        getFilters() {
+          return this.filterList
+        },
+
         addFilter(filter: Filter) {
           this.addFilters([filter])
         },
         addFilters(filters: Filter[]) {
-          let newFilterAdded = []
+          let newFilterAdded: Filter[] = []
           //去重
           for (const filter of filters) {
             let key = JSON.stringify(filter)
@@ -26,57 +46,21 @@ export default createStaff(FilterListStaff, line => {
 
           if (newFilterAdded.length > 0) {
             // addFilters事件
-            this.emitWithOption('add-filters', [newFilterAdded])
+            this.emit('add-filters', newFilterAdded)
           }
         },
       })
-  )
-})
 
-// export  function filterStaffFactory() {
-//   return createStaff(
-//     <FEAT extends EventListFeat>(line: EventBeltline<FEAT>) => {
-//       const filters: Filter[] = [];
-//       const xx = line
-//         // 定义事件
-//         .defineEmit<"add-filters", [filters: Filter[]]>().feat;
-//       return (
-//         line
-//           // 定义事件
-//           .defineEmit<"add-filters", [filters: Filter[]]>()
-//           // 添加特性
-//           .assignFeat({
-//             filters: filters,
-//             addFilter(filter: Filter) {
-//               this.addFilters([filter]);
-//               return this;
-//             },
-//             addFilters(filters: Filter[]) {
-//               this.filters.push(...filters);
+    mod1.line.onCreateChildDep<typeof mod1.line>(l => {
+      console.log('onCreateChildDep')
 
-//               //请求所有urls和增加的过滤器
-//               this.beltline.reqs(this.beltline.getRelayUrls(), filters);
-
-//               // addFilters事件
-//               this.beltline.emit("add-filters", filters);
-
-//               return this;
-//             },
-//             getFilters() {
-//               return this.filters;
-//             },
-//           })
-
-//           // 初始化过滤器
-//           .addStaff(createFilterStaff(filters), {
-//             unshift: true,
-//           })
-
-//           //监听添加url时自动发送请求
-//           .on("add-relay-urls", (incrementUrl) => {
-//             line.reqs(incrementUrl, filters);
-//           })
-//       );
-//     }
-//   );
-// }
+      l.on('add-urls', urls => {
+        l.subs(urls, l.filterList)
+        l.on('add-filters', filters => {
+          l.subs(urls, filters)
+        })
+      })
+    })
+    return mod1
+  }
+)

@@ -1,41 +1,51 @@
 <script lang="ts" setup>
-import { t } from "@/i18n";
-import { TYPES } from "@/nostr/nostr";
-import { decodeToPrikey } from "@/utils/nostr";
-import { getPublicKey } from "nostr-tools";
-import { useSetAutocomplete } from "./Login";
-import { useNostrContainerFactory } from "./NostrContainerProvade";
+// import { decodeToPrikey } from '../utils/nostr'
+import { useSetAutocomplete } from './Login'
+// import { useNostrContainerFactory } from './NostrContainerProvade'
+import { Prikey, LoginStaff } from '@jumpalong/nostr-runtime'
+import { useEventLine } from './ProvideEventLine'
+
+
 
 const emit = defineEmits<{
-  (e: "next"): void;
-  (e: "beforeNext"): void;
-}>();
+  (e: 'next'): void
+  (e: 'beforeNext'): void
+}>()
 
-const message = useMessage();
+let line = useEventLine(LoginStaff)
 
-const prikeyValue = ref("");
+const message = useMessage()
 
-const prikeyInput = useSetAutocomplete("current-password");
-const pubkeyInput = useSetAutocomplete("username");
-const getLoginApi = useNostrContainerFactory(TYPES.LoginApi);
+const prikeyValue = ref()
+
+const prikeyInput = useSetAutocomplete('current-password')
+const pubkeyInput = useSetAutocomplete('username')
+// const getLoginApi = useNostrContainerFactory(TYPES.LoginApi)
 
 const prikey = computed(() => {
-  return decodeToPrikey(prikeyValue.value);
-});
-const pubkey = computed(() => prikey.value && getPublicKey(prikey.value));
+  if (!prikeyValue.value) {
+    return
+  }
+  try {
+    return Prikey.fromString(prikeyValue.value)
+  } catch (error) {
+    return null
+  }
+})
+const pubkey = computed(() => prikey.value && prikey.value.getPubkey())
 
 function handelLogin() {
   if (!prikeyValue.value) {
-    message.error("请输入私钥");
-    return;
+    message.error('请输入私钥')
+    return
   }
   if (!prikey.value) {
-    message.error("您输入的既不是nsec,也不是hex");
-    return;
+    message.error('您输入的既不是nsec,也不是hex')
+    return
   }
-  emit("beforeNext");
-  getLoginApi().loginPrikey(prikey.value);
-  emit("next");
+  emit('beforeNext')
+  line.loginPrikey(prikey.value)
+  emit('next')
 }
 </script>
 
@@ -46,7 +56,7 @@ function handelLogin() {
         ref="pubkeyInput"
         :placeholder="t('pubkey')"
         show-password-on="click"
-        v-model:value="pubkey"
+        :value="pubkey?.toHex()"
         :disabled="true"
       />
     </n-form-item-row>
@@ -69,7 +79,7 @@ function handelLogin() {
       @click="handelLogin"
       :disabled="!prikey"
     >
-      {{ t("login") }}
+      {{ t('login') }}
     </n-button>
   </n-form>
 </template>

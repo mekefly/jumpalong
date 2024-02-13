@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import LoginVue from "@/components/Login.vue";
-import LoginCardVue from "@/components/LoginCard.vue";
-import { useLoginStepsState } from "./LoginStepsView";
+import LoginVue from '../components/Login.vue'
+import LoginCardVue from '../components/LoginCard.vue'
+import { useLoginStepsState } from './LoginStepsView'
 
-const { nextStep } = useLoginStepsState();
+const { nextStep } = useLoginStepsState()
 function handleNext() {
-  nextStep();
+  nextStep()
 }
 </script>
 

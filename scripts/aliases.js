@@ -14,7 +14,8 @@ const dirs = readdirSync(new URL('../packages', import.meta.url))
 
 const entries = {
   jumpalong: resolveEntryForPkg('jumpalong'),
-  '@jumpalong/shared': resolveEntryForPkg('shared')
+  '@jumpalong/shared': resolveEntryForPkg('shared'),
+  staff: resolveEntryForPkg('nostr-runtime'),
 }
 
 const nonSrcPackages = ['sfc-playground', 'template-explorer', 'dts-test']

@@ -1,64 +1,69 @@
-import { t } from "@/i18n";
-import { EventBeltline } from "@/nostr/eventBeltline";
-import { RefreshLoadStaffFeat } from "@/nostr/staff/createRefreshLoadStaff";
-import { createInjection } from "@/utils/use";
-import { MaybeRef } from "@vueuse/core";
-import EventEmitter from "events";
-import { autoSetLoadBuffer } from "./LoadProgress";
+import { createInjection } from '../utils/useUtils'
+import { MaybeRef } from '@vueuse/core'
+import EventEmitter from 'events'
+// import { autoSetLoadBuffer } from './LoadProgress'
+import { EventLine, LoadStaffConfigType } from '@jumpalong/nostr-runtime'
 
-export const [provideRefreshState, useRefreshState] = createInjection(() => {
-  const eventEmiter = new EventEmitter();
-  type Type = "refresh" | "load";
-  const listenerList: any[] = [];
-  onUnmounted(() => {
-    eventEmiter.removeAllListeners();
-  });
-  return {
-    on(type: Type, listener: () => void) {
-      listenerList.push(listener);
-      eventEmiter.on(type, listener);
+export const [provideRefreshState, useRefreshState] = createInjection(
+  'refresh-state',
+  () => {
+    const eventEmiter = new EventEmitter()
+    type Type = 'refresh' | 'load' | 'auto-load' | 'auto-refresh'
+    const listenerList: any[] = []
+    onUnmounted(() => {
+      eventEmiter.removeAllListeners()
+    })
+    return {
+      on(type: Type, listener: () => void) {
+        listenerList.push(listener)
+        eventEmiter.on(type, listener)
 
-      return () => this.removeListener(type, listener);
-    },
-    emit(type: Type) {
-      eventEmiter.emit(type);
-    },
-    removeListener(type: Type, listener: () => void) {
-      eventEmiter.removeListener(type, listener);
-    },
-  };
-});
+        return () => this.removeListener(type, listener)
+      },
+      emit(type: Type) {
+        eventEmiter.emit(type)
+      },
+      removeListener(type: Type, listener: () => void) {
+        eventEmiter.removeListener(type, listener)
+      },
+    }
+  }
+)
 export function useLoad(
-  beltline: ComputedRef<EventBeltline<RefreshLoadStaffFeat> | undefined | null>,
+  line: ComputedRef<undefined | null | EventLine<LoadStaffConfigType>>,
   active: MaybeRef<boolean | undefined>
 ) {
-  const message = useMessage();
+  const message = useMessage()
 
   //加载进度条
-  autoSetLoadBuffer(beltline);
+  // autoSetLoadBuffer(line)
   //监听加载事件
-  const refreshState = useRefreshState();
+  const refreshState = useRefreshState()
+  ;(['load', 'auto-load'] as const).forEach(key => {
+    refreshState?.on(key, () => {
+      if (!unref(active)) {
+        return
+      }
+      console.log('auto-load')
 
-  refreshState?.on("load", () => {
+      load()
+    })
+  })
+  refreshState?.on('refresh', () => {
     if (!unref(active)) {
-      return;
+      return
     }
-
-    load();
-  });
-  refreshState?.on("refresh", () => {
-    if (!unref(active)) {
-      return;
-    }
-    refresh();
-  });
+    refresh()
+  })
   function load() {
-    beltline.value?.feat.load();
-    message.info(t("loading"));
+    line.value?.load()
+    // beltline.value?.feat.load()
+    message.info(t('loading'))
   }
   function refresh() {
-    beltline.value?.feat.refresh();
-    message.info(t("refreshing"));
+    line.value?.loadNew()
+    // beltline.value?.feat.refresh()
+    message.info(t('refreshing'))
   }
-  return { load, refresh };
+  return { load, refresh }
 }

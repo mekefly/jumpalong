@@ -12,6 +12,8 @@ EventLineFactory {
     "mod": [Circular],
     "xx": 1,
   },
+  "id": 1,
+  "parent": null,
   "staffNames": Set {},
   "staffs": Set {},
 }

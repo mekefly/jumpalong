@@ -1,45 +1,42 @@
 <script lang="ts" setup>
-import { TYPES } from "@/nostr/nostr";
-import { toDeCodeNprofile } from "@/utils/nostr";
-import { useNostrContainerGet } from "./NostrContainerProvade";
+// import { toDeCodeNprofile } from '../utils/nostr'
 
 const props = withDefaults(
   defineProps<{
-    value: string;
-    withPrefix?: boolean;
+    value: string
+    withPrefix?: boolean
   }>(),
   {
     withPrefix: true,
   }
-);
-const { value } = toRefs(props);
+)
+const { value } = toRefs(props)
 
-const userApi = useNostrContainerGet(TYPES.UserApi);
-
-const profilePointer = computed(() => toDeCodeNprofile(value.value));
+// const profilePointer = computed(() => toDeCodeNprofile(value.value))
 const line = computed(() => {
-  if (!profilePointer.value) return;
+  // if (!profilePointer.value) return
 
-  return userApi.getUserMetadataLineByPubkey(profilePointer.value.pubkey, {
-    urls: new Set(profilePointer.value.relays),
-  });
-});
-const metadata = computed(() => line.value?.feat.useMetadata());
+  // return userApi.getUserMetadataLineByPubkey(profilePointer.value.pubkey, {
+  //   urls: new Set(profilePointer.value.relays),
+  // });
+  return null
+})
+const metadata = computed(() => line.value?.feat.useMetadata())
 const name = computed(() => {
-  if (!metadata.value) return value.value.slice(0, 10);
-  for (const key of ["name", "display_name", "displayName", "username"]) {
-    const n = (metadata.value as any)[key];
+  if (!metadata.value) return value.value.slice(0, 10)
+  for (const key of ['name', 'display_name', 'displayName', 'username']) {
+    const n = (metadata.value as any)[key]
     if (n?.length ?? 0 > 0) {
-      return n;
+      return n
     }
   }
-  return value.value.slice(0, 10);
-});
+  return value.value.slice(0, 10)
+})
 </script>
 
 <template>
   <RouterLink :to="{ name: 'profile', params: { value: value } }">
-    <span> {{ withPrefix ? "@" : "" }}{{ name ?? value.slice(0, 10) }} </span>
+    <span> {{ withPrefix ? '@' : '' }}{{ name ?? value.slice(0, 10) }} </span>
   </RouterLink>
 </template>
 

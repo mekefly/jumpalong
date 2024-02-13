@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import I18nSwitchButtonVue from "@/components/I18nSwitchButton.vue";
-import LoginCardVue from "@/components/LoginCard.vue";
-import ThemeButtonVue from "@/components/ThemeButton.vue";
+import I18nSwitchButtonVue from '../components/I18nSwitchButton.vue'
+import LoginCardVue from '../components/LoginCard.vue'
+import ThemeButtonVue from '../components/ThemeButton.vue'
 </script>
 
 <template>

@@ -10,5 +10,8 @@
   "scripts": {},
   "keywords": [],
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "rollup": "^4.9.6"
+  }
 }

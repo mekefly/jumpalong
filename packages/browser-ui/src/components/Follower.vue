@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { TYPES } from "@/nostr/nostr";
-import { useElementIntoScreen } from "@/utils/use";
 import { NList } from "naive-ui";
 import ContactListItemVue from "./FollowItem.vue";
 import { useNostrContainerGet } from "./NostrContainerProvade";
@@ -12,7 +10,6 @@ const props = defineProps<{
 }>();
 const { pubkey, active } = toRefs(props);
 
-const contactApi = useNostrContainerGet(TYPES.ContactApi);
 
 const flowerLine = computed(() =>
   contactApi.getFollowerLineByPubkey(pubkey.value)

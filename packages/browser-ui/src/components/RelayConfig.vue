@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import Scrollbar from "naive-ui/es/scrollbar/src/Scrollbar";
-import RelayConfigurator from "../components/RelayConfigurator.vue";
-import RelayConnected from "../components/RelayConnected.vue";
-import RelayOther from "../components/RelayOther.vue";
+import Scrollbar from 'naive-ui/es/scrollbar/src/Scrollbar'
+import RelayConfigurator from '../components/RelayConfigurator.vue'
+import RelayConnected from '../components/RelayConnected.vue'
+import RelayOther from '../components/RelayOther.vue'
 </script>
 
 <template>

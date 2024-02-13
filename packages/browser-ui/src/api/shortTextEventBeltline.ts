@@ -6,7 +6,6 @@ import { lazyInject } from "@/utils/inversify";
 import { inject, injectable } from "inversify";
 import { Filter } from "nostr-tools";
 import { GeneralEventEventBeltline } from "./GeneralEventEventBeltline";
-const logger = loggerScope;
 
 export type CreateTextEventBeltlineOption = CreateEventBeltlineOptions & {
   filters: Filter[];

@@ -1,37 +1,37 @@
 <script lang="ts" setup>
-import { useIfTransition } from "@/utils/use";
-import WindowNew20RegularVue from "./icon/WindowNew20Regular.vue";
-import { useNewMessageState, useProvideNewMessage } from "./NewMessage";
+import { useIfTransition } from '../utils/use'
+import WindowNew20RegularVue from './icon/WindowNew20Regular.vue'
+import { useNewMessageState, useProvideNewMessage } from './NewMessage'
 
-let injectState = useNewMessageState();
+let injectState = useNewMessageState()
 const state =
   injectState ??
   useProvideNewMessage({
     jumpList: ref([]),
-  });
+  })
 
-const jumpList = computed(() => state.jumpList.value);
+const jumpList = computed(() => state.jumpList.value)
 
 function handleJump() {
-  const f = jumpList.value.shift();
+  const f = jumpList.value.shift()
   if (!f) {
-    return;
+    return
   }
-  f();
+  f()
 }
 const isShow = computed(() => {
-  return jumpList.value.length > 0;
-});
+  return jumpList.value.length > 0
+})
 
 const { show, hidden, transitionActive, safeActive, duration } =
-  useIfTransition(600);
+  useIfTransition(600)
 watchEffect(() => {
   if (isShow.value) {
-    show();
+    show()
   } else {
-    hidden();
+    hidden()
   }
-});
+})
 </script>
 
 <template>

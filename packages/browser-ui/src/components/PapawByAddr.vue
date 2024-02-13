@@ -1,33 +1,31 @@
 <script lang="ts" setup>
-import { type EventApi } from "@/api/event";
-import { TYPES } from "@/nostr/nostr";
-import { toDeCodeAddress } from "@/utils/nostr";
-import { type AddressPointer } from "nostr-tools/lib/nip19";
-import { useNostrContainerGet } from "./NostrContainerProvade";
-import Papaw from "./Papaw.vue";
+import { type AddressPointer } from 'nostr-tools/nip19'
+import Papaw from './Papaw.vue'
+import { EventApiStaff, toDeCodeAddress } from '@jumpalong/nostr-runtime'
+import { useEventLine } from './ProvideEventLine'
 
 const props = defineProps<{
-  naddr?: string;
-  a?: string;
-}>();
-const { naddr, a } = toRefs(props);
+  naddr?: string
+  a?: string
+}>()
+const { naddr, a } = toRefs(props)
 
-const eventApi = useNostrContainerGet<EventApi>(TYPES.EventApi);
+const eventApi = useEventLine(EventApiStaff)
 
 const addrPoint = computed<AddressPointer | null>(() => {
   if (naddr?.value) {
-    return toDeCodeAddress(naddr.value);
+    return toDeCodeAddress(naddr.value)
   } else if (a?.value) {
-    return toDeCodeAddress(a.value);
+    return toDeCodeAddress(a.value)
   }
-  return null;
-});
+  return null
+})
 const line = computed(
   () =>
     addrPoint.value &&
     eventApi.createGetEventLineByAddressPointer(addrPoint.value)
-);
-const event = computed(() => line.value && line.value.feat.getLatestEvent());
+)
+const event = computed(() => line.value && line.value.feat.getLatestEvent())
 </script>
 
 <template>

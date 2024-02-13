@@ -1,57 +1,68 @@
 <script lang="ts" setup>
-import { t } from "@/i18n";
-import { NIcon, NSpace } from "naive-ui";
-import { relayConfigurator } from "../nostr/nostr";
-import BroadcastVue from "./Broadcast.vue";
-import ButtonCloseVue from "./ButtonClose.vue";
-import DateTimeVue from "./DateTime.vue";
-import RelayConnectListVue from "./RelayConnectListCard.vue";
-import RelayReadableButtonVue from "./RelayReadableButton.vue";
-import RelayWritableButtonVue from "./RelayWritableButton.vue";
-import TooltipVue from "./Tooltip.vue";
+import { NIcon, NSpace } from 'naive-ui'
+import BroadcastVue from './Broadcast.vue'
+import ButtonCloseVue from './ButtonClose.vue'
+import DateTimeVue from './DateTime.vue'
+import RelayConnectListVue from './RelayConnectListCard.vue'
+import RelayReadableButtonVue from './RelayReadableButton.vue'
+import RelayWritableButtonVue from './RelayWritableButton.vue'
+import TooltipVue from './Tooltip.vue'
+import { useEventLine } from './ProvideEventLine'
+import { RelayConfiguratorSynchronizerStaff } from '@jumpalong/nostr-runtime'
+import EditCalendarRound from './icon/EditCalendarRound.vue'
 
-const urls = computed(() => Object.keys(relayConfigurator.getConfiguration()));
+let line = useEventLine(RelayConfiguratorSynchronizerStaff)
+let relayConfigurator = line.relayConfigurator
+
+const urls = computed(
+  () =>
+    new Set([
+      ...relayConfigurator.getConfiguration().read,
+      ...relayConfigurator.getConfiguration().write,
+    ])
+)
 
 function switchWrite(url: string) {
   relayConfigurator.hasWriteByUrl(url)
     ? relayConfigurator.remoteWrite(url)
-    : relayConfigurator.addWrite(url);
+    : relayConfigurator.addWrite(url)
 }
 function switchRead(url: string) {
   relayConfigurator.hasReadByUrl(url)
     ? relayConfigurator.remoteRead(url)
-    : relayConfigurator.addRead(url);
+    : relayConfigurator.addRead(url)
 }
-const value = ref("");
+const value = ref('')
 function addRelay() {
   if (!value.value) {
-    return;
+    return
   }
-  relayConfigurator.addWriteRead(value.value);
+  relayConfigurator.addWriteRead(value.value)
 }
 
-const message = useMessage();
+const message = useMessage()
 function handleSave() {
-  relayConfigurator.save();
-  message.success(t("relay_configurator_save_message"));
+  relayConfigurator.save()
+  message.success(t('relay_configurator_save_message'))
 }
 function handleSync() {
-  relayConfigurator.sync();
-  message.success(t("relay_configurator_sync_message"));
+  relayConfigurator.sync()
+
+  message.success(t('relay_configurator_sync_message'))
 }
 const updateTime = computed(() => {
-  const updateAt = relayConfigurator.getUpdateAt();
-  if (!updateAt) return null;
-  return updateAt;
-});
+  const updateAt = relayConfigurator.getUpdateAt()
+  if (!updateAt) return null
+  return updateAt
+})
 </script>
 
 <template>
-  <RelayConnectListVue :urls="urls" :title="t('relay_configuration')">
+  <RelayConnectListVue :urls="urls" :title="$t('relay_configuration')">
     <template #header-extra>
       <n-icon class="mr-1"><EditCalendarRound /></n-icon>
       <DateTimeVue v-if="updateTime" :secondTimestamp="updateTime" />
-      <span v-else></span>
+      <span v-else>No</span>
     </template>
     <template #right="{ url }">
       <RelayWritableButtonVue
@@ -74,7 +85,7 @@ const updateTime = computed(() => {
           placeholder="eg: wss://nostr.wine"
         />
         <n-button @click="addRelay" type="primary" :disabled="!value">
-          {{ t("add") }}
+          {{ t('add') }}
         </n-button>
         <TooltipVue
           :tooltip="
@@ -88,7 +99,7 @@ const updateTime = computed(() => {
             type="primary"
             :disabled="!relayConfigurator.hasChange()"
           >
-            {{ t("save") }}
+            {{ t('save') }}
           </n-button>
         </TooltipVue>
 
@@ -104,7 +115,7 @@ const updateTime = computed(() => {
             type="primary"
             :disabled="relayConfigurator.hasChange()"
           >
-            {{ t("sync") }}
+            {{ t('sync') }}
           </n-button>
         </TooltipVue>
         <BroadcastVue />

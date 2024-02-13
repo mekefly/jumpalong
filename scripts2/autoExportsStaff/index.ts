@@ -17,60 +17,95 @@ if (!startDir) {
 
 const exportName = 'exports.ts'
 function autoExport(path: string) {
+  let tsFilePath = deepLoadTsFils(path)
+  writeStaffs(tsFilePath, path, 'staffExport.ts')
+}
+function writeStaffs(
+  tsFilePath: string[],
+  rootPath: string,
+  exportName: string
+) {
+  if (tsFilePath.length > 0) {
+    writeFileSync(resolve(rootPath, exportName), generate(rootPath, tsFilePath))
+  }
+}
+function deepLoadTsFils(path: string) {
+  let tsFilePath: string[] = []
   let files = readdirSync(resolve(path, ''))
 
   //child
   files.forEach(fileName => {
-    let filePath = resolve(path, fileName)
-    if (lstatSync(filePath).isDirectory()) {
-      autoExport(filePath)
+    if (
+      fileName.startsWith('.') ||
+      fileName.startsWith('_') ||
+      fileName.startsWith('index')
+    ) {
+      return
     }
-  })
 
-  let modelFiles = files.filter(name => {
-    let filePath = resolve(path, name)
-    return (
-      !name.startsWith('_') &&
-      isModel(filePath) &&
-      exportName !== name &&
-      'index.ts' !== name
-    )
-  })
-  if (modelFiles.length > 0) {
-    writeFileSync(resolve(path, 'exports.ts'), generate(path, modelFiles))
-    indexAutoCreate(path)
-  }
-}
-function indexAutoCreate(path: string) {
-  //index不存在自动创建
-  let indexPath = resolve(path, 'index.ts')
-  let indexPart = `export * from "./${removeTheExtendedName(exportName)}";`
-  if (!existsSync(indexPath)) {
-    writeFileSync(indexPath, indexPart)
-  } else {
-    if (lstatSync(indexPath).isFile()) {
-      let line = readFile(indexPath).split('\n')
-      //如果存在这一行，就不需要添加了
-      if (line.some(item => item === indexPart)) {
-        return
-      }
-      line.push(indexPart)
-      writeFileSync(indexPath, line.join('\n'))
-    } else if (lstatSync(indexPath).isDirectory()) {
-      indexAutoCreate(indexPath)
+    let filePath = resolve(path, fileName)
+
+    if (!existsSync(filePath)) {
+      return
     }
-  }
+
+    let lstat = lstatSync(filePath)
+    if (lstat.isDirectory()) {
+      tsFilePath.push(...deepLoadTsFils(filePath))
+      return
+    } else if (lstat.isFile() && filePath.endsWith('.ts')) {
+      tsFilePath.push(filePath)
+      return
+    }
+  })
+  return tsFilePath
+
+  // let modelFiles = files.filter(name => {
+  //   let filePath = resolve(path, name)
+  //   return (
+  //     !name.startsWith('_') &&
+  //     isModel(filePath) &&
+  //     exportName !== name &&
+  //     'index.ts' !== name
+  //   )
+  // })
+  // if (modelFiles.length > 0) {
+  //   writeFileSync(resolve(path, 'exports.ts'), generate(path, modelFiles))
+  //   indexAutoCreate(path)
+  // }
 }
+// function indexAutoCreate(path: string) {
+//   //index不存在自动创建
+//   let indexPath = resolve(path, 'index.ts')
+//   let indexPart = `export * from "./${removeTheExtendedName(exportName)}";`
+//   if (!existsSync(indexPath)) {
+//     writeFileSync(indexPath, indexPart)
+//   } else {
+//     if (lstatSync(indexPath).isFile()) {
+//       let line = readFile(indexPath).split('\n')
+//       //如果存在这一行，就不需要添加了
+//       if (line.some(item => item === indexPart)) {
+//         return
+//       }
+//       line.push(indexPart)
+//       writeFileSync(indexPath, line.join('\n'))
+//     } else if (lstatSync(indexPath).isDirectory()) {
+//       indexAutoCreate(indexPath)
+//     }
+//   }
+// }
 /**esmodel */
-function isModel(path: string): boolean {
-  if (lstatSync(path).isFile()) {
-    return readFile(path)
-      .split('\n')
-      .some(line => line.startsWith('export'))
-  } else {
-    return isModel(resolve(path, 'index.ts'))
-  }
-}
+// function isModel(path: string): boolean {
+//   if (!existsSync(path)) {
+//     return false
+//   } else if (lstatSync(path).isFile()) {
+//     return readFile(path)
+//       .split('\n')
+//       .some(line => line.startsWith('export'))
+//   } else {
+//     return isModel(resolve(path, 'index.ts'))
+//   }
+// }
 function readFile(path: string) {
   return readFileSync(path, 'utf-8')
 }
@@ -78,7 +113,18 @@ const StaffConfigType = 'StaffConfigType'
 function configTypeName(name: string) {
   return `${name}ConfigType`
 }
-function generate(path: string, files: string[]) {
+function thePathTurnsRelative(rootPath: string, pathName: string) {
+  let x = relative(rootPath, removeTheExtendedName(pathName)).replaceAll(
+    '\\',
+    '/'
+  )
+  if (!x.startsWith('.')) {
+    return './' + x
+  } else {
+    return x
+  }
+}
+function generate(path: string, filesPath: string[]) {
   let staffPath = resolve('packages/nostr-runtime/src/staff/staff')
 
   let exportAllLine: string[] = []
@@ -86,11 +132,10 @@ function generate(path: string, files: string[]) {
   let staffConfigExportLine: [name: string, configTypeName: string][] = []
   let line: string[] = []
 
-  files.forEach(fileName => {
-    let shortName = removeTheExtendedName(fileName)
+  filesPath.forEach(filePath => {
+    let shortName = removeTheExtendedName(parse(filePath).name)
     //约定大于配置，如果有默认导出，就把首字母为大写
     if (isUppercase(shortName)) {
-      const filePath = resolve(path, fileName)
       //如果是文件
       if (!lstatSync(filePath).isFile()) {
         return
@@ -102,17 +147,15 @@ function generate(path: string, files: string[]) {
           .split('\n')
           .some(line => line.startsWith('export default createStaff'))
       ) {
-        importDefaultLine.push([shortName, `./${shortName}`])
+        importDefaultLine.push([
+          shortName,
+          thePathTurnsRelative(path, filePath),
+        ])
         staffConfigExportLine.push([shortName, configTypeName(shortName)])
-      } else {
-        importDefaultLine.push([shortName, `./${shortName}`])
       }
-    } else {
-      exportAllLine.push(shortName)
-      // return `export * from "./${shortName}";`
     }
   })
-  //依赖检查
+  //StaffConfigType类型生成器
   if (staffConfigExportLine.length > 0) {
     console.log(resolve(path, exportName))
 

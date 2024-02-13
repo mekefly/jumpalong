@@ -1,33 +1,39 @@
 <script lang="ts" setup>
-import { useNostrContainerFactory } from "@/components/NostrContainerProvade";
-import RelayConfigVue from "@/components/RelayConfig.vue";
-import ScrollbarVue from "@/components/Scrollbar.vue";
-import TooltipVue from "@/components/Tooltip.vue";
-import { t } from "@/i18n";
-import { relayConfigurator, TYPES } from "@/nostr/nostr";
+import RelayConfigVue from '@/components/RelayConfig.vue'
+import ScrollbarVue from '@/components/Scrollbar.vue'
+import TooltipVue from '@/components/Tooltip.vue'
+import { useEventLine } from '../components/ProvideEventLine'
+import {
+  LoginStaff,
+  RelayConfiguratorSynchronizerStaff,
+} from '@jumpalong/nostr-runtime'
 
-const getNostrApi = useNostrContainerFactory(TYPES.LoginApi);
+console.log('event-line', inject(Symbol.for('event-line')))
 
-const isNewUser = ref(getNostrApi().testAndVerifyNewUser());
+let nostrApiLine = useEventLine(LoginStaff)
+let relayConfiguratorLine = useEventLine(RelayConfiguratorSynchronizerStaff)
+let relayConfigurator = relayConfiguratorLine.relayConfigurator
+
+const isNewUser = ref(nostrApiLine.testAndVerifyNewUser())
 const isNewUserChangeRelayConfig = computed(
   () => isNewUser.value && relayConfigurator.hasChange()
-);
+)
 const numberOfrelayConfigurator = computed(
   () => Object.keys(relayConfigurator.getConfiguration()).length
-);
+)
 
 const nextTips = computed(() => {
   if (numberOfrelayConfigurator.value === 0) {
-    return t("please_configure_relay");
+    return t('please_configure_relay')
   } else if (isNewUserChangeRelayConfig.value) {
-    return t("please_save_the_configuration");
+    return t('please_save_the_configuration')
   } else {
-    return t("next_step_tip");
+    return t('next_step_tip')
   }
-});
+})
 
 function handelReload() {
-  location.reload();
+  location.reload()
 }
 </script>
 
@@ -46,7 +52,7 @@ function handelReload() {
       </TooltipVue>
 
       <n-alert class="mt-4" :title="t('welcome')" type="info" closable>
-        {{ t("login_welcome") }}
+        {{ t('login_welcome') }}
       </n-alert>
 
       <n-alert
@@ -55,7 +61,7 @@ function handelReload() {
         type="warning"
         closable
       >
-        {{ t("configuring_relay_prompts_text") }}
+        {{ t('configuring_relay_prompts_text') }}
       </n-alert>
       <n-alert
         v-if="!isNewUser"
@@ -69,15 +75,15 @@ function handelReload() {
       </n-alert>
 
       <n-alert v-if="!isNewUser" :title="t('note')" type="info" closable>
-        {{ t("discard_changes0") }}
+        {{ t('discard_changes0') }}
         <n-button text @click="handelReload">
-          {{ t("discard_changes1") }}
+          {{ t('discard_changes1') }}
         </n-button>
-        {{ t("discard_changes2") }}
+        {{ t('discard_changes2') }}
       </n-alert>
 
       <n-alert v-if="!isNewUser" :title="t('note')" type="info" closable>
-        {{ t("sync_note") }}
+        {{ t('sync_note') }}
       </n-alert>
 
       <n-alert
@@ -111,7 +117,7 @@ function handelReload() {
         type="info"
         closable
       >
-        {{ t("what_is_nostr_text") }}
+        {{ t('what_is_nostr_text') }}
       </n-alert>
       <RelayConfigVue class="h-full mt-4" />
     </n-space>

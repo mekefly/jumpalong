@@ -1,48 +1,52 @@
 <script lang="ts" setup>
-import { t } from "@/i18n";
-import { config } from "@/nostr/nostr";
-import ArrowForwardIosRoundVue from "../components/icon/ArrowForwardIosRound.vue";
-import { clearCache, intelligentCleaning } from "../utils/cache/index";
-const dialog = useDialog();
-const message = useMessage();
+import { ConfigStaff } from '@jumpalong/nostr-runtime'
+import ArrowForwardIosRoundVue from '../components/icon/ArrowForwardIosRound.vue'
+import { clearCache, intelligentCleaning } from '../utils/cache/index'
+import { useEventLine } from '../components/ProvideEventLine'
+
+const line = useEventLine(ConfigStaff)
+const config = line.getConfig()
+
+const dialog = useDialog()
+const message = useMessage()
 function handelClearLocalStorage() {
   dialog.warning({
-    title: t("warning"),
-    content: t("clear_local_storage_warning"),
-    positiveText: t("yes"),
-    negativeText: t("no"),
+    title: t('warning'),
+    content: t('clear_local_storage_warning'),
+    positiveText: t('yes'),
+    negativeText: t('no'),
     onPositiveClick: () => {
-      localStorage.clear();
-      location.reload();
+      localStorage.clear()
+      location.reload()
     },
     onNegativeClick: () => {},
-  });
+  })
 }
 function handelIntelligentCleaning() {
   dialog.info({
-    title: t("info"),
-    content: t("are_you_sure"),
-    positiveText: t("yes"),
-    negativeText: t("no"),
+    title: t('info'),
+    content: t('are_you_sure'),
+    positiveText: t('yes'),
+    negativeText: t('no'),
     onPositiveClick: () => {
-      intelligentCleaning();
-      location.reload();
+      intelligentCleaning()
+      location.reload()
     },
     onNegativeClick: () => {},
-  });
+  })
 }
 function handelClearCache() {
   dialog.info({
-    title: t("info"),
-    content: t("are_you_sure"),
-    positiveText: t("yes"),
-    negativeText: t("no"),
+    title: t('info'),
+    content: t('are_you_sure'),
+    positiveText: t('yes'),
+    negativeText: t('no'),
     onPositiveClick: () => {
-      clearCache();
-      location.reload();
+      clearCache()
+      location.reload()
     },
     onNegativeClick: () => {},
-  });
+  })
 }
 </script>
 
@@ -110,7 +114,7 @@ function handelClearCache() {
         :description="t('lazy_delay_for_papaw_tip')"
         :titleExtra="String(config.lazyDelayForPapaw)"
       >
-        <template #header> {{ t("lazy_delay_for_papaw") }} </template>
+        <template #header> {{ t('lazy_delay_for_papaw') }} </template>
         <template #footer>
           <n-slider
             v-model:value="config.lazyDelayForPapaw"
@@ -124,7 +128,7 @@ function handelClearCache() {
 
     <n-list-item>
       <n-thing :titleExtra="String(config.relayEmiterQueueInterval)">
-        <template #header> {{ t("relay_emiter_queue_interval") }} </template>
+        <template #header> {{ t('relay_emiter_queue_interval') }} </template>
         <template #footer>
           <n-slider
             v-model:value="config.relayEmiterQueueInterval"
@@ -143,7 +147,7 @@ function handelClearCache() {
       "
     >
       <n-thing :description="t('move_house_description')">
-        <template #header> {{ t("move_house") }} </template>
+        <template #header> {{ t('move_house') }} </template>
       </n-thing>
     </n-list-item>
   </n-list>

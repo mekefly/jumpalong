@@ -20,7 +20,7 @@ import {
   mkdirSync,
   readFileSync,
   rmSync,
-  writeFileSync
+  writeFileSync,
 } from 'node:fs'
 import { parse } from '@babel/parser'
 import path from 'node:path'
@@ -41,12 +41,13 @@ export function scanEnums() {
   const enumData = {
     ranges: {},
     defines: {},
-    ids: []
+    ids: [],
   }
 
   // 1. grep for files with exported const enum
   const { stdout } = execaSync('git', ['grep', `export const enum`])
   const files = [...new Set(stdout.split('\n').map(line => line.split(':')[0]))]
+  console.log('files', files)
 
   // 2. parse matched files to collect enum info
   for (const relativeFile of files) {
@@ -54,7 +55,7 @@ export function scanEnums() {
     const content = readFileSync(file, 'utf-8')
     const ast = parse(content, {
       plugins: ['typescript'],
-      sourceType: 'module'
+      sourceType: 'module',
     })
 
     for (const node of ast.program.body) {
@@ -211,7 +212,7 @@ export function constEnum() {
         s = s || new MagicString(code)
         const ast = parse(code, {
           plugins: ['typescript'],
-          sourceType: 'module'
+          sourceType: 'module',
         })
         for (const node of ast.program.body) {
           if (
@@ -245,10 +246,10 @@ export function constEnum() {
       if (s) {
         return {
           code: s.toString(),
-          map: s.generateMap()
+          map: s.generateMap(),
         }
       }
-    }
+    },
   }
 
   return [plugin, enumData.defines]

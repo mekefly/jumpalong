@@ -2,7 +2,6 @@ import { ContainerKey } from "@/nostr/nostr";
 import { throwNotFoundError } from "@/utils/throw";
 import { createInjection } from "@/utils/use";
 import { Container } from "inversify";
-const logger = loggerScope;
 
 export const [provideNostrContainer, useNostrContainer] = createInjection(
   (nostrContainer: Container) => {

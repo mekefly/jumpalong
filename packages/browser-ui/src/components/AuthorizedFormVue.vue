@@ -1,48 +1,38 @@
 <script lang="ts" setup>
-import { t } from "@/i18n";
-import { nostrApi, relayConfigurator } from "@/nostr/nostr";
-import { NostrApiMode, setNostrApiMode } from "@/nostr/nostrApi/NostrApiMode";
-
-import { injectWindowNostr } from "@/nostr/injectWindowNostr";
-import { NostrApi } from "@/types/NostrApi";
-import AiddrLink from "./NaddrLink.vue";
-import TestNostrApi from "./TestNostrApi.vue";
+import { LoginStaff, WindowNostr } from '@jumpalong/nostr-runtime'
+import AiddrLink from './NaddrLink.vue'
+import { useEventLine } from './ProvideEventLine'
+import TestNostrApi from './TestNostrApi.vue'
+let line = useEventLine(LoginStaff)
 
 const emit = defineEmits<{
-  (e: "next"): void;
-  (e: "beforeNext"): void;
-}>();
+  (e: 'next'): void
+  (e: 'beforeNext'): void
+}>()
 
 const isFloudNostr = computed(() => {
-  return Boolean((window as any).nostr);
-});
+  return Boolean((window as any).nostr)
+})
 
 const recommendedList = ref([
-  ["horse", "https://github.com/fiatjaf/horse"],
-  ["nos2x", "https://github.com/fiatjaf/nos2x"],
-  ["Alby", "https://getalby.com/"],
-  ["Blockcore", "https://www.blockcore.net/wallet"],
-  ["nos2x-fox", "https://diegogurpegui.com/nos2x-fox/"],
-  ["Flamingo", "https://www.getflamingo.org/"],
-]);
+  ['horse', 'https://github.com/fiatjaf/horse'],
+  ['nos2x', 'https://github.com/fiatjaf/nos2x'],
+  ['Alby', 'https://getalby.com/'],
+  ['Blockcore', 'https://www.blockcore.net/wallet'],
+  ['nos2x-fox', 'https://diegogurpegui.com/nos2x-fox/'],
+  ['Flamingo', 'https://www.getflamingo.org/'],
+])
 
 function handleNext() {
-  emit("beforeNext");
-  setNostrApiMode(NostrApiMode.WindowNostr);
-  injectWindowNostr();
-
-  nostrApi.getPublicKey();
-  setTimeout(() => {
-    relayConfigurator.sync();
-  });
-
-  emit("next");
+  emit('beforeNext')
+  line.windowNostrLogin()
+  emit('next')
 }
 
 function open(url: string) {
-  window.open(url);
+  window.open(url)
 }
-const nostr = ref((window as any).nostr as Partial<NostrApi>);
+const nostr = ref((window as any).nostr as Partial<WindowNostr>)
 </script>
 
 <template>
@@ -54,7 +44,7 @@ const nostr = ref((window as any).nostr as Partial<NostrApi>);
       type="warning"
     >
       <p>
-        {{ t("authorized_form_not_floud_nostr_tip") }}
+        {{ t('authorized_form_not_floud_nostr_tip') }}
       </p>
 
       <n-space>
@@ -70,7 +60,7 @@ const nostr = ref((window as any).nostr as Partial<NostrApi>);
 
     <n-alert class="mt-2" :title="t('note')" type="info">
       <AiddrLink :addr="t('help_article')">
-        {{ t("help") }}
+        {{ t('help') }}
       </AiddrLink>
     </n-alert>
     <TestNostrApi :nostr="nostr" :disabled="!isFloudNostr"></TestNostrApi>
@@ -83,7 +73,7 @@ const nostr = ref((window as any).nostr as Partial<NostrApi>);
       class="w-full"
       :type="'primary'"
     >
-      {{ t("next_step") }}
+      {{ t('next_step') }}
     </n-button>
   </n-space>
 </template>

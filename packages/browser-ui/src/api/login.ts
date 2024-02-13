@@ -1,16 +1,17 @@
-import { injectNostrApi, TYPES } from "@/nostr/nostr";
-import {
-  getNostrApiMode,
-  NostrApiMode,
-  setNostrApiMode,
-} from "@/nostr/nostrApi/NostrApiMode";
-import { PriKeyNostApiImpl } from "@/nostr/nostrApi/PriKeyNostApiImpl";
-import SynchronizerAbstract from "@/nostr/Synchronizer/abstract/SynchronizerAbstract";
-import { createPrikey } from "@/utils/nostr";
-import { Container, inject, injectable } from "inversify";
-import { getPublicKey } from "nostr-tools";
+// import { injectNostrApi, TYPES } from '../nostr/nostr'
+// import {
+//   getNostrApiMode,
+//   NostrApiMode,
+//   setNostrApiMode,
+// } from '@/nostr/nostrApi/NostrApiMode'
+// import { PriKeyNostApiImpl } from '@/nostr/nostrApi/PriKeyNostApiImpl'
+// import SynchronizerAbstract from '@/nostr/Synchronizer/abstract/SynchronizerAbstract'
+// import { createPrikey } from '@/utils/nostr'
+import { Prikey } from '@jumpalong/nostr-runtime'
+import { Container, inject, injectable } from 'inversify'
+import { getPublicKey } from 'nostr-tools'
 
-export const PRIVATE_KEY = "prikey";
+export const PRIVATE_KEY = 'prikey'
 @injectable()
 export class LoginApi {
   constructor(
@@ -19,49 +20,50 @@ export class LoginApi {
   ) {}
 
   loginPrikey(key: string) {
-    localStorage.setItem(PRIVATE_KEY, key);
-    setNostrApiMode(NostrApiMode.PrivateKey);
-    const nostrApi = new PriKeyNostApiImpl(key);
-    this.container.rebind(TYPES.NostrApi).toDynamicValue(() => nostrApi);
-    injectNostrApi({ nostrApi });
+    localStorage.setItem(PRIVATE_KEY, key)
+    setNostrApiMode(NostrApiMode.PrivateKey)
+    const nostrApi = new PriKeyNostApiImpl(key)
+    this.container.rebind(TYPES.NostrApi).toDynamicValue(() => nostrApi)
+    injectNostrApi({ nostrApi })
   }
 
   registerPrikey(prikey: string = createPrikey()) {
-    this.loginPrikey(prikey);
+    this.loginPrikey(prikey)
 
-    const pubkey = getPublicKey(prikey);
-    localStorage.setItem("newUserFlag", pubkey);
+    const pubkey = getPublicKey(prikey)
+    localStorage.setItem('newUserFlag', pubkey)
 
-    return prikey;
+    return prikey
   }
 
   logout() {
-    localStorage.removeItem(PRIVATE_KEY);
-    setNostrApiMode(NostrApiMode.NotLogin);
+    localStorage.removeItem(PRIVATE_KEY)
+    setNostrApiMode(NostrApiMode.NotLogin)
 
-    SynchronizerAbstract.clearAll();
+    SynchronizerAbstract.clearAll()
     setTimeout(() => {
-      location.reload();
-    }, 0);
+      location.reload()
+    }, 0)
   }
 
   testAndVerifyNewUser() {
-    const newUserFlagPubkey = localStorage.getItem("newUserFlag");
-    const currentPrikey = localStorage.getItem("prikey");
-    const currentPubkey = currentPrikey && getPublicKey(currentPrikey);
+    const newUserFlagPubkey = localStorage.getItem('newUserFlag')
+    const currentPrikey = localStorage.getItem('prikey')
+    const currentPubkey =
+      currentPrikey && getPublicKey(Prikey.fromHex(currentPrikey))
 
     if (
       getNostrApiMode() === NostrApiMode.PrivateKey &&
       newUserFlagPubkey &&
       newUserFlagPubkey === currentPubkey
     ) {
-      return true;
+      return true
     } else {
-      return false;
+      return false
     }
   }
 
   clearNewUserFlag() {
-    localStorage.removeItem("newUserFlag");
+    localStorage.removeItem('newUserFlag')
   }
 }

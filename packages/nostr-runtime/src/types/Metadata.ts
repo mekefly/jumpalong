@@ -3,4 +3,8 @@ export interface Metadata {
   about?: string
   picture?: string
   banner?: string
+  
+  username?: string
+  display_name?: string
+  displayName?: string
 }

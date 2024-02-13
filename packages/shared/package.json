@@ -25,5 +25,8 @@
   "bugs": {
     "url": "https://github.com/vuejs/core/issues"
   },
-  "homepage": "https://github.com/vuejs/core/tree/main/packages/shared#readme"
+  "homepage": "https://github.com/vuejs/core/tree/main/packages/shared#readme",
+  "dependencies": {
+    "rollup": "^4.9.6"
+  }
 }

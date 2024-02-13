@@ -1,49 +1,47 @@
 <script lang="ts" setup>
-import { t } from "@/i18n";
-import { TYPES } from "@/nostr/nostr";
-import { usePubkey } from "@/utils/nostrApiUse";
-import Follow from "./Follow.vue";
-import FollowerVue from "./Follower.vue";
+import Follow from './Follow.vue'
+import FollowerVue from './Follower.vue'
 import {
   useNostrContainerAsyncGet,
   useNostrContainerGet,
-} from "./NostrContainerProvade";
-import PostListVue from "./PostList.vue";
-import ProfileMoreInfoRelayListVue from "./ProfileMoreInfoRelayList.vue";
-import { InsertDropdownOptionOpt } from "./SMSButtonProvide";
-import SMSButtonProvide from "./SMSButtonProvide.vue";
+} from './NostrContainerProvade'
+import PostListVue from './PostList.vue'
+import ProfileMoreInfoRelayListVue from './ProfileMoreInfoRelayList.vue'
+import { usePubkey } from './ProvideEventLine'
+import { InsertDropdownOptionOpt } from './SMSButtonProvide'
+import SMSButtonProvide from './SMSButtonProvide.vue'
 
-const props = defineProps<{ pubkey: string; urls?: Set<string> }>();
-const { pubkey } = toRefs(props);
+const props = defineProps<{ pubkey: string; urls?: Set<string> }>()
+const { pubkey } = toRefs(props)
 
-const pinListSync = await useNostrContainerAsyncGet(TYPES.PinListSynchronizer);
-const createPinEventLine = useNostrContainerGet(TYPES.PinApi);
+// const pinListSync = await useNostrContainerAsyncGet(TYPES.PinListSynchronizer);
+// const createPinEventLine = useNostrContainerGet(TYPES.PinApi);
 
-const pubkeys = computed(() => [pubkey.value]);
+const pubkeys = computed(() => [pubkey.value])
 
-const activePage = ref("homepage");
+const activePage = ref('homepage')
 
-const currentPublic = usePubkey();
-const isMe = computed(() => currentPublic.value === pubkey.value);
-const message = useMessage();
-const unPininsertDropdownOption: InsertDropdownOptionOpt = {
-  insertKey: "pin",
-  key: "unpin",
-  async handle(event) {
-    pinListSync.unpin(event);
-    message.info(t("request_initiated"));
-  },
-  label: t("unpin"),
-};
-const line = computed(() =>
-  createPinEventLine.createPinEventLine({ pubkey: pubkey.value })
-);
+const currentPublic = usePubkey()
+// const isMe = computed(() => currentPublic.value?.toHex() === pubkey.value)
+// const message = useMessage()
+// const unPininsertDropdownOption: InsertDropdownOptionOpt = {
+//   insertKey: 'pin',
+//   key: 'unpin',
+//   async handle(event) {
+//     // pinListSync.unpin(event)
+//     message.info(t('request_initiated'))
+//   },
+//   label: t('unpin'),
+// }
+// const line = computed(() =>
+//   createPinEventLine.createPinEventLine({ pubkey: pubkey.value })
+// )
 
-const tags = computed(() =>
-  isMe.value
-    ? [...pinListSync.getPinListSync().tagMap.values()]
-    : line.value.feat.getLatestEvent()?.tags ?? []
-);
+// const tags = computed(() =>
+//   isMe.value
+//     ? [...pinListSync.getPinListSync().tagMap.values()]
+//     : line.value.feat.getLatestEvent()?.tags ?? []
+// )
 </script>
 
 <template>
@@ -53,7 +51,7 @@ const tags = computed(() =>
       name="homepage"
       :tab="t('homepage')"
     >
-      <div v-if="tags && tags.length > 0">
+      <!-- <div v-if="tags && tags.length > 0">
         <SMSButtonProvide
           v-if="isMe"
           :insertDropdownOptionList="[unPininsertDropdownOption]"
@@ -61,19 +59,16 @@ const tags = computed(() =>
           <PostListVue :tags="tags" />
         </SMSButtonProvide>
         <PostListVue v-else :tags="tags"></PostListVue>
-        <n-divider>{{ t("pin") }}</n-divider>
-      </div>
+        <n-divider>{{ t('pin') }}</n-divider>
+      </div> -->
 
       <PostListVue
         :active="activePage === 'homepage'"
         :filters="[
           {
-            kinds: [30023],
+            kinds: [1, 30023],
             authors: pubkeys,
-          },
-          {
-            kinds: [1],
-            authors: pubkeys,
+            limit: 5,
           },
         ]"
         :urls="props.urls"

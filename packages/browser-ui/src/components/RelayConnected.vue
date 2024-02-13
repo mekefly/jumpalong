@@ -1,29 +1,39 @@
 <script lang="ts" setup>
-import { t } from "@/i18n";
-import { relayConfigurator, relayPool } from "../nostr/nostr";
-import AddButtonVue from "./AddButton.vue";
-import ButtonCloseVue from "./ButtonClose.vue";
-import AccountTreeRoundVue from "./icon/AccountTreeRound.vue";
-import RelayConnectListVue from "./RelayConnectListCard.vue";
+import AddButtonVue from './AddButton.vue'
+import ButtonCloseVue from './ButtonClose.vue'
+import AccountTreeRoundVue from './icon/AccountTreeRound.vue'
+import RelayConnectListVue from './RelayConnectListCard.vue'
+import { useEventLine } from './ProvideEventLine'
+import {
+  RelayConfiguratorSynchronizerStaff,
+  PoolStaff,
+} from '@jumpalong/nostr-runtime'
+
+let line = useEventLine(RelayConfiguratorSynchronizerStaff)
+let relayPoolLine = useEventLine(PoolStaff)
+let relayPool = relayPoolLine.relayPool
+
+let relayConfigurator = line.relayConfigurator
+
 const pool = computed(() => {
-  return relayPool.getPool();
-});
+  return relayPool.getPool()
+})
 const keys = computed(() => {
-  return [...pool.value.keys()];
-});
+  return [...pool.value.keys()]
+})
 function getSubNumber(url: string) {
-  const relay = relayPool.getRelayFromPool(url);
+  const relay = relayPool.getRelayFromPool(url)
   if (!relay) {
-    return 0;
+    return 0
   }
-  return relay.subIds.size;
+  return relay.subIds.size
 }
 function getPublishNumber(url: string) {
-  const relay = relayPool.getRelayFromPool(url);
+  const relay = relayPool.getRelayFromPool(url)
   if (!relay) {
-    return 0;
+    return 0
   }
-  return relay.publishIds.size;
+  return relay.publishIds.size
 }
 </script>
 
@@ -49,7 +59,7 @@ function getPublishNumber(url: string) {
       />
       <ButtonCloseVue
         class="ml-2"
-        @click="() => relayPool.close(url)"
+        @click="() => relayPool.closeRelay(url)"
         @close="() => pool.get(url)?.close()"
       />
     </template>

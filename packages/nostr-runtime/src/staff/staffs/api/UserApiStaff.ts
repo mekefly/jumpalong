@@ -1,112 +1,96 @@
-import { UserMetaData } from 'packages/nostr-runtime/src/types/User';
-import { createStaff } from '../..'
-import managerStaff from '../manager/managerStaff';
-import { useCache } from '@jumpalong/shared';
-import LatestEventStaff from '../eventStaff/LatestEventStaff';
-import ReadWriteListStaff from './ReadWriteListStaff';
+import { useCache, call, timeout } from '@jumpalong/shared'
+import { createStaff } from '../../staff'
+import { Pubkey } from '../../../utils/user'
+import AutoAddUrlByGlobalDiscoveryUserStaff from '../globalDiscoveryUser/AutoAddUrlByGlobalDiscoveryUserStaff'
+import EventApiStaff from './EventApiStaff'
+import LocalMapStaff from '../common/LocalMapStaff'
+import MetadataStaff from '../eventStaff/MetadataStaff'
+import RelayConfiguratorSynchronizerStaff from '../synchronizer/RelayConfiguratorSynchronizerStaff'
+import ManagerStaff from '../manager/ManagerStaff'
+import EoseAutoUnSubStaff from '../sub/EoseAutoUnSubStaff'
+import { CommonOptions } from './options'
+import AutoAddKind10002UrlStaff from '../globalDiscoveryUser/AutoAddKind10002UrlStaff'
+import { ApiAddUrlsOptions, Cue } from './options'
+import ApiAddUrlsStaff from './ApiAddUrlsStaff'
+import Kind10002ReadWriteListConfigStaff from '../eventStaff/Kind10002ReadWriteListConfigStaff'
+$LoggerScope()
 
-export default createStaff(managerStaff,({ mod, line }) => {
-  return mod.assignFeat({
+export default createStaff(
+  () => [EventApiStaff, LocalMapStaff, RelayConfiguratorSynchronizerStaff],
+  ({ mod, line }) => {
+    return mod.assignFeat({
+      getUserMetadataLineByPubkey(
+        pubkey: Pubkey | string,
+        options: ApiAddUrlsOptions & CommonOptions = {}
+      ) {
+        typeof pubkey === 'string' && (pubkey = Pubkey.fromHex(pubkey))
+        logger.debug(
+          'getUserMetadataLineByPubkey-----------------------------------'
+        )
+        return useCache(
+          `getUserRelayUrlConfigByPubkey:${pubkey}`,
+          () => {
+            const kind0line = line
+              .createChild()
+              .add(ManagerStaff)
+              .add(MetadataStaff)
+              .add(EoseAutoUnSubStaff)
+              .add(ApiAddUrlsStaff)
 
-// async sendUserMetadataByPubkey(userMetaData: UserMetaData) {
-
-//     return new Promise<void>(async (resolve, reject) => {
-//       setTimeout(reject, 20000);
-//       this.addEvent({
-//         kind: 0,
-//         content: JSON.stringify(userMetaData),
-//       });
-//     });
-//   }
-
-  getUserRelayUrlConfigByPubkey(pubkey: string) {
-    return useCache(
-      `getUserRelayUrlConfigByPubkey:${pubkey}`,
-      () => {
-        const kind10002line = this.mod
-          .add(LatestEventStaff)
-        .createAsATemplate()
-        .chain('addFilter',({
-            kinds: [10002],
-            authors: [pubkey],
-          }))
-          .mod
-          // .addStaff(ReplaceableEventMapStaff(10002, pubkey)) // 本地缓存
-          .add(ReadWriteListStaff).out() // 创建读写配置列表
-          // .addStaff(createWithEvent())
-          // .addExtends(rootEventBeltline); //请求到的结果从root中也可取到取到
-
-        if (kind10002line.isHasLatestEvent()) {
-          return kind10002line;
-        }
-
-        //请求10002
-        kind10002line
-          .createChild()
-          .addStaff(autoAddRelayurlByPubkeyStaff(pubkey));
-        return kind10002line;
-      },
-      {
-        useLocalStorage: false,
-      }
-    );
-  }
-    getUserMetadataLineByPubkey(
-      pubkey: string,
-      opt?: {
-        urls?: Set<string>
-      }
-    ) {
-      const { urls } = opt ?? {}
-      return useCache(
-        `getUserMetadataLineByPubkey:${pubkey}`,
-        () => {
-          const line = this.createEventBeltline
-            .createEventBeltlineReactive()
-            .createChild({
-              slef: reactive({}),
-            })
-            .addFilter({
-              authors: [pubkey],
+            kind0line.addFilter({
               kinds: [0],
+              authors: [pubkey.toHex()],
             })
-            .addStaff(createLatestEventStaff())
-            .addStaff(ReplaceableEventMapStaff(0, pubkey)) //可替换事件缓存
-            .addStaff(createUseChannelMetadata<UserMetaData>())
-            .addStaff(createEoseUnSubStaff())
-            .addStaff(createTimeoutUnSubStaff())
-            .addStaff(createWithEvent())
 
-          const req = async () => {
-            line.addRelayUrls(urls)
+            logger.debug('autoLocalCache:start')
+            //自动缓存
+            kind0line.autoLocalCache()
 
-            await timeout(1000)
-            line.addStaff(autoAddRelayurlByPubkeyStaff(pubkey))
+            options.pubkey = pubkey
+            kind0line.addUrlForHasLatestEventLine(options)
 
-            await timeout(1000)
-            line.addReadUrl()
+            return kind0line
+          },
+          {
+            useLocalStorage: false,
+            useMemoryCache: options.cached ?? true,
           }
+        )
+      },
+      getUserRelayUrlConfigByPubkey(
+        pubkey: Pubkey | string,
+        options: CommonOptions = {}
+      ) {
+        pubkey = Pubkey.fromMaybeHex(pubkey)
+        return useCache(
+          `getUserRelayUrlConfigByPubkey,${pubkey.toHex()}`,
+          () => {
+            const l = line
+              .createChild()
+              .add(ManagerStaff)
+              .add(EoseAutoUnSubStaff)
+              .add(ApiAddUrlsStaff)
+              .add(Kind10002ReadWriteListConfigStaff)
 
-          if (line.feat.isHas()) {
-            syncInterval(
-              `getUserMetadataLineByPubkey0${pubkey}`,
-              req,
-              config.syncInterval4
-            )
-          } else {
-            syncInterval(
-              `getUserMetadataLineByPubkey1${pubkey}`,
-              req,
-              config.syncInterval
-            )
+            l.addFilter({
+              kinds: [10002],
+              authors: [pubkey.toHex()],
+            })
+
+            //自动缓存
+            l.autoLocalCache()
+
+            options.pubkey = pubkey
+            l.addUrlForHasLatestEventLine(options)
+
+            return l
+          },
+          {
+            useLocalStorage: false,
+            useMemoryCache: options.cached ?? true,
           }
-
-          return line
-        },
-        {
-          useLocalStorage: false,
-        }
-      )
-    },
-  })
-})
+        )
+      },
+    })
+  }
+)

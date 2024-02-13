@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { NConfigProvider } from "naive-ui";
-import { theme } from "./app";
-import Main from "./Main.vue";
+import { NConfigProvider } from 'naive-ui'
+import { theme } from './App'
+import Main from './Main.vue'
 
-const logger = loggerScope;
-logger.info();
+//loggerScope
+logger.info()
 const AsyncProvides = defineAsyncComponent(
-  async () => await import("./components/Provides.vue")
-);
+  async () => await import('./components/Provides.vue')
+)
+console.log('app')
 </script>
 
 <template>

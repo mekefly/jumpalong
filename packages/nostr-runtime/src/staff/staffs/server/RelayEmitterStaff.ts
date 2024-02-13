@@ -1,5 +1,5 @@
 // import SubStaff from "../../../../nostr1/staff/EventStaff/SubStaff";
-import { EventStaff } from '..'
+import EventStaff from '../../../../nostr1/staff/EventStaff/EventStaff'
 import { createStaff } from '../../staff'
 import EoseStaff from './EoseStaff'
 import NoticeStaff from './NoticeStaff'

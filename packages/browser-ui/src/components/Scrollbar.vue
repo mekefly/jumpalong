@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import RefreshVue from "./Refresh.vue";
-import { useProviteScrollbarInstRef } from "./Scrollbar";
+import RefreshVue from './Refresh.vue'
+import { useProviteScrollbarInstRef } from './Scrollbar'
 
 const containerRef = computed(
   () =>
@@ -8,19 +8,19 @@ const containerRef = computed(
       | HTMLElement
       | null
       | undefined
-);
-const { scrollbarInst } = useProviteScrollbarInstRef(containerRef);
+)
+const { scrollbarInst } = useProviteScrollbarInstRef(containerRef)
 const props = defineProps<{
-  refreshable?: boolean;
-  loadable?: boolean;
-  triggerDistance?: number;
-  maxShifting?: number;
-}>();
-const { refreshable, loadable } = toRefs(props);
+  refreshable?: boolean
+  loadable?: boolean
+  triggerDistance?: number
+  maxShifting?: number
+}>()
+const { refreshable, loadable } = toRefs(props)
 const emit = defineEmits<{
-  (e: "refresh"): void;
-  (e: "load"): void;
-}>();
+  (e: 'refresh'): void
+  (e: 'load'): void
+}>()
 </script>
 
 <template>

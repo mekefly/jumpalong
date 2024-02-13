@@ -6,7 +6,7 @@ import { useCache } from '../cache'
  * @param interval 间隔
  * @returns
  */
-export function syncInterval(
+export async function syncInterval(
   key: any,
   fun: () => void,
   interval: number = 1000 * 60
@@ -15,14 +15,14 @@ export function syncInterval(
     fun()
     return
   }
-  useCache(
+  await useCache(
     JSON.stringify(key),
-    () => {
-      fun()
+    async () => {
+      await fun()
       return true
     },
     {
-      duration: interval
+      duration: interval,
     }
   )
 }

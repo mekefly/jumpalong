@@ -1,102 +1,103 @@
 <script lang="ts" setup>
-import { config } from "@/nostr/nostr";
 import {
   defaultCacheOptions,
   getCacheOrNull,
   removeLocalStorage,
   setCache,
   useCache,
-} from "@/utils/cache";
-import { useElementIntoScreen } from "@/utils/use";
-import { debounce, ping } from "@/utils/utils";
-import { InjectionKey } from "vue";
-import NetworkCheckRoundVue from "./icon/NetworkCheckRound.vue";
-import Timer10SelectTwotone from "./icon/Timer10SelectTwotone.vue";
-import WarningAmberRoundVue from "./icon/WarningAmberRound.vue";
+  debounce,
+  ping,
+} from '@jumpalong/shared'
+import { InjectionKey } from 'vue'
+import NetworkCheckRoundVue from './icon/NetworkCheckRound.vue'
+import Timer10SelectTwotone from './icon/Timer10SelectTwotone.vue'
+import WarningAmberRoundVue from './icon/WarningAmberRound.vue'
+import { useElementIntoScreen } from '../utils/use'
+const config = {}
 
-const props = defineProps<{ url: string }>();
-const url = toRef(props, "url");
+const props = defineProps<{ url: string }>()
+const url = toRef(props, 'url')
 
-let wrongUrl = ref(false);
-let isOvertime = ref(false);
-let delay = ref<null | number>(null);
+let wrongUrl = ref(false)
+let isOvertime = ref(false)
+let delay = ref<null | number>(null)
 
-const overtime = ref(10000);
-const min = ref(500);
+const overtime = ref(10000)
+const min = ref(500)
 
-const target = ref(null);
-const intoScreen = useElementIntoScreen(target);
+const target = ref(null)
+const intoScreen = useElementIntoScreen(target)
 
-let isLoading = ref(false);
+let isLoading = ref(false)
 function toPing(noCache = false) {
-  if (!url.value) return;
-  if (delay.value) return;
-  isLoading.value = true;
+  if (!url.value) return
+  if (delay.value) return
+  isLoading.value = true
 
   try {
-    let u = new URL(url.value).host;
+    let u = new URL(url.value).host
 
     if (noCache) {
-      removeLocalStorage(`p:${u}`);
-      removeLocalStorage(`pe:${u}`);
+      removeLocalStorage(`p:${u}`)
+      removeLocalStorage(`pe:${u}`)
     }
     if (getCacheOrNull(`pe:${u}`, defaultCacheOptions)) {
-      isLoading.value = false;
-      isOvertime.value = true;
-      return;
+      isLoading.value = false
+      isOvertime.value = true
+      return
     }
     Promise.resolve(
       useCache(
         `p:${u}`,
         () => {
-          return ping(u, overtime.value);
+          return ping(u, overtime.value)
         },
         {
           cacheError: false,
         }
       )
     )
-      .then((n) => {
-        delay.value = n;
-        isLoading.value = false;
+      .then(n => {
+        delay.value = n
+        isLoading.value = false
       })
-      .catch((e) => {
-        setCache(`pe:${u}`, true, defaultCacheOptions);
-        isLoading.value = false;
-        isOvertime.value = true;
-      });
+      .catch(e => {
+        setCache(`pe:${u}`, true, defaultCacheOptions)
+        isLoading.value = false
+        isOvertime.value = true
+      })
   } catch (error) {
-    wrongUrl.value = true;
-    isLoading.value = false;
+    wrongUrl.value = true
+    isLoading.value = false
   }
 }
-const debounceToPng = debounce(toPing);
-const isAutoPingKey = Symbol() as InjectionKey<Ref<boolean>>;
-const isAutoPing = inject(isAutoPingKey, () => null, true);
+const debounceToPng = debounce(toPing)
+const isAutoPingKey = Symbol() as InjectionKey<Ref<boolean>>
+const isAutoPing = inject(isAutoPingKey, () => null, true)
 
 watchEffect(() => {
-  if (!(intoScreen.value && (isAutoPing?.value ?? config.autoPing))) return;
-  debounceToPng();
-});
+  if (!(intoScreen.value && (isAutoPing?.value ?? config.autoPing))) return
+  debounceToPng()
+})
 
 const statusColor = computed(() => {
   if (!delay.value) {
-    return 0;
+    return 0
   }
 
   if (delay.value >= overtime.value) {
-    return 255;
+    return 255
   }
   if (delay.value <= min.value) {
-    return 0;
+    return 0
   }
 
-  return Math.floor((delay.value / (overtime.value - min.value)) * 255);
-});
+  return Math.floor((delay.value / (overtime.value - min.value)) * 255)
+})
 
 function rePing() {
-  delay.value = null;
-  toPing(true);
+  delay.value = null
+  toPing(true)
 }
 </script>
 

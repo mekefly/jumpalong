@@ -1,23 +1,24 @@
 <script lang="ts" setup>
-import { TYPES } from "@/nostr/nostr";
-import { useLazyComponent } from "@/utils/use";
-import profile from "../assets/profile-2-400x400.png";
-import Ellipsis from "./Ellipsis.vue";
-import { useNostrContainerGet } from "./NostrContainerProvade";
+import { UserApiStaff, Pubkey } from '@jumpalong/nostr-runtime'
+import profile from '../assets/profile-2-400x400.png'
+import { useLazyComponent } from '../utils/use'
+import Ellipsis from './Ellipsis.vue'
+import { useEventLine } from './ProvideEventLine'
 
 const props = defineProps<{
-  pubkey: string;
-  name?: string;
-  about?: string;
-}>();
-const { pubkey, name, about } = toRefs(props);
-
-const userApi = useNostrContainerGet(TYPES.UserApi);
+  pubkey: string
+  name?: string
+  about?: string
+}>()
+const { pubkey: pubkeyHex, name, about } = toRefs(props)
+const pubkey = computed(() => Pubkey.fromHex(pubkeyHex.value))
+const line = useEventLine(UserApiStaff)
+const router = useRouter()
 
 const [metadataLine, target] = useLazyComponent(() => {
-  return userApi.getUserMetadataLineByPubkey(pubkey.value);
-});
-const metadata = computed(() => metadataLine.value?.feat.useMetadata());
+  return line.getUserMetadataLineByPubkey(pubkey.value)
+})
+const metadata = computed(() => metadataLine.value?.getMetadata())
 </script>
 
 <template>
@@ -28,21 +29,21 @@ const metadata = computed(() => metadataLine.value?.feat.useMetadata());
         size="small"
         :src="metadata?.picture ?? profile"
         round
-        @click="() => $router.push(`/profile/${pubkey}`)"
+        @click="() => router.push(`/profile/${pubkeyHex}`)"
       />
       <div class="flex flex-col ml-4 flex-1 shrink-1 w-full">
         <Ellipsis
           class="text-xl"
-          @click="() => $router.push(`/profile/${pubkey}`)"
+          @click="() => router.push(`/profile/${pubkeyHex}`)"
         >
-          {{ name ?? metadata?.name ?? pubkey.slice(0, 10) }}
+          {{ name ?? metadata?.name ?? pubkeyHex.slice(0, 10) }}
         </Ellipsis>
         <Ellipsis v-if="metadata?.about" :style="{ fontSize: '10px' }">
           {{ about ?? metadata.about }}
         </Ellipsis>
       </div>
       <div class="flex-shrink-0 ml-2">
-        <slot name="right" :pubkey="pubkey"></slot>
+        <slot name="right" :pubkey="pubkeyHex"></slot>
       </div>
     </div>
   </n-list-item>
