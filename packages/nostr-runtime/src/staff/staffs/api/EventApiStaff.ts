@@ -10,6 +10,8 @@ import type { CommonEventListOptions } from './options'
 import { call } from '@jumpalong/shared'
 import AutoAddKind10002UrlStaff from '../globalDiscoveryUser/AutoAddKind10002UrlStaff'
 import CachedStaff from '../common/CachedStaff'
+import AddUrlsByCue from '../common/AddUrlsByCue'
+import RelayConfiguratorSynchronizerAddUrlsStaff from '../synchronizer/RelayConfiguratorSynchronizerAddUrlsStaff'
 
 $LoggerScope()
 
@@ -17,36 +19,20 @@ export default createStaff(
   () => [
     DoNotRepeatStaff,
     RelayConfiguratorSynchronizerStaff,
+    RelayConfiguratorSynchronizerAddUrlsStaff,
     EventCreateAtStaff,
     AutoAddKind10002UrlStaff,
     CachedStaff,
+    AddUrlsByCue,
   ],
   'event-api-staff',
   ({ mod, line }) => {
     return mod
       .assignChain({
-        addUrlForCommonEventList({
-          urls,
-          pubkeys,
-          autoAddRelayUrls,
-        }: CommonEventListOptions) {
+        addUrlForCommonEventList(opts: CommonEventListOptions) {
           call(async () => {
-            await this.addUrlsWithTimeout(urls, 1000)
-
-            if (pubkeys) {
-              for (const pubkey of pubkeys) {
-                this.autoAdd10002(pubkey)
-                await timeout(500)
-              }
-            }
-
-            await this.relayConfigurator.onInited(() => {
-              ;(autoAddRelayUrls ?? true) &&
-                this.addUrlsWithTimeout(
-                  this.relayConfigurator.getReadList(),
-                  1000
-                )
-            })
+            await this.addUrlsByCub(opts)
+            await this.autoAddUrlForRelayConfiguratorByOptions(opts)
           })
         },
       })

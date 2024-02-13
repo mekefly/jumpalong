@@ -9,16 +9,23 @@ import LatestEventStaff from '../eventStaff/LatestEventStaff'
 import DoNotRepeatStaff from '../eventStaff/DoNotRepeatStaff'
 import AddUrlStaff from '../manager/AddUrlStaff'
 import LocalMapStaff from '../common/LocalMapStaff'
+import RelayConfiguratorSynchronizerAddUrlsStaff from '../synchronizer/RelayConfiguratorSynchronizerAddUrlsStaff'
 $LoggerScope()
 
 logger.debug(
   'RelayConfiguratorSynchronizerStaff',
   RelayConfiguratorSynchronizerStaff
 )
-export default createStaff('auto-add-kind-url-staff', ({ mod, line }) => {
-  return mod
-    .add(AddUrlStaff, LocalMapStaff, RelayConfiguratorSynchronizerStaff)
-    .assignFeat({
+export default createStaff(
+  () => [
+    RelayConfiguratorSynchronizerAddUrlsStaff,
+    AddUrlStaff,
+    LocalMapStaff,
+    RelayConfiguratorSynchronizerStaff,
+  ],
+  'auto-add-kind-url-staff',
+  ({ mod, line }) => {
+    return mod.assignFeat({
       autoAdd10002(
         pubkey: Pubkey | string,
         opts: { read?: boolean; write?: boolean } = {}
@@ -73,4 +80,5 @@ export default createStaff('auto-add-kind-url-staff', ({ mod, line }) => {
         return stop
       },
     })
-})
+  }
+)

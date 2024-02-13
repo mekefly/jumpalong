@@ -5,54 +5,40 @@ import LatestEventStaff from '../eventStaff/LatestEventStaff'
 import AutoAddUrlByGlobalDiscoveryUserStaff from '../globalDiscoveryUser/AutoAddUrlByGlobalDiscoveryUserStaff'
 import ManagerStaff from '../manager/ManagerStaff'
 import RelayConfiguratorSynchronizerStaff from '../synchronizer/RelayConfiguratorSynchronizerStaff'
-import { CommonOptions, CueOptions } from './options'
+import { CommonOptions } from './options'
+import AddUrlsByCue from '../common/AddUrlsByCue'
+import { CachedStaff } from '..'
+import { CueOptions } from '../common/optionsType'
+import { RelayConfiguratorOptions } from '../synchronizer/OptionsType'
 
 export default createStaff(
-  RelayConfiguratorSynchronizerStaff,
+  () => [RelayConfiguratorSynchronizerStaff, CachedStaff, AddUrlsByCue],
   ({ mod, line }) => {
-    return mod.assignFeat({
-      getEventById(id: string, options: CueOptions & CommonOptions = {}) {
-        return useCache(
-          `getEventById:${id}${JSON.stringify(options)}`,
-          () => {
-            const eventLine = this.createChild()
-              // .add() // 重复事件过滤器
+    return mod
+      .assignChain({
+        addUrlForEventById(
+          opts: CueOptions & CommonOptions & RelayConfiguratorOptions
+        ) {
+          call(async () => {
+            await this.addUrlsByCub(opts)
+            await this.autoAddUrlForRelayConfiguratorByOptions(opts)
+          })
+        },
+      })
+      .assignFeat({
+        getEventById(id: string, opts: CueOptions & CommonOptions = {}) {
+          return this.cacheByOptions({ name: 'GEBID', ...opts }, () => {
+            return this.createChild()
               .add(AutoAddUrlByGlobalDiscoveryUserStaff)
               .add(ManagerStaff)
               .add(LatestEventStaff)
-            eventLine.addFilter({
-              ids: [id],
-              limit: 1,
-            })
-            call(async () => {
-              if (options.urls) {
-                eventLine.addUrls(options.urls)
-                await timeout(500)
-              }
-              if (options.pubkeys) {
-                options.pubkeys?.forEach(pubkey => {
-                  eventLine.autoAddUrlByGlobalDiscoveryUser(
-                    Pubkey.fromHex(pubkey)
-                  )
-                })
-                await timeout(500)
-              }
-
-              if (options.autoAddRelayUrls) {
-                line.relayConfigurator.onInited(() => {
-                  eventLine.addUrls(line.relayConfigurator.getReadList())
-                })
-              }
-            })
-
-            return eventLine
-          },
-          {
-            useMemoryCache: options.cached,
-            useLocalStorage: false,
-          }
-        )
-      },
-    })
+              .addFilter({
+                ids: [id],
+                limit: 1,
+              })
+              .addUrlForEventById(opts)
+          })
+        },
+      })
   }
 )

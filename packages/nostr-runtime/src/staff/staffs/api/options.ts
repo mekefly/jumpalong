@@ -1,20 +1,18 @@
 import type { Pubkey } from '@jumpalong/nostr-runtime'
 import type { SortOptions } from '../eventStaff/OptionsType'
 import type { FilterOptions } from '../manager/optionsType'
-import { CacheOptions } from '../common/optionsType'
+import { CacheOptions, CueOptions } from '../common/optionsType'
+import { RelayConfiguratorOptions } from '../synchronizer/OptionsType'
 
 export interface CommonEventListOptions
   extends CueOptions,
     CommonOptions,
     SortOptions,
     FilterOptions {}
-export interface CueOptions {
-  urls?: Set<string>
-  pubkeys?: string[]
-  pubkey?: Pubkey
-}
-export interface CommonOptions extends CueOptions, CacheOptions {
-  autoAddRelayUrls?: boolean
+export interface CommonOptions
+  extends CueOptions,
+    CacheOptions,
+    RelayConfiguratorOptions {
   cached?: boolean
   limit?: number
 }

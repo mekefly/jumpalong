@@ -8,6 +8,7 @@ import {
   Pubkey,
   RelayConfiguratorSynchronizerStaff,
   PauseStaff,
+  RelayConfiguratorSynchronizerAddUrlsStaff,
 } from '@jumpalong/nostr-runtime'
 import { createInjection } from '../utils/useUtils'
 import { ReactiveStaff } from '../utils/vue'
@@ -28,6 +29,7 @@ export const [
       PoolStaff,
       //中继同步器
       RelayConfiguratorSynchronizerStaff,
+      RelayConfiguratorSynchronizerAddUrlsStaff,
       //登录
       LoginStaff,
       //暂停器
