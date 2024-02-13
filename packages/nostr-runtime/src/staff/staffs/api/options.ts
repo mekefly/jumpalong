@@ -17,6 +17,6 @@ export interface CommonOptions
   limit?: number
 }
 
-export type ApiAddUrlsOptions = {
-  autoAddRelayUrls?: boolean
-} & CueOptions
+export interface ApiAddUrlsOptions
+  extends RelayConfiguratorOptions,
+    CueOptions {}

@@ -1,18 +1,14 @@
-import { useCache, call, timeout } from '@jumpalong/shared'
-import { createStaff } from '../../staff'
 import { Pubkey } from '../../../utils/user'
-import AutoAddUrlByGlobalDiscoveryUserStaff from '../globalDiscoveryUser/AutoAddUrlByGlobalDiscoveryUserStaff'
-import EventApiStaff from './EventApiStaff'
+import { createStaff } from '../../staff'
 import LocalMapStaff from '../common/LocalMapStaff'
+import Kind10002ReadWriteListConfigStaff from '../eventStaff/Kind10002ReadWriteListConfigStaff'
 import MetadataStaff from '../eventStaff/MetadataStaff'
-import RelayConfiguratorSynchronizerStaff from '../synchronizer/RelayConfiguratorSynchronizerStaff'
 import ManagerStaff from '../manager/ManagerStaff'
 import EoseAutoUnSubStaff from '../sub/EoseAutoUnSubStaff'
-import { CommonOptions } from './options'
-import AutoAddKind10002UrlStaff from '../globalDiscoveryUser/AutoAddKind10002UrlStaff'
-import { ApiAddUrlsOptions, CueOptions } from './options'
+import RelayConfiguratorSynchronizerStaff from '../synchronizer/RelayConfiguratorSynchronizerStaff'
 import ApiAddUrlsStaff from './ApiAddUrlsStaff'
-import Kind10002ReadWriteListConfigStaff from '../eventStaff/Kind10002ReadWriteListConfigStaff'
+import EventApiStaff from './EventApiStaff'
+import { ApiAddUrlsOptions, CommonOptions } from './options'
 $LoggerScope()
 
 export default createStaff(
@@ -24,11 +20,8 @@ export default createStaff(
         options: ApiAddUrlsOptions & CommonOptions = {}
       ) {
         typeof pubkey === 'string' && (pubkey = Pubkey.fromHex(pubkey))
-        logger.debug(
-          'getUserMetadataLineByPubkey-----------------------------------'
-        )
-        return useCache(
-          `getUserRelayUrlConfigByPubkey:${pubkey}`,
+        return this.cacheByOptions(
+          { name: 'GUMLBP:' + pubkey.toHex(), ...options },
           () => {
             const kind0line = line
               .createChild()
@@ -42,7 +35,6 @@ export default createStaff(
               authors: [pubkey.toHex()],
             })
 
-            logger.debug('autoLocalCache:start')
             //自动缓存
             kind0line.autoLocalCache()
 
@@ -50,10 +42,6 @@ export default createStaff(
             kind0line.addUrlForHasLatestEventLine(options)
 
             return kind0line
-          },
-          {
-            useLocalStorage: false,
-            useMemoryCache: options.cached ?? true,
           }
         )
       },
@@ -62,8 +50,8 @@ export default createStaff(
         options: CommonOptions = {}
       ) {
         pubkey = Pubkey.fromMaybeHex(pubkey)
-        return useCache(
-          `getUserRelayUrlConfigByPubkey,${pubkey.toHex()}`,
+        return this.cacheByOptions(
+          { name: 'GURUCBP:' + pubkey.toHex(), ...options },
           () => {
             const l = line
               .createChild()
@@ -84,10 +72,6 @@ export default createStaff(
             l.addUrlForHasLatestEventLine(options)
 
             return l
-          },
-          {
-            useLocalStorage: false,
-            useMemoryCache: options.cached ?? true,
           }
         )
       },

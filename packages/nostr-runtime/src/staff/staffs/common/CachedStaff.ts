@@ -6,7 +6,7 @@ export default createStaff(({ mod, line }) => {
   return mod.assignFeat({
     cacheByOptions<T>(opts: CacheOptions, f: () => T): T {
       return useCache(createKeyByOptions(opts), f, {
-        useMemoryCache: opts.cache,
+        useMemoryCache: opts.cache ?? true,
         useLocalStorage: false,
       })
     },

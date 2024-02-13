@@ -6,8 +6,7 @@ import {
 } from '..'
 import { createStaff } from '../../staff'
 import LatestEventStaff from '../eventStaff/LatestEventStaff'
-import { ApiAddUrlsOptions, CueOptions } from './options'
-import { RelayConfiguratorSynchronizer } from '../../../Synchronizer/RelayConfiguratorSynchronizer'
+import { ApiAddUrlsOptions } from './options'
 
 export default createStaff(
   () => [
@@ -19,17 +18,17 @@ export default createStaff(
   ],
   ({ mod, line }) => {
     return mod.assignFeat({
-      async addUrlForHasLatestEventLine(options: ApiAddUrlsOptions) {
+      async addUrlForHasLatestEventLine(opts: ApiAddUrlsOptions) {
         if (this.isHasLatestEvent()) return
 
-        if (options.urls) {
-          this.addUrls(options.urls)
+        if (opts.urls) {
+          this.addUrls(opts.urls)
           await timeout(500)
 
           if (this.isHasLatestEvent()) return
         }
 
-        if (options.autoAddRelayUrls ?? true) {
+        if (opts.autoAddRelayUrls ?? true) {
           line.relayConfigurator.onInited(() => {
             this.addUrls(line.relayConfigurator.getReadList())
           })
@@ -38,15 +37,15 @@ export default createStaff(
           if (this.isHasLatestEvent()) return
         }
 
-        if (options.pubkey) {
-          this.autoAdd10002(options.pubkey)
+        if (opts.pubkey) {
+          this.autoAdd10002(opts.pubkey)
 
           await timeout(500)
           if (this.isHasLatestEvent()) return
         }
 
-        if (options.pubkeys) {
-          for (const pubkey of options.pubkeys) {
+        if (opts.pubkeys) {
+          for (const pubkey of opts.pubkeys) {
             this.autoAdd10002(pubkey)
             await timeout(500)
             if (this.isHasLatestEvent()) return

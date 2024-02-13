@@ -27,7 +27,7 @@ export default createStaff(
       })
       .assignFeat({
         getEventById(id: string, opts: CueOptions & CommonOptions = {}) {
-          return this.cacheByOptions({ name: 'GEBID', ...opts }, () => {
+          return this.cacheByOptions({ name: 'GEBID:' + id, ...opts }, () => {
             return this.createChild()
               .add(AutoAddUrlByGlobalDiscoveryUserStaff)
               .add(ManagerStaff)
