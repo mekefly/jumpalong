@@ -6,9 +6,8 @@ import {
 } from '..'
 import { createStaff } from '../../staff'
 import LatestEventStaff from '../eventStaff/LatestEventStaff'
-import { ApiAddUrlsOptions, Cue } from './options'
+import { ApiAddUrlsOptions, CueOptions } from './options'
 import { RelayConfiguratorSynchronizer } from '../../../Synchronizer/RelayConfiguratorSynchronizer'
-
 
 export default createStaff(
   () => [

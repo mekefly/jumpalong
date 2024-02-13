@@ -151,4 +151,61 @@ describe('createChild', () => {
     let child = parent.createChild().add(s)
     expect(s.mock.calls.length).toMatchInlineSnapshot(`1`)
   })
+  test('chain', () => {
+    let parent = new EventLineFactory()
+      .assignChain({
+        xx() {},
+      })
+      .out()
+    expect(parent.xx() === parent).toMatchInlineSnapshot(`true`)
+  })
+
+  test('chain createChild', () => {
+    let l0 = new EventLineFactory({ name: '1' }).out()
+    let l1 = l0.createChild({ name: '2' })
+    let l2 = l1.mod
+      .assignChain({
+        xx() {},
+      })
+      .out()
+    let l3 = l2.xx()
+    expect(l0.getName()).toMatchInlineSnapshot(`"1"`)
+    expect(l1.getName()).toMatchInlineSnapshot(`"2"`)
+    expect(l2.getName()).toMatchInlineSnapshot(`"2"`)
+    expect(l3.getName()).toMatchInlineSnapshot(`"2"`)
+
+    expect(l0 === l1).toMatchInlineSnapshot(`false`)
+    expect(l1 === l2).toMatchInlineSnapshot(`true`)
+    expect(l2 === l3).toMatchInlineSnapshot(`true`)
+  })
+  test('chain createChild', () => {
+    let l0 = new EventLineFactory({ name: '1' }).out()
+    let l1 = l0.createChild({ name: '2' })
+    let l2 = l1.mod
+      .assignChain({
+        xx() {},
+      })
+      .assignFeat({
+        yy() {
+          let l5 = this.createChild()
+          let l6 = l5.xx()
+
+          expect(l5.getName()).toMatchInlineSnapshot(`"2"`)
+          expect(l6.getName()).toMatchInlineSnapshot(`"2"`)
+          expect(l5 === l6).toMatchInlineSnapshot(`true`)
+          return l6
+        },
+      })
+      .out()
+    let l3 = l2.xx()
+    expect(l0.getName()).toMatchInlineSnapshot(`"1"`)
+    expect(l1.getName()).toMatchInlineSnapshot(`"2"`)
+    expect(l2.getName()).toMatchInlineSnapshot(`"2"`)
+    expect(l3.getName()).toMatchInlineSnapshot(`"2"`)
+
+    expect(l0 === l1).toMatchInlineSnapshot(`false`)
+    expect(l1 === l2).toMatchInlineSnapshot(`true`)
+    expect(l2 === l3).toMatchInlineSnapshot(`true`)
+    l3.yy()
+  })
 })

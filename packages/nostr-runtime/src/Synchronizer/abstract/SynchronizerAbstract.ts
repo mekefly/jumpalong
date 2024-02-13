@@ -82,8 +82,7 @@ export default abstract class SynchronizerAbstract<E> extends ReactiveClass {
   )
   private _ready = new ReversePromise()
   public async onInited(l?: () => void) {
-    l && this._ready.promise.then(l)
-    return this._ready.promise
+    return l ? this._ready.promise.then(l) : this._ready.promise
   }
 
   constructor(

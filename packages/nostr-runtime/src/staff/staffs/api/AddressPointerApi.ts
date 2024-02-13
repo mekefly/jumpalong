@@ -5,7 +5,7 @@ import LatestEventStaff from '../eventStaff/LatestEventStaff'
 import AutoAddUrlByGlobalDiscoveryUserStaff from '../globalDiscoveryUser/AutoAddUrlByGlobalDiscoveryUserStaff'
 import ManagerStaff from '../manager/ManagerStaff'
 import RelayConfiguratorSynchronizerStaff from '../synchronizer/RelayConfiguratorSynchronizerStaff'
-import { CommonOptions, Cue } from './options'
+import { CommonOptions, CueOptions } from './options'
 import { kinds, nip19 } from 'nostr-tools'
 import { toDeCodeAddress } from '../../../utils/nostr'
 import AutoAddKind10002UrlStaff from '../globalDiscoveryUser/AutoAddKind10002UrlStaff'
@@ -16,7 +16,7 @@ export default createStaff(
     return mod.assignFeat({
       addressPointerLine(
         addressPointer: string | nip19.AddressPointer,
-        options: Cue & CommonOptions = {}
+        options: CueOptions & CommonOptions = {}
       ) {
         if (typeof addressPointer === 'string') {
           const a = toDeCodeAddress(addressPointer)

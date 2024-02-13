@@ -10,7 +10,7 @@ import ManagerStaff from '../manager/ManagerStaff'
 import EoseAutoUnSubStaff from '../sub/EoseAutoUnSubStaff'
 import { CommonOptions } from './options'
 import AutoAddKind10002UrlStaff from '../globalDiscoveryUser/AutoAddKind10002UrlStaff'
-import { ApiAddUrlsOptions, Cue } from './options'
+import { ApiAddUrlsOptions, CueOptions } from './options'
 import ApiAddUrlsStaff from './ApiAddUrlsStaff'
 import Kind10002ReadWriteListConfigStaff from '../eventStaff/Kind10002ReadWriteListConfigStaff'
 $LoggerScope()

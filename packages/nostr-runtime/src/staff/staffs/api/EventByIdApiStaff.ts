@@ -5,13 +5,13 @@ import LatestEventStaff from '../eventStaff/LatestEventStaff'
 import AutoAddUrlByGlobalDiscoveryUserStaff from '../globalDiscoveryUser/AutoAddUrlByGlobalDiscoveryUserStaff'
 import ManagerStaff from '../manager/ManagerStaff'
 import RelayConfiguratorSynchronizerStaff from '../synchronizer/RelayConfiguratorSynchronizerStaff'
-import { CommonOptions, Cue } from './options'
+import { CommonOptions, CueOptions } from './options'
 
 export default createStaff(
   RelayConfiguratorSynchronizerStaff,
   ({ mod, line }) => {
     return mod.assignFeat({
-      getEventById(id: string, options: Cue & CommonOptions = {}) {
+      getEventById(id: string, options: CueOptions & CommonOptions = {}) {
         return useCache(
           `getEventById:${id}${JSON.stringify(options)}`,
           () => {

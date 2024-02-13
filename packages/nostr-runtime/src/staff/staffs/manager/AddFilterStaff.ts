@@ -6,6 +6,7 @@ import PublishStaff from '../publish/PublishStaff'
 import SubStaff from '../sub/SubStaff'
 import FilterStaff from './FilterStaff'
 import { CreateChildHookStaff } from '../..'
+import { FilterOptions } from './optionsType'
 
 export default createStaff(
   () => [
@@ -27,11 +28,19 @@ export default createStaff(
         getFilters() {
           return this.filterList
         },
-
+      })
+      .assignChain({
         addFilter(filter: Filter) {
           this.addFilters([filter])
         },
+        addFiltersByOptions(opts: FilterOptions) {
+          opts.filters && this.addFilters(opts.filters)
+          opts.filter && this.addFilter(opts.filter)
+        },
         addFilters(filters: Filter[]) {
+          if (filters.length === 0) {
+            return
+          }
           let newFilterAdded: Filter[] = []
           //去重
           for (const filter of filters) {

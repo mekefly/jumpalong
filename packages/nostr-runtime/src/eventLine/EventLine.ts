@@ -70,6 +70,9 @@ export class EventLineEmitter<Config extends EventLineConfig = {}> {
     return f(this.mod).out()
   }
 
+  getName() {
+    return this.mod.getName()
+  }
   on<TYPE extends keyof Config['emits']>(
     type: TYPE,
     monitor: Config['emits'] extends EmitType ? Config['emits'][TYPE] : never,
@@ -210,7 +213,6 @@ let id = 0
 type EventLineOptions = LineEmitterOptions & {}
 export class EventLineFactory<Config extends EventLineConfig = {}> {
   public id = id++
-  public name = String(this.id)
   private core: EventLine<CreateChildHookStaffConfigType & PauseStaffConfigType>
 
   private parent: EventLineFactory<Config> | null = null
@@ -229,6 +231,8 @@ export class EventLineFactory<Config extends EventLineConfig = {}> {
       parent?: EventLineFactory<Config>
     } & EventLineOptions
   ) {
+    options?.name && this.setName(options.name)
+
     this.core = new EventLineEmitter(this, options) as any
 
     //继承父线
@@ -258,6 +262,12 @@ export class EventLineFactory<Config extends EventLineConfig = {}> {
       .add(CreateHookStaff)
       .line.emit({ type: 'create', noPause: true }, this.out())
     return m
+  }
+  setName(name: string) {
+    ;(this as any).name = name
+  }
+  getName(): string | undefined {
+    return (this as any).name
   }
   createChild(options?: CreateChildOptions): typeof this {
     let childMod = new EventLineFactory(
@@ -332,8 +342,8 @@ export class EventLineFactory<Config extends EventLineConfig = {}> {
       Object.fromEntries(
         Object.entries(feat).map(([key, value]) => [
           key,
-          (...rest: any[]) => {
-            ;(value as any).bind(this.core)(...rest)
+          function (this: any, ...rest: any[]) {
+            ;(value as any).bind(this)(...rest)
             return this
           },
         ])

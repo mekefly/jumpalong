@@ -32,7 +32,14 @@ const props = withDefaults(
 const emit = defineEmits<{
   (e: 'update:pushEvent', v: (e: Event) => void): void
 }>()
-const { pubkeys: pubkey, filter, filters, urls, active } = toRefs(props)
+const {
+  pubkeys: pubkey,
+  filter,
+  filters,
+  urls,
+  active,
+  reverseSort,
+} = toRefs(props)
 const message = useMessage()
 let eventLine = useEventLine(EventApiStaff)
 
@@ -63,20 +70,32 @@ const allPubkeys = computed(() => [
 const textEventbeltline = computed(() => {
   const opt: any = {}
 
-  console.log('commonEventList')
-
-  const line = eventLine.cachedCommonEventList({
+  const line = eventLine.commonEventList({
     filters: mergeFilters.value,
     ...opt,
     urls: urls?.value,
     pubkeys: allPubkeys.value,
     limit: props.limit,
+    reverseSort: true,
+    sort: 'created-at',
+
+    cache: true,
   })
 
   // props.reverseSort && line.addStaffOfSortByCreateAt()
 
   return line
 })
+watch(
+  [reverseSort],
+  () => {
+    textEventbeltline.value?.setupSort({
+      reverseSort: reverseSort.value,
+      sort: 'created-at',
+    })
+  },
+  { immediate: true }
+)
 
 useLoad(textEventbeltline, active)
 

@@ -586,3 +586,9 @@ export function copy<T extends object>(v: T): T {
 export function call<E>(f: () => E): E {
   return f()
 }
+
+export function createFactory<P = any>(
+  factory?: <T extends P>(v: T) => T
+): <T extends P>(v: T) => T {
+  return factory ?? (((v: any) => v) as any)
+}
