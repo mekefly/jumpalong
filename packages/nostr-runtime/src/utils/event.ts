@@ -6,10 +6,12 @@ import {
   UnsignedEvent,
   VerifiedEvent,
   getEventHash,
+  nip19,
   verifiedSymbol,
 } from 'nostr-tools'
 import { Prikey, getPubkey } from './user'
 import { Metadata } from '../types/Metadata'
+import { deserializeTagR, getOnlyTag } from '..'
 
 export type Bytes = Uint8Array
 export type Hex = Bytes | string
@@ -75,4 +77,19 @@ export function parseMetadata<M extends Metadata>(e: Event): M {
   } catch (error) {
     return {} as any
   }
+}
+export function createAddress(event: Event) {
+  const identifierTag = getOnlyTag('d', event.tags)
+
+  if (!(identifierTag && identifierTag[1])) {
+    return
+  }
+  const urls = deserializeTagR(event.tags)
+  // const sourceUrls = getSourceUrls(event.id)
+  return nip19.naddrEncode({
+    identifier: identifierTag[1],
+    pubkey: event.pubkey,
+    kind: event.kind,
+    relays: [...urls],
+  })
 }

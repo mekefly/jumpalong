@@ -40,7 +40,7 @@ export default createStaff(line => {
       })
       .assignFeat({
         async addUrlsOrNull(urls?: Set<string> | null, cb?: () => void) {
-          if (!urls) return
+          if (!urls || urls.size === 0) return
           this.addUrls(urls)
           return await cb?.()
         },

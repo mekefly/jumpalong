@@ -40,6 +40,8 @@ export default createStaff(
         commonEventList(opts: CommonEventListOptions) {
           logger.debug('commonEventList:', opts)
           return this.cacheByOptions(opts, () => {
+            console.log('commonEventList:cacheByOptions', 11)
+
             return this.createChild()
               .add(EventListStaff)
               .add(DoNotRepeatStaff)

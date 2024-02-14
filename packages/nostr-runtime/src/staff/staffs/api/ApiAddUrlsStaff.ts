@@ -17,7 +17,7 @@ export default createStaff(
     RelayConfiguratorSynchronizerStaff,
   ],
   ({ mod, line }) => {
-    return mod.assignFeat({
+    return mod.assignChain({
       async addUrlForHasLatestEventLine(opts: ApiAddUrlsOptions) {
         if (this.isHasLatestEvent()) return
 

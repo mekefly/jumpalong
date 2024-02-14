@@ -1,17 +1,26 @@
-import { call, timeout, useCache } from '@jumpalong/shared'
+import { timeout } from '@jumpalong/shared'
+import { nip19 } from 'nostr-tools'
+import { ApiAddUrlsStaff, CachedStaff } from '..'
+import { toDeCodeAddress } from '../../../utils/nostr'
 import { Pubkey } from '../../../utils/user'
 import { createStaff } from '../../staff'
+import AddUrlsByCue from '../common/AddUrlsByCue'
+import AsyncCallStaff from '../common/AsyncCallStaff'
+import { CueOptions } from '../common/optionsType'
 import LatestEventStaff from '../eventStaff/LatestEventStaff'
-import AutoAddUrlByGlobalDiscoveryUserStaff from '../globalDiscoveryUser/AutoAddUrlByGlobalDiscoveryUserStaff'
+import AutoAddKind10002UrlStaff from '../globalDiscoveryUser/AutoAddKind10002UrlStaff'
 import ManagerStaff from '../manager/ManagerStaff'
 import RelayConfiguratorSynchronizerStaff from '../synchronizer/RelayConfiguratorSynchronizerStaff'
-import { CommonOptions, CueOptions } from './options'
-import { kinds, nip19 } from 'nostr-tools'
-import { toDeCodeAddress } from '../../../utils/nostr'
-import AutoAddKind10002UrlStaff from '../globalDiscoveryUser/AutoAddKind10002UrlStaff'
+import { CommonOptions } from './options'
 
 export default createStaff(
-  RelayConfiguratorSynchronizerStaff,
+  () => [
+    RelayConfiguratorSynchronizerStaff,
+    CachedStaff,
+    AsyncCallStaff,
+    AddUrlsByCue,
+    ApiAddUrlsStaff,
+  ],
   ({ mod, line }) => {
     return mod.assignFeat({
       addressPointerLine(
@@ -25,50 +34,27 @@ export default createStaff(
           }
           addressPointer = a
         }
-
-        return useCache(
-          `getEventById:${JSON.stringify(addressPointer)}${JSON.stringify(
-            options
-          )}`,
+        return line.cacheByOptions(
+          { name: `GEBID:${JSON.stringify(addressPointer)}`, ...options },
           () => {
-            this
-            const eventLine = this.createChild()
-              // .add() // 重复事件过滤器
+            return this.createChild()
               .add(ManagerStaff)
               .add(LatestEventStaff)
               .add(AutoAddKind10002UrlStaff)
 
-            eventLine.addFilter({
-              kinds: [addressPointer.kind],
-              authors: [addressPointer.pubkey],
-              ['#d']: [addressPointer.identifier],
-              limit: 1,
-            })
-            call(async () => {
-              if (options.urls) {
-                eventLine.addUrls(options.urls)
-                await timeout(500)
-              }
-              eventLine.autoAdd10002(Pubkey.fromHex(addressPointer.pubkey))
+              .addFilter({
+                kinds: [addressPointer.kind],
+                authors: [addressPointer.pubkey],
+                ['#d']: [addressPointer.identifier],
+                limit: 1,
+              })
+              .chainCall(async function () {
+                // await this.addUrlsWithTimeout(new Set(addressPointer.relays))
+                await this.autoAdd10002(Pubkey.fromHex(addressPointer.pubkey))
 
-              await timeout(500)
-              if (options.pubkeys) {
-                options.pubkeys?.forEach(pubkey => {
-                  eventLine.autoAdd10002(Pubkey.fromHex(pubkey))
-                })
                 await timeout(500)
-              }
-              if (options.autoAddRelayUrls) {
-                line.relayConfigurator.onInited(() => {
-                  eventLine.addUrls(line.relayConfigurator.getReadList())
-                })
-              }
-            })
-            return eventLine
-          },
-          {
-            useMemoryCache: options.cached,
-            useLocalStorage: false,
+                await this.addUrlForHasLatestEventLine(options)
+              })
           }
         )
       },

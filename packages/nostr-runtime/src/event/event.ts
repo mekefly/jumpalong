@@ -62,19 +62,3 @@ export async function createEvent(options: Partial<Event>): Promise<Event> {
 
   return event as Event
 }
-
-export function createAddress(event: Event) {
-  const identifierTag = getOnlyTag('d', event.tags)
-
-  if (!(identifierTag && identifierTag[1])) {
-    return
-  }
-  const urls = deserializeTagR(event.tags)
-  const sourceUrls = getSourceUrls(event.id)
-  return nip19.naddrEncode({
-    identifier: identifierTag[1],
-    pubkey: event.pubkey,
-    kind: event.kind,
-    relays: [...urls, ...(sourceUrls ?? [])],
-  })
-}

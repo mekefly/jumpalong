@@ -1,147 +1,107 @@
 <script lang="ts" setup>
-import Drawer from "@/components/Drawer.vue";
-import DrawerProvide from "@/components/DrawerProvide.vue";
-import Copy16Filled from "@/components/icon/Copy16Filled.vue";
-import WindowHeaderHorizontal20Filled from "@/components/icon/WindowHeaderHorizontal20Filled.vue";
+import Drawer from '@/components/Drawer.vue'
+import DrawerProvide from '@/components/DrawerProvide.vue'
+import Copy16Filled from '@/components/icon/Copy16Filled.vue'
+import WindowHeaderHorizontal20Filled from '@/components/icon/WindowHeaderHorizontal20Filled.vue'
+import { nip19 } from 'nostr-tools'
 import {
-  LongFormContentOptions,
+  markdownDataToEvent,
+  useIsNewMarkdown,
   useMarkdownState,
-} from "@/components/Markdown";
-import MavonEditor from "@/components/MavonEditor.vue";
-import { useUpload } from "@/components/Upload";
-import UploadInput from "@/components/UploadInput.vue";
-import { t } from "@/i18n";
-import { useClipboardDialog } from "@/utils/naiveUi";
-import { createEventTemplate } from "@/utils/nostr";
-import { usePubkey } from "@/utils/nostrApiUse";
-import { useHandleSendMessage } from "@/utils/use";
-import { createId, nowSecondTimestamp } from "@/utils/utils";
-import { nip19 } from "nostr-tools";
-import { type AddressPointer } from "nostr-tools/lib/nip19";
+  useNewMarkdown,
+} from '../components/Markdown'
+import MavonEditor from '../components/MavonEditor.vue'
+import { usePubkey } from '../components/ProvideEventLine'
+import { useUpload } from '../components/Upload'
+import UploadInput from '../components/UploadInput.vue'
+import { t } from '../i18n'
+import { useClipboardDialog } from '../utils/naiveUi'
+import { useHandleSendMessage } from '../utils/use'
+import { createId } from '../utils/utils'
 
-const loadingBar = useLoadingBar();
-const route = useRoute();
-const router = useRouter();
+import { type AddressPointer } from 'nostr-tools/nip19'
 
-loadingBar.start();
-const value = computed(() => route.params.value as string);
-const newArticle = computed(() => route.query.new);
-watch(newArticle, () => {
-  if (newArticle.value) {
-    loadingBar.finish();
-  }
-});
-const kind = ref(30023);
-const {
-  addressPointer,
-  line,
-  longFormContentOptions: remoteLongFormContentOptions,
-  event: remoteEvent,
-} = useMarkdownState(value);
+const route = useRoute()
+const router = useRouter()
+const pubkey = usePubkey()
+const loadingBar = useLoadingBar()
 
-const pubkey = usePubkey();
+const value = computed(() => route.params.value as string)
+useIsNewMarkdown()
+const kind = ref(30023)
+const { addressPointer, markdownData: remoteMarkdownData } =
+  useMarkdownState(value)
+
 const addrPoint = computed<AddressPointer>(() => {
   if (Boolean(addressPointer.value)) {
-    return addressPointer.value as AddressPointer;
+    return addressPointer.value as AddressPointer
   }
   const _addressPointer: AddressPointer = {
     identifier: createId(),
-    pubkey: pubkey.value ?? "",
+    pubkey:
+      typeof pubkey.value === 'string'
+        ? pubkey.value
+        : pubkey.value?.toHex() ?? '',
     kind: kind.value,
     relays: [],
-  };
+  }
 
   setTimeout(() => {
     router.push({
-      name: "markdown-editor",
+      name: 'markdown-editor',
       params: { value: nip19.naddrEncode(_addressPointer) },
-      query: { ["new"]: "1" },
-    });
-  });
-  return _addressPointer;
-});
-addrPoint.value;
+      query: { ['new']: '1' },
+    })
+  })
+  return _addressPointer
+})
+addrPoint.value
 
-const longFormContent = ref<LongFormContentOptions>({
-  content: "",
-  title: "",
-  publishedAt: nowSecondTimestamp(),
-  summary: "",
-  image: "",
-  hashtags: [],
-});
+const markdownData = useNewMarkdown()
 
+//当remoteMarkdown存在内容后，写入正在编辑的文档
 watch(
-  remoteLongFormContentOptions,
+  remoteMarkdownData,
   () => {
-    const _longFormContent = longFormContent.value as any;
-    const _remoteLongFormContentOptions = remoteLongFormContentOptions.value;
+    const _remoteMarkdownData = remoteMarkdownData.value
 
-    if (_remoteLongFormContentOptions) {
+    if (_remoteMarkdownData) {
       setTimeout(() => {
-        loadingBar.finish();
-      });
-      for (const [key, value] of Object.entries(
-        _remoteLongFormContentOptions
-      )) {
-        _longFormContent[key] = value;
+        loadingBar.finish()
+      })
+      for (const [key, value] of Object.entries(_remoteMarkdownData)) {
+        if (value) {
+          ;(markdownData.value as any)[key] = value
+        }
       }
     }
   },
-  { deep: true, immediate: true }
-);
+  { deep: true }
+)
 
-const titleTag = computed(() => ["title", longFormContent.value.title]);
-const publishedAtTag = computed(() => [
-  "published_at",
-  String(longFormContent.value.publishedAt),
-]);
-const summaryTag = computed(() => ["summary", longFormContent.value.summary]);
-const imageTag = computed(() => ["image", longFormContent.value.image]);
-const addrTag = computed(() => {
-  return [
-    "a",
-    `${addrPoint.value.kind}:${addrPoint.value.pubkey}:${addrPoint.value.identifier}`,
-  ];
-});
-const identifierTag = computed(() => ["d", addrPoint.value.identifier]);
-
-const event = computed(() =>
-  createEventTemplate({
-    kind: kind.value,
-    content: longFormContent.value.content,
-    tags: [
-      identifierTag.value,
-      titleTag.value,
-      publishedAtTag.value,
-      summaryTag.value,
-      imageTag.value,
-      addrTag.value,
-      ...longFormContent.value.hashtags.map((t) => ["t", t]),
-    ],
-  })
-);
-
-const md = ref<undefined | any>();
-const _upload = useUpload();
+const md = ref<undefined | any>()
+const _upload = useUpload()
 
 const handelImgAdd = async (pos: number, file: File) => {
-  const opt = await _upload(file);
-  opt.url;
-  md.value?.$img2Url(pos, opt.url);
-};
-
-const handleSendMessage = useHandleSendMessage(kind.value, line, undefined);
-function handelSave(value: string) {
-  longFormContent.value.content = value;
-  handleSendMessage(event.value);
+  const opt = await _upload(file)
+  opt.url
+  md.value?.$img2Url(pos, opt.url)
 }
-const show = ref(false);
-setTimeout(() => (show.value = true));
-const clipboardDialog = useClipboardDialog();
+
+const handleSendMessage = useHandleSendMessage(kind.value, undefined)
+
+const event = markdownDataToEvent(markdownData, addrPoint)
+function handelSave(value: string) {
+  markdownData.value.content = value
+  handleSendMessage(event.value)
+}
+
+const show = ref(false)
+setTimeout(() => (show.value = true))
+const clipboardDialog = useClipboardDialog()
 function handleCopyNaddr() {
-  const naddr = nip19.naddrEncode(addrPoint.value);
-  clipboardDialog(naddr);
+  const naddr = nip19.naddrEncode(addrPoint.value)
+  clipboardDialog(naddr)
 }
 </script>
 <template>
@@ -149,11 +109,11 @@ function handleCopyNaddr() {
     <div class="h-full w-full" :id="id">
       <MavonEditor
         ref="md"
-        class="h-full"
         @imgAdd="handelImgAdd"
         @save="handelSave"
-        v-model="longFormContent.content"
+        v-model="markdownData.content"
       >
+        <!-- class="h-full" -->
         <template #right-toolbar-after>
           <button
             type="button"
@@ -181,19 +141,19 @@ function handleCopyNaddr() {
           <UploadInput
             class="w-full"
             :placeholder="t('banner')"
-            v-model:value="longFormContent.image"
+            v-model:value="markdownData.image"
           ></UploadInput>
 
           <n-input
             :placeholder="t('title')"
-            v-model:value="longFormContent.title"
+            v-model:value="markdownData.title"
             class="w-full"
           ></n-input>
           <n-input
             :placeholder="t('summary')"
-            v-model:value="longFormContent.summary"
+            v-model:value="markdownData.summary"
           ></n-input>
-          <n-dynamic-tags v-model:value="longFormContent.hashtags" />
+          <n-dynamic-tags v-model:value="markdownData.hashtags" />
         </n-space>
       </Drawer>
     </div>

@@ -313,8 +313,9 @@ function handelClick(item: string[], e: MouseEvent) {
                 value: item[2],
               },
             }"
-            >{{ item[1] }}</RouterLink
           >
+            {{ item[1] }}
+          </RouterLink>
 
           <AiddrLink v-else-if="item[0] === 'naddr'" :addr="item[1]" />
           <UserLinkVue v-else-if="item[0] === 'p'" :value="item[2]" />

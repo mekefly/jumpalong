@@ -20,6 +20,8 @@ import MoreIconVue from './icon/MoreIcon.vue'
 import { useRichTextEditBoxOpt } from './RichTextEditBox'
 import { Handle, useSMSButton } from './SMSButtonProvide'
 import { useModelBind } from '../utils/use'
+import { createAddress } from '@jumpalong/nostr-runtime'
+import { usePubkey } from './ProvideEventLine'
 const message = useMessage()
 
 const richTextEditBoxOpt = useRichTextEditBoxOpt()
@@ -37,6 +39,7 @@ const { event, deleteEvent } = toRefs(props)
 
 const value = ref('')
 
+const router = useRouter()
 const { info } = useMessage()
 const clipboard = useClipboardDialog()
 const show = useModelBind(props, 'show')
@@ -69,17 +72,17 @@ const handleMap = ref<Record<string, Handle>>({
     collect?.collect(event.value)
   },
   editArticle: () => {
-    // const naddr = createAddress(event.value);
-    // if (!naddr) {
-    //   message.info("Identifier not found");
-    //   return;
-    // }
-    // router.push({
-    //   name: "markdown-editor",
-    //   params: {
-    //     value: naddr,
-    //   },
-    // });
+    const naddr = createAddress(event.value)
+    if (!naddr) {
+      message.info('Identifier not found')
+      return
+    }
+    router.push({
+      name: 'markdown-editor',
+      params: {
+        value: naddr,
+      },
+    })
   },
   deleteEvent: () => {
     deleteEvent.value(event.value.id as any)
@@ -141,7 +144,7 @@ const handleSelect = (key: string) => {
 }
 
 const { addRule } = useBlackData()
-// const currentPubkey = usePubkey()
+const currentPubkey = usePubkey()
 
 const options = computed<DropdownOption[]>(() => {
   const dropdownOption = [
@@ -150,35 +153,35 @@ const options = computed<DropdownOption[]>(() => {
       value: 'close',
       key: 'close',
     },
-    // ...(event.value.pubkey === currentPubkey.value
-    //   ? [
-    //       ...(event.value.kind === 30023
-    //         ? [
-    //             {
-    //               label: t('edit'),
-    //               value: 'editArticle',
-    //               key: 'editArticle',
-    //             },
-    //           ]
-    //         : []),
-    //       {
-    //         label: t('delete_event'),
-    //         value: 'deleteEvent',
-    //         key: 'deleteEvent',
-    //       },
-    //     ]
-    //   : [
-    //       {
-    //         label: t('hide'),
-    //         value: 'joinTheBlacklist',
-    //         key: 'joinTheBlacklist',
-    //       },
-    //       {
-    //         label: t('mute_user'),
-    //         value: 'muteUser',
-    //         key: 'muteUser',
-    //       },
-    //     ]),
+    ...(event.value.pubkey === currentPubkey.value?.toHex()
+      ? [
+          ...(event.value.kind === 30023
+            ? [
+                {
+                  label: t('edit'),
+                  value: 'editArticle',
+                  key: 'editArticle',
+                },
+              ]
+            : []),
+          {
+            label: t('delete_event'),
+            value: 'deleteEvent',
+            key: 'deleteEvent',
+          },
+        ]
+      : [
+          {
+            label: t('hide'),
+            value: 'joinTheBlacklist',
+            key: 'joinTheBlacklist',
+          },
+          {
+            label: t('mute_user'),
+            value: 'muteUser',
+            key: 'muteUser',
+          },
+        ]),
 
     {
       label: t('collect'),
