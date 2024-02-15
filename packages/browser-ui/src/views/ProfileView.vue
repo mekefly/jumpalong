@@ -78,7 +78,7 @@ function handleReward() {
     <template #right>
       <NButton
         class="ml-4"
-        v-if="isItMe"
+        v-if="!isItMe"
         strong
         round
         :type="isFollow ? 'warning' : 'primary'"
