@@ -27,6 +27,7 @@ const props = withDefaults(
   }>(),
   {
     active: true,
+    reverseSort: true,
   }
 )
 const emit = defineEmits<{
@@ -57,11 +58,6 @@ const mergeFilters = computed(() => {
   return _filters
 })
 
-// const generalEventEventBeltline = useNostrContainerGet(
-//   TYPES.GeneralEventEventBeltline
-// )
-// logger.silly('generalEventEventBeltline', generalEventEventBeltline)
-
 const allPubkeys = computed(() => [
   ...(pubkey?.value ?? []),
   ...mergeFilters.value.map(filter => filter.authors ?? []).flat(1),
@@ -82,8 +78,6 @@ const textEventbeltline = computed(() => {
     cache: true,
   })
 
-  // props.reverseSort && line.addStaffOfSortByCreateAt()
-
   return line
 })
 watch(
@@ -101,13 +95,6 @@ useLoad(textEventbeltline, active)
 
 const postEvents = computed(() => textEventbeltline.value?.getList())
 
-// setInterval(() => {
-//   console.log('postEvents', postEvents.value)
-// }, 1000)
-
-// emit('update:pushEvent', (e: Event) => {
-//   textEventbeltline.value?.pushEvent(e)
-// })
 const isLoading = computed(
   () => false
   // textEventbeltline.value?.feat.loadBufferOpt.isLoading ||
