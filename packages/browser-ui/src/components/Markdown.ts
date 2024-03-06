@@ -1,17 +1,14 @@
-import { createInjection } from '../utils/use'
-import { type Event } from 'nostr-tools'
-import { type AddressPointer } from 'nostr-tools/nip19'
-import { useNostrContainerGet } from './NostrContainerProvade'
-import { useEventLine } from './ProvideEventLine'
 import {
-  EventApiStaff,
-  EventLine,
-  LoginStaff,
+  AddressPointerApi,
+  EventUtilsStaff,
   getOnlyTag,
   toDeCodeAddress,
 } from '@jumpalong/nostr-runtime'
-import { AddressPointerApi } from '@jumpalong/nostr-runtime'
 import { nowSecondTimestamp } from '@jumpalong/shared'
+import { type Event } from 'nostr-tools'
+import { type AddressPointer } from 'nostr-tools/nip19'
+import { createInjection } from '../utils/use'
+import { useEventLine } from './ProvideEventLine'
 
 export type MarkdownData = {
   content: string
@@ -26,8 +23,10 @@ export type MarkdownData = {
 export function useMarkdownState(
   address: Ref<string | AddressPointer | undefined>
 ) {
+  console.log('addressPointerLine:-2')
   //生成point
   const addressPointer = useDecodeAddressPointer(address)
+  console.log('addressPointer', addressPointer)
 
   const markdownLine = useMarkdownLine(addressPointer)
   //markdown的事件
@@ -47,6 +46,8 @@ function useMarkdownLine(
 ) {
   const line1 = useEventLine(AddressPointerApi)
   //markdown 请求器所创建的line
+  console.log('addressPointerLine:-1', addressPointer.value)
+
   const line = computed(
     () =>
       addressPointer.value &&
@@ -181,7 +182,7 @@ export function markdownDataToEvent(
   markdownData: Ref<MarkdownData>,
   addrPoint: Ref<AddressPointer>
 ) {
-  let loginLine = useEventLine(LoginStaff)
+  let loginLine = useEventLine(EventUtilsStaff)
 
   const titleTag = computed(() => ['title', markdownData.value.title])
   //发布时间

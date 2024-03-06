@@ -57,6 +57,7 @@ const sortMap = createSortMap({
 export default createStaff(
   () => [PoolStaff, ReactiveStaff, CreateChildHookStaff, EventStaff],
   ({ mod, line }) => {
+    type xxx = typeof PoolStaff
     function initList() {
       return line.ref([] as Event[])
     }

@@ -62,6 +62,9 @@ export class LocalStorageMap<V> {
       return this.localGet(key)
     }
   }
+  has(key: string) {
+    return !!this.get(key)
+  }
   localGet(key: string): V | null {
     const valueStr = localStorage.getItem(key)
     if (!valueStr) {

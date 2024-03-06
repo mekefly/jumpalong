@@ -25,13 +25,15 @@ export default createStaff(
           })
         },
       })
-      .assignFeat({
+      .assignFn({
         getEventById(id: string, opts: CueOptions & CommonOptions = {}) {
           return this.cacheByOptions({ name: 'GEBID:' + id, ...opts }, () => {
             return this.createChild()
               .add(AutoAddUrlByGlobalDiscoveryUserStaff)
               .add(ManagerStaff)
               .add(LatestEventStaff)
+              .provideLatestEvent()
+
               .addFilter({
                 ids: [id],
                 limit: 1,

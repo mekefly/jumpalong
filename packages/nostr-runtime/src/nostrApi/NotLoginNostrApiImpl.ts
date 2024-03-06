@@ -2,6 +2,7 @@ import { CommonNostrApiImpl } from './CommonNostrApiImpl'
 
 export class NotLoginNostrApiImpl extends CommonNostrApiImpl {
   constructor() {
-    super(async () => ({}))
+    super()
+    this.nostrApiProvide.resolve({})
   }
 }

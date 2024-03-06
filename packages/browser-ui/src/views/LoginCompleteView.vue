@@ -1,6 +1,5 @@
 <script lang="ts" setup>
-import { NostrApiStaff, LoginStaff } from '@jumpalong/nostr-runtime'
-import Copy16FilledVue from '../components/icon/Copy16Filled.vue'
+import { LoginUtilsStaff, NostrApiStaff } from '@jumpalong/nostr-runtime'
 import FloatingCardVue from '../components/LoginCard.vue'
 import {
   useLoginCompleteHook,
@@ -9,12 +8,13 @@ import {
 import { useEventLine } from '../components/ProvideEventLine'
 import TestNostrApi from '../components/TestNostrApi.vue'
 import TooltipVue from '../components/Tooltip.vue'
+import Copy16FilledVue from '../components/icon/Copy16Filled.vue'
 // import { nostrApi } from "@/nostr/nostr";
 // import { usePrikey } from "@/utils/nostrApiUse";
 import { useClipboardDialog } from '../utils/naiveUi'
 import { useAsyncComputed } from '../utils/use'
 
-let line = useEventLine(NostrApiStaff, LoginStaff)
+let line = useEventLine(NostrApiStaff, LoginUtilsStaff)
 
 const clipboard = useClipboardDialog()
 

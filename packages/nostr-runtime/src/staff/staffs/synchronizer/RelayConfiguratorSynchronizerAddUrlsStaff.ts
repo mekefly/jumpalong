@@ -1,3 +1,4 @@
+import { UnsignedEvent } from 'nostr-tools'
 import { createStaff, RelayConfiguratorSynchronizerStaff } from '../..'
 import { RelayConfiguratorOptions } from './OptionsType'
 

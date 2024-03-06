@@ -9,6 +9,10 @@ import {
   RelayConfiguratorSynchronizerStaff,
   PauseStaff,
   RelayConfiguratorSynchronizerAddUrlsStaff,
+  StaffFlag,
+  MergeStaffConfig,
+  GlobalUrlsStaff,
+  LoginUtilsStaff,
 } from '@jumpalong/nostr-runtime'
 import { createInjection } from '../utils/useUtils'
 import { ReactiveStaff } from '../utils/vue'
@@ -67,15 +71,9 @@ export function provideEventLineScoped(name?: string) {
   return scopedMod
 }
 
-export function useEventLine<
-  REST extends Array<(mod: EventLineFactory<{}>) => EventLineFactory<{}>> = []
->(
+export function useEventLine<REST extends StaffFlag[] = []>(
   ...rest: REST
-): EventLine<
-  MixinEventLineConfig<REST> extends EventLineConfig
-    ? MixinEventLineConfig<REST>
-    : {}
->
+): EventLine<MergeStaffConfig<REST>>
 export function useEventLine<
   Config extends EventLineConfig = {},
   REST extends Array<
@@ -84,10 +82,10 @@ export function useEventLine<
 >(...rest: any[]) {
   return assertInjectEventLineMod()
     .out()
-    .add(...rest)
+    .add(...(rest as [any]))
 }
 export function usePubkey() {
-  let line = useEventLine(LoginStaff)
+  let line = useEventLine(LoginUtilsStaff)
   let pubkey = asyncComputed(() => {
     return line.getPubkeyOrNull()
   })
@@ -101,4 +99,16 @@ export function useIsMe(pubkey: Ref<Pubkey | null | undefined>) {
       currentPubkey.value &&
       pubkey.value.toHex() === currentPubkey.value.toHex()
   )
+}
+export function useIsLogin() {
+  let line = useEventLine(LoginUtilsStaff)
+  return asyncComputed(async () => {
+    return await line.isLogin()
+  })
+}
+export function useGlobalUrl() {
+  let line = useEventLine(GlobalUrlsStaff)
+  return asyncComputed(async () => {
+    return await line.autoGetGlobalUrls()
+  })
 }

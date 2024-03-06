@@ -1,116 +1,38 @@
-import {
-  Event,
-  EventTemplate,
-  UnsignedEvent,
-  getEventHash,
-  verifyEvent,
-} from 'nostr-tools'
-import { NotLoginNostrApiImpl } from '../../../nostrApi/NotLoginNostrApiImpl'
-import { WindowNostrApiImpl } from '../../../nostrApi/WindowNostrApiImpl'
-import { Prikey, Pubkey, getPubkey } from '../../../utils/user'
+import { EventLine } from 'packages/nostr-runtime/src/eventLine'
 import { createStaff } from '../..'
-import NostrApiStaff from './NostrApiStaff'
+import { NostrApi, NostrConnectNostrApiImpl } from '../../../nostrApi'
 import {
   NostrApiMode,
   getNostrApiMode,
   setNostrApiMode,
 } from '../../../nostrApi/NostrApiMode'
+import { NotLoginNostrApiImpl } from '../../../nostrApi/NotLoginNostrApiImpl'
 import { PriKeyNostrApiImpl } from '../../../nostrApi/PriKeyNostrApiImpl'
+import { WindowNostrApiImpl } from '../../../nostrApi/WindowNostrApiImpl'
+import { Prikey, Pubkey, getPubkey } from '../../../utils/user'
 import EventCreateAtStaff from '../common/EventCreateAtStaff'
+import NostrApiStaff from './NostrApiStaff'
 
 export const PRIVATE_KEY = 'prikey'
 
 export default createStaff(
-  EventCreateAtStaff,
-  NostrApiStaff,
+  () => [EventCreateAtStaff, NostrApiStaff],
   'login',
   ({ mod, line }) => {
     let _pubkey: null | Pubkey = null
     return mod
-
-      .assignFeat({
+      .assignFn({
         logout() {
           this.nostrApi = notLogin()
         },
       })
-      .inLine(line => line.setNostrApi(restoreLogin()))
-      .assignFeat({
-        async getPrikeyOrNull() {
-          //@Todo
-          if (getNostrApiMode() !== NostrApiMode.PrivateKey) {
-            return null
-          }
-          let nostrApi = this.getNostrApi()
-          if (!(nostrApi instanceof PriKeyNostrApiImpl)) {
-            return null
-          }
-
-          if (!nostrApi.getPrikey) {
-            return
-          }
-          try {
-            return nostrApi.getPrikey()
-          } catch (error) {}
-          return null
-        },
-        async getPubkeyOrNull(opt?: { intercept: boolean }) {
-          try {
-            let _pubkey = await this.getNostrApi().getPublicKey()
-            return _pubkey
-          } catch (error) {
-            return null
-          }
-        },
-        getPubkey() {
-          this.getPubkeyOrNull()
-            .then(p => (_pubkey = p))
-            .catch(() => {
-              _pubkey = null
-            })
-          return _pubkey
-        },
-      })
-      .assignFeat({
-        createEventTemplate<EVENT extends Partial<Event>>(
-          options: EVENT
-        ): EVENT & Partial<Event> & EventTemplate {
-          let event: Partial<Event> & EventTemplate = Object.assign(
-            {
-              kind: 1,
-              tags: [],
-              content: '',
-              created_at: this.nowCreateAt(),
-            },
-            options
-          )
-
-          return event as any
-        },
-
-        async createEvent(options: Partial<Event>): Promise<Event> {
-          const pubkey = await this.getPubkeyOrNull()
-          if (!pubkey) throw new Error('pubkey')
-
-          let event: UnsignedEvent & Partial<Event> = Object.assign(
-            this.createEventTemplate(options),
-            { pubkey: pubkey.toHex() }
-          )
-
-          event = JSON.parse(JSON.stringify(event))
-
-          event.id = getEventHash(event)
-
-          event = await this.getNostrApi().signEvent(event)
-
-          return event as any
-        },
-
+      .inLine(line => line.setNostrApi(restoreLogin(line)))
+      .assignFn({
         testAndVerifyNewUser() {
           const newUserFlagPubkey = localStorage.getItem('newUserFlag')
           const currentPrikey = localStorage.getItem('prikey')
           const currentPubkey =
             currentPrikey && getPubkey(Prikey.fromHex(currentPrikey))
-
           if (
             getNostrApiMode() === NostrApiMode.PrivateKey &&
             newUserFlagPubkey &&
@@ -126,21 +48,19 @@ export default createStaff(
         loginPrikey(key: Prikey) {
           localStorage.setItem(PRIVATE_KEY, key.toHex())
           setNostrApiMode(NostrApiMode.PrivateKey)
-          // const nostrApi = new PriKeyNostApiImpl(key)
-          // this.container.rebind(TYPES.NostrApi).toDynamicValue(() => nostrApi)
-          // injectNostrApi({ nostrApi })
-          this.setNostrApi(restoreLogin())
+          const nostrApi = new PriKeyNostrApiImpl(key)
+
+          this.setNostrApi(nostrApi)
         },
         windowNostrLogin() {
           let windowNostr = new WindowNostrApiImpl()
-          this.loginApi(windowNostr)
+          this.loginApi(NostrApiMode.WindowNostr, windowNostr)
         },
-        loginApi(api: WindowNostrApiImpl) {
-          if (api instanceof WindowNostrApiImpl) {
-            setNostrApiMode(NostrApiMode.WindowNostr)
-            this.setNostrApi(api)
-          }
+        loginApi(mode: NostrApiMode, api: NostrApi) {
+          setNostrApiMode(mode)
+          this.setNostrApi(api)
         },
+
         registerPrikey(prikey: Prikey = Prikey.create()) {
           this.loginPrikey(prikey)
 
@@ -149,7 +69,6 @@ export default createStaff(
 
           return prikey
         },
-
         clearNewUserFlag() {
           localStorage.removeItem('newUserFlag')
         },
@@ -157,7 +76,7 @@ export default createStaff(
   }
 )
 
-function restoreLogin() {
+function restoreLogin(line: EventLine<{}>): NostrApi {
   const mode = getNostrApiMode()
   //NostrApi
   switch (mode) {
@@ -171,13 +90,18 @@ function restoreLogin() {
         return notLogin()
       }
       return new PriKeyNostrApiImpl(Prikey.fromHex(prikey))
-    case NostrApiMode.NostrContent:
-      const pubkey = localStorage.getItem('pubkey')
-      if (!pubkey) {
+    case NostrApiMode.NostrConnect:
+      const bunker = localStorage.getItem('bunker')
+      if (!bunker) {
         return notLogin()
       }
-      return notLogin()
-    //TODO: 目前还没重构完成
+      try {
+        const api = NostrConnectNostrApiImpl.fromBunker(line, bunker)
+        api.connect()
+        return api
+      } catch (error) {
+        return notLogin()
+      }
     default:
       return notLogin()
   }

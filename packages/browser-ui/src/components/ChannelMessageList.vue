@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import PapawVueList from "@/components/PapawList.vue";
-import { useAutoScroll } from "@/views/ChannelMessageView";
+import PapawVueList from "../components/PapawList.vue";
+import { useAutoScroll } from "../views/ChannelMessageView";
 import { Event } from "nostr-tools";
 
 const props = defineProps<{

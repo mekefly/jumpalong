@@ -1,12 +1,13 @@
 import type { Event } from 'nostr-tools'
+import type { PoolStaff } from '..'
 import { createNotInjectStaff, createStaff } from '../../staff'
-import { PoolStaffConfigType, PoolStaff } from '..'
-import { OkParmType } from '../server/OkStaff'
+import type { OkParmType } from '../server/OkStaff'
 export interface PublishOptions {
   onOK?: (...rest: OkParmType) => void
 }
+
 export default createStaff(
-  createNotInjectStaff<'pool-staff', typeof PoolStaff>('pool-staff'),
+  () => [createNotInjectStaff<'pool-staff', typeof PoolStaff>('pool-staff')],
   mod => {
     return mod.assignFeat({
       publish(url: string, event: Event, ops: PublishOptions = {}) {
@@ -19,6 +20,7 @@ export default createStaff(
           }
         )
 
+
         this.relayPool.getLine().emit('publish', url, event)
       },
       publishes(
@@ -27,6 +29,12 @@ export default createStaff(
         ops: PublishOptions = {}
       ) {
         for (const url of urls) {
+          this.publish(url, event, ops)
+        }
+      },
+
+      publishEvents(url: string, events: Event[], ops: PublishOptions = {}) {
+        for (const event of events) {
           this.publish(url, event, ops)
         }
       },

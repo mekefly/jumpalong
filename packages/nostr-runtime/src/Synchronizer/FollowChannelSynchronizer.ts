@@ -2,6 +2,7 @@ import { AddressPointer } from 'nostr-tools/nip19'
 import { ParameterizedReplaceableSynchronizerAbstract } from './abstract/ParameterizedReplaceableSynchronizerAbstract'
 import { deserializeTagE } from '../event/tag'
 import { Event } from 'nostr-tools'
+import { ReplaceableSynchronizer } from './common'
 
 export type ChannelConfigurationData = {
   channelMeta: ChannelMetadata
@@ -27,10 +28,11 @@ type ChannelConfigurationType = Map<string, ChannelConfigurationData>
 export class FollowChannelSynchronizer extends ParameterizedReplaceableSynchronizerAbstract<ChannelConfigurationType> {
   identifier: string
   kind: number = 30001
+  replaceableSynchronizer: ReplaceableSynchronizer<ChannelConfigurationType>
 
-  constructor() {
+  constructor(line: any) {
     const identifier = 'follower-channel'
-    super(identifier)
+    super(line, identifier)
     this.identifier = identifier
   }
   createDefault(): ChannelConfigurationType {

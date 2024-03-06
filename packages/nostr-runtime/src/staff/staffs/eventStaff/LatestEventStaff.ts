@@ -12,22 +12,31 @@ export default createStaff(
   ({ mod, line }) => {
     return mod
       .defineEmit<'latestEvent:update', [event: Event, old: Event | null]>()
-      .assignOwnFeat(() => ({
-        latestEvent: line.ref(null as Event | null),
-      }))
+      .provide('latestEvent', function () {
+        let eventRef = this.reactive({
+          value: null as Event | null,
+        })
+        this.onEvent((subId, event, url) => {
+          //新的event创建时间更大则更新
+          if (!eventRef.value || event.created_at > eventRef.value.created_at) {
+            eventRef.value = event
+          }
+        })
+        return eventRef
+      })
       .assignFeat({
         isHasLatestEvent() {
           return Boolean(this.getLatestEvent())
         },
         setLatestEvent(latestEvent: Event) {
-          this.latestEvent.value = latestEvent
+          return (this.injectLatestEvent().value = latestEvent)
         },
         getLatestEvent() {
-          return this.latestEvent.value
+          return this.injectLatestEvent().value
         },
         updateLatestEvent(event: Event) {
-          let old = this.latestEvent.value
-          this.latestEvent.value = event
+          let old = this.getLatestEvent()
+          this.injectLatestEvent().value = event
           this.emit('latestEvent:update', event, old)
         },
         onHasLatestEvent(listener: (event: Event) => void) {
@@ -44,17 +53,5 @@ export default createStaff(
           }
         },
       })
-      .inLine(line =>
-        //当来新的event时
-        line.onCreateChildDep<typeof line>(l => {
-          l.onEvent((subId, event, url) => {
-            //新的event创建时间更大则更新
-            let le = l.getLatestEvent()
-            if (!le || event.created_at > le.created_at) {
-              l.setLatestEvent(event)
-            }
-          })
-        })
-      )
   }
 )

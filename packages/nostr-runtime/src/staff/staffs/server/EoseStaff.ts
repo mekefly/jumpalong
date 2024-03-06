@@ -3,13 +3,13 @@ import { createStaff } from '../../staff'
 
 export default createStaff(line => {
   type P = [subId: string, url: string]
-  return line.defineEmit<'eose' | `eose:${string}`, P>().assignFeat({
+  return line.defineEmit<'eose' | `eose:${string}`, P>().assignChain({
     emitEose(subId: string, url: string) {
       this.emit(
         {
           once: true,
           type: `eose:${subId}`,
-          noPause: true
+          noPause: true,
         },
         subId,
         url
@@ -18,7 +18,7 @@ export default createStaff(line => {
       this.emit(
         {
           type: `eose`,
-          noPause: true
+          noPause: true,
         },
         subId,
         url

@@ -10,8 +10,6 @@ import { useEventLine } from './ProvideEventLine'
 import RegistrationFormVue from './RegistrationForm.vue'
 const line = useEventLine(LoginStaff)
 
-// console.log('SynchronizerAbstract', SynchronizerAbstract)
-
 const emit = defineEmits<{
   (e: 'next'): void
 }>()

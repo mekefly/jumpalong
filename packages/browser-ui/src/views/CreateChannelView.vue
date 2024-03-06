@@ -1,37 +1,49 @@
 <script lang="ts" setup>
-import { useNostrContainerGet } from "@/components/NostrContainerProvade";
-import { t } from "@/i18n";
-import { relayConfigurator, rootEventBeltline, TYPES } from "@/nostr/nostr";
-import { ChannelMetadata } from "@/types/ChannelMetadata";
-import { useOnOK } from "@/utils/use";
-import ChannelMetadataEditVue from "../components/ChannelMetadataEdit.vue";
+import { useOnOK } from '../utils/use'
+import ChannelMetadataEditVue from '../components/ChannelMetadataEdit.vue'
+import { useEventLine } from '../components/ProvideEventLine'
+import {
+  AddPublishStaff,
+  ChannelMetadata,
+  LoginStaff,
+  Synchronizer,
+  RelayConfiguratorSynchronizerAddUrlsStaff,
+} from '@jumpalong/nostr-runtime'
 
-const followChannel = useNostrContainerGet(TYPES.FollowChannelSynchronizer);
+const message = useMessage()
+const onOK = useOnOK()
+let line = useEventLine(
+  Synchronizer.ListSynchronizerManager.Staff,
+  RelayConfiguratorSynchronizerAddUrlsStaff
+)
 
-const message = useMessage();
-const onOK = useOnOK();
-
-const channelMetadata = ref<ChannelMetadata>({});
+const channelMetadata = ref<ChannelMetadata>({})
 async function handleCreate() {
   if (!channelMetadata.value.name) {
-    message.warning("请输入channelName");
-    return;
+    message.warning('请输入channelName')
+    return
   }
-  const event = await rootEventBeltline.publish(
-    {
-      kind: 40,
-      content: JSON.stringify(channelMetadata.value),
-    },
-    relayConfigurator.getWriteList(),
-    { onOK }
-  );
+  const publishLine = line.createChild().add(AddPublishStaff, LoginStaff)
+
+  let event = await publishLine.createEvent({
+    kind: 40,
+    content: JSON.stringify(channelMetadata.value),
+  })
+  publishLine.addPublish(event, { onOK })
+  publishLine.initedAddWrite()
   if (event) {
-    followChannel.joinChannel(event.id, {
-      channelMetadata: channelMetadata.value,
-    });
-    message.success("创建成功");
+    line.listSynchronizerManager
+      .getInitStandardListSynchronizer(Synchronizer.ListEnum.PublicChats)
+      .add({
+        type: 'e',
+        value: {
+          id: event.id,
+          relay: undefined,
+        },
+      })
+    message.success('创建成功')
   } else {
-    message.warning("没有创建成功");
+    message.warning('没有创建成功')
   }
 }
 </script>
@@ -39,7 +51,7 @@ async function handleCreate() {
 <template>
   <n-space vertical>
     <ChannelMetadataEditVue :channelMetadata="channelMetadata" />
-    <n-button @click="handleCreate">{{ t("create") }}</n-button>
+    <n-button @click="handleCreate">{{ t('create') }}</n-button>
   </n-space>
 </template>
 

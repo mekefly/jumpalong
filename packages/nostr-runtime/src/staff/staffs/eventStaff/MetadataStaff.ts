@@ -6,9 +6,7 @@ import ReactiveStaff from '../reactive/ReactiveStaff'
 import CreateHookStaff from '../common/extends/CreateHookStaff'
 
 export default createStaff(
-  ReactiveStaff,
-  LatestEventStaff,
-  CreateHookStaff,
+  () => [ReactiveStaff, LatestEventStaff, CreateHookStaff],
   'metadata-staff',
   ({ mod, line }) => {
     return mod
@@ -18,8 +16,8 @@ export default createStaff(
       .assignFeat({
         getMetadata<T extends Metadata>(): T | null {
           return (
-            this.latestEvent.value &&
-            (parseMetadata(this.latestEvent.value) as any)
+            this.getLatestEvent() &&
+            (parseMetadata(this.getLatestEvent() as any) as any)
           )
         },
         onHasMetadata<T extends Metadata>(listener: (metadata: T) => void) {

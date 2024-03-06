@@ -93,6 +93,7 @@ export default defineConfig(({ command, mode }) => {
           'ParameterizedReplaceableEventMap',
           'PriKeyNostrApiImpl',
           'Match',
+          'TagHandel',
         ].map(item => `**/__tests__/**/${item}.test.ts`),
         // '**/packages/*/__tests__/*.test.ts',
       ],

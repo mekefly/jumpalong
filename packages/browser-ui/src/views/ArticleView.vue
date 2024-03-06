@@ -1,35 +1,38 @@
 <script lang="ts" setup>
-import Article from "@/components/Article.vue";
-import { proviteArticeSetting, useMarkdownState } from "@/components/Markdown";
-import { deserializeTagR } from "@/nostr/tag";
+import Article from '../components/Article.vue'
+import { proviteArticeSetting, useMarkdownState } from '../components/Markdown'
+import { deserializeTagR } from '@jumpalong/nostr-runtime'
 
-const route = useRoute();
-const value = computed(() => route.params.value as string);
+const route = useRoute()
+const value = computed(() => route.params.value as string)
 
-const { event } = useMarkdownState(value);
+const { event } = useMarkdownState(value)
+watchEffect(() => {
+  console.log('watchEffectevent', event.value)
+})
 
-const loadingBar = useLoadingBar();
-loadingBar.start();
+const loadingBar = useLoadingBar()
+loadingBar.start()
 
 watch(
   event,
   () => {
     if (event.value) {
       setTimeout(() => {
-        loadingBar.finish();
-      });
+        loadingBar.finish()
+      })
     }
   },
   { deep: true, immediate: true }
-);
+)
 
 //显示完整消息
-proviteArticeSetting({ showArticleDetails: true });
+proviteArticeSetting({ showArticleDetails: true })
 
 const urls = computed<Set<string>>(() => {
-  if (!event.value) return new Set();
-  return deserializeTagR(event.value?.tags);
-});
+  if (!event.value) return new Set()
+  return deserializeTagR(event.value?.tags)
+})
 </script>
 
 <template>

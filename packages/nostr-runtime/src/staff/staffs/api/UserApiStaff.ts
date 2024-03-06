@@ -29,6 +29,7 @@ export default createStaff(
               .add(MetadataStaff)
               .add(EoseAutoUnSubStaff)
               .add(ApiAddUrlsStaff)
+              .provideLatestEvent()
 
             kind0line.addFilter({
               kinds: [0],
@@ -59,6 +60,7 @@ export default createStaff(
               .add(EoseAutoUnSubStaff)
               .add(ApiAddUrlsStaff)
               .add(Kind10002ReadWriteListConfigStaff)
+              .provideLatestEvent()
 
             l.addFilter({
               kinds: [10002],

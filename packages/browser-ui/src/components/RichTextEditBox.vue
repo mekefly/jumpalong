@@ -1,12 +1,11 @@
 <script lang="ts" setup>
+import { EventUtilsStaff } from '@jumpalong/nostr-runtime'
 import { createId, debounce } from '@jumpalong/shared'
 import { EventTemplate } from 'nostr-tools'
+import { ref } from 'vue'
 import ContentVue from './Content.vue'
 import EmojiBoxVue from './EmojiBox.vue'
-import ArrowExportUp20Filled from './icon/ArrowExportUp20Filled.vue'
-import CloseVue from './icon/Close.vue'
-import Edit16FilledVue from './icon/Edit16Filled.vue'
-import ReadOutlinedVue from './icon/ReadOutlined.vue'
+import { useEventLine } from './ProvideEventLine'
 import RelayContent from './RelayContent.vue'
 import {
   useDragFileUpload,
@@ -17,11 +16,12 @@ import RichTextEditBoxInputVue from './RichTextEditBoxInput.vue'
 import ScrollbarVue from './Scrollbar.vue'
 import { useUpload } from './Upload'
 import UploadButtonVue from './UploadButton.vue'
-import { useEventLine } from './ProvideEventLine'
-import { LoginStaff } from '@jumpalong/nostr-runtime'
-import { ref } from 'vue'
+import ArrowExportUp20Filled from './icon/ArrowExportUp20Filled.vue'
+import CloseVue from './icon/Close.vue'
+import Edit16FilledVue from './icon/Edit16Filled.vue'
+import ReadOutlinedVue from './icon/ReadOutlined.vue'
 
-let line = useEventLine(LoginStaff)
+let line = useEventLine(EventUtilsStaff)
 const richTextEditBoxOpt = useRichTextEditBoxOpt()
 
 const emit = defineEmits<{

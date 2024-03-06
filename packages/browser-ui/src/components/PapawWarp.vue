@@ -1,4 +1,7 @@
 <script lang="ts" setup>
+/**
+ * 消息包裹，就是聊天气泡的包装内容
+ */
 import { useCanceleableClick, useLazyShow } from '../utils/use'
 import { arrayRemove, timeout } from '../utils/utils'
 // import { usePushShortTextNote } from '../views/ShortTextNoteView'
@@ -17,6 +20,7 @@ import SMSButton from './SMSButton.vue'
 import UserInfo from './UserInfo.vue'
 import { ConfigStaff } from '@jumpalong/nostr-runtime'
 import { useEventLine } from './ProvideEventLine'
+import { usePushShortTextNote } from '../views/ShortTextNoteView'
 const line = useEventLine(ConfigStaff)
 const config = line.getConfig()
 
@@ -50,9 +54,9 @@ function handelLongPress() {
 }
 
 const contentRef = ref()
-// const pushShortText = usePushShortTextNote()
+const pushShortText = usePushShortTextNote()
 const { isPress } = useCanceleableClick(contentRef, () => {
-  // pushShortText(event.value)
+  pushShortText(event.value)
 })
 
 const scrollbarOpt = useInjectScrollbarInstRef()
@@ -116,6 +120,7 @@ function handelDeleteEvent(e: string) {
 </script>
 
 <template>
+
   <div class="mt-4" ref="target">
     <LazyItemDisabled
       :delay="config.lazyDelayForPapaw"

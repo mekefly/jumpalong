@@ -5,8 +5,6 @@ import { PoolStaff } from '@jumpalong/nostr-runtime'
 import { useEventLine } from './ProvideEventLine'
 let line = useEventLine(PoolStaff)
 
-console.log('line.relayPool', line.relayPool)
-
 const poolSize = computed(() => line.relayPool.getPool().size)
 const subIdSize = computed(() => line.relayPool.allSubIds.size)
 </script>

@@ -1,23 +1,20 @@
 <script lang="ts" setup>
+import {
+  GlobalDiscoveryUserStaff,
+  LoginUtilsStaff,
+} from '@jumpalong/nostr-runtime'
 import { debounce } from '@jumpalong/shared'
-import AccountTreeRoundVue from './icon/AccountTreeRound.vue'
+import { asyncWitchComputed, useAsyncData } from '../utils/use'
+import { useEventLine } from './ProvideEventLine'
 import RelayAddButtonVue from './RelayAddButton.vue'
 import RelayConnectListVue from './RelayConnectListCard.vue'
 import SyncButtonVue from './SyncButton.vue'
-import { useEventLine } from './ProvideEventLine'
-import {
-  GlobalDiscoveryUserStaff,
-  GlobalUrlsStaff,
-  LoginStaff,
-} from '@jumpalong/nostr-runtime'
+import AccountTreeRoundVue from './icon/AccountTreeRound.vue'
 import MdSearch from './icon/MdSearch.vue'
-import { asyncWitchComputed, useAsyncData } from '../utils/use'
 
-let globalUrlsLine = reactive(useEventLine(GlobalUrlsStaff))
 let GlobalDiscoveryUserLine = useEventLine(GlobalDiscoveryUserStaff)
-let loginLine = useEventLine(LoginStaff)
+let loginLine = useEventLine(LoginUtilsStaff)
 
-globalUrlsLine.fetchGlobalUrls()
 const searchValue = ref('')
 const otherList = ref<string[]>([])
 
@@ -38,9 +35,6 @@ const list = asyncWitchComputed([pubkey], async ([pubkey]) => {
   ]
 })
 
-// setInterval(() => {
-//   flag.refreshWithDep(GlobalDiscoveryUserLine.getGlobalUrls().size)
-// }, 1000)
 function filterOtherList() {
   if (!list.value) return
   if (searchValue.value === '') {
@@ -90,6 +84,7 @@ watch([searchValue, list], filterOtherListDebounce, { deep: true })
     <template #right="{ url }">
       <RelayAddButtonVue class="mr-2" :url="url" />
       <SyncButtonVue :url="url" />
+      <div class="w-4"></div>
     </template>
   </RelayConnectListVue>
 </template>

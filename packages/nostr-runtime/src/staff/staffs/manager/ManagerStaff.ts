@@ -8,8 +8,8 @@ import AddUrlStaff from './AddUrlStaff'
 
 export default createStaff(
   () => [
-    AddFilterStaff,
     AddUrlStaff,
+    AddFilterStaff,
     SubStaff,
     PublishStaff,
     AddPublishStaff,

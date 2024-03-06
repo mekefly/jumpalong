@@ -22,6 +22,8 @@ const props = withDefaults(
 const emit = defineEmits<{
   (e: 'refresh'): void
   (e: 'load'): void
+  (e: 'auto-refresh'): void
+  (e: 'auto-load'): void
 }>()
 const { refreshable, loadable, containerRef, maxShifting } = toRefs(props)
 
@@ -44,17 +46,19 @@ const {
   remake,
 } = useLimitMovement(maxShifting)
 let lastY: null | number = null
-const { x, y, arrivedState } = useScroll(containerRef)
+const { x, y, arrivedState, directions } = useScroll(containerRef)
 
 let autoLoad = throttle(() => {
   logger.debug('auto-load')
   injectionEmit('auto-load')
-}, 2000)
+  emit('auto-load')
+}, 3000)
 
 let autoRefresh = throttle(() => {
   logger.debug('auto-refresh')
   injectionEmit('auto-refresh')
-}, 2000)
+  emit('auto-refresh')
+}, 3000)
 watchEffect(() => {
   //距离底部距离小于一定距离触发自动加载事件
   if (!containerRef.value) return
@@ -65,9 +69,14 @@ watchEffect(() => {
     y.value + containerRef.value.getBoundingClientRect().height
 
   if (contentHeight - bottomRollPosition < contentHeight / 2) {
-    autoLoad()
+    //向下移动的时候才调用autoLoad
+    if (directions.bottom) {
+      autoLoad()
+    }
   } else if (y.value < contentHeight / 2) {
-    autoRefresh()
+    if (directions.top) {
+      autoRefresh()
+    }
   }
 })
 

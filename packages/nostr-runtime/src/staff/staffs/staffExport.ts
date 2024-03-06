@@ -1,9 +1,12 @@
 import type { StaffConfigType } from '../staff';
 import {default as AddressPointerApi} from './api/AddressPointerApi';
 import {default as ApiAddUrlsStaff} from './api/ApiAddUrlsStaff';
+import {default as ChannelMetadataApiStaff} from './api/ChannelMetadataApiStaff';
 import {default as ContactApiStaff} from './api/ContactApiStaff';
+import {default as DeletionStaffApi} from './api/DeletionStaffApi';
 import {default as EventApiStaff} from './api/EventApiStaff';
 import {default as EventByIdApiStaff} from './api/EventByIdApiStaff';
+import {default as ReactionStaff} from './api/ReactionStaff';
 import {default as UserApiStaff} from './api/UserApiStaff';
 import {default as AddUrlsByCue} from './common/AddUrlsByCue';
 import {default as AsyncCallStaff} from './common/AsyncCallStaff';
@@ -36,7 +39,9 @@ import {default as AutoAddUrlByGlobalDiscoveryUserStaff} from './globalDiscovery
 import {default as DefaultUrlStaff} from './globalDiscoveryUser/DefaultUrlStaff';
 import {default as GlobalDiscoveryUserStaff} from './globalDiscoveryUser/GlobalDiscoveryUserStaff';
 import {default as GlobalUrlsStaff} from './globalDiscoveryUser/GlobalUrlsStaff';
+import {default as EventUtilsStaff} from './login/EventUtilsStaff';
 import {default as LoginStaff} from './login/LoginStaff';
+import {default as LoginUtilsStaff} from './login/LoginUtilsStaff';
 import {default as NostrApiStaff} from './login/NostrApiStaff';
 import {default as NostrModeStaff} from './login/NostrModeStaff';
 import {default as AddFilterStaff} from './manager/AddFilterStaff';
@@ -69,9 +74,12 @@ import {default as RelayConfiguratorSynchronizerAddUrlsStaff} from './synchroniz
 import {default as RelayConfiguratorSynchronizerStaff} from './synchronizer/RelayConfiguratorSynchronizerStaff';
 type AddressPointerApiConfigType = StaffConfigType<typeof AddressPointerApi>
 type ApiAddUrlsStaffConfigType = StaffConfigType<typeof ApiAddUrlsStaff>
+type ChannelMetadataApiStaffConfigType = StaffConfigType<typeof ChannelMetadataApiStaff>
 type ContactApiStaffConfigType = StaffConfigType<typeof ContactApiStaff>
+type DeletionStaffApiConfigType = StaffConfigType<typeof DeletionStaffApi>
 type EventApiStaffConfigType = StaffConfigType<typeof EventApiStaff>
 type EventByIdApiStaffConfigType = StaffConfigType<typeof EventByIdApiStaff>
+type ReactionStaffConfigType = StaffConfigType<typeof ReactionStaff>
 type UserApiStaffConfigType = StaffConfigType<typeof UserApiStaff>
 type AddUrlsByCueConfigType = StaffConfigType<typeof AddUrlsByCue>
 type AsyncCallStaffConfigType = StaffConfigType<typeof AsyncCallStaff>
@@ -104,7 +112,9 @@ type AutoAddUrlByGlobalDiscoveryUserStaffConfigType = StaffConfigType<typeof Aut
 type DefaultUrlStaffConfigType = StaffConfigType<typeof DefaultUrlStaff>
 type GlobalDiscoveryUserStaffConfigType = StaffConfigType<typeof GlobalDiscoveryUserStaff>
 type GlobalUrlsStaffConfigType = StaffConfigType<typeof GlobalUrlsStaff>
+type EventUtilsStaffConfigType = StaffConfigType<typeof EventUtilsStaff>
 type LoginStaffConfigType = StaffConfigType<typeof LoginStaff>
+type LoginUtilsStaffConfigType = StaffConfigType<typeof LoginUtilsStaff>
 type NostrApiStaffConfigType = StaffConfigType<typeof NostrApiStaff>
 type NostrModeStaffConfigType = StaffConfigType<typeof NostrModeStaff>
 type AddFilterStaffConfigType = StaffConfigType<typeof AddFilterStaff>
@@ -135,5 +145,5 @@ type SubStaffConfigType = StaffConfigType<typeof SubStaff>
 type TimeoutAutoUnSubStaffConfigType = StaffConfigType<typeof TimeoutAutoUnSubStaff>
 type RelayConfiguratorSynchronizerAddUrlsStaffConfigType = StaffConfigType<typeof RelayConfiguratorSynchronizerAddUrlsStaff>
 type RelayConfiguratorSynchronizerStaffConfigType = StaffConfigType<typeof RelayConfiguratorSynchronizerStaff>
-export {AddressPointerApi, ApiAddUrlsStaff, ContactApiStaff, EventApiStaff, EventByIdApiStaff, UserApiStaff, AddUrlsByCue, AsyncCallStaff, CachedStaff, ConfigStaff, CreateIdStaff, EventCreateAtStaff, CreateChildEmitStaff, CreateChildHookStaff, CreateHookEmitStaff, CreateHookStaff, InjectStaff, OwnDateAssignStaff, ParentStaff, LoadStaff, LocalMapStaff, PauseStaff, DoNotRepeatStaff, EventListStaff, EventStaff, InsertObjectListStaff, Kind10002ReadWriteListConfigStaff, LatestEventStaff, MetadataStaff, ReverseSearchInsertOnObjectListStaff, SearchInsertOnObjectListStaff, FilterStopStaff, AutoAddKind10002UrlStaff, AutoAddUrlByGlobalDiscoveryUserStaff, DefaultUrlStaff, GlobalDiscoveryUserStaff, GlobalUrlsStaff, LoginStaff, NostrApiStaff, NostrModeStaff, AddFilterStaff, AddPublishStaff, AddUrlStaff, FilterStaff, ManagerStaff, PublishedEventListStaff, PublishEmitStaff, PublishStaff, ReactiveCreateChildStaff, ReactiveStaff, AddRelayUrls, AuthStaff, CloseRelayStaff, EoseStaff, NoticeStaff, OkStaff, PoolStaff, RelayEmitterStaff, RelayLifecycleStaff, WebSocketFactoryStaff, AddStaff, EoseAutoUnSubStaff, SubEmitStaff, SubIdListStaff, SubStaff, TimeoutAutoUnSubStaff, RelayConfiguratorSynchronizerAddUrlsStaff, RelayConfiguratorSynchronizerStaff}
-export type {AddressPointerApiConfigType, ApiAddUrlsStaffConfigType, ContactApiStaffConfigType, EventApiStaffConfigType, EventByIdApiStaffConfigType, UserApiStaffConfigType, AddUrlsByCueConfigType, AsyncCallStaffConfigType, CachedStaffConfigType, ConfigStaffConfigType, CreateIdStaffConfigType, EventCreateAtStaffConfigType, CreateChildEmitStaffConfigType, CreateChildHookStaffConfigType, CreateHookEmitStaffConfigType, CreateHookStaffConfigType, InjectStaffConfigType, OwnDateAssignStaffConfigType, ParentStaffConfigType, LoadStaffConfigType, LocalMapStaffConfigType, PauseStaffConfigType, DoNotRepeatStaffConfigType, EventListStaffConfigType, EventStaffConfigType, InsertObjectListStaffConfigType, Kind10002ReadWriteListConfigStaffConfigType, LatestEventStaffConfigType, MetadataStaffConfigType, ReverseSearchInsertOnObjectListStaffConfigType, SearchInsertOnObjectListStaffConfigType, FilterStopStaffConfigType, AutoAddKind10002UrlStaffConfigType, AutoAddUrlByGlobalDiscoveryUserStaffConfigType, DefaultUrlStaffConfigType, GlobalDiscoveryUserStaffConfigType, GlobalUrlsStaffConfigType, LoginStaffConfigType, NostrApiStaffConfigType, NostrModeStaffConfigType, AddFilterStaffConfigType, AddPublishStaffConfigType, AddUrlStaffConfigType, FilterStaffConfigType, ManagerStaffConfigType, PublishedEventListStaffConfigType, PublishEmitStaffConfigType, PublishStaffConfigType, ReactiveCreateChildStaffConfigType, ReactiveStaffConfigType, AddRelayUrlsConfigType, AuthStaffConfigType, CloseRelayStaffConfigType, EoseStaffConfigType, NoticeStaffConfigType, OkStaffConfigType, PoolStaffConfigType, RelayEmitterStaffConfigType, RelayLifecycleStaffConfigType, WebSocketFactoryStaffConfigType, AddStaffConfigType, EoseAutoUnSubStaffConfigType, SubEmitStaffConfigType, SubIdListStaffConfigType, SubStaffConfigType, TimeoutAutoUnSubStaffConfigType, RelayConfiguratorSynchronizerAddUrlsStaffConfigType, RelayConfiguratorSynchronizerStaffConfigType}
+export {AddressPointerApi, ApiAddUrlsStaff, ChannelMetadataApiStaff, ContactApiStaff, DeletionStaffApi, EventApiStaff, EventByIdApiStaff, ReactionStaff, UserApiStaff, AddUrlsByCue, AsyncCallStaff, CachedStaff, ConfigStaff, CreateIdStaff, EventCreateAtStaff, CreateChildEmitStaff, CreateChildHookStaff, CreateHookEmitStaff, CreateHookStaff, InjectStaff, OwnDateAssignStaff, ParentStaff, LoadStaff, LocalMapStaff, PauseStaff, DoNotRepeatStaff, EventListStaff, EventStaff, InsertObjectListStaff, Kind10002ReadWriteListConfigStaff, LatestEventStaff, MetadataStaff, ReverseSearchInsertOnObjectListStaff, SearchInsertOnObjectListStaff, FilterStopStaff, AutoAddKind10002UrlStaff, AutoAddUrlByGlobalDiscoveryUserStaff, DefaultUrlStaff, GlobalDiscoveryUserStaff, GlobalUrlsStaff, EventUtilsStaff, LoginStaff, LoginUtilsStaff, NostrApiStaff, NostrModeStaff, AddFilterStaff, AddPublishStaff, AddUrlStaff, FilterStaff, ManagerStaff, PublishedEventListStaff, PublishEmitStaff, PublishStaff, ReactiveCreateChildStaff, ReactiveStaff, AddRelayUrls, AuthStaff, CloseRelayStaff, EoseStaff, NoticeStaff, OkStaff, PoolStaff, RelayEmitterStaff, RelayLifecycleStaff, WebSocketFactoryStaff, AddStaff, EoseAutoUnSubStaff, SubEmitStaff, SubIdListStaff, SubStaff, TimeoutAutoUnSubStaff, RelayConfiguratorSynchronizerAddUrlsStaff, RelayConfiguratorSynchronizerStaff}
+export type {AddressPointerApiConfigType, ApiAddUrlsStaffConfigType, ChannelMetadataApiStaffConfigType, ContactApiStaffConfigType, DeletionStaffApiConfigType, EventApiStaffConfigType, EventByIdApiStaffConfigType, ReactionStaffConfigType, UserApiStaffConfigType, AddUrlsByCueConfigType, AsyncCallStaffConfigType, CachedStaffConfigType, ConfigStaffConfigType, CreateIdStaffConfigType, EventCreateAtStaffConfigType, CreateChildEmitStaffConfigType, CreateChildHookStaffConfigType, CreateHookEmitStaffConfigType, CreateHookStaffConfigType, InjectStaffConfigType, OwnDateAssignStaffConfigType, ParentStaffConfigType, LoadStaffConfigType, LocalMapStaffConfigType, PauseStaffConfigType, DoNotRepeatStaffConfigType, EventListStaffConfigType, EventStaffConfigType, InsertObjectListStaffConfigType, Kind10002ReadWriteListConfigStaffConfigType, LatestEventStaffConfigType, MetadataStaffConfigType, ReverseSearchInsertOnObjectListStaffConfigType, SearchInsertOnObjectListStaffConfigType, FilterStopStaffConfigType, AutoAddKind10002UrlStaffConfigType, AutoAddUrlByGlobalDiscoveryUserStaffConfigType, DefaultUrlStaffConfigType, GlobalDiscoveryUserStaffConfigType, GlobalUrlsStaffConfigType, EventUtilsStaffConfigType, LoginStaffConfigType, LoginUtilsStaffConfigType, NostrApiStaffConfigType, NostrModeStaffConfigType, AddFilterStaffConfigType, AddPublishStaffConfigType, AddUrlStaffConfigType, FilterStaffConfigType, ManagerStaffConfigType, PublishedEventListStaffConfigType, PublishEmitStaffConfigType, PublishStaffConfigType, ReactiveCreateChildStaffConfigType, ReactiveStaffConfigType, AddRelayUrlsConfigType, AuthStaffConfigType, CloseRelayStaffConfigType, EoseStaffConfigType, NoticeStaffConfigType, OkStaffConfigType, PoolStaffConfigType, RelayEmitterStaffConfigType, RelayLifecycleStaffConfigType, WebSocketFactoryStaffConfigType, AddStaffConfigType, EoseAutoUnSubStaffConfigType, SubEmitStaffConfigType, SubIdListStaffConfigType, SubStaffConfigType, TimeoutAutoUnSubStaffConfigType, RelayConfiguratorSynchronizerAddUrlsStaffConfigType, RelayConfiguratorSynchronizerStaffConfigType}

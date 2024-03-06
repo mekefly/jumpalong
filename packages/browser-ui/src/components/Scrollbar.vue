@@ -20,6 +20,8 @@ const { refreshable, loadable } = toRefs(props)
 const emit = defineEmits<{
   (e: 'refresh'): void
   (e: 'load'): void
+  (e: 'auto-refresh'): void
+  (e: 'auto-load'): void
 }>()
 </script>
 
@@ -30,6 +32,8 @@ const emit = defineEmits<{
       v-bind="props"
       @load="() => emit('load')"
       @refresh="() => emit('refresh')"
+      @auto-load="() => emit('auto-load')"
+      @auto-refresh="() => emit('auto-refresh')"
     >
       <n-scrollbar
         class="w-full flex-shrink flex-1"

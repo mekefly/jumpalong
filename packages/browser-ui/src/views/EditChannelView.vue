@@ -1,89 +1,76 @@
 <script lang="ts" setup>
-import ChannelMetadataEditVue from "@/components/ChannelMetadataEdit.vue";
-import { useNostrContainerGet } from "@/components/NostrContainerProvade";
-import { t } from "@/i18n";
-import { TYPES } from "@/nostr/nostr";
-import { type ChannelMetadata } from "@/types/ChannelMetadata";
-import { toDeCodeNevent } from "@/utils/nostr";
-import { useOnOK } from "@/utils/use";
+import ChannelMetadataEditVue from '@/components/ChannelMetadataEdit.vue'
+import { useOnOK } from '../utils/use'
+import {
+  AddPublishStaff,
+  ChannelMetadata,
+  ChannelMetadataApiStaff,
+  LoginStaff,
+  RelayConfiguratorSynchronizerStaff,
+  toDeCodeNevent,
+} from '@jumpalong/nostr-runtime'
+import { useEventLine } from '../components/ProvideEventLine'
 
-const message = useMessage();
-const route = useRoute();
+const message = useMessage()
+const route = useRoute()
 
-const neventOpt = computed(() => toDeCodeNevent(route.params.value as string));
-const eventId = computed(() => neventOpt.value?.id);
+const neventOpt = computed(() => toDeCodeNevent(route.params.value as string))
+const eventId = computed(() => neventOpt.value?.id)
+const line = useEventLine(ChannelMetadataApiStaff)
 
-const followChannelConfiguration = useNostrContainerGet(
-  TYPES.FollowChannelSynchronizer
-);
-const relayConfigurator = useNostrContainerGet(
-  TYPES.RelayConfiguratorSynchronizer
-);
-const cahnnelMessageBeltline = useNostrContainerGet(
-  TYPES.CahnnelMessageBeltline
-);
+const metadataLine = computed(
+  () =>
+    eventId.value &&
+    line.getChannelMetadataByChannelId(eventId.value, {
+      ...(neventOpt.value?.relays
+        ? {
+            urls: new Set(neventOpt.value.relays),
+          }
+        : {}),
+    })
+)
 
-const channelMetadata = ref<ChannelMetadata>({});
-
-const channelLine = computed(() => {
-  if (!eventId.value) {
-    return;
-  }
-  return cahnnelMessageBeltline.getChannelMetadataBeltlineByChannelId(
-    eventId.value
-  );
-});
-
-const metadata = computed(() => channelLine.value?.feat.useMetadata());
+const channelMetadata = ref<ChannelMetadata>({})
+const metadata = computed(
+  () => metadataLine.value && metadataLine.value.getMetadata()
+)
 watch(
   () => metadata.value,
   () => {
-    Object.assign(channelMetadata.value, metadata.value);
+    Object.assign(channelMetadata.value, metadata.value)
   },
   { deep: true, immediate: true }
-);
-const onOK = useOnOK();
-function handleSave() {
+)
+const onOK = useOnOK()
+async function handleSave() {
   if (!eventId.value) {
-    return;
+    return
   }
   if (!channelMetadata.value.name) {
-    message.warning("请输入channelName");
-    return;
+    message.warning('请输入channelName')
+    return
   }
-  if (!channelLine.value) {
-    return;
+  if (!metadata.value) {
+    return
   }
+  const publishLine = line
+    .createChild()
+    .add(AddPublishStaff, LoginStaff, RelayConfiguratorSynchronizerStaff)
 
-  const relay = [...relayConfigurator.getWriteList()][0];
-
-  channelMetadata.value.relayUrls = [
-    ...new Set([
-      ...relayConfigurator.getReadList(),
-      ...relayConfigurator.getWriteList(),
-    ]),
-  ];
-  const event = channelLine.value.publish(
-    {
-      kind: 41,
-      content: JSON.stringify(channelMetadata.value),
-      tags: [["e", eventId.value, relay]],
-    },
-
-    relayConfigurator.getWriteList(),
-    { onOK }
-  );
-  followChannelConfiguration.setChannelmetadata(
-    eventId.value,
-    channelMetadata.value
-  );
+  const event = await publishLine.createEvent({
+    kind: 41,
+    content: JSON.stringify(channelMetadata.value),
+    tags: [['e', eventId.value]],
+  })
+  publishLine.addPublish(event, { onOK })
+  publishLine.initedAddWrite()
 }
 </script>
 
 <template>
   <n-space vertical>
     <ChannelMetadataEditVue :channelMetadata="channelMetadata" />
-    <n-button @click="handleSave">{{ t("save") }}</n-button>
+    <n-button @click="handleSave">{{ t('save') }}</n-button>
   </n-space>
 </template>
 

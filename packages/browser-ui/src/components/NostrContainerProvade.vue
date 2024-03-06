@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import { createNostrContainer } from "@/nostr/nostrRuntime";
-import { provideNostrContainer } from "./NostrContainerProvade";
+import { createNostrContainer } from '@/nostr/nostrRuntime'
+import { provideNostrContainer } from './NostrContainerProvade'
 
-const nostr = createNostrContainer();
-(window as any).nostrApi = nostr;
+const nostr = createNostrContainer()
+;(window as any).nostrApi = nostr
 
-provideNostrContainer(nostr);
+provideNostrContainer(nostr)
 </script>
 
 <template>

@@ -7,17 +7,19 @@ import EventStaff from '../eventStaff/EventStaff'
 import EoseStaff from '../server/EoseStaff'
 $LoggerScope()
 
-type SubOpt = {
+export type SubOpt = {
   onEvent?: () => void
   onEose?: () => void
   subId?: string
   eoseAutoDesub?: boolean
 }
 export default createStaff(
-  CreateIdStaff,
-  createNotInjectStaff<'pool-staff', typeof PoolStaff>('pool-staff'),
-  EventStaff,
-  EoseStaff,
+  () => [
+    CreateIdStaff,
+    createNotInjectStaff<'pool-staff', typeof PoolStaff>('pool-staff'),
+    EventStaff,
+    EoseStaff,
+  ],
   mod =>
     mod.assignFeat({
       /**
@@ -62,10 +64,10 @@ export default createStaff(
        * @param filter
        */
       subs(urls: Set<string>, filter: Filter[], opt?: SubOpt) {
-        let subId = this.createId()
+        // let subId = this.createId()
 
         for (const url of urls) {
-          this.sub(url, filter, opt ? Object.assign(opt, { subId }) : { subId })
+          this.sub(url, filter, opt)
         }
       },
     })

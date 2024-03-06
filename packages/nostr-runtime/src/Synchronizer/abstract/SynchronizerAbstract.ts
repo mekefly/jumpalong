@@ -25,6 +25,12 @@ import RelayEmitterStaff from '../../staff/staffs/server/RelayEmitterStaff'
 import PublishStaff from '../../staff/staffs/publish/PublishStaff'
 import LoginStaff from '../../staff/staffs/login/LoginStaff'
 import GlobalDiscoveryUserStaff from '../../staff/staffs/globalDiscoveryUser/GlobalDiscoveryUserStaff'
+import {
+  LoginUtilsStaff,
+  MergeStaffConfig,
+  StaffConfigFlag,
+  createStaff,
+} from '../../staff'
 $LoggerScope()
 
 export type SyncOption = {
@@ -52,33 +58,31 @@ export default abstract class SynchronizerAbstract<E> extends ReactiveClass {
     }
   }
 
-  private options: SynchronizerAbstractOption
+  options: SynchronizerAbstractOption
   private name: string
   private eventMap: LocalStorageMap<Event>
-  private getMod = cached(
-    () =>
-      this.parentLine
-        .createChild()
-        .add(
-          CreateIdStaff,
-          RelayConfiguratorSynchronizerStaff,
-          SubStaff,
-          AddStaff,
-          ManagerStaff,
-          RelayEmitterStaff,
-          PublishStaff,
-          NostrApiStaff,
-          LoginStaff,
-          GlobalDiscoveryUserStaff,
-          EoseAutoUnSubStaff,
-          TimeoutAutoUnSubStaff,
-          AutoAddUrlByGlobalDiscoveryUserStaff
-        )
-        .add(mod => {
-          return mod.defineEmit<'synchronizer-update', [event: Event]>(
-            'synchronizer-update'
-          )
-        }).mod
+  private getMod = cached(() =>
+    this.parentLine
+      .createChild()
+      .add(
+        CreateIdStaff,
+        RelayConfiguratorSynchronizerStaff,
+        SubStaff,
+        AddStaff,
+        ManagerStaff,
+        RelayEmitterStaff,
+        PublishStaff,
+        NostrApiStaff,
+        LoginStaff,
+        LoginUtilsStaff,
+        GlobalDiscoveryUserStaff,
+        EoseAutoUnSubStaff,
+        TimeoutAutoUnSubStaff,
+        AutoAddUrlByGlobalDiscoveryUserStaff
+      )
+      .mod.defineEmit<'synchronizer-update', [event: Event]>(
+        'synchronizer-update'
+      )
   )
   private _ready = new ReversePromise()
   public async onInited(l?: () => void) {
@@ -201,7 +205,9 @@ export default abstract class SynchronizerAbstract<E> extends ReactiveClass {
   //   return this.getLine().createChild()
   // }
 
-  private getRelayConfigurator(): RelayConfiguratorSynchronizer {
+  private getRelayConfigurator(): InstanceType<
+    typeof RelayConfiguratorSynchronizer
+  > {
     return this.getLine().relayConfigurator
   }
   public async syncOne(url: string, opts?: SyncOption) {

@@ -1,15 +1,21 @@
-import { RelayConfiguratorSynchronizerStaff } from '@jumpalong/nostr-runtime'
+import {
+  RelayConfiguratorSynchronizerStaff,
+  Synchronizer,
+} from '@jumpalong/nostr-runtime'
 import { useThemeVars } from 'naive-ui'
 import { DialogApiInjection } from 'naive-ui/es/dialog/src/DialogProvider'
 import { MessageApiInjection } from 'naive-ui/es/message/src/MessageProvider'
 import { useEventLine } from './ProvideEventLine'
-import type { RelayConfiguratorSynchronizer } from 'packages/nostr-runtime/src/Synchronizer/RelayConfiguratorSynchronizer'
+import { useOnOK } from '../utils/use'
 
 type State = Operate | 'default'
 type Operate = 'push' | 'pull'
 function handelSync(
   url: string,
-  relayConfigurator: RelayConfiguratorSynchronizer,
+  onOK: any,
+  relayConfigurator: InstanceType<
+    typeof Synchronizer.RelayConfiguratorSynchronizer
+  >,
   {
     message,
     dialog,
@@ -19,7 +25,7 @@ function handelSync(
   }
 ) {
   return new Promise<Operate>((res, rej) => {
-    relayConfigurator.syncOne(url, {
+    relayConfigurator.replaceableSynchronizer.synchronizer.syncOne(url, {
       onEvent(e, url) {
         dialog.success({
           title: t('success'),
@@ -29,9 +35,10 @@ function handelSync(
         res('pull')
       },
       onPush() {
-        message.success(t('handel_sync_on_push_message', { url }))
+        message.warning(t('handel_sync_on_push_message', { url }))
         res('push')
       },
+      onOK,
     })
     message.info(t('handel_sync_info', { url }))
   })
@@ -44,6 +51,7 @@ export function useSyncState(url: Ref<string>) {
   const isLoading = ref()
   const status = ref('default' as State)
   const themeVar = useThemeVars()
+  const onOK = useOnOK()
   const color = computed(() => {
     switch (status.value) {
       case 'pull':
@@ -60,7 +68,7 @@ export function useSyncState(url: Ref<string>) {
     color,
     handelSync: async () => {
       isLoading.value = true
-      status.value = await handelSync(unref(url), relayConfigurator, {
+      status.value = await handelSync(unref(url), onOK, relayConfigurator, {
         message,
         dialog,
       })

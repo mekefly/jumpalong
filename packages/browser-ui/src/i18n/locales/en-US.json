@@ -39,6 +39,7 @@
   "configuring_relay_prompts_text": "Please configure your relay. You should configure at least one relay that has been used before to ensure that your user data can be read normally",
   "connect": "Connect",
   "copy": "Copy",
+  "copy-bunker": "Copy bunker",
   "copy_succeeded": "Copy Succeeded:{text}",
   "current_number_of_subscriptions_including_temporary_subscriptions": "Current number of subscriptions, including temporary subscriptions",
   "currently_not_modified": "No changes",

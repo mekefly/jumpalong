@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import {
   UserApiStaff,
-  LoginStaff,
   RelayConfiguratorSynchronizerStaff,
   RelayConfiguration,
+  LoginUtilsStaff,
 } from '@jumpalong/nostr-runtime'
 import { useEventLine } from './ProvideEventLine'
 import RelayAddButtonVue from './RelayAddButton.vue'
@@ -20,7 +20,7 @@ const router = useRouter()
 const { pubkey } = toRefs(props)
 const l = useEventLine(
   UserApiStaff,
-  LoginStaff,
+  LoginUtilsStaff,
   RelayConfiguratorSynchronizerStaff
 )
 

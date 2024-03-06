@@ -1,4 +1,9 @@
-import { EventApiStaff } from '@jumpalong/nostr-runtime'
+import {
+  EventApiStaff,
+  EventByIdApiStaff,
+  neventEncodeByEvent,
+  toDeCodeNevent,
+} from '@jumpalong/nostr-runtime'
 import { useNostrContainerGet } from '../components/NostrContainerProvade'
 import { useEventLine } from '../components/ProvideEventLine'
 // import { neventEncodeByEvent, toDeCodeNevent } from "../utils/nostr";
@@ -7,7 +12,7 @@ import { Event } from 'nostr-tools'
 const pushEvent = ref<Event | null>(null)
 export function useEvent() {
   const route = useRoute()
-  const eventApi = useEventLine(EventApiStaff)
+  const eventApi = useEventLine(EventByIdApiStaff)
   const value = computed(() => route.params['value'] as string)
 
   const neventOpt = computed(() => {
@@ -24,10 +29,10 @@ export function useEvent() {
       return pushEvent.value
     }
 
-    const line = eventApi.getEventLineById(eventId.value, {
+    const line = eventApi.getEventById(eventId.value, {
       urls: new Set(neventOpt.value?.relays),
     })
-    return line?.feat.useEvent()
+    return line.getLatestEvent()
   })
 }
 
@@ -41,11 +46,11 @@ export function usePushShortTextNote() {
       })
       return
     }
-    const urls = getSourceUrls(event.id)
+    // const urls = getSourceUrls(event.id)
     pushEvent.value = event
     router.push({
       name: 'short-text-note',
-      params: { value: neventEncodeByEvent(event, urls) },
+      params: { value: neventEncodeByEvent(event) },
     })
   }
 }

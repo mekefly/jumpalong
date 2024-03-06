@@ -19,7 +19,12 @@ type Opt = {
 }
 const richTextEditBoxEmiterKey: InjectionKey<Opt> = Symbol()
 
-export function useRichTextEditBoxOpt(id: MaybeRef<string> = createId()) {
+export function useRichTextEditBoxOpt(
+  id: MaybeRef<string> | ComputedRef<string | null | undefined> = createId()
+) {
+  if (!unref(id)) {
+    id = createId()
+  }
   return inject(
     richTextEditBoxEmiterKey,
     () => {

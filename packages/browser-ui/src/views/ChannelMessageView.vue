@@ -1,153 +1,159 @@
 <script lang="ts" setup>
-import ChannelMessageListVue from "@/components/ChannelMessageList.vue";
-import { autoSetLoadBuffer } from "@/components/LoadProgress";
-import { useNostrContainerGet } from "@/components/NostrContainerProvade";
-import { useRichTextEditBoxOpt } from "@/components/RichTextEditBox";
-import RichTextEditBoxVue from "@/components/RichTextEditBox.vue";
-import ScrollbarVue from "@/components/Scrollbar.vue";
-import { t } from "@/i18n";
-import { TYPES } from "@/nostr/nostr";
-import router from "@/router";
-import { useClipboardDialog } from "@/utils/naiveUi";
-import { toDeCodeNevent } from "@/utils/nostr";
-import { usePubkey } from "@/utils/nostrApiUse";
-import { useHandleSendMessage } from "@/utils/use";
-import { EventTemplate, nip19 } from "nostr-tools";
-import { computed } from "vue";
-import { useRoute } from "vue-router";
-import { useJoinAndLeaveChannelHandle } from "./ChannelMessageView";
+import ChannelMessageListVue from '../components/ChannelMessageList.vue'
+// import { autoSetLoadBuffer } from '../components/LoadProgress'
+import { useRichTextEditBoxOpt } from '../components/RichTextEditBox'
+import RichTextEditBoxVue from '../components/RichTextEditBox.vue'
+import ScrollbarVue from '../components/Scrollbar.vue'
+import { useClipboardDialog } from '../utils/naiveUi'
+import { useAsyncData, useHandleSendMessage } from '../utils/use'
+import { EventTemplate, nip19 } from 'nostr-tools'
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+import { useJoinAndLeaveChannelHandle } from './ChannelMessageView'
+import {
+  ChannelMetadataApiStaff,
+  EventApiStaff,
+  toDeCodeNevent,
+  Synchronizer,
+  LoginStaff,
+} from '@jumpalong/nostr-runtime'
+import { useEventLine } from '../components/ProvideEventLine'
+import { NPageHeader } from 'naive-ui'
 
-const route = useRoute();
-const neventOpt = computed(() => toDeCodeNevent(route.params.value as string));
-const channelId = computed<string | null | undefined>(
-  () => neventOpt.value?.id
-);
+const route = useRoute()
+const router = useRouter()
+const neventOpt = computed(() => toDeCodeNevent(route.params.value as string))
+const channelId = computed<string | null | undefined>(() => neventOpt.value?.id)
 
-const followChannelConfiguration = useNostrContainerGet(
-  TYPES.FollowChannelSynchronizer
-);
+const line = useEventLine(
+  ChannelMetadataApiStaff,
+  EventApiStaff,
+  Synchronizer.ListSynchronizerManager.Staff,
+  LoginStaff
+)
 
 //需要为显示区域和编辑区域架设一个隧道
 watchEffect(() => {
-  if (!channelId.value) return;
-  useRichTextEditBoxOpt(channelId.value);
-});
-const channelConfigurationData = computed(() =>
+  if (!channelId.value) return
+})
+useRichTextEditBoxOpt(channelId)
+const metadataLine = computed(() =>
   channelId.value
-    ? followChannelConfiguration.getData().get(channelId.value)
+    ? line.getChannelMetadataByChannelId(channelId.value, {
+        ...(neventOpt.value?.relays
+          ? {
+              urls: new Set(neventOpt.value?.relays),
+            }
+          : {}),
+      })
     : undefined
-);
+)
 
-const cahnnelMessageBeltline = useNostrContainerGet(
-  TYPES.CahnnelMessageBeltline
-);
-
-const relayUrls = computed(() => channelConfigurationData.value?.relayUrls);
 const messageBeltline = computed(() => {
-  if (!channelId.value) return;
-  return cahnnelMessageBeltline.getChannelMessageBeltline(channelId.value, {
-    urls: relayUrls.value,
-  });
-});
-autoSetLoadBuffer(messageBeltline);
+  if (!channelId.value) return
+  return line.commonEventList({
+    filters: [
+      {
+        kinds: [42],
+        ['#e']: [channelId.value],
+        limit: 5,
+      },
+    ],
+    reverseSort: true,
+    ...(neventOpt.value?.relays
+      ? {
+          urls: new Set(neventOpt.value?.relays),
+        }
+      : {}),
+  })
+})
+// autoSetLoadBuffer(messageBeltline)
 
-const messageList = computed(
-  () => messageBeltline.value && messageBeltline.value.getList()
-);
-
-const metadataLine = computed(
-  () =>
-    channelId.value &&
-    cahnnelMessageBeltline.getChannelMetadataBeltlineByChannelId(
-      channelId.value
-    )
-);
 const metadata = computed(
-  () => metadataLine.value && metadataLine.value.feat.useMetadata()
-);
+  () => metadataLine.value && metadataLine.value.feat.getMetadata()
+)
 const channelEvent = computed(() => {
-  if (!channelId.value) return;
-  return channelConfigurationData.value?.event;
-});
+  if (!channelId.value) return
+  return metadataLine.value?.getLatestEvent()
+})
 
-const message = useMessage();
+const message = useMessage()
 function handleLoad() {
   //频道这里消息的显示顺序向反
-  messageBeltline.value?.feat.refresh();
-  message.info(t("refreshing"));
+  messageBeltline.value?.feat.loadNew()
+  message.info(t('refreshing'))
 }
 function handleRefresh() {
-  messageBeltline.value?.feat.load();
-  message.info(t("loading"));
+  messageBeltline.value?.feat.load()
+  message.info(t('loading'))
 }
-
-//轮寻新消息
-setInterval(() => {
-  messageBeltline.value?.feat.refresh();
-}, 15000);
 
 const { handleJoinChannel, handleLeaveChannel } =
-  useJoinAndLeaveChannelHandle(channelId);
+  useJoinAndLeaveChannelHandle(channelId)
 function switchJoinChannel() {
   if (isJoin.value) {
-    handleLeaveChannel();
+    handleLeaveChannel()
   } else {
-    handleJoinChannel();
+    handleJoinChannel()
   }
 }
-const send = useHandleSendMessage(42, messageBeltline);
+const send = useHandleSendMessage(42)
 
 function handleSend(event: EventTemplate) {
-  if (!channelId.value) return;
+  if (!channelId.value) return
 
-  event.tags = [...event.tags, ["e", channelId.value, "root"]];
+  event.tags = [...event.tags, ['e', channelId.value, '', 'root']]
 
-  for (const url of relayUrls.value ?? []) {
-    event.tags.push(["r", url]);
-  }
+  // for (const url of relayUrls.value ?? []) {
+  //   event.tags.push(['r', url])
+  // }
 
-  send(event);
+  send(event)
 }
 const isJoin = computed(() => {
-  if (!channelId.value) return false;
-  return followChannelConfiguration.hasJoin(channelId.value);
-});
+  if (!channelId.value) return false
+  return line.listSynchronizerManager
+    .getInitStandardListSynchronizer(Synchronizer.ListEnum.PublicChats)
+    .has({ id: channelId.value, type: 'e' })
+})
 
-const clipboard = useClipboardDialog();
+const clipboard = useClipboardDialog()
 function createNevent() {
   if (!channelId.value) {
-    return;
+    return
   }
   return nip19.neventEncode({
     id: channelId.value,
-    relays: [...(relayUrls.value ?? [])],
-  });
+    relays: [],
+  })
 }
 function handleShareChannel() {
-  const nevent = createNevent();
-  if (!nevent) return;
-  clipboard(nevent);
+  const nevent = createNevent()
+  if (!nevent) return
+  clipboard(nevent)
 }
 function handleEditChannel() {
-  const nevent = createNevent();
-  if (!nevent) return;
-  router.push({ name: "edit-channel", params: { value: nevent } });
+  const nevent = createNevent()
+  if (!nevent) return
+  router.push({ name: 'edit-channel', params: { value: nevent } })
 }
-const currentPubkey = usePubkey();
+
+const currentPubkey = useAsyncData(() => line.getPubkeyOrNull())
 </script>
 
 <template>
   <div v-if="channelId" class="flex flex-col h-full overflow-auto">
-    <n-page-header
-      v-if="metadata"
+    <NPageHeader
       class="flex-shrink-0"
-      :subtitle="metadata.name"
-      @back="$router.back"
+      :subtitle="metadata?.name ?? channelId.slice(0, 10)"
+      @back="router.back()"
     >
       <template #extra>
         <div class="felx items-center justify-center">
           <n-button
-            v-if="channelEvent && channelEvent.pubkey === currentPubkey"
+            v-if="
+              channelEvent && channelEvent.pubkey === currentPubkey?.toHex()
+            "
             class="mr-2"
             round
             @click="handleEditChannel"
@@ -166,18 +172,20 @@ const currentPubkey = usePubkey();
             :type="isJoin ? 'default' : 'primary'"
             @click="switchJoinChannel"
           >
-            {{ isJoin ? t("leave") : t("join") }}
+            {{ isJoin ? t('leave') : t('join') }}
           </n-button>
         </div>
       </template>
-    </n-page-header>
+    </NPageHeader>
 
     <ScrollbarVue
       class="flex-shrink flex-1"
       loadable
       refreshable
       @load="handleLoad"
+      @auto-load="handleLoad"
       @refresh="handleRefresh"
+      @auto-refresh="handleRefresh"
     >
       <ChannelMessageListVue
         v-if="messageBeltline"

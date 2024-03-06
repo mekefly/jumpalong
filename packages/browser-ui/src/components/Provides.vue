@@ -7,6 +7,7 @@ import {
   NLoadingBarProvider,
 } from 'naive-ui'
 import ProvideEventLine from './ProvideEventLine.vue'
+import NostrConnect from './ProvideNostrConnect.vue'
 let id = ''
 </script>
 
@@ -19,15 +20,15 @@ let id = ''
         <n-message-provider>
           <n-notification-provider :placement="'bottom'">
             <n-loading-bar-provider>
-              <slot></slot>
+              <NostrConnect>
+                <slot></slot>
+              </NostrConnect>
               <!-- <LoadProgressProvideVue>
               <UploadProvideVue>
-                <NostrConnect>
                   <CollectProvide>
                     <ZapsPrivider>
                     </ZapsPrivider>
                   </CollectProvide>
-                </NostrConnect>
               </UploadProvideVue>
             </LoadProgressProvideVue> -->
             </n-loading-bar-provider>

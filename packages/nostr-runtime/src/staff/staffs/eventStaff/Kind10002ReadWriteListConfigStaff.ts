@@ -12,6 +12,7 @@ export default createStaff(
         if (!e) {
           return null
         }
+
         return parseRelayConfiguration(e.tags)
       },
       onHasRelayConfiguration(

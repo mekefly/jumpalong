@@ -5,15 +5,12 @@ import i18n, {
   t,
   loadLocaleMessages,
 } from '../i18n'
+import { useAsyncComputed, useAsyncData } from '../utils/use'
 
-const languageOptions = asyncComputed(() => {
+const languageOptions = useAsyncData(() => {
   return Promise.all(
     Array.from(getSupportLocales(), async locale => {
       await loadLocaleMessages(i18n, locale)
-      console.log(
-        `i18n.global.tc('local-name', locale)`,
-        i18n.global.tc('local-name', locale)
-      )
 
       return {
         label: i18n.global.tc('local-name', locale) ?? t(locale),

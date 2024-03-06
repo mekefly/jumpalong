@@ -7,14 +7,19 @@ import { Pubkey } from '..'
 
 export class WindowNostrApiImpl extends CommonNostrApiImpl {
   constructor() {
-    super(async () => {
-      return retry(async () => {
-        if ((window as any).nostr) {
-          return this.windowNostrToNostrApi((window as any).nostr)
-        } else {
-          return Promise.reject(new NotFoundNostrApiError('WebNostrApi'))
-        }
-      })
+    super()
+    this.provide()
+  }
+  provide() {
+    retry(async () => {
+      if ((window as any).nostr) {
+        this.nostrApiProvide.resolve(
+          this.windowNostrToNostrApi((window as any).nostr)
+        )
+        return
+      } else {
+        this.nostrApiProvide.reject(new NotFoundNostrApiError('WebNostrApi'))
+      }
     })
   }
 

@@ -46,6 +46,10 @@ export const ReactiveStaff: typeof runtime_ReactiveStaff = createStaff(
         __isReactive: boolean
       } {
         Object.assign(t as any, { __isReactive: true })
+        Object.defineProperty(t, '__isReactive', {
+          value: true,
+          enumerable: false,
+        })
         return reactive(t as any) as any
       },
       ref<T>(t: T): { value: T } {

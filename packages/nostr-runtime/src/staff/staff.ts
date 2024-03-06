@@ -4,7 +4,7 @@ import {
   EventLine,
   EventLineConfig,
   EventLineFactory,
-} from '../eventLine/EventLine'
+} from '../eventLine'
 $LoggerScope()
 
 export type Staff<
@@ -18,92 +18,243 @@ export type Staff<
     dependents?: () => REST
     id?: string
   }>
+export const StaffConfigFlag = Symbol()
+export interface StaffFlag<Config extends EventLineConfig = EventLineConfig> {
+  [StaffConfigFlag]: Config
+}
 
-export function createClassStaff<
-  REST extends any[],
-  T,
-  N extends string,
-  Config extends EventLineConfig = {}
->(
+// // /**
+// //  * @param dependents  依赖
+// //  * @param staffStructure 构造器
+// export function createStaff1<
+//   Config extends EventLineConfig = {},
+//   REST extends StaffFlag[] = []
+// >(
+//   dependents: Readonly<REST> | (() => Readonly<REST>),
+//   staffStructure: StaffType<{}, Readonly<REST>, Config>
+// ): StaffFlag<Config>
+// export function createStaff1() {
+//   return {} as any
+// }
+// function fun1<REST extends Readonly<any[]>>(rest: REST): REST {
+//   return rest as any
+// }
+
+// let x1 = createStaff([], mod => mod.assignFeat({ x1: 1 }))
+// type x1type = typeof x1
+// let x2 = createStaff([], mod => mod.assignFeat({ x2: 2 }))
+// let x3 = createStaff([], mod => mod.assignChain({ x3: () => {} }))
+// let x4 = createStaff(
+//   () => [x1, x2, x3],
+//   mod => mod
+// )
+// let xyz = createStaff(
+//   () => [x4, x2],
+//   ({ mod, line }) => {
+//     line.x1
+//     return mod
+//   }
+// )
+
+// let n1 = fun1([x4, x2])
+// type xxxxxxx = typeof n1
+
+// type xxx = (typeof x4 | typeof x1)[]
+// type yyy2 = UnionToInterFunction<xxx[number][typeof StaffConfigFlag]>
+// // type xxxxx = xxx2 extends typeof x4 ? true : flase
+// type yy = MergeStaffConfig<xxx>
+// let xxx = new EventLineFactory<yy>()
+// xxx.line.x2
+
+export type StaffType<
+  DependentConfig extends EventLineConfig,
+  Dependents extends StaffFlag[],
+  ReturnConfig extends EventLineConfig,
+  Name extends string = string
+> =
+  | FunctionStaff<DependentConfig, Dependents, ReturnConfig, Name>
+  | ClassStaff<Name>
+
+export type FunctionStaff<
+  DependentConfig extends EventLineConfig,
+  Dependents extends StaffFlag<EventLineConfig>[],
+  ReturnConfig extends EventLineConfig,
+  Name extends string = string
+> = ((
+  line: EventLineFactory<MergeStaffConfig<Dependents> & DependentConfig>
+) => EventLineFactory<ReturnConfig>) & {
+  dependents?: () => Dependents
+  id?: Name
+}
+export type MergeStaffFlag<ArrayConfig extends StaffFlag<EventLineConfig>[]> =
+  StaffFlag<MergeStaffConfig<ArrayConfig>>
+export type MergeStaffConfig<ArrayConfig extends StaffFlag[]> =
+  ArrayConfig extends never[] | []
+    ? {}
+    : UnionToInterFunction<
+        ArrayConfig[number][typeof StaffConfigFlag]
+      > extends infer Config
+    ? Config extends EventLineConfig
+      ? Config
+      : never
+    : never
+
+// createStaff(
+//   () => [x4, x1],
+//   ({ mod, line }) => {
+//     line.x1
+//     return mod
+//   }
+// )
+export type GetConfig<Flag extends StaffFlag> = Flag[typeof StaffConfigFlag]
+
+export function createClassStaff<REST extends any[], T, N extends string>(
   name: N,
   Class: new (mod: EventLine<any>, ...rest: REST) => T,
-  rest: REST,
-  structure?: StaffStructure<[Staff<any, AssignFeat<{ [k in N]: T }>>], Config>
-): Staff<any, AssignFeat<{ [k in N]: T }> & Config, []> {
+  ...rest: REST
+): StaffFlag<AssignFeat<{ [k in N]: T }>> {
   return createStaff(name, mod => {
     const m = mod.assignFeat({
       [name]: new Class(mod.out(), ...rest),
     })
-    structure && m.add(structure as any)
     return m
   }) as any
 }
 
-export function createStaff<
-  Config extends EventLineConfig = {},
-  REST extends Array<
-    (line: EventLineFactory<any>) => EventLineFactory<any>
-  > = []
+export function createStaffClass<
+  N extends string,
+  Class extends new (line: EventLine<any>) => any
 >(
-  ...staffs: [...dependents: REST, staffStructure: StaffStructure<REST, Config>]
-): Staff<any, Config, REST>
-export function createStaff<
-  Config extends EventLineConfig = {},
-  REST extends Array<
-    (line: EventLineFactory<any>) => EventLineFactory<any>
-  > = []
->(
-  dependents: REST | (() => REST),
-  staffStructure: StaffStructure<REST, Config>
-): Staff<any, Config, REST>
+  name: N,
+  Class: Class
+): Class & {
+  Staff: StaffFlag<AssignFeat<{ [k in N]: InstanceType<Class> }>>
+}
 
-export function createStaff<
-  Config extends EventLineConfig = {},
-  REST extends Array<
-    (line: EventLineFactory<any>) => EventLineFactory<any>
-  > = []
+export function createStaffClass<
+  N extends string,
+  Class extends new (line: EventLine<any>, ...rest: REST) => any,
+  REST extends any[] = []
 >(
-  dependents: REST | (() => REST),
-  name: string,
-  staffStructure: StaffStructure<REST, Config>
-): Staff<any, Config, REST>
+  options: REST extends []
+    ? { name: N; rest?: REST }
+    : {
+        name: N
+        rest: REST
+      },
+  Class: Class
+): Class & {
+  Staff: StaffFlag<AssignFeat<{ [k in N]: InstanceType<Class> }>>
+}
+export function createStaffClass<
+  N extends string,
+  Class extends new (line: EventLine<any>, ...rest: REST) => any,
+  REST extends any[] = []
+>(
+  nameOrOptions: REST extends []
+    ? N | { name: N; rest?: REST }
+    : {
+        name: N
+        rest: REST
+      },
+  Class: Class
+): Class & {
+  Staff: StaffFlag<AssignFeat<{ [k in N]: InstanceType<Class> }>>
+} {
+  const { name, rest = [] } = (
+    typeof nameOrOptions === 'string' ? { name: nameOrOptions } : nameOrOptions
+  ) as {
+    name: string
+    rest?: any[]
+  }
+  ;(Class as any).Staff = createClassStaff(name, Class, ...(rest as any))
+  return Class as any
+}
 
-export function createStaff<
-  Config extends EventLineConfig = {},
-  REST extends Array<
-    (line: EventLineFactory<any>) => EventLineFactory<any>
-  > = []
->(
-  ...staffs: [
-    ...dependents: REST,
-    name: string,
-    staffStructure: StaffStructure<REST, Config>
-  ]
-): Staff<any, Config, REST>
 /**
- * 创建一个事件线员工,最后一个是构造器，向前增加依赖
- * @param staffs 依赖
- * @param staffStructure 要创建的新员工
- * @returns staff
+ * @param ...dependents 依赖
+ * @param name 名字
+ * @param staffStructure 构造器
+ */
+// export function createStaff<
+//   Config extends EventLineConfig,
+//   REST extends StaffFlag[]
+// >(
+//   ...staffs: [
+//     ...dependents: Readonly<REST>,
+//     name: string,
+//     staffStructure: StaffType<{}, REST, Config>
+//   ]
+// ): StaffFlag<Config>
+/**
+ * @param ...dependents 依赖
+ * @param staffStructure 构造器
+ */
+// export function createStaff<
+//   Config extends EventLineConfig,
+//   REST extends StaffFlag[]
+// >(
+//   ...staffs: [
+//     ...dependents: Readonly<REST>,
+//     staffStructure: StaffType<{}, REST, Config>
+//   ]
+// ): StaffFlag<Config>
+
+/**
+ * @param dependents  依赖
+ * @param staffStructure 构造器
+ */
+// export function createStaff<
+//   Config extends EventLineConfig = {},
+//   REST extends StaffFlag[] = []
+// >(
+//   dependents: Readonly<REST> | (() => Readonly<REST>),
+//   staffStructure: StaffType<{}, REST, Config>
+// ): StaffFlag<Config>
+export function createStaff<
+  Config extends EventLineConfig = {},
+  REST extends StaffFlag[] = []
+>(
+  dependents: Readonly<REST> | (() => Readonly<REST>),
+  staffStructure: StaffType<{}, REST, Config>
+): StaffFlag<Config>
+
+export function createStaff<Config extends EventLineConfig = {}>(
+  staffStructure: StaffType<{}, [], Config>
+): StaffFlag<Config>
+
+/**
+ * @param dependents 依赖
+ * @param name 名字
+ * @param staffStructure 构造器
  */
 export function createStaff<
   Config extends EventLineConfig = {},
-  REST extends Array<
-    (line: EventLineFactory<any>) => EventLineFactory<any>
-  > = []
+  REST extends StaffFlag[] = []
+>(
+  dependents: Readonly<REST> | (() => Readonly<REST>),
+  name: string,
+  staffStructure: StaffType<{}, REST, Config>
+): StaffFlag<Config>
+
+export function createStaff<Config extends EventLineConfig = {}>(
+  name: string,
+  staffStructure: StaffType<{}, [], Config>
+): StaffFlag<Config>
+
+export function createStaff<
+  Config extends EventLineConfig = {},
+  REST extends StaffFlag[] = []
 >(
   ...staffs:
     | [
-        ...dependents: REST,
+        ...rest:
+          | [...dependents: Readonly<REST>]
+          | [dependents: Readonly<REST> | (() => Readonly<REST>)],
         ...([] | [name: string]),
-        staffStructure: StaffStructure<REST, Config>
+        staffStructure: StaffType<{}, REST, Config>
       ]
-    | [
-        dependents: REST | (() => REST),
-        ...([] | [name: string]),
-        staffStructure: StaffStructure<REST, Config>
-      ]
-): Staff<any, Config, REST> {
+): StaffFlag<Config> {
   logger.debug('create-staff', staffs)
 
   if (staffs.length === 1) {
@@ -183,15 +334,13 @@ function assertionISstaffStructure(t: any) {
 }
 
 export function _createStaff<
-  Config extends EventLineConfig = {},
-  REST extends Array<
-    (line: EventLineFactory<any>) => EventLineFactory<any>
-  > = []
+  Config extends EventLineConfig,
+  REST extends StaffFlag[]
 >(
   dependents: REST | (() => REST),
   id: string | undefined,
-  staffStructure: StaffStructure<REST, Config>
-): Staff<any, Config, REST> {
+  staffStructure: StaffType<{}, REST, Config>
+): StaffFlag<Config> {
   if (Array.isArray(dependents)) {
     if (__DEV__) {
       dependents.forEach((item, index) => {
@@ -212,7 +361,7 @@ export function _createStaff<
     id,
     __staff__: true,
   })
-  return staffStructure
+  return staffStructure as any
 }
 function staffToString(s: any) {
   if (!s) {
@@ -229,36 +378,62 @@ function staffsToString(s: any[]) {
   return `[\n${s.map(item => staffToString(item)).join(',\n')}\n]`
 }
 
-export type MixinEventLineConfig<
-  T extends Array<(line: EventLineFactory<any>) => EventLineFactory<any>>
-> = UnionToInterFunction<
-  ReturnType<T[number]> extends infer T
-    ? T extends any
-      ? T extends EventLineFactory<infer P>
-        ? P
-        : never
-      : never
-    : never
->
+// export type MixinEventLineConfig<
+//   T extends Array<
+//     | ((line: EventLineFactory<any>) => EventLineFactory<any>)
+//     | ClassStaffInterface<string>
+//   >
+// > = UnionToInterFunction<
+//   ReturnType<T[number]> extends infer T
+//     ? T extends any
+//       ? T extends EventLineFactory<infer P>
+//         ? P
+//         : never
+//       : never
+//     : never
+// >
+// export type MixinFunctionStaffEventLineConfig<
+//   T extends Array<(line: EventLineFactory<any>) => EventLineFactory<any>>
+// > = UnionToInterFunction<
+//   ReturnType<T[number]> extends infer T
+//     ? T extends any
+//       ? T extends EventLineFactory<infer P>
+//         ? P
+//         : never
+//       : never
+//     : never
+// >
+// export type MixinClassStaffEventLineConfig<
+//   T extends Array<ClassStaffInterface<string>>
+// > = MixinFunctionStaffEventLineConfig<{
+//   [key in keyof T]: Staff<>
+// }>
 
-export type StaffStructure<
-  REST extends Array<(line: EventLineFactory<any>) => EventLineFactory<any>>,
-  Config extends EventLineConfig
-> = (
-  mod: EventLineFactory<
-    MixinEventLineConfig<REST> extends EventLineConfig
-      ? MixinEventLineConfig<REST>
-      : {}
-  >
-) => EventLineFactory<Config>
+// export type StaffStructure<
+//   REST extends Array<(line: EventLineFactory<any>) => EventLineFactory<any>>,
+//   Config extends EventLineConfig
+// > = (
+//   mod: EventLineFactory<
+//     MixinEventLineConfig<REST> extends EventLineConfig
+//       ? MixinEventLineConfig<REST>
+//       : {}
+//   >
+// ) => EventLineFactory<Config>
 
-export type StaffConfigType<
-  T extends (...rest: any) => EventLineFactory<EventLineConfig>
-> = T extends (...rest: any) => EventLineFactory<infer Config> ? Config : never
+export type StaffConfigType<Flag extends StaffFlag> = GetConfig<Flag>
+
 export function createNotInjectStaff<K extends string, T>(name: K): T {
   return createStaff(name, m => {
     throw new Error(`Not Inject '${name}' Staff`)
 
     return m
   }) as T
+}
+
+export type ClassStaff<Name extends string> = new (
+  line: EventLine<any>
+) => ClassStaffInterface<Name>
+
+export interface ClassStaffInterface<Name extends string> {
+  name: Name
 }

@@ -115,14 +115,16 @@ export function debounce<F extends (...rest: any) => any>(
       clearTimeout(maxId)
       f(...rest)
     }, delay)
-
+    if (maxId) return
     maxId = setTimeout(() => {
+      maxId = null
       clearTimeout(t)
       f(...rest)
     }, maxDelay)
   }
   ff.clear = () => {
     clearTimeout(t)
+    t = undefined
   }
   return ff as any
 }

@@ -1,51 +1,104 @@
 <script lang="ts" setup>
 import { Event } from 'nostr-tools'
 
-import { useLazyComponent } from '../utils/use'
+import { useLazyComponent, useOnOK } from '../utils/use'
 import DrawerVue from './Drawer.vue'
 import SmileBeamRegularVue from './icon/SmileBeamRegular.vue'
 // import { useNostrContainerAsyncGet } from './NostrContainerProvade'
 import PapawReactionItemVue from './PapawReactionItem.vue'
+import { useEventLine, usePubkey } from './ProvideEventLine'
+import { ReactionStaff } from '@jumpalong/nostr-runtime'
 
 const props = defineProps<{
   event: Event
   size: number
 }>()
-// const likeApi = await useNostrContainerAsyncGet<LikeApi>(TYPES.LikeApi)
-// const event = toRef(props, 'event')
 
-// const onOK = useOnOK()
+const line = useEventLine(ReactionStaff)
+const event = toRef(props, 'event')
+
+const onOK = useOnOK()
+const pubkey = usePubkey()
 
 // const limit = 20
-const [textEventbeltline, target] = useLazyComponent(() => {
-  // return likeApi.createReactionEventLine({ event: event.value, limit })
+const [reactiveLine, target] = useLazyComponent(() => {
+  return line.getReactionByEvent(event.value, {})
 })
-const reactionMap = computed(
-  () => textEventbeltline.value?.feat.getReactionMap() ?? {}
-)
+const reactionMap = computed(() => reactiveLine.value?.getReactiveMap() ?? {})
+
+const noSelfMap = computed(() => {
+  return Object.fromEntries(
+    Object.entries(reactionMap.value).map(([key, value]) => {
+      return [
+        key,
+        value.filter(event => {
+          if (event.pubkey === pubkey.value?.toHex()) {
+            activeMap.value[key] = true
+            selfReactiveIdMap.value[key] = event.id
+          }
+        }),
+      ]
+    })
+  ) as typeof reactionMap.value
+})
 const activeMap = ref({} as Record<string, boolean>)
-// reactions.forEach(type => {
-//   activeMap.value[type] = likeApi.hasReactions(type as any, event.value.id)
-// })
+const selfReactiveIdMap = ref({} as Record<string, string>)
+const reactions = computed(
+  () =>
+    new Set([
+      '+',
+      '-',
+      '👍',
+      '❓',
+      '🚀',
+      '👀',
+      '😁',
+      '😧',
+      '🤣',
+      ...Object.keys(reactionMap.value),
+      ...line.reactionsKeyList.getKeys(),
+    ])
+)
+
+//找到自己所有的reactive
+watchEffect(() => {})
+reactions.value.forEach(type => {
+  activeMap.value[type] = line.hasReactions(type as any, event.value.id)
+})
 function handelSwitchActive(type: string) {
-  if (activeMap.value[type]) {
-    // likeApi.deleteReactions(type as any, { eventId: event.value.id, onOK })
+  let typeV = activeMap.value[type]
+  let reactiveId = selfReactiveIdMap.value[type]
+  if (typeV) {
+    if (typeof reactiveId === 'string') {
+      line.deleteReactions(type as any, {
+        likeId: reactiveId,
+        onOK,
+        cue: { tags: event.value.tags, pubkeys: [event.value.pubkey] },
+      })
+    } else {
+      line.deleteReactions(type as any, {
+        eventId: event.value.id,
+        onOK,
+        cue: { tags: event.value.tags, pubkeys: [event.value.pubkey] },
+      })
+    }
   } else {
-    // likeApi.sendReactions(type as any, event.value, { onOK })
+    line.sendReactions(type as any, event.value, { onOK })
   }
   activeMap.value[type] = !activeMap.value[type]
 }
 const active = ref(false)
-const reactionMapEntries = computed(() => Object.entries(reactionMap.value))
-const activeMapEntries = computed(() =>
-  Object.entries(activeMap.value)
-    .filter(([k, v]) => v && !reactionMap.value[k as any])
-    .map(([k, v]) => [k as string, [] as Event[]] as const)
-)
-const reactionEntries = computed(() =>
-  [...reactionMapEntries.value, ...activeMapEntries.value]
-    .sort((a, b) => a[1].length - b[1].length)
-    .slice(0, 3)
+const recommendReactionKey = computed(() =>
+  [
+    ...Object.entries(reactionMap.value).map(
+      ([key, value]) => [key, value] as const
+    ),
+    ...Object.entries(activeMap.value)
+      .filter(([k, v]) => v && !reactionMap.value[k])
+      .map(([k, v]) => [k as string, [] as Event[]] as const),
+  ]
+    .sort(([k, v], [k1, v1]) => v.length - v1.length)
+    .slice(0, 2)
 )
 </script>
 
@@ -54,9 +107,9 @@ const reactionEntries = computed(() =>
     <n-space class="flex items-center justify-center">
       <PapawReactionItemVue
         @handelSwitchActive="handelSwitchActive"
-        v-for="[reaction, events] of reactionEntries"
+        v-for="[reaction, events] of recommendReactionKey"
         :size="size"
-        :events="events"
+        :events="noSelfMap[reaction] ?? []"
         :reaction="reaction"
         :active="activeMap[reaction]"
       />
@@ -73,7 +126,7 @@ const reactionEntries = computed(() =>
             @handelSwitchActive="handelSwitchActive"
             v-for="reaction of reactions"
             :size="size"
-            :events="reactionMap[reaction] ?? []"
+            :events="noSelfMap[reaction] ?? []"
             :reaction="reaction"
             :active="activeMap[reaction]"
           />

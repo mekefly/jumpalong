@@ -1,54 +1,58 @@
 <script lang="ts" setup>
-import { t } from "@/i18n";
-import { config, TYPES } from "@/nostr/nostr";
-import { Event } from "nostr-tools";
-import { useNostrContainerGet } from "./NostrContainerProvade";
-import PapawTree from "./PapawTree.vue";
-import PapawTreeAutoFindParent from "./PapawTreeAutoFindRoot.vue";
-import PapawTreeHierarchyVue from "./PapawTreeHierarchy.vue";
-import { useRefreshState } from "./Refresh";
+import { Event } from 'nostr-tools'
+import { useNostrContainerGet } from './NostrContainerProvade'
+import PapawTree from './PapawTree.vue'
+import PapawTreeAutoFindParent from './PapawTreeAutoFindRoot.vue'
+import PapawTreeHierarchyVue from './PapawTreeHierarchy.vue'
+import { useRefreshState } from './Refresh'
+import { useEventLine } from './ProvideEventLine'
+import {
+  ConfigStaff,
+  EventApiStaff,
+  EventByIdApiStaff,
+} from '@jumpalong/nostr-runtime'
 
 const props = defineProps<{
-  id: string;
-  relays: Set<string>;
-  chindEvent: Event;
-}>();
+  id: string
+  relays: Set<string>
+  chindEvent: Event
+}>()
 
-const eventApi = useNostrContainerGet(TYPES.EventApi);
+const line = useEventLine(EventByIdApiStaff, ConfigStaff)
 
-const line = computed(() =>
-  eventApi.getEventLineById(props.id, { urls: props.relays })
-);
-const parentEvent = computed(() => line.value.feat.useEvent());
+const idLine = computed(() =>
+  line.getEventById(props.id, { urls: props.relays })
+)
+const parentEvent = computed(() => idLine.value.getLatestEvent())
 
-const isFindParent = ref(false);
-const loadingbar = useLoadingBar();
+const isFindParent = ref(false)
+const loadingbar = useLoadingBar()
 function handelLoadParent() {
-  isFindParent.value = true;
-  loadingbar.start();
+  isFindParent.value = true
+  loadingbar.start()
   setTimeout(() => {
-    loadingbar.finish();
-  }, 1000);
+    loadingbar.finish()
+  }, 1000)
 }
 
-const message = useMessage();
+const message = useMessage()
 
-const refreshState = useRefreshState();
+const refreshState = useRefreshState()
 if (refreshState) {
-  const removeListener = refreshState.on("refresh", () => {
+  const removeListener = refreshState.on('refresh', () => {
     if (!isFindParent.value) {
-      removeListener();
+      removeListener()
       setTimeout(() => {
-        handelLoadParent();
-        message.success(t("load_parent_success"));
-      });
+        handelLoadParent()
+        message.success(t('load_parent_success'))
+      })
     } else {
-      message.success(t("non_existent"));
+      message.success(t('non_existent'))
     }
-  });
-  onUnmounted(removeListener);
+  })
+  onUnmounted(removeListener)
 }
-!config.enablePapawTreeLazyMode && handelLoadParent();
+!line.config.enablePapawTreeLazyMode && handelLoadParent()
 </script>
 
 <template>
@@ -64,7 +68,7 @@ if (refreshState) {
       v-if="!isFindParent && parentEvent"
     >
       <n-button text @click="handelLoadParent">
-        {{ t("load_parent") }}
+        {{ t('load_parent') }}
       </n-button>
     </div>
     <n-empty v-else :description="t('not_found_post')" size="huge"> </n-empty>

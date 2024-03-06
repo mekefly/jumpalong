@@ -1,15 +1,5 @@
 <script setup lang="ts">
-import {
-  EventLineFactory,
-  GlobalUrlsStaff,
-  PoolStaff,
-} from '@jumpalong/nostr-runtime'
-import '@jumpalong/logger'
-
-let l = new EventLineFactory().add(PoolStaff).add(GlobalUrlsStaff).out()
-console.log('line', l)
-
-console.log('l', l.fetchGlobalUrls())
+import '@jumpalong/logger';
 </script>
 
 <template></template>

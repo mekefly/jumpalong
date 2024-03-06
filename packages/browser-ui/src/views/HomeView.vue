@@ -4,17 +4,25 @@
 // import RichTextEditBoxVue from '@/components/RichTextEditBox.vue'
 // import ScrollbarVue from '@/components/Scrollbar.vue'
 import PostList from '../components/PostList.vue'
-import { useEventLine } from '../components/ProvideEventLine'
+import {
+  useEventLine,
+  useGlobalUrl,
+  useIsLogin,
+} from '../components/ProvideEventLine'
 import ProvideEventLine from '../components/ProvideEventLine.vue'
 import RichTextEditBox from '../components/RichTextEditBox.vue'
 import Scrollbar from '../components/Scrollbar.vue'
 import { t } from '../i18n'
-import { Synchronizer } from '@jumpalong/nostr-runtime'
+import { GlobalUrlsStaff, Synchronizer } from '@jumpalong/nostr-runtime'
 // import { TYPES } from '@/nostr/nostr'
 import { useHandleSendMessage } from '../utils/use'
 import { useRichTextEditBoxOpt } from '../components/RichTextEditBox'
+import MustLogin from '../components/MustLogin.vue'
 // import PostList from '../components/PostList.vue'
-let line = useEventLine(Synchronizer.ContactConfigurationSynchronizer.Staff)
+let line = useEventLine(
+  Synchronizer.ContactConfigurationSynchronizer.Staff,
+  GlobalUrlsStaff
+)
 
 $LoggerScope('disabled')
 logger.info('homeView', logger)
@@ -32,6 +40,13 @@ const pubkeys = computed(() => {
 })
 const handleSendEvent = useHandleSendMessage(1)
 const value = ref('GlobalFeed')
+let isLogin = useIsLogin()
+let globalUrl = useGlobalUrl()
+let notLoginUrls = computed(() => {
+  return !isLogin.value && globalUrl.value
+    ? new Set([...globalUrl.value].slice(0, 10))
+    : undefined
+})
 </script>
 
 <template>
@@ -49,20 +64,22 @@ const value = ref('GlobalFeed')
           :tab="t('my_feed')"
           display-directive="show:lazy"
         >
-          <ProvideEventLine name="MyFeed" :active="value === 'MyFeed'">
-            <PostList
-              :active="value === 'MyFeed'"
-              v-if="pubkeys.length > 0"
-              :pubkeys="pubkeys"
-            />
-            <n-empty v-else :description="t(`You can't find anything`)">
-              <template #extra>
-                <n-button size="small">
-                  {{ t('did_not_follow_anyonew') }}
-                </n-button>
-              </template>
-            </n-empty>
-          </ProvideEventLine>
+          <MustLogin>
+            <ProvideEventLine name="MyFeed" :active="value === 'MyFeed'">
+              <PostList
+                :active="value === 'MyFeed'"
+                v-if="pubkeys.length > 0"
+                :pubkeys="pubkeys"
+              />
+              <n-empty v-else :description="t(`You can't find anything`)">
+                <template #extra>
+                  <n-button size="small">
+                    {{ t('did_not_follow_anyonew') }}
+                  </n-button>
+                </template>
+              </n-empty>
+            </ProvideEventLine>
+          </MustLogin>
         </n-tab-pane>
         <n-tab-pane
           name="GlobalFeed"
@@ -71,6 +88,18 @@ const value = ref('GlobalFeed')
         >
           <ProvideEventLine name="GlobalFeed" :active="value === 'GlobalFeed'">
             <PostList
+              v-if="isLogin"
+              :active="value === 'GlobalFeed'"
+              :filters="[
+                {
+                  kinds: [1, 30023],
+                  limit: 1,
+                },
+              ]"
+            />
+            <PostList
+              v-else-if="notLoginUrls"
+              :urls="notLoginUrls"
               :active="value === 'GlobalFeed'"
               :filters="[
                 {

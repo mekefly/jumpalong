@@ -8,6 +8,7 @@ import {
   CategorizedPeopleListKind,
   NostrConnectedList,
 } from "../../api/NostrConnect";
+import { LocalStorageMap } from "@jumpalong/shared";
 
 @injectable()
 export class NostrConnectedSynchronizer extends ParameterizedReplaceableSynchronizerAbstract<NostrConnectedList> {

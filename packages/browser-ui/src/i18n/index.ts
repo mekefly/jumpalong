@@ -14,7 +14,6 @@ const localConfig = useLocalStorage<Record<string, I18nLocalConfig>>(
 )
 
 const locale = getLocale()
-console.log('locale', locale)
 const i18n = setupI18n({ locale: locale })
 
 export default i18n

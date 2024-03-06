@@ -1,37 +1,37 @@
 <script lang="ts" setup>
-import Article from "@/components/Article.vue";
-import { proviteArticeSetting } from "@/components/Markdown";
-import { providePapawFocus } from "@/components/Papaw";
-import { useRichTextEditBoxOpt } from "@/components/RichTextEditBox";
-import { deserializeTagR } from "@/nostr/tag";
-import { useEvent } from "./ShortTextNoteView";
+import Article from '../components/Article.vue'
+import { proviteArticeSetting } from '../components/Markdown'
+import { providePapawFocus } from '../components/Papaw'
+import { useRichTextEditBoxOpt } from '../components/RichTextEditBox'
+import { useEvent } from './ShortTextNoteView'
+import { deserializeTagR } from '@jumpalong/nostr-runtime'
 
 //需要为显示区域和编辑区域架设一个隧道
 
-const event = useEvent();
-const eventId = computed(() => event.value?.id ?? "default");
+const event = useEvent()
+const eventId = computed(() => event.value?.id ?? 'default')
 
-const richTextEditBoxOpt = useRichTextEditBoxOpt(eventId);
+const richTextEditBoxOpt = useRichTextEditBoxOpt(eventId)
 watch(
   event,
   async () => {
-    if (!event.value) return;
+    if (!event.value) return
 
-    await nextTick();
-    richTextEditBoxOpt.emitRichTextEditBox("reply", event.value);
+    await nextTick()
+    // richTextEditBoxOpt.emitRichTextEditBox('reply', event.value)
   },
   {
     immediate: true,
   }
-);
+)
 
 const urls = computed<Set<string>>(() => {
-  if (!event.value) return new Set();
-  return deserializeTagR(event.value?.tags);
-});
+  if (!event.value) return new Set()
+  return deserializeTagR(event.value?.tags)
+})
 
-providePapawFocus(event);
-proviteArticeSetting({ showArticleDetails: true });
+providePapawFocus(event)
+proviteArticeSetting({ showArticleDetails: true })
 </script>
 
 <template>

@@ -36,7 +36,7 @@ export default createStaff(
           })
         },
       })
-      .assignFeat({
+      .assignFn({
         commonEventList(opts: CommonEventListOptions) {
           logger.debug('commonEventList:', opts)
           return this.cacheByOptions(opts, () => {

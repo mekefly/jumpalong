@@ -7,6 +7,7 @@ export default createStaff(
   () => [EventStaff, CreateChildHookStaff],
   ({ mod, line }) => {
     let map = new WeakMap<any, Set<string>>()
+
     line.onCreateChildDep<typeof line>(l => {
       l.onEvent(
         (subId, e) => {

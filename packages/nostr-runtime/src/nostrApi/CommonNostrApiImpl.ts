@@ -3,15 +3,14 @@ import { NotFoundNostrApiError } from './error'
 import { NostrApi } from './interface/NostrApi'
 import { Pubkey } from '../utils/user'
 import { isNull } from 'util'
+import { createGetValue } from '@jumpalong/shared'
 
 export class CommonNostrApiImpl implements NostrApi {
   private getNostrApi: () => Promise<Partial<NostrApi>>
-  constructor(nostrApi?: () => Promise<Partial<NostrApi>>) {
-    this.getNostrApi =
-      nostrApi ??
-      (async () => {
-        return {}
-      })
+  public nostrApiProvide = Promise.withResolvers<Partial<NostrApi>>()
+  constructor(createNostrApi?: () => Promise<Partial<NostrApi>>) {
+    createNostrApi && this.nostrApiProvide.resolve(createNostrApi())
+    this.getNostrApi = createGetValue(() => this.nostrApiProvide.promise)
   }
 
   _pubkey: Pubkey | null = null

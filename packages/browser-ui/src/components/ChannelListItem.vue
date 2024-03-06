@@ -1,24 +1,32 @@
 <script lang="ts" setup>
-import { TYPES } from "@/nostr/nostr";
-import { ChannelConfigurationData } from "@/nostr/Synchronizer/FollowChannelSynchronizer";
-import EllipsisVue from "./Ellipsis.vue";
-import { useNostrContainerGet } from "./NostrContainerProvade";
+import {
+  ChannelMetadata,
+  ChannelMetadataApiStaff,
+  Synchronizer,
+} from '@jumpalong/nostr-runtime'
+import EllipsisVue from './Ellipsis.vue'
+import { useEventLine } from './ProvideEventLine'
+const router = useRouter()
+const line = useEventLine(ChannelMetadataApiStaff)
 
 const props = defineProps<{
-  channelConfigurationData: ChannelConfigurationData;
-}>();
-const { channelConfigurationData } = toRefs(props);
-
-const cahnnelMessageBeltline = useNostrContainerGet(
-  TYPES.CahnnelMessageBeltline
-);
+  tag: Synchronizer.TagMapType[Synchronizer.ListEnum.PublicChats]
+}>()
+const { tag } = toRefs(props)
 
 const metadataLine = computed(() =>
-  cahnnelMessageBeltline.getChannelMetadataBeltlineByChannelId(
-    channelConfigurationData.value.channelId
-  )
-);
-const metadata = computed(() => metadataLine.value.feat.useMetadata());
+  line.getChannelMetadataByChannelId(tag.value.id, {
+    ...(tag.value.relay
+      ? {
+          urls: new Set([tag.value.relay]),
+        }
+      : {}),
+  })
+)
+
+const metadata = computed(() =>
+  metadataLine.value.getMetadata<ChannelMetadata>()
+)
 </script>
 
 <template>
@@ -26,18 +34,18 @@ const metadata = computed(() => metadataLine.value.feat.useMetadata());
     class="flex flex-col"
     @click="
       () =>
-        $router.push({
+        router.push({
           name: 'channel-message',
-          params: { value: channelConfigurationData.channelId },
+          params: { value: tag.id },
         })
     "
   >
     <div class="font-bold">
       <EllipsisVue>
-        {{ metadata.name ?? channelConfigurationData.channelId.slice(0, 10) }}
+        {{ metadata?.name ?? tag.id.slice(0, 10) }}
       </EllipsisVue>
     </div>
-    <div v-if="metadata.about" class="w-full">
+    <div v-if="metadata?.about" class="w-full">
       <EllipsisVue class="w-full">
         <small>
           {{ metadata.about }}

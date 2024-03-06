@@ -15,7 +15,7 @@ export default createStaff(
         publishedEventIds: new Set<string>(),
         publishedEventList: [] as [Event, publishOptions?: PublishOptions][],
       }))
-      .assignFeat({
+      .assignChain({
         addPublish(event: Event, opts?: PublishOptions) {
           if (this.publishedEventIds.has(event.id)) {
             return

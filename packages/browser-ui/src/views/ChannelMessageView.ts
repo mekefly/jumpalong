@@ -1,17 +1,16 @@
-import { useInjectScrollbarInstRef } from "../components/Scrollbar";
-
-import { useNostrContainer } from "@/components/NostrContainerProvade";
-import { TYPES } from "@/nostr/nostr";
-import { Event } from "nostr-tools";
+import { Synchronizer } from '@jumpalong/nostr-runtime'
+import { useEventLine } from '../components/ProvideEventLine'
+import { useInjectScrollbarInstRef } from '../components/Scrollbar'
+import { Event } from 'nostr-tools'
 
 export function useAutoScroll(messageList: Ref<Event[]>) {
-  const scrollbarInstRef = useInjectScrollbarInstRef();
-  const autoToBottom = ref(true);
+  const scrollbarInstRef = useInjectScrollbarInstRef()
+  const autoToBottom = ref(true)
 
   const stopAutoToScrollBottom = () => {
-    autoToBottom.value = false;
-  };
-  for (const item of ["scroll", "touchmove"] as const) {
+    autoToBottom.value = false
+  }
+  for (const item of ['scroll', 'touchmove'] as const) {
     useEventListener(
       scrollbarInstRef?.containerRef,
       item,
@@ -19,7 +18,7 @@ export function useAutoScroll(messageList: Ref<Event[]>) {
       {
         once: true,
       }
-    );
+    )
   }
 
   const stopWatch = watch(
@@ -28,37 +27,38 @@ export function useAutoScroll(messageList: Ref<Event[]>) {
       if (autoToBottom.value) {
         scrollbarInstRef?.scrollbarInst.value?.scrollBy({
           top: 99999,
-          behavior: "smooth",
-        });
+          behavior: 'smooth',
+        })
       } else {
-        stopWatch();
+        stopWatch()
       }
     }
-  );
+  )
 }
 
 export function useJoinAndLeaveChannelHandle(
   eventId: Ref<string | undefined | null>
 ) {
-  const nostrContainer = useNostrContainer();
-  const message = useMessage();
+  const message = useMessage()
+  let line = useEventLine(Synchronizer.ListSynchronizerManager.Staff)
+  let channelList =
+    line.listSynchronizerManager.getInitStandardListSynchronizer(
+      Synchronizer.ListEnum.PublicChats
+    )
 
-  function getFollowChannel() {
-    return nostrContainer.get(TYPES.FollowChannelSynchronizer);
-  }
   function handleJoinChannel() {
-    if (!eventId.value) return;
+    if (!eventId.value) return
 
-    getFollowChannel().joinChannel(eventId.value);
+    channelList.add({ type: 'e', value: { id: eventId.value } })
 
-    message.info("已提交加入群聊的请求");
+    message.info('已提交加入群聊的请求')
   }
   function handleLeaveChannel() {
-    if (!eventId.value) return;
+    if (!eventId.value) return
 
-    getFollowChannel().leaveChannel(eventId.value);
+    channelList.delete({ type: 'e', value: { id: eventId.value } })
 
-    message.info("已经提交了离开群聊的请求");
+    message.info('已经提交了离开群聊的请求')
   }
-  return { handleJoinChannel, handleLeaveChannel };
+  return { handleJoinChannel, handleLeaveChannel }
 }

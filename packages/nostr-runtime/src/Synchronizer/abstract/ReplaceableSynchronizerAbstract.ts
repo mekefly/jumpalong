@@ -12,7 +12,7 @@ export default abstract class ReplaceableSynchronizerAbstract<
 
   constructor(line: any, name: string, opt?: SynchronizerAbstractOption) {
     super(line as any, name, opt)
-    this.data = this.createDefault()
+    this.data = this._createDefault()
     if (this.getLocalEvent()) {
       return
     }

@@ -1,11 +1,10 @@
 <script lang="ts" setup>
-import UploadInputVue from "@/components/UploadInput.vue";
-import { ChannelMetadata } from "@/types/ChannelMetadata";
-
+import UploadInputVue from '@/components/UploadInput.vue'
+import { ChannelMetadata } from '@jumpalong/nostr-runtime'
 const props = defineProps<{
-  channelMetadata: ChannelMetadata;
-}>();
-const { channelMetadata } = toRefs(props);
+  channelMetadata: ChannelMetadata
+}>()
+const { channelMetadata } = toRefs(props)
 </script>
 
 <template>

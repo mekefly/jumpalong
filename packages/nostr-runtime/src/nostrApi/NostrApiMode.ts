@@ -1,8 +1,8 @@
 export enum NostrApiMode {
-  NotLogin,
-  WindowNostr,
-  PrivateKey,
-  NostrContent,
+  NotLogin = 'NotLogin',
+  WindowNostr = 'WindowNostr',
+  PrivateKey = 'PrivateKey',
+  NostrConnect = 'NostrConnect',
 }
 
 export function getNostrApiMode() {
@@ -11,8 +11,8 @@ export function getNostrApiMode() {
     return NostrApiMode.WindowNostr
   } else if (mode === String(NostrApiMode.PrivateKey)) {
     return NostrApiMode.PrivateKey
-  } else if (mode === String(NostrApiMode.NostrContent)) {
-    return NostrApiMode.NostrContent
+  } else if (mode === String(NostrApiMode.NostrConnect)) {
+    return NostrApiMode.NostrConnect
   } else {
     return NostrApiMode.NotLogin
   }

@@ -10,38 +10,44 @@ import DoNotRepeatStaff from '../eventStaff/DoNotRepeatStaff'
 import AddUrlStaff from '../manager/AddUrlStaff'
 import LocalMapStaff from '../common/LocalMapStaff'
 import RelayConfiguratorSynchronizerAddUrlsStaff from '../synchronizer/RelayConfiguratorSynchronizerAddUrlsStaff'
+import { AsyncCallStaff } from '../staffExport'
 $LoggerScope()
 
 logger.debug(
   'RelayConfiguratorSynchronizerStaff',
   RelayConfiguratorSynchronizerStaff
 )
+export type AutoAdd10002Options = {
+  read?: boolean
+  write?: boolean
+  urls?: Set<string>
+}
 export default createStaff(
   () => [
     RelayConfiguratorSynchronizerAddUrlsStaff,
     AddUrlStaff,
     LocalMapStaff,
     RelayConfiguratorSynchronizerStaff,
+    AsyncCallStaff,
   ],
   'auto-add-kind-url-staff',
   ({ mod, line }) => {
-    return mod.assignFeat({
-      autoAdd10002(
-        pubkey: Pubkey | string,
-        opts: { read?: boolean; write?: boolean } = {}
-      ) {
+    return mod.assignFn({
+      autoAdd10002(pubkey: Pubkey | string, opts: AutoAdd10002Options = {}) {
         if (typeof pubkey === 'string') {
           pubkey = Pubkey.fromHex(pubkey)
         }
+        let stop1: () => void
         let l = this.createChild()
           .add(AutoAddUrlByGlobalDiscoveryUserStaff)
           .add(LatestEventStaff)
           .add(DoNotRepeatStaff)
+          .provideLatestEvent()
 
-        l.addFilter({
-          kinds: [10002],
-          authors: [pubkey.toHex()],
-        })
+          .addFilter({
+            kinds: [10002],
+            authors: [pubkey.toHex()],
+          })
 
         l.autoLocalCache()
         let isLocalHas = l.isHasLatestEvent()
@@ -55,14 +61,19 @@ export default createStaff(
           ;(opts.read ?? true) && this.addUrls(readUrl)
           ;(opts.write ?? true) && this.addUrls(writeUrl)
 
+          stop()
           if (isLocalHas) return
 
           l.addUrls(readUrl)
           l.addUrls(writeUrl)
         })
+        l.asyncCall(async () => {
+          if (l.isHasLatestEvent()) return
+          if (opts.urls) {
+            l.addUrls(opts.urls)
+          }
+          await timeout(500)
 
-        let stop1: () => void
-        call(async () => {
           if (l.isHasLatestEvent()) return
           l.initedAddReadWrite()
           await timeout(500)
@@ -76,7 +87,6 @@ export default createStaff(
         function stop() {
           stop1?.()
         }
-
         return stop
       },
     })

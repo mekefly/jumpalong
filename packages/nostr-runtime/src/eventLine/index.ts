@@ -1,1 +1,2 @@
-export * from "./EventLine"
+export * from './EventLine'
+export * from './types'

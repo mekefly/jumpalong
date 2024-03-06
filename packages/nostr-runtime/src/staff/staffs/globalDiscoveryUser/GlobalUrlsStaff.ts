@@ -16,38 +16,46 @@ import managerStaff from '../manager/ManagerStaff'
 import EoseAutoUnSubStaff from '../sub/EoseAutoUnSubStaff'
 import TimeoutAutoUnSubStaff from '../sub/TimeoutAutoUnSubStaff'
 import PoolStaff from '../server/PoolStaff'
+import { ReactiveStaff } from '../staffExport'
 
 export default createStaff(
-  managerStaff,
-  DefaultUrlStaff,
-  PoolStaff,
+  () => [managerStaff, DefaultUrlStaff, PoolStaff, ReactiveStaff],
   ({ mod, line }) => {
     let queue = createTaskQueue(500)
     let vote = createVote<boolean>({ max: 10, min: 10 })
+
+    let cacheKey = 'global-urls'
     let { mod: parentMod, line: parentLine } = mod
       .defineEmit<
         'added-the-global-url-list',
         [addedUrl: Set<string>, globalUrlList: Set<string>]
       >()
-
       .assignFeat({
-        globalUrlList: new Set<string>(),
-        fetchGlobalUrls(urls?: Set<string>) {
-          let cacheKey = 'global-urls'
-          let cacheUrls = getCacheOrNull(cacheKey) as string[]
-          logger
-          if (cacheUrls) {
-            this.globalUrlList = setAdds(this.globalUrlList, cacheUrls)
+        globalUrlList: line.reactive({ value: new Set<string>() }),
+      })
+      .assignFn({
+        getCacheGlobalUrls() {
+          let arr = getCacheOrNull(cacheKey) as string[]
 
+          return arr && new Set(arr)
+        },
+        setGlobalUrlList(list: Set<string>) {
+          this.globalUrlList.value = list
+        },
+        loadCacheGlobalUrls() {
+          let urls = this.getCacheGlobalUrls()
+          if (urls) {
+            this.setGlobalUrlList(setAdds(this.getGlobalUrls(), urls))
             parentLine.emit(
               'added-the-global-url-list',
-              new Set(cacheUrls),
-              this.globalUrlList
+              new Set(urls),
+              this.getGlobalUrls()
             )
-            return
+            return urls
           }
-
-          console.log('debounceSetList')
+        },
+        fetchGlobalUrls(urls?: Set<string>) {
+          logger.debug('fetchGlobalUrls')
           let debounceSetCache = debounce((set: Set<string>) => {
             setCache(cacheKey, [...set], {
               duration: 1 * 1000 * 3600 * 24,
@@ -55,16 +63,17 @@ export default createStaff(
               useMemoryCache: true,
             })
           }, 10_000)
-          urls && setAdds(this.globalUrlList, urls)
+          urls && setAdds(this.getGlobalUrls(), urls)
 
           //this === parentLine
           //当无操作20秒认为完成,完成后会进入缓存状态
-          return this.mod
-            .createChild()
-            .add(EoseAutoUnSubStaff)
-            .add(TimeoutAutoUnSubStaff)
-            .inLine(line =>
-              line.on('event', (url, e) => {
+          let globalLine = this.createChild()
+          return (
+            globalLine
+
+              // .add(EoseAutoUnSubStaff)
+              // .add(TimeoutAutoUnSubStaff)
+              .onEvent((subId, e) => {
                 //this === parentLine
                 const { write: writeUrl, read: readUrl } =
                   deserializeTagRToReadWriteList(e.tags)
@@ -77,28 +86,30 @@ export default createStaff(
                 //新增的url
                 let newlyUrls = setExcludes(
                   margeWriteAndRead,
-                  this.globalUrlList
+                  this.getGlobalUrls()
                 )
-                console.log('newlyUrls', newlyUrls)
 
-                console.log('this.globalUrlList', this.globalUrlList)
-                setAdds(this.globalUrlList, newlyUrls)
-                console.log('this.globalUrlList', this.globalUrlList)
+                setAdds(this.getGlobalUrls(), newlyUrls)
 
                 parentLine.emit(
                   'added-the-global-url-list',
                   newlyUrls,
-                  this.globalUrlList
+                  this.getGlobalUrls()
+                )
+                globalLine.emit(
+                  'added-the-global-url-list',
+                  newlyUrls,
+                  this.getGlobalUrls()
                 )
                 //设置缓存
-                debounceSetCache(this.globalUrlList)
+                debounceSetCache(this.getGlobalUrls())
 
-                console.log('queue', queue.queue.length)
-
+                //查看投票结果
                 if (vote.isValidVote() && vote.proportion(false) >= 0.9) {
+                  //满足票数将终止运行
                   queue.clear()
-                  parentLine.removeAllListener('added-the-global-url-list')
-                  line.emitter.clear()
+                  globalLine.removeAllListener('added-the-global-url-list')
+                  globalLine.emitter.clear()
                   logger.silly(
                     'fetchGlobalUrls:已关闭并清理',
                     vote.proportion(false)
@@ -111,12 +122,14 @@ export default createStaff(
                   newlyUrls.size === 0 ||
                   newlyUrls.size / margeWriteAndRead.size < 0.1 || //新增小于百分之10
                   //当获取到的列表太多时，就停止查询
-                  this.globalUrlList.size > 99
+                  this.getGlobalUrls().size > 99
                 ) {
+                  //投票想要停止请求
                   vote.add(false)
                   return
                 }
 
+                //投票认为可以继续执行
                 vote.add(true)
 
                 newlyUrls.forEach(url => {
@@ -125,31 +138,69 @@ export default createStaff(
                   })
                 })
               })
-            )
-            .out()
-            .chaining('addFilter', { kinds: [10002], limit: 200 })
-            .chaining('addUrls', urls || this.defaultUrls)
+              .setSubOpt({
+                eoseAutoDesub: true,
+              })
+              .addFilter({ kinds: [10002], limit: 200 })
+              .addUrls(urls || this.defaultUrls)
+          )
         },
-        getGlobalUrls() {
-          console.log('this.globalUrlList', this.globalUrlList)
+        // async depFetchGlobalUrls(
+        //   pushUrls: (urls: Set<string>) => void,
+        //   deep: number = 4
+        // ): Promise<Set<string>> {
+        //   return new Promise<Set<string>>((resolve, reject) => {
+        //     let list = new Set<string>()
+        //     if (deep <= 0) return resolve(list)
+        //     await this.depFetchGlobalUrls(urls => {
+        //       setAdds(list, urls)
+        //     })
+        //   })
 
-          return this.globalUrlList || this.defaultUrls
+        //   return this.createChild()
+        //     .onEvent((subId, event, url) => {
+        //       const { write: writeUrl, read: readUrl } =
+        //         deserializeTagRToReadWriteList(event.tags)
+
+        //       let margeWriteAndRead = setAdds(
+        //         new Set<string>(),
+        //         writeUrl,
+        //         readUrl
+        //       )
+        //       pushUrls(margeWriteAndRead)
+        //     })
+        //     .addFilter({ kinds: [10002], limit: 200 })
+        //     .setSubOpt({
+        //       eoseAutoDesub: true,
+        //     })
+        // },
+        getGlobalUrls() {
+          return this.globalUrlList.value
         },
         autoGetGlobalUrls() {
           return useCache(
             'autoGetGlobalUrls',
             () => {
               return new Promise<Set<string>>((resolve, reject) => {
-                let debounceResolve = debounce(resolve, 4000)
-
-                let line = this.fetchGlobalUrls()
-                if (!line) {
-                  //缓存返回
-                  resolve(this.getGlobalUrls())
-                  return
+                let self = this
+                function* urlCache() {
+                  //内存缓存
+                  yield self.getGlobalUrls()
+                  //本地缓存
+                  yield self.loadCacheGlobalUrls()
                 }
-                //超时
-                line.on('added-the-global-url-list', () => {
+                for (const urls of urlCache()) {
+                  if (urls && urls.size >= 30) {
+                    resolve(urls)
+                    return
+                  }
+                }
+
+                let debounceResolve = debounce(resolve, 4000)
+                // 没有缓存
+                let line = this.fetchGlobalUrls()
+                //超时未获取到数据则返回结束
+                line?.on('added-the-global-url-list', () => {
                   debounceResolve(this.getGlobalUrls())
                 })
               })
@@ -163,7 +214,7 @@ export default createStaff(
           )
         },
         addGlobalUrls(urls: Set<string>) {
-          setAdds(this.globalUrlList, urls)
+          setAdds(this.getGlobalUrls(), urls)
         },
       })
     return parentMod

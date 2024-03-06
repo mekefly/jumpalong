@@ -42,11 +42,11 @@ function addRelay() {
 
 const message = useMessage()
 function handleSave() {
-  relayConfigurator.save()
+  relayConfigurator.replaceableSynchronizer.save()
   message.success(t('relay_configurator_save_message'))
 }
 function handleSync() {
-  relayConfigurator.sync()
+  relayConfigurator.replaceableSynchronizer.synchronizer.sync()
 
   message.success(t('relay_configurator_sync_message'))
 }
@@ -55,11 +55,17 @@ const updateTime = computed(() => {
   if (!updateAt) return null
   return updateAt
 })
+function handelRefresh() {
+  relayConfigurator.refresh()
+}
 </script>
 
 <template>
-  <RelayConnectListVue :urls="urls" :title="$t('relay_configuration')">
+  <RelayConnectListVue :urls="urls" :title="t('relay_configuration')">
     <template #header-extra>
+      <n-icon class="mr-2" @click="handelRefresh">
+        <ReloadCircleSharp />
+      </n-icon>
       <n-icon class="mr-1"><EditCalendarRound /></n-icon>
       <DateTimeVue v-if="updateTime" :secondTimestamp="updateTime" />
       <span v-else>No</span>
@@ -78,6 +84,7 @@ const updateTime = computed(() => {
       <ButtonCloseVue text @click="() => relayConfigurator.remove(url)" />
     </template>
     <template #action>
+      <!-- <n-checkbox v-model:checked="value"> 复选框 </n-checkbox> -->
       <n-space>
         <n-input
           v-model:value="value"
@@ -89,7 +96,7 @@ const updateTime = computed(() => {
         </n-button>
         <TooltipVue
           :tooltip="
-            !relayConfigurator.hasChange()
+            !relayConfigurator.replaceableSynchronizer.hasChange()
               ? t('currently_not_modified')
               : t('tips.save_changes')
           "
@@ -97,7 +104,7 @@ const updateTime = computed(() => {
           <n-button
             @click="handleSave"
             type="primary"
-            :disabled="!relayConfigurator.hasChange()"
+            :disabled="!relayConfigurator.replaceableSynchronizer.hasChange()"
           >
             {{ t('save') }}
           </n-button>
@@ -105,7 +112,7 @@ const updateTime = computed(() => {
 
         <TooltipVue
           :tooltip="
-            relayConfigurator.hasChange()
+            relayConfigurator.replaceableSynchronizer.hasChange()
               ? t('relay_configurator_sync_has_change_tip')
               : t('relay_configurator_sync_no_change_tip')
           "
@@ -113,7 +120,7 @@ const updateTime = computed(() => {
           <n-button
             @click="handleSync"
             type="primary"
-            :disabled="relayConfigurator.hasChange()"
+            :disabled="relayConfigurator.replaceableSynchronizer.hasChange()"
           >
             {{ t('sync') }}
           </n-button>

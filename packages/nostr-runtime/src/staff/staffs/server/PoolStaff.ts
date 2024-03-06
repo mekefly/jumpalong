@@ -1,7 +1,12 @@
 import WebSocketStaff from './WebSocketFactoryStaff'
 import CloseRelayStaff from './CloseRelayStaff'
 import AuthStaff from './AuthStaff'
-import { createClassStaff, createStaff } from '../../staff'
+import {
+  ClassStaff,
+  ClassStaffInterface,
+  createClassStaff,
+  createStaff,
+} from '../../staff'
 import { EventLine } from '../../../eventLine'
 import Relay from './Relay'
 import OkStaff from './OkStaff'
@@ -19,13 +24,14 @@ import ReactiveClass from '../../../reactive/ReactiveClass'
 export default createStaff('pool-staff', ({ mod, line }) => {
   logger.debug('pool-staff')
 
-  // l.out().listen()
-
-  let m = mod.add(createClassStaff('relayPool', Pool, [])).assignFeat({})
-  return m
+  return mod.add(Pool)
 })
 
-export class Pool extends ReactiveClass {
+export class Pool
+  extends ReactiveClass
+  implements ClassStaffInterface<'relayPool'>
+{
+  name = 'relayPool' as const
   constructor(private parentLine: EventLine<{}>) {
     super(parentLine)
     this.listen()
@@ -124,7 +130,7 @@ export class Pool extends ReactiveClass {
         this.closeRelay(url)
       }
 
-      const relay = new Relay(this.getLine(), ws)
+      const relay = new Relay(this.getLine() as any, ws)
       this.pool.set(url, relay)
 
       res(relay)

@@ -1,20 +1,30 @@
-import { reduceSet } from '@jumpalong/shared'
-import { type ArgumentsType } from 'vitest'
-import { MixinEventLineConfig, Staff } from '../staff/staff'
-import CreateChildEmitStaff from '../staff/staffs/common/extends/CreateChildEmitStaff'
+import { capitalize, reduceSet } from '@jumpalong/shared'
 import {
-  EmitOptions,
-  LineEmitter,
-  LineEmitterOptions,
-  listenerFlags,
-} from './LineEmitter'
-import CreateHookStaff from '../staff/staffs/common/extends/CreateHookStaff'
-import CreateChildHookStaff from '../staff/staffs/common/extends/CreateChildHookStaff'
-import {
+  AssignChain,
+  AssignFeat,
+  CreateChildOptions,
+  Emit,
+  EmitType,
+  EventLineConfig,
+  EventLineOptions,
+  Feat,
   PauseStaff,
   type CreateChildHookStaffConfigType,
   type PauseStaffConfigType,
 } from '..'
+import {
+  ClassStaff,
+  FunctionStaff,
+  GetConfig,
+  MergeStaffConfig,
+  Staff,
+  MergeStaffFlag,
+  StaffFlag,
+  StaffType,
+} from '../staff/staff'
+import CreateChildHookStaff from '../staff/staffs/common/extends/CreateChildHookStaff'
+import CreateHookStaff from '../staff/staffs/common/extends/CreateHookStaff'
+import { EmitOptions, LineEmitter, listenerFlags } from './LineEmitter'
 
 // type ChainType<Config extends EventLineConfig = {}> = {
 //   [key in keyof EventLine<Config>]: EventLine<Config>[key] extends (
@@ -25,10 +35,8 @@ import {
 // } & {
 //   line: EventLine<Config>
 // }
-type CreateChildOptions = EventLineOptions
 
 export class EventLineEmitter<Config extends EventLineConfig = {}> {
-  // chain: ChainType<Config>
   parent: EventLine<Config> | null = null
   emitter
   constructor(
@@ -37,15 +45,6 @@ export class EventLineEmitter<Config extends EventLineConfig = {}> {
   ) {
     this.emitter = new LineEmitter(options)
     this.feat = this
-    let self = this
-    // this.chain = new Proxy(this, {
-    //   get(t, p) {
-    //     return (...rest: any[]) => {
-    //       ;(self.chaining as any)(p as any, ...(rest as any[]))
-    //       return self.chain
-    //     }
-    //   },
-    // }) as any
     ;(this as any)['line'] = this //暂停监听
     setTimeout(() => {
       ;(this.add(PauseStaff) as any).on('pause', (target: any) => {
@@ -99,6 +98,15 @@ export class EventLineEmitter<Config extends EventLineConfig = {}> {
     this.emitter.on(type, listener, flags)
     return this as any
   }
+
+  once<TYPE extends keyof Config['emits']>(
+    type: TYPE,
+    listener: Config['emits'] extends EmitType ? Config['emits'][TYPE] : never,
+    options?: listenerFlags
+  ): EventLine<Config> {
+    this.emitter.once(type, listener, options)
+    return this as any
+  }
   emit<TYPE extends keyof Config['emits']>(
     type:
       | TYPE
@@ -145,47 +153,36 @@ export class EventLineEmitter<Config extends EventLineConfig = {}> {
   removeAllListener<TYPE extends keyof Config['emits']>(type: TYPE) {
     this.emitter.removeAllListen(type)
   }
-  chaining<
-    T extends EventLine<Config>,
-    KEY extends keyof T extends infer P
-      ? P extends keyof T
-        ? T[P] extends (...rest: any[]) => any
-          ? P
-          : never
-        : never
-      : never
-  >(key: KEY, ...rest: ArgumentsType<T[KEY]>): EventLine<Config> {
-    ;(this as any)[key](...rest)
-    return this as any
-  }
 
-  add<R extends EventLineConfig>(
-    staff: Staff<Config, R, any[]>
-  ): EventLine<R & Config>
-  add<
-    REST extends Array<(mod: EventLineFactory<{}>) => EventLineFactory<{}>> = []
-  >(
-    ...rest: REST
-  ): EventLine<
-    MixinEventLineConfig<REST> extends EventLineConfig
-      ? MixinEventLineConfig<REST>
-      : {}
-  >
-  add<
-    REST extends Array<(mod: EventLineFactory<{}>) => EventLineFactory<{}>> = []
-  >(
-    ...rest: REST
-  ): EventLine<
-    MixinEventLineConfig<REST> extends EventLineConfig
-      ? MixinEventLineConfig<REST>
-      : {}
-  > {
-    return this.mod.add(...rest).out()
-  }
-  // extendsEmitParent(emit) {}
+  /**
+   * 添加事件线组装工，插件化的添加特性
+   * @param staff
+   * @returns
+   */
+  add<Staff extends StaffFlag, ArrayFlag extends StaffFlag[] = []>(
+    staff: Staff,
+    ...staffs: ArrayFlag
+  ): EventLine<MergeStaffConfig<[Staff, ...ArrayFlag]> & Config>
 
-  stop<TYPE extends keyof Config['emits']>(key: TYPE) {
-    this.emitter
+  /**
+   * 添加事件线组装工，插件化的添加特性
+   * @param staff
+   * @returns
+   */
+  add<C extends ClassStaff<Name>, Name extends string>(
+    staff: C
+  ): EventLine<Feat<InstanceType<C>['name'], InstanceType<C>> & Config>
+
+  /**
+   * 添加事件线组装工，插件化的添加特性
+   * @param staff
+   * @returns
+   */
+  add<_Config extends EventLineConfig>(
+    staff: StaffType<{}, _Config>
+  ): EventLine<Config & _Config>
+  add(...rest: any[]): any {
+    return this.mod.add(...(rest as [any])).out()
   }
 }
 
@@ -204,13 +201,7 @@ export type EventLine<Config extends EventLineConfig = {}> =
       ) => EventLine<Config>
     }
 
-type Feat<Name extends string | symbol | number, Value> = {
-  feat: { [key in Name]: Value }
-}
-export type AssignFeat<F extends FeatType> = { feat: F }
-export type AssignChain<F extends ChainType> = { chain: F }
 let id = 0
-type EventLineOptions = LineEmitterOptions & {}
 export class EventLineFactory<Config extends EventLineConfig = {}> {
   public id = id++
   private core: EventLine<CreateChildHookStaffConfigType & PauseStaffConfigType>
@@ -227,7 +218,7 @@ export class EventLineFactory<Config extends EventLineConfig = {}> {
   private staffs: Set<any> = new Set()
   constructor(
     options?: {
-      staffs?: Set<(line: EventLineFactory) => EventLineFactory>
+      staffs?: Set<StaffFlag>
       parent?: EventLineFactory<Config>
     } & EventLineOptions
   ) {
@@ -317,11 +308,25 @@ export class EventLineFactory<Config extends EventLineConfig = {}> {
   ): EventLineFactory<AssignFeat<T> & Config> {
     this.assignFeat(createFeat() as any)
 
-    this.core.on('create-child', (p, c) => {
+    this.core.on('create-child' as any, (p: any, c: any) => {
       c.mod.assignOwnFeat(createFeat)
     })
 
     return this as any
+  }
+  defineFn<Name extends string, REST extends any[], R, Fn>(
+    name: Name,
+    fn: (this: EventLine<Config>, ...rest: REST) => R
+  ): EventLineFactory<Feat<Name, (...rest: REST) => R> & Config> {
+    this.assignFeat({
+      name: fn,
+    })
+    return this as any
+  }
+  assignFn<T extends Record<string, Function>>(
+    feat: T & ThisType<EventLine<AssignFeat<T> & Config>>
+  ): EventLineFactory<AssignFeat<T> & Config> {
+    return (this as any).assignFeat(feat) as any
   }
   /**
    * 批量添加特性，会继承，子继承父类
@@ -330,8 +335,41 @@ export class EventLineFactory<Config extends EventLineConfig = {}> {
    */
   assignFeat<T extends {}>(
     feat: T & ThisType<EventLine<AssignFeat<T> & Config>>
-  ): EventLineFactory<AssignFeat<T & ThisType<Config['feat'] & T>> & Config> {
+  ): EventLineFactory<
+    AssignFeat<T> &
+      // T & ThisType<unknown extends Config['feat'] ? {} : Config['feat']>
+      Config
+  > {
+    // ): EventLineFactory<AssignFeat<T> & Config> {
     Object.assign(this.core as any, feat)
+    return this as any
+  }
+  provide<K extends string, V>(
+    key: K,
+    createValue: (this: EventLine<Config>) => V
+  ): EventLineFactory<
+    AssignChain<{
+      [k in `provide${Capitalize<K>}`]: () => void
+    }> &
+      AssignFeat<{
+        [k in `inject${Capitalize<K>}`]: () => V
+      }> &
+      Config
+  > {
+    let line = this.line as any
+    let k2 = capitalize(key)
+    line[`provide${k2}`] = function () {
+      this[key] = createValue.call(this)
+      return this
+    }
+    line[`inject${k2}`] = function () {
+      let value = this[key]
+      if (value === undefined) {
+        throw new Error(`EventLine:inject Not find ${key}`)
+      }
+      return this[key]
+    }
+
     return this as any
   }
 
@@ -364,8 +402,8 @@ export class EventLineFactory<Config extends EventLineConfig = {}> {
     return this as any
   }
 
-  hasStaff<R extends EventLineConfig>(staff: Staff<Config, R, any[]>): boolean {
-    let id = staff.id
+  hasStaff<R extends EventLineConfig>(staff: StaffFlag<any>): boolean {
+    let id = (staff as any).id ?? (staff as any).name
     //空的name不会记录（匿名特性可以直接添加，但不会重复添加），所以可以直接这样判断
     return Boolean(
       this.staffNames.has(id) ||
@@ -379,27 +417,28 @@ export class EventLineFactory<Config extends EventLineConfig = {}> {
    * @param staff
    * @returns
    */
-  add<R extends EventLineConfig>(
-    staff: Staff<Config, R, any[]>
-  ): EventLineFactory<R & Config>
-  add<
-    REST extends Array<(mod: EventLineFactory<{}>) => EventLineFactory<{}>> = []
-  >(
-    ...rest: REST
-  ): EventLineFactory<
-    MixinEventLineConfig<REST> extends EventLineConfig
-      ? MixinEventLineConfig<REST>
-      : {}
-  >
-  add<
-    REST extends Array<(mod: EventLineFactory<{}>) => EventLineFactory<{}>> = []
-  >(
-    ...rest: REST
-  ): EventLineFactory<
-    MixinEventLineConfig<REST> extends EventLineConfig
-      ? MixinEventLineConfig<REST>
-      : {}
-  > {
+  add<ArrayFlag extends StaffFlag[] = []>(
+    ...staffs: ArrayFlag
+  ): EventLineFactory<MergeStaffConfig<ArrayFlag> & Config>
+
+  /**
+   * 添加事件线组装工，插件化的添加特性
+   * @param staff
+   * @returns
+   */
+  add<C extends ClassStaff<Name>, Name extends string>(
+    staff: C
+  ): EventLineFactory<Feat<InstanceType<C>['name'], InstanceType<C>> & Config>
+
+  /**
+   * 添加事件线组装工，插件化的添加特性
+   * @param staff
+   * @returns
+   */
+  add<_Config extends EventLineConfig>(
+    staff: StaffType<any, _Config>
+  ): EventLineFactory<Config & _Config>
+  add(...rest: any[]): any {
     return rest.reduce((mod, staff) => {
       return mod._add(staff)
     }, this as any) as any
@@ -411,13 +450,28 @@ export class EventLineFactory<Config extends EventLineConfig = {}> {
    * @returns
    */
   private _add<R extends EventLineConfig>(
-    staff: Staff<Config, R, any[]>
+    staff: StaffType<[StaffFlag<Config>], R>
   ): EventLineFactory<R & Config> {
     if (!staff) return this as any
-
+    if (String(staff).startsWith('class')) {
+      return this.addClassStaff(staff as any) as any
+    } else if (typeof staff === 'function') {
+      return this.addFunctionStaff(staff as any)
+    } else {
+      throw new Error('EventLine.add:not is a staff')
+    }
+  }
+  /**
+   * 添加事件线组装工，插件化的添加特性
+   * @param staff
+   * @returns
+   */
+  private addFunctionStaff<R extends EventLineConfig>(
+    staff: FunctionStaff<[StaffFlag<Config>], R>
+  ): EventLineFactory<R & Config> {
     //空的name不会记录（匿名特性可以直接添加，但不会重复添加），所以可以直接这样判断
     //是否已添加对应的staff
-    if (this.hasStaff(staff)) {
+    if (this.hasStaff(staff as any)) {
       return this as any
     }
     let id = staff.id
@@ -450,6 +504,12 @@ export class EventLineFactory<Config extends EventLineConfig = {}> {
     //添加staff
     return staff(this as any) as any
   }
+  addClassStaff<Class extends ClassStaff<Name>, Name extends string>(
+    staff: Class
+  ): EventLineFactory<Feat<Name, Class>> {
+    let i = new staff(this.out())
+    return this.assignFeat({ [i.name]: i }) as any
+  }
   /**
    * 事件线复用
    * @returns x
@@ -465,7 +525,7 @@ export class EventLineFactory<Config extends EventLineConfig = {}> {
     return this.createAsATemplateMod().out() as any
   }
   createAsATemplateMod(): EventLineFactory<Config> {
-    return new EventLineFactory(this.staffs) as any
+    return new EventLineFactory({ staffs: this.staffs }) as any
   }
   /**
    * 返回到已构造的事件线
@@ -479,24 +539,3 @@ export class EventLineFactory<Config extends EventLineConfig = {}> {
     return this
   }
 }
-/**
- * 事件线的配置类型
- */
-export type EventLineConfig<
-  Emit extends EmitType = EmitType,
-  Feat extends FeatType = FeatType
-> = {
-  emits?: Emit
-  feat?: Feat
-  chain?: ChainType
-}
-/**
- * 一个emit配置
- */
-export type Emit<T extends string | symbol, P extends any[] = [], R = void> = {
-  emits: { [key in T]: (...rest: P) => R }
-}
-
-type EmitType = Record<string | symbol, (...rest: any) => any>
-type FeatType = Record<any, any>
-type ChainType = Record<string | symbol | number, (...rest: any) => void>

@@ -1,6 +1,7 @@
 import type { Event } from 'nostr-tools'
 import { createStaff } from '../../staff'
 import { listenerFlags } from '../../../eventLine/LineEmitter'
+import { EventLine } from '@jumpalong/nostr-runtime'
 
 type PropType = [subId: string, event: Event, url: string]
 type ReturnType = boolean | void
@@ -8,7 +9,7 @@ export default createStaff(mod => {
   let _mod = mod
     .defineEmit<'event', PropType, ReturnType>()
     .defineEmit<`event:${string}`, PropType, ReturnType>()
-    .assignFeat({
+    .assignChain({
       /**
        *
        * 发送一个event

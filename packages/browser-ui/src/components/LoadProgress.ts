@@ -15,19 +15,18 @@ export const [proviteLoadProgressState, useLoadProgressState] =
   });
 
 export function autoSetLoadBuffer(
-  beltline: ComputedRef<EventBeltline<RefreshLoadStaffFeat> | undefined | null>
 ) {
   const loadProgressState = useLoadProgressState();
-  watchEffect(() => {
-    const loadBufferOpt = beltline.value?.feat.loadBufferOpt;
-    if (loadBufferOpt?.isLoading) {
-      loadProgressState?.setBufferOpt(loadBufferOpt);
-    }
-  });
-  watchEffect(() => {
-    const loadBufferOpt = beltline.value?.feat.refreshBufferOpt;
-    if (loadBufferOpt?.isLoading) {
-      loadProgressState?.setBufferOpt(loadBufferOpt);
-    }
-  });
+  // watchEffect(() => {
+  //   const loadBufferOpt = beltline.value?.feat.loadBufferOpt;
+  //   if (loadBufferOpt?.isLoading) {
+  //     loadProgressState?.setBufferOpt(loadBufferOpt);
+  //   }
+  // });
+  // watchEffect(() => {
+  //   const loadBufferOpt = beltline.value?.feat.refreshBufferOpt;
+  //   if (loadBufferOpt?.isLoading) {
+  //     loadProgressState?.setBufferOpt(loadBufferOpt);
+  //   }
+  // });
 }

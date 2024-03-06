@@ -1,19 +1,19 @@
 <script lang="ts" setup>
-import { Event } from "nostr-tools";
-import DislikeFilledVue from "./icon/DislikeFilled.vue";
-import DislikeOutlinedVue from "./icon/DislikeOutlined.vue";
-import LikeFilledVue from "./icon/LikeFilled.vue";
-import LikeOutlinedVue from "./icon/LikeOutlined.vue";
+import { Event } from 'nostr-tools'
+import DislikeFilledVue from './icon/DislikeFilled.vue'
+import DislikeOutlinedVue from './icon/DislikeOutlined.vue'
+import LikeFilledVue from './icon/LikeFilled.vue'
+import LikeOutlinedVue from './icon/LikeOutlined.vue'
 
 defineProps<{
-  reaction: string;
-  events: Event[];
-  active?: boolean;
-  size: number;
-}>();
+  reaction: string
+  events: Event[]
+  active?: boolean
+  size: number
+}>()
 defineEmits<{
-  (e: "handelSwitchActive", reaction: string): void;
-}>();
+  (e: 'handelSwitchActive', reaction: string): void
+}>()
 </script>
 
 <template>

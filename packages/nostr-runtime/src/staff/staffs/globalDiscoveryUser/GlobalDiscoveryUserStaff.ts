@@ -7,8 +7,7 @@ import { Pubkey } from '../../../utils/user'
 
 let binaryMap: Record<string, Binary> = {}
 export default createStaff(
-  DefaultUrlStaff,
-  GlobalUrlsStaff,
+  () => [DefaultUrlStaff, GlobalUrlsStaff],
   ({ mod, line }) => {
     return mod.assignFeat({
       async autoGlobalDiscoveryUserByPubkey(

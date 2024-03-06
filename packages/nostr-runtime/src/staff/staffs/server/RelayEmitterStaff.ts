@@ -1,15 +1,9 @@
 // import SubStaff from "../../../../nostr1/staff/EventStaff/SubStaff";
-import EventStaff from '../../../../nostr1/staff/EventStaff/EventStaff'
 import { createStaff } from '../../staff'
-import EoseStaff from './EoseStaff'
-import NoticeStaff from './NoticeStaff'
-import OkStaff from './OkStaff'
+import { EventStaff, OkStaff, EoseStaff, NoticeStaff } from '../staffExport'
 
 export default createStaff(
-  OkStaff,
-  NoticeStaff,
-  EoseStaff,
-  EventStaff,
+  () => [OkStaff, NoticeStaff, EoseStaff, EventStaff],
   // SubStaff,
   line => {
     return line

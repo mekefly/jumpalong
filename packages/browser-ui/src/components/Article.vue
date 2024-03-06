@@ -1,39 +1,42 @@
 <script lang="ts" setup>
-import { config } from "@/nostr/nostr";
-import { useHandleSendMessage } from "@/utils/use";
-import { Event, EventTemplate } from "nostr-tools";
-import Papaw from "./Papaw.vue";
-import PapawTreeAutoFindRoot from "./PapawTreeAutoFindRoot.vue";
-import PostList from "./PostList.vue";
-import RichTextEditBox from "./RichTextEditBox.vue";
-import Scrollbar from "./Scrollbar.vue";
+import { Event, EventTemplate } from 'nostr-tools'
+import Papaw from './Papaw.vue'
+import PapawTreeAutoFindRoot from './PapawTreeAutoFindRoot.vue'
+import PostList from './PostList.vue'
+import RichTextEditBox from './RichTextEditBox.vue'
+import Scrollbar from './Scrollbar.vue'
+import { useHandleSendMessage } from '../utils/use'
+import { useEventLine } from './ProvideEventLine'
+import { ConfigStaff } from '@jumpalong/nostr-runtime'
 
 const props = defineProps<{
-  event: Event;
-  urls: Set<string>;
-}>();
+  event: Event
+  urls: Set<string>
+}>()
 
 const emits = defineEmits<{
-  (e: "pushEvent", v: Event): void;
-}>();
-const message = useMessage();
-const urls = toRef(props, "urls");
+  (e: 'pushEvent', v: Event): void
+}>()
+const message = useMessage()
+const urls = toRef(props, 'urls')
+const line = useEventLine(ConfigStaff)
+const config = line.config
 
-const pushEvent = ref<any>(undefined);
+const pushEvent = ref<any>(undefined)
 const handleSendEvent = useHandleSendMessage(
   1,
   undefined,
-  ref((e: Event) => {
-    pushEvent.value?.(e);
-    emits("pushEvent", e);
-  }),
+  // ref((e: Event) => {
+  //   pushEvent.value?.(e)
+  //   emits('pushEvent', e)
+  // }),
   {
     urls: urls,
   }
-);
+)
 async function handleSend(e: EventTemplate) {
-  await handleSendEvent(e);
-  message.info("send");
+  await handleSendEvent(e)
+  message.info('send')
 }
 </script>
 

@@ -18,10 +18,7 @@ export default createStaff(line => {
     ) {
       if (opt?.eventId) {
         const type = `ok:${opt.eventId}` as const
-        this.on(type, l, opt)
-        timeout(out).then(() => {
-          this.removeListener(type, l)
-        })
+        this.once(type, l, opt)
       } else {
         const type = `ok` as const
         this.on(type, l, opt)

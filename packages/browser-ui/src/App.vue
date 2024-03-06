@@ -8,7 +8,6 @@ logger.info()
 const AsyncProvides = defineAsyncComponent(
   async () => await import('./components/Provides.vue')
 )
-console.log('app')
 </script>
 
 <template>

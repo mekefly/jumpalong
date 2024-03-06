@@ -58,8 +58,8 @@ export class LineEmitter {
       this.getEventAndInit(type).add(listener)
     }
   }
-  once(type: KeyType, listener: Listener) {
-    this.on(type, Object.assign(listener, { once: true }))
+  once(type: KeyType, listener: Listener, flags?: listenerFlags) {
+    this.on(type, Object.assign(listener, { once: true, ...flags }))
   }
 
   async emitResult(options: EmitOptions, ...rest: any[]): Promise<any>

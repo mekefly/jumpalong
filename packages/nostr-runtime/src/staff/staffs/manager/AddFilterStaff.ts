@@ -3,7 +3,7 @@ import { createStaff } from '../../staff'
 import AddUrlStaff from './AddUrlStaff'
 import CreateHookStaff from '../common/extends/CreateHookStaff'
 import PublishStaff from '../publish/PublishStaff'
-import SubStaff from '../sub/SubStaff'
+import SubStaff, { SubOpt } from '../sub/SubStaff'
 import FilterStaff from './FilterStaff'
 import { CreateChildHookStaff } from '../..'
 import { FilterOptions } from './optionsType'
@@ -23,6 +23,7 @@ export default createStaff(
       .defineEmit<'add-filters', [filters: Filter[]]>()
       .assignOwnFeat(() => ({
         filterMap: new Map<string, Filter>(),
+        subOpts: undefined as SubOpt | undefined,
       }))
       .assignFeat({
         getFilters() {
@@ -30,6 +31,9 @@ export default createStaff(
         },
       })
       .assignChain({
+        setSubOpt(opt: SubOpt) {
+          this.subOpts = opt
+        },
         addFilter(filter: Filter) {
           this.addFilters([filter])
         },
@@ -59,14 +63,13 @@ export default createStaff(
           }
         },
       })
-
     mod1.line.onCreateChildDep<typeof mod1.line>(l => {
       console.log('onCreateChildDep')
 
       l.on('add-urls', urls => {
-        l.subs(urls, l.filterList)
+        l.subs(urls, l.filterList, l.subOpts)
         l.on('add-filters', filters => {
-          l.subs(urls, filters)
+          l.subs(urls, filters, l.subOpts)
         })
       })
     })

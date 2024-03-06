@@ -22,11 +22,12 @@ export default createStaff(
     ApiAddUrlsStaff,
   ],
   ({ mod, line }) => {
-    return mod.assignFeat({
+    return mod.assignFn({
       addressPointerLine(
         addressPointer: string | nip19.AddressPointer,
         options: CueOptions & CommonOptions = {}
       ) {
+        console.log('addressPointerLine,0')
         if (typeof addressPointer === 'string') {
           const a = toDeCodeAddress(addressPointer)
           if (!a) {
@@ -34,13 +35,17 @@ export default createStaff(
           }
           addressPointer = a
         }
+        console.log('addressPointerLine,1')
         return line.cacheByOptions(
           { name: `GEBID:${JSON.stringify(addressPointer)}`, ...options },
           () => {
+            console.log('addressPointerLine')
+
             return this.createChild()
               .add(ManagerStaff)
               .add(LatestEventStaff)
               .add(AutoAddKind10002UrlStaff)
+              .provideLatestEvent()
 
               .addFilter({
                 kinds: [addressPointer.kind],
@@ -50,6 +55,8 @@ export default createStaff(
               })
               .chainCall(async function () {
                 // await this.addUrlsWithTimeout(new Set(addressPointer.relays))
+                console.log('AddressPointerApi', 'addressPointer.pubkey')
+
                 await this.autoAdd10002(Pubkey.fromHex(addressPointer.pubkey))
 
                 await timeout(500)
