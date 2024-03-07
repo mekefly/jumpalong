@@ -4,7 +4,8 @@
   "description": "",
   "types": "src/index.ts",
   "scripts": {
-    "build": "vite build"
+    "build": "vite build",
+    "build:watch": "vite build"
   },
   "keywords": [],
   "type": "module",

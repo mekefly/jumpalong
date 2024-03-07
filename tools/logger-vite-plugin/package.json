@@ -5,7 +5,8 @@
   "types": "src/index",
   "type": "module",
   "scripts": {
-    "build": "vite build"
+    "build": "vite build",
+    "build:watch": "vite build"
   },
   "keywords": [],
   "exports": {

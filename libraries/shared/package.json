@@ -25,7 +25,8 @@
   ],
   "homepage": "https://github.com/vuejs/core/tree/main/packages/shared#readme",
   "scripts": {
-    "build": "vite build"
+    "build": "vite build",
+    "build:watch": "vite build"
   },
   "exports": {
     ".": {
