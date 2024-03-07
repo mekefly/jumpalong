@@ -1,0 +1,52 @@
+{
+  "name": "@jumpalong/shared",
+  "version": "0.0.0-bate.0",
+  "author": "mekefly",
+  "license": "MIT",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "module": "dist/shared.esm-bundler.js",
+  "types": "dist/shared.d.ts",
+  "files": [
+    "index.js",
+    "dist"
+  ],
+  "sideEffects": false,
+  "buildOptions": {
+    "formats": [
+      "esm-bundler",
+      "cjs"
+    ]
+  },
+  "keywords": [
+    "jumpalong",
+    "nostr"
+  ],
+  "homepage": "https://github.com/vuejs/core/tree/main/packages/shared#readme",
+  "scripts": {
+    "build": "vite build"
+  },
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./src/index.ts",
+        "default": "./dist/shared.js"
+      },
+      "require": {
+        "types": "./src/index.ts",
+        "default": "./dist/shared.umd.cjs"
+      }
+    }
+  },
+  "dependencies": {
+    "events": "^3.3.0"
+  },
+  "devDependencies": {
+    "@jumpalong/logger-vite-plugin": "workspace:*",
+    "@types/sha256": "^0.2.2",
+    "rollup": "^4.9.6",
+    "url": "^0.11.3",
+    "vite": "^5.0.8"
+  }
+}

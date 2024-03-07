@@ -1,0 +1,22 @@
+// Vitest Snapshot v1
+
+exports[`pullRelayConfig:debounce 2`] = `
+Set {
+  "url1",
+}
+`;
+
+exports[`pullRelayConfig:debounce 3`] = `
+Set {
+  "url1",
+}
+`;
+
+exports[`pullRelayConfig:debounce 4`] = `
+Set {
+  "url1",
+  "url5",
+  "url7",
+  "url6",
+}
+`;

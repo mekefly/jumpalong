@@ -1,0 +1,38 @@
+{
+  "name": "@jumpalong/logger",
+  "version": "0.0.0-bate.0",
+  "description": "",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "vite build"
+  },
+  "keywords": [],
+  "type": "module",
+  "exports": {
+    "./globals": {
+      "types": "./globals.d.ts"
+    },
+    ".": {
+      "import": {
+        "types": "./src/index.ts",
+        "default": "./dist/logger.js"
+      },
+      "require": {
+        "types": "./src/index.ts",
+        "default": "./dist/logger.umd.cjs"
+      }
+    }
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "minimatch": "^9.0.0",
+    "events": "^3.3.0"
+  },
+  "devDependencies": {
+    "rollup": "^4.9.6",
+    "url": "^0.11.3",
+    "vite": "^5.0.8",
+    "@jumpalong/logger-vite-plugin": "workspace:*"
+  }
+}

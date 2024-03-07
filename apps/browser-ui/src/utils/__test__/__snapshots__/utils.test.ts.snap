@@ -1,0 +1,17 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`createDynamicColor 1`] = `"rgb(127.5,127.5,255)"`;
+
+exports[`createDynamicRelativeValue 1`] = `0.5`;
+
+exports[`isNaN 1`] = `true`;
+
+exports[`isNaN 2`] = `false`;
+
+exports[`isNaN 3`] = `false`;
+
+exports[`isNumberAndNotNaN 1`] = `true`;
+
+exports[`isNumberAndNotNaN 2`] = `false`;
+
+exports[`isNumberAndNotNaN 3`] = `false`;
