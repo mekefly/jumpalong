@@ -1,4 +1,4 @@
-# netease-cloud-games
+# Jumpalong
 
 This program is a web client of Nostr, provides a beautiful interface and interactive logic
 

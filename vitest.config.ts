@@ -1,13 +1,9 @@
 import { configDefaults, defineConfig } from 'vitest/config'
 //@ts-ignore
-import { entries } from './scripts/aliases.js'
-//@ts-ignore
 import codspeedPlugin from '@codspeed/vitest-plugin'
-import { readFileSync } from 'fs'
-import { relative } from 'path'
+import { loggerScopePlugin } from '@jumpalong/logger-vite-plugin'
 import replace from '@rollup/plugin-replace'
 import packageJson from './package.json'
-import { loggerScopePlugin } from '@jumpalong/logger-vite-plugin'
 
 export default defineConfig(({ command, mode }) => {
   console.log('command:', command, 'mode:', mode)
@@ -30,9 +26,7 @@ export default defineConfig(({ command, mode }) => {
       __FEATURE_PROD_DEVTOOLS__: false,
       __COMPAT__: true,
     },
-    resolve: {
-      alias: entries,
-    },
+    resolve: {},
     plugins: [
       createReplacePlugin(isProd),
       loggerScopePlugin({ excludes: ['.test.ts'] }),
