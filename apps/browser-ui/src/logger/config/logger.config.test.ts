@@ -1,7 +1,7 @@
-import { LogLevel } from "../LogLevel";
+import { LogLevel } from '@jumpalong/logger'
 
 export default {
-  include: ["**/GeneralEventEventBeltline.ts"],
+  include: ['**/GeneralEventEventBeltline.ts'],
   exclude: [],
   level: LogLevel.Error,
-};
+}

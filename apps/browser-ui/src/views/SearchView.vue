@@ -1,67 +1,67 @@
 <script lang="ts" setup>
-import { useNostrContainerGet } from "@/components/NostrContainerProvade";
-import PapawVue from "@/components/Papaw.vue";
-import RelayUrlShowVue from "@/components/RelayUrlShow.vue";
-import SearchChannelItemVue from "@/components/SearchChannelItem.vue";
-import UserInfoVue from "@/components/UserInfo.vue";
-import { EventBeltline } from "@/nostr/eventBeltline";
-import { TYPES, rootEventBeltline } from "@/nostr/nostr";
-import { createDoNotRepeatStaff } from "@/nostr/staff";
-import { toDeCodeNevent, toDeCodeNprofile } from "@/utils/nostr";
-import { Event, Filter } from "nostr-tools";
+import { useNostrContainerGet } from '@/components/NostrContainerProvade'
+import PapawVue from '@/components/Papaw.vue'
+import RelayUrlShowVue from '@/components/RelayUrlShow.vue'
+import SearchChannelItemVue from '@/components/SearchChannelItem.vue'
+import UserInfoVue from '@/components/UserInfo.vue'
+import { EventBeltline } from '@/nostr/eventBeltline'
+import { TYPES, rootEventBeltline } from '@/nostr/nostr'
+import { createDoNotRepeatStaff } from '@/nostr/staff'
+import { toDeCodeNevent, toDeCodeNprofile } from '@/utils/nostr'
+import { Event, Filter } from 'nostr-tools'
 
-const eventApi = useNostrContainerGet(TYPES.EventApi);
-const userApi = useNostrContainerGet(TYPES.UserApi);
+const eventApi = useNostrContainerGet(TYPES.EventApi)
+const userApi = useNostrContainerGet(TYPES.UserApi)
 
-const router = useRouter();
-const route = useRoute();
-const value = computed(() => route.params["value"] as string);
+const router = useRouter()
+const route = useRoute()
+const value = computed(() => route.params['value'] as string)
 const profilePointer = computed(() => {
-  return value.value && toDeCodeNprofile(value.value);
-});
+  return value.value && toDeCodeNprofile(value.value)
+})
 const neventOpt = computed(() => {
-  return value.value && toDeCodeNevent(value.value);
-});
-type GroupEvents = Partial<Record<0 | 1 | 2 | 3 | "channel", EventBeltline>>;
-const groupEvents = ref<GroupEvents>({});
+  return value.value && toDeCodeNevent(value.value)
+})
+type GroupEvents = Partial<Record<0 | 1 | 2 | 3 | 'channel', EventBeltline>>
+const groupEvents = ref<GroupEvents>({})
 
 const searchRootLine = rootEventBeltline
   .createChild()
-  .addStaff(createDoNotRepeatStaff());
+  .addStaff(createDoNotRepeatStaff())
 function createListBeltline() {
-  return searchRootLine.createChild().addStaff(createDoNotRepeatStaff());
+  return searchRootLine.createChild().addStaff(createDoNotRepeatStaff())
 }
 watch(
   value,
   () => {
-    groupEvents.value = {};
-    if (!value.value || value.value.length === 0) return;
+    groupEvents.value = {}
+    if (!value.value || value.value.length === 0) return
 
     if (profilePointer.value) {
       //search人
       //远程和本地搜索
-      const relays = profilePointer.value.relays;
+      const relays = profilePointer.value.relays
       const line = userApi.getUserMetadataLineByPubkey(
         profilePointer.value.pubkey,
         {
           urls: relays && new Set(relays),
         }
-      );
-      searchRootLine.addChild(line); //交给searchRoot去管理
-      groupEvents.value[0] = line;
+      )
+      searchRootLine.addChild(line) //交给searchRoot去管理
+      groupEvents.value[0] = line
     } else if (neventOpt.value) {
       //search 事件
       //远程和本地搜索event
-      const opt = neventOpt.value;
-      const relays = neventOpt.value.relays;
+      const opt = neventOpt.value
+      const relays = neventOpt.value.relays
       const line = eventApi.getEventLineById(
         opt.id,
         relays && { urls: new Set(relays) }
-      );
-      searchRootLine.addChild(line); //交给searchRoot去管理
-      line.feat.onHasEventOnce((e) => {
-        classify(e, groupEvents.value as any);
-      });
+      )
+      searchRootLine.addChild(line) //交给searchRoot去管理
+      line.feat.onHasEventOnce(e => {
+        classify(e, groupEvents.value as any)
+      })
     } else {
       //search any
       const searchLine = rootEventBeltline
@@ -69,37 +69,37 @@ watch(
         .addStaff(createDoNotRepeatStaff()) //去重复
         .addStaff({
           push(e) {
-            classify(e, groupEvents.value as any);
+            classify(e, groupEvents.value as any)
           },
-        });
-      searchRootLine.addChild(searchLine); //交给searchRoot去管理
+        })
+      searchRootLine.addChild(searchLine) //交给searchRoot去管理
 
       const filters: Array<Filter & { search?: string }> = [
         { search: value.value },
         {
-          ["#r"]: [value.value],
+          ['#r']: [value.value],
         },
-      ];
+      ]
       //本地搜索
       const searchLocal = searchLine
         .createChild()
         .addFilters(filters)
-        .addExtends(rootEventBeltline);
+        .addExtends(rootEventBeltline)
       //汇总生产线
-      searchLine.addExtends(searchLocal);
+      searchLine.addExtends(searchLocal)
       // remote
       const searchRemote = searchLine
         .createChild()
         .addFilter({ search: value.value, limit: 50 } as any)
-        .addReadUrl();
+        .addReadUrl()
       //汇总生产线
-      searchLine.addExtends(searchRemote);
+      searchLine.addExtends(searchRemote)
     }
   },
   {
     immediate: true,
   }
-);
+)
 
 function classify<E extends GroupEvents>(e: Event, groupEvents: E) {
   switch (e.kind) {
@@ -107,19 +107,19 @@ function classify<E extends GroupEvents>(e: Event, groupEvents: E) {
     case 1:
     case 2:
     case 3:
-      (
+      ;(
         groupEvents[e.kind] ?? (groupEvents[e.kind] = createListBeltline())
-      ).pushEvent(e);
-      break;
+      ).pushEvent(e)
+      break
     case 40:
     case 41:
-      (
-        groupEvents["channel"] ??
-        (groupEvents["channel"] = createListBeltline())
-      ).pushEvent(e);
-      break;
+      ;(
+        groupEvents['channel'] ??
+        (groupEvents['channel'] = createListBeltline())
+      ).pushEvent(e)
+      break
     default:
-      break;
+      break
   }
 }
 </script>

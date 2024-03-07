@@ -1,3 +1,3 @@
-import { LogLevel } from "../LogLevel";
+import { LogLevel } from '@jumpalong/logger'
 
-export default { include: ["**/*"], level: LogLevel.Error };
+export default { include: ['**/*'], level: LogLevel.Error }

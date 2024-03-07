@@ -320,6 +320,10 @@
     {
       "packageName": "@jumpalong/nostr-runtime",
       "projectFolder": "libraries/nostr-runtime"
+    },
+    {
+      "packageName": "@jumpalong/browser-ui",
+      "projectFolder": "apps/browser-ui"
     }
     // nostr-runtime
     // {

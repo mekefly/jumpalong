@@ -111,9 +111,6 @@ importers:
       '@types/shelljs':
         specifier: ^0.8.11
         version: 0.8.11
-      '@vitejs/plugin-vue':
-        specifier: ^3.1.2
-        version: 3.1.2(vite@5.0.8)(vue@3.4.8)
       '@vue/consolidate':
         specifier: 0.17.3
         version: 0.17.3
@@ -357,16 +354,6 @@ importers:
       rollup:
         specifier: ^4.9.6
         version: 4.9.6
-
-  tools/logger-vite-plugin:
-    dependencies:
-      vite:
-        specifier: ^5.0.8
-        version: 5.0.11
-    devDependencies:
-      url:
-        specifier: ^0.11.3
-        version: 0.11.3
 
 packages:
 
@@ -2012,17 +1999,6 @@ packages:
       '@types/node': 16.18.25
     dev: false
     optional: true
-
-  /@vitejs/plugin-vue@3.1.2(vite@5.0.8)(vue@3.4.8):
-    resolution: {integrity: sha512-3zxKNlvA3oNaKDYX0NBclgxTQ1xaFdL7PzwF6zj9tGFziKwmBa3Q/6XcJQxudlT81WxDjEhHmevvIC4Orc1LhQ==}
-    engines: {node: ^14.18.0 || >=16.0.0}
-    peerDependencies:
-      vite: ^3.0.0
-      vue: ^3.2.25
-    dependencies:
-      vite: 5.0.8(@types/node@16.18.0)(sass@1.61.0)(stylus@0.59.0)
-      vue: 3.4.8(typescript@5.3.3)
-    dev: true
 
   /@vitejs/plugin-vue@4.6.0(vite@5.0.8)(vue@3.3.13):
     resolution: {integrity: sha512-XHuyFdAikWRmHuAd89FOyUGIjrBU5KlxJtyi2hVeR9ySGFxQwE0bl5xAQju/ArMq5azdBivY4d+D2yPKwoYWUg==}
@@ -5254,20 +5230,9 @@ packages:
       once: 1.4.0
     dev: true
 
-  /punycode@1.4.1:
-    resolution: {integrity: sha512-jmYNElW7yvO7TV33CjSmvSiE2yco3bV2czu/OzDKdMNVZQWfxCblURLhf+47syQRBntjfLdd/H0egrzIG+oaFQ==}
-    dev: true
-
   /q@1.5.1:
     resolution: {integrity: sha512-kV/CThkXo6xyFEZUugw/+pIOywXcDbFYgSct5cT3gqlbkBE1SJdwy6UQoZvodiWF/ckQLZyDE/Bu1M6gVu5lVw==}
     engines: {node: '>=0.6.0', teleport: '>=0.2.0'}
-
-  /qs@6.11.2:
-    resolution: {integrity: sha512-tDNIz22aBzCDxLtVH++VnTfzxlfeK5CbqohpSqpJgj1Wg/cQbStNAz3NuqCs5vV+pjBsK4x4pN9HlVh7rcYRiA==}
-    engines: {node: '>=0.6'}
-    dependencies:
-      side-channel: 1.0.4
-    dev: true
 
   /queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
@@ -6250,13 +6215,6 @@ packages:
       picocolors: registry.npmmirror.com/picocolors@1.0.0
     dev: true
 
-  /url@0.11.3:
-    resolution: {integrity: sha512-6hxOLGfZASQK/cijlZnZJTq8OXAkt/3YGfQX45vvMYXpZoo8NdWZcY73K108Jf759lS1Bv/8wXnHDTSz17dSRw==}
-    dependencies:
-      punycode: 1.4.1
-      qs: 6.11.2
-    dev: true
-
   /util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
     dev: true
@@ -6336,41 +6294,6 @@ packages:
       vite: 5.0.8(@types/node@16.18.0)(sass@1.61.0)(stylus@0.59.0)
     transitivePeerDependencies:
       - supports-color
-    dev: false
-
-  /vite@5.0.11:
-    resolution: {integrity: sha512-XBMnDjZcNAw/G1gEiskiM1v6yzM4GE5aMGvhWTlHAYYhxb7S3/V1s3m2LDHa8Vh6yIWYYB0iJwsEaS523c4oYA==}
-    engines: {node: ^18.0.0 || >=20.0.0}
-    hasBin: true
-    peerDependencies:
-      '@types/node': ^18.0.0 || >=20.0.0
-      less: '*'
-      lightningcss: ^1.21.0
-      sass: '*'
-      stylus: '*'
-      sugarss: '*'
-      terser: ^5.4.0
-    peerDependenciesMeta:
-      '@types/node':
-        optional: true
-      less:
-        optional: true
-      lightningcss:
-        optional: true
-      sass:
-        optional: true
-      stylus:
-        optional: true
-      sugarss:
-        optional: true
-      terser:
-        optional: true
-    dependencies:
-      esbuild: 0.19.9
-      postcss: 8.4.32
-      rollup: 4.9.6
-    optionalDependencies:
-      fsevents: 2.3.3
     dev: false
 
   /vite@5.0.11(@types/node@16.18.0)(sass@1.61.0)(stylus@0.59.0):

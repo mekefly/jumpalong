@@ -11,11 +11,10 @@
   "exports": {
     ".": {
       "import": {
-        "node": "./index.mjs",
-        "default": "./dist/nostr-runtime.esm-bundler.js"
+        "default": "./dist/nostr-runtime.js"
       },
       "require": {
-        "default": "./index.js"
+        "default": "./dist/nostr-runtime.umd.js"
       }
     }
   },
