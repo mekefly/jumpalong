@@ -19,7 +19,8 @@
     }
   },
   "scripts": {
-    "build": "vite build"
+    "build": "vite build",
+    "build:watch": "vite build"
   },
   "keywords": [],
   "author": "Mekefly",

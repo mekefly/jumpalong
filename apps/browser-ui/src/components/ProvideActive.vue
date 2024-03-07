@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { provideActiveComponent } from './ProvideActive'
-import { defineProps } from 'vue'
+import { toRefs } from 'vue'
 const props = defineProps<{
   active?: boolean
-  name?:string
+  name?: string
 }>()
 const { active } = toRefs(props)
 provideActiveComponent(active)
