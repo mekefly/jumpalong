@@ -4,7 +4,7 @@ import {
   UserApiStaff,
   type UserMetaData,
   LoginStaff,
-} from '@jumpalong/nostr-runtime'
+} from '@/nostr-runtime'
 import { NButton, NSpace } from 'naive-ui'
 import { useEventLine, usePubkey } from '../components/ProvideEventLine'
 import UserMetadataEditingVue from './UserMetadataEditing.vue'

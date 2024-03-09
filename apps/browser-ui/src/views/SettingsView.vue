@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ConfigStaff } from '@jumpalong/nostr-runtime'
+import { ConfigStaff } from '@/nostr-runtime'
 import ArrowForwardIosRoundVue from '../components/icon/ArrowForwardIosRound.vue'
 import { clearCache, intelligentCleaning } from '../utils/cache/index'
 import { useEventLine } from '../components/ProvideEventLine'

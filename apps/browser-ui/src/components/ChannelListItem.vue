@@ -1,9 +1,6 @@
 <script lang="ts" setup>
-import {
-  ChannelMetadata,
-  ChannelMetadataApiStaff,
-  Synchronizer,
-} from '@jumpalong/nostr-runtime'
+import { ChannelMetadataApiStaff, Synchronizer } from '@jumpalong/nostr'
+import { ChannelMetadata } from '@jumpalong/nostr-shared'
 import EllipsisVue from './Ellipsis.vue'
 import { useEventLine } from './ProvideEventLine'
 const router = useRouter()

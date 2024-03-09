@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "outDir": "temp",
+    "sourceMap": false,
+    "target": "ESNext",
+    "newLine": "LF",
+    "useDefineForClassFields": false,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "allowJs": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "experimentalDecorators": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "removeComments": false,
+    "jsx": "preserve",
+    "lib": ["ESNext", "dom"],
+    "types": [
+      "vitest/globals",
+      "@jumpalong/logger/globals",
+      "./env",
+      "./auto-imports",
+      "./components",
+      "./globals"
+    ],
+    "rootDir": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+
+  "lib": ["ESNext", "dom"],
+  "include": ["./src/**/*.ts", "./src/**/*.vue", "vitest.config.ts"]
+}

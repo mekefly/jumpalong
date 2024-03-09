@@ -8,7 +8,7 @@ import {
   LoginStaff,
   Synchronizer,
   RelayConfiguratorSynchronizerAddUrlsStaff,
-} from '@jumpalong/nostr-runtime'
+} from '@/nostr-runtime'
 
 const message = useMessage()
 const onOK = useOnOK()

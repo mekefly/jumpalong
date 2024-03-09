@@ -4,7 +4,7 @@ import profile from '../assets/profile-2-400x400.png'
 import { useLazyComponent } from '../utils/use'
 import EllipsisVue from './Ellipsis.vue'
 import { getUrlsByEvent } from './PapawSourceUrl'
-import { Pubkey, UserApiStaff } from '@jumpalong/nostr-runtime'
+import { Pubkey, UserApiStaff } from '@/nostr-runtime'
 import { useEventLine } from './ProvideEventLine'
 
 const props = defineProps<{
@@ -16,7 +16,6 @@ let line = useEventLine(UserApiStaff)
 
 const relayUrls = computed(() => props.event && getUrlsByEvent(props.event))
 const [metadataLine, target, isShow] = useLazyComponent(() => {
-
   return line.getUserMetadataLineByPubkey(Pubkey.fromHex(pubkey.value))
 })
 const metadata = computed(() => metadataLine.value?.getMetadata())

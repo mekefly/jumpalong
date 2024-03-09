@@ -1,8 +1,5 @@
 <script lang="ts" setup>
-import {
-  GlobalDiscoveryUserStaff,
-  LoginUtilsStaff,
-} from '@jumpalong/nostr-runtime'
+import { GlobalDiscoveryUserStaff, LoginUtilsStaff } from '@/nostr-runtime'
 import { debounce } from '@jumpalong/shared'
 import { asyncWitchComputed, useAsyncData } from '../utils/use'
 import { useEventLine } from './ProvideEventLine'

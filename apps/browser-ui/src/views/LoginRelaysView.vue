@@ -2,16 +2,13 @@
 import RelayConfigVue from '@/components/RelayConfig.vue'
 import ScrollbarVue from '@/components/Scrollbar.vue'
 import TooltipVue from '@/components/Tooltip.vue'
+import { LoginStaff } from '@/nostr-runtime'
 import { useEventLine } from '../components/ProvideEventLine'
-import {
-  LoginStaff,
-  RelayConfiguratorSynchronizerStaff,
-} from '@jumpalong/nostr-runtime'
 
 console.log('event-line', inject(Symbol.for('event-line')))
 
 let nostrApiLine = useEventLine(LoginStaff)
-let relayConfiguratorLine = useEventLine(RelayConfiguratorSynchronizerStaff)
+let relayConfiguratorLine = useEventLine()
 let relayConfigurator = relayConfiguratorLine.relayConfigurator
 
 const isNewUser = ref(nostrApiLine.testAndVerifyNewUser())

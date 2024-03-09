@@ -1,0 +1,29 @@
+{
+  "name": "@jumpalong/core",
+  "version": "0.0.0-bate.0",
+  "description": "",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/core.js",
+      "require": "./dist/core.umd.js",
+      "types": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "build": "vite build",
+    "build:watch": "vite build"
+  },
+  "keywords": [],
+  "author": "Mekefly",
+  "license": "MIT",
+  "dependencies": {
+    "@jumpalong/logger": "workspace:*",
+    "@jumpalong/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@jumpalong/logger-vite-plugin": "workspace:*",
+    "url": "^0.11.3",
+    "vite": "^5.1.5"
+  }
+}

@@ -1,21 +1,12 @@
 <script lang="ts" setup>
+import { LoginStaff, NostrApiMode, Pubkey } from '@/nostr-runtime'
 import { nip19 } from 'nostr-tools'
+import { useEventLine, useIsMe } from '../components/ProvideEventLine'
 import { renderIcon, useClipboardDialog } from '../utils/naiveUi'
+import UserDataEditingVue from './UserDataEditing.vue'
 import MoreIconVue from './icon/MoreIcon.vue'
 import PencilVue from './icon/Pencil.vue'
 import ShareSocialVue from './icon/ShareSocial.vue'
-import UserDataEditingVue from './UserDataEditing.vue'
-import {
-  useEventLine,
-  usePubkey,
-  useIsMe,
-} from '../components/ProvideEventLine'
-import {
-  LoginStaff,
-  NostrApiMode,
-  Pubkey,
-  RelayConfiguratorSynchronizerStaff,
-} from '@jumpalong/nostr-runtime'
 
 const props = defineProps<{
   pubkey: Pubkey
@@ -23,7 +14,7 @@ const props = defineProps<{
 
 const { pubkey } = toRefs(props)
 
-const line = useEventLine(RelayConfiguratorSynchronizerStaff, LoginStaff)
+const line = useEventLine(LoginStaff)
 const clipboard = useClipboardDialog()
 const isItMe = useIsMe(pubkey)
 const showModal = ref(false)

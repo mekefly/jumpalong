@@ -4,12 +4,9 @@ import ButtonCloseVue from './ButtonClose.vue'
 import AccountTreeRoundVue from './icon/AccountTreeRound.vue'
 import RelayConnectListVue from './RelayConnectListCard.vue'
 import { useEventLine } from './ProvideEventLine'
-import {
-  RelayConfiguratorSynchronizerStaff,
-  PoolStaff,
-} from '@jumpalong/nostr-runtime'
+import { RelayConfiguratorSynchronizer, PoolStaff } from '@/nostr-runtime'
 
-let line = useEventLine(RelayConfiguratorSynchronizerStaff)
+let line = useEventLine(RelayConfiguratorSynchronizer.Staff)
 let relayPoolLine = useEventLine(PoolStaff)
 let relayPool = relayPoolLine.relayPool
 

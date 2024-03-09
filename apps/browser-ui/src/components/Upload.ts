@@ -1,6 +1,6 @@
+import { EventEmitter } from '@jumpalong/shared'
 import { matchNostrBuildResponseText } from '../utils/RegExpUtils'
 import { createId, myRequest, timeout } from '../utils/utils'
-import EventEmitter from 'events'
 import {
   type UploadCustomRequestOptions,
   type UploadFileInfo,

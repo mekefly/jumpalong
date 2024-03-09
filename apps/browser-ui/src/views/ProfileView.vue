@@ -2,10 +2,10 @@
 import {
   LoginStaff,
   Pubkey,
-  RelayConfiguratorSynchronizerStaff,
-  Synchronizer,
+  ContactConfigurationSynchronizer,
+  RelayConfiguratorSynchronizer,
   toDeCodeNprofile,
-} from '@jumpalong/nostr-runtime'
+} from '@/nostr-runtime'
 import { computed } from 'vue'
 import Profile from '../components/Profile.vue'
 import {
@@ -23,9 +23,8 @@ const currentPubkey = usePubkey()
 
 const line = useEventLine(
   // RelayConf
-  // Synchronizer.RelayConfiguratorSynchronizer.Staff,
-  RelayConfiguratorSynchronizerStaff,
-  Synchronizer.ContactConfigurationSynchronizer.Staff,
+  RelayConfiguratorSynchronizer.Staff,
+  ContactConfigurationSynchronizer.Staff,
   LoginStaff
 )
 

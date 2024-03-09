@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { createDynamicColor } from '@jumpalong/shared'
 import { t } from '../i18n'
-import { PoolStaff } from '@jumpalong/nostr-runtime'
+import { PoolStaff } from '@/nostr-runtime'
 import { useEventLine } from './ProvideEventLine'
 let line = useEventLine(PoolStaff)
 

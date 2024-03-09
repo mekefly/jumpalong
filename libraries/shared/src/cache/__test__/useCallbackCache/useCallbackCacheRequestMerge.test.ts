@@ -32,7 +32,7 @@ it('useCallbackCache:requestMerge', async () => {
     ff,
     {},
     {
-      even: f
+      even: f,
     }
   )
   await status()
@@ -46,7 +46,7 @@ it('useCallbackCache:requestMerge', async () => {
     ff,
     {},
     {
-      even: f2
+      even: f2,
     }
   )
   await s2()
@@ -75,7 +75,7 @@ it('useCallbackCache:requestMerge', async () => {
     ff,
     {},
     {
-      even: f
+      even: f,
     }
   )
   await status()

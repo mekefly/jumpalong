@@ -5,7 +5,7 @@ import { Event, Filter } from 'nostr-tools'
 import PapawByAddr from './PapawByAddr.vue'
 import PapawById from './PapawById.vue'
 import { useEventLine } from './ProvideEventLine'
-import { EventApiStaff } from '@jumpalong/nostr-runtime'
+import { EventApiStaff } from '@/nostr-runtime'
 import { useLoad } from './Refresh'
 
 logger.debug()

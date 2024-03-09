@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="org.worm.__name__" version="__version__" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>__displayName__</name>
+    <description>__description__</description>
+    <author email="__author.email__" href="__author.url__">
+        __name__
+    </author>
+    <content src="index.html" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+    <platform name="android">
+        <!--配置app图标-->
+        <icon density="ldpi" src="www/favicon-dark.png" />
+        <icon density="mdpi" src="www/favicon-dark.png" />
+        <icon density="hdpi" src="www/favicon-dark.png" />
+        <icon density="xhdpi" src="www/favicon-dark.png" />
+        <icon density="xxhdpi" src="www/favicon-dark.png" />
+        <icon density="xxxhdpi" src="www/favicon-dark.png" />
+        <!-- 以下是欢迎页面，可根据需要进行添加 -->
+        <splash density="land-hdpi" src="www/favicon-dark.png" />  
+        <splash density="land-ldpi" src="www/favicon-dark.png" />  
+        <splash density="land-mdpi" src="www/favicon-dark.png" />  
+        <splash density="land-xhdpi" src="www/favicon-dark.png" />  
+        <splash density="port-hdpi" src="www/favicon-dark.png" />  
+        <splash density="port-ldpi" src="www/favicon-dark.png" />  
+        <splash density="port-mdpi" src="www/favicon-dark.png" />  
+        <splash density="port-xhdpi" src="www/favicon-dark.png" />  
+    </platform>
+</widget>

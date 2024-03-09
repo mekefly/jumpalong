@@ -1,5 +1,4 @@
 import './logger'
-import '@jumpalong/nostr-runtime'
 import './style.css'
 
 import { createApp } from 'vue'
@@ -17,9 +16,3 @@ app.use(i18n)
 app._instance
 app.config.globalProperties.t = t
 app.mount('#app')
-
-declare module 'vue' {
-  export interface ComponentCustomProperties {
-    t: typeof t
-  }
-}

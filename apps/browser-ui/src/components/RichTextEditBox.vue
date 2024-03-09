@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { EventUtilsStaff } from '@jumpalong/nostr-runtime'
+import { EventUtilsStaff } from '@/nostr-runtime'
 import { createId, debounce } from '@jumpalong/shared'
 import { EventTemplate } from 'nostr-tools'
 import { ref } from 'vue'

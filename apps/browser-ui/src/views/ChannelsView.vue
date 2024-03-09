@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import ChannelListItemVue from '../components/ChannelListItem.vue'
 import { useEventLine } from '../components/ProvideEventLine'
-import { Synchronizer } from '@jumpalong/nostr-runtime'
+import { Synchronizer } from '@/nostr-runtime'
 const router = useRouter()
 
 let line = useEventLine(Synchronizer.ListSynchronizerManager.Staff)

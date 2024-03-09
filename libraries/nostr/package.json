@@ -1,0 +1,36 @@
+{
+  "name": "@jumpalong/nostr",
+  "version": "0.0.0-bate.0",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/nostr.js",
+      "require": "./dist/nostr.umd.js",
+      "types": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "build": "vite build",
+    "build:watch": "vite build"
+  },
+  "keywords": [],
+  "author": "Mekefly",
+  "license": "MIT",
+  "dependencies": {
+    "@jumpalong/logger": "workspace:*",
+    "@jumpalong/shared": "workspace:*",
+    "@jumpalong/core": "workspace:*",
+    "@jumpalong/nostr-shared": "workspace:*",
+    "nostr-tools": "^2.1.1",
+    "sha256": "^0.2.0"
+  },
+  "devDependencies": {
+    "@jumpalong/logger-vite-plugin": "workspace:*",
+    "@types/sha256": "^0.2.2",
+    "rollup": "^4.9.6",
+    "url": "^0.11.3",
+    "vite": "^5.1.5"
+  }
+}

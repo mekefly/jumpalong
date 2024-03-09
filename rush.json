@@ -318,8 +318,16 @@
       "projectFolder": "libraries/shared"
     },
     {
-      "packageName": "@jumpalong/nostr-runtime",
-      "projectFolder": "libraries/nostr-runtime"
+      "packageName": "@jumpalong/nostr-shared",
+      "projectFolder": "libraries/nostr-shared"
+    },
+    {
+      "packageName": "@jumpalong/core",
+      "projectFolder": "libraries/core"
+    },
+    {
+      "packageName": "@jumpalong/nostr",
+      "projectFolder": "libraries/nostr"
     },
     {
       "packageName": "@jumpalong/browser-ui",
@@ -345,27 +353,27 @@
     //   "reviewCategory": "production",
     //
     //   /**
-    //    * A list of Rush project names that are to be installed from NPM
-    //    * instead of linking to the local project.
-    //    *
-    //    * If a project's package.json specifies a dependency that is another Rush project
-    //    * in the monorepo workspace, normally Rush will locally link its folder instead of
-    //    * installing from NPM.  If you are using PNPM workspaces, this is indicated by
-    //    * a SemVer range such as "workspace:^1.2.3".  To prevent mistakes, Rush reports
-    //    * an error if the "workspace:" protocol is missing.
-    //    *
-    //    * Locally linking ensures that regressions are caught as early as possible and is
-    //    * a key benefit of monorepos.  However there are occasional situations where
-    //    * installing from NPM is needed.  A classic example is a cyclic dependency.
-    //    * Imagine three Rush projects: "my-toolchain" depends on "my-tester", which depends
-    //    * on "my-library".  Suppose that we add "my-toolchain" to the "devDependencies"
-    //    * of "my-library" so it can be built by our toolchain.  This cycle creates
-    //    * a problem -- Rush can't build a project using a not-yet-built dependency.
-    //    * We can solve it by adding "my-toolchain" to the "decoupledLocalDependencies"
-    //    * of "my-library", so it builds using the last published release.  Choose carefully
-    //    * which package to decouple; some choices are much easier to manage than others.
-    //    *
-    //    * (In older Rush releases, this setting was called "cyclicDependencyProjects".)
+    //    *要从 NPM 安装的 Rush 项目名称列表
+    //*而不是链接到本地​​项目。
+    //*
+    //*如果项目的 package.json 指定了另一个 Rush 项目的依赖项
+    //*在 monorepo 工作区中，通常 Rush 会本地链接其文件夹而不是
+    //*从 NPM 安装。如果您使用 PNPM 工作区，则由
+    //*SemVer 范围，例如“workspace:^1.2.3”。拉什报道称，为了防止错误
+    //*如果缺少“workspace:”协议，则会出现错误。
+    //*
+    //*本地链接可确保尽早捕获回归并且
+    //*monorepos 的一个关键优势。但偶尔也有这样的情况
+    //*需要从 NPM 安装。一个典型的例子是循环依赖。
+    //*想象三个 Rush 项目：“my-toolchain”依赖于“my-tester”，而“my-tester”又依赖于
+    //*在“我的库”上。假设我们将“my-toolchain”添加到“devDependencies”中
+    //*“my-library”，因此它可以由我们的工具链构建。这个循环创造了
+    //*一个问题 --Rush 无法使用尚未构建的依赖项构建项目。
+    //*我们可以通过将“my-toolchain”添加到“deCoupledLocalDependency”来解决它
+    //*“my-library”，因此它使用最新发布的版本进行构建。谨慎选择
+    //*解耦哪个包；有些选择比其他选择更容易管理。
+    //*
+    //*（在较早的 Rush 版本中，此设置称为“cyclingDependencyProjects”。）
     //    */
     //   "decoupledLocalDependencies": [
     //     // "my-toolchain"

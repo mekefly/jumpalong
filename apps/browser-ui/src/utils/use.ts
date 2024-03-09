@@ -1,20 +1,29 @@
+import {
+  AddPublishStaff,
+  AutoAddKind10002UrlStaff,
+  EventUtilsStaff,
+  LoginStaff,
+  RelayConfiguratorSynchronizer,
+} from '@/nostr-runtime'
 import type { Event, EventTemplate } from 'nostr-tools'
 import {
-  computed,
   ComputedGetter,
-  getCurrentInstance,
   InjectionKey,
+  MaybeRef,
+  WatchOptions,
+  WatchStopHandle,
+  computed,
+  getCurrentInstance,
   onUpdated,
   ref,
   unref,
   watch,
   watchEffect,
-  WatchStopHandle,
   type Ref,
-  MaybeRef,
 } from 'vue'
 import { useRouter } from 'vue-router'
-import { type EventApi } from '../api/event'
+import { useEventLine } from '../components/ProvideEventLine'
+import { useInjectScrollbarInstRef } from '../components/Scrollbar'
 import {
   defaultCacheOptions,
   getCacheOrNull,
@@ -22,22 +31,7 @@ import {
   useCache,
 } from './cache'
 import { CacheOptions } from './cache/types'
-import { type CallBackT } from './types'
-import { debounce, nowSecondTimestamp, setAdds, withDefault } from './utils'
-import { useNostrContainerGet } from '../components/NostrContainerProvade'
-import { useInjectScrollbarInstRef } from '../components/Scrollbar'
-import { WatchOptions } from 'vue'
-import {
-  AddPublishStaff,
-  AutoAddKind10002UrlStaff,
-  EventLine,
-  LoginStaff,
-  PublishStaff,
-  RelayConfiguratorSynchronizerStaff,
-} from '@jumpalong/nostr-runtime'
-import { useEventLine } from '../components/ProvideEventLine'
-import { RelayConfiguratorSynchronizer } from 'packages/nostr-runtime/src/Synchronizer'
-import { optional } from 'inversify'
+import { debounce, nowSecondTimestamp, withDefault } from './utils'
 
 export function useNextUpdate() {
   const callBacks: any[] = []
@@ -435,7 +429,7 @@ export function useHandleSendMessage(
   }
 ) {
   const onOK = useOnOK()
-  const line = useEventLine(RelayConfiguratorSynchronizerStaff)
+  const line = useEventLine()
 
   return async function handleSendEvent(
     eventTemplate: EventTemplate,
@@ -447,8 +441,8 @@ export function useHandleSendMessage(
       .createChild()
       .add(
         AddPublishStaff,
-        LoginStaff,
-        RelayConfiguratorSynchronizerStaff,
+        EventUtilsStaff,
+        RelayConfiguratorSynchronizer.Staff,
         AutoAddKind10002UrlStaff
       )
     let event = await publishLine.createEvent(eventTemplate)

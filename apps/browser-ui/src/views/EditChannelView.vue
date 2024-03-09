@@ -1,15 +1,15 @@
 <script lang="ts" setup>
 import ChannelMetadataEditVue from '@/components/ChannelMetadataEdit.vue'
-import { useOnOK } from '../utils/use'
 import {
   AddPublishStaff,
   ChannelMetadata,
   ChannelMetadataApiStaff,
   LoginStaff,
-  RelayConfiguratorSynchronizerStaff,
+  RelayConfiguratorSynchronizer,
   toDeCodeNevent,
-} from '@jumpalong/nostr-runtime'
+} from '@/nostr-runtime'
 import { useEventLine } from '../components/ProvideEventLine'
+import { useOnOK } from '../utils/use'
 
 const message = useMessage()
 const route = useRoute()
@@ -55,7 +55,7 @@ async function handleSave() {
   }
   const publishLine = line
     .createChild()
-    .add(AddPublishStaff, LoginStaff, RelayConfiguratorSynchronizerStaff)
+    .add(AddPublishStaff, LoginStaff, RelayConfiguratorSynchronizer.Staff)
 
   const event = await publishLine.createEvent({
     kind: 41,
