@@ -1,19 +1,13 @@
 import {
-  EventLine,
-  EventLineConfig,
-  EventLineFactory,
+  EventLineMod,
+  GlobalUrlsStaff,
   LoginStaff,
-  MixinEventLineConfig,
+  LoginUtilsStaff,
+  PauseStaff,
   PoolStaff,
   Pubkey,
-  RelayConfiguratorSynchronizerStaff,
-  PauseStaff,
   RelayConfiguratorSynchronizerAddUrlsStaff,
-  StaffFlag,
-  MergeStaffConfig,
-  GlobalUrlsStaff,
-  LoginUtilsStaff,
-} from '@jumpalong/nostr-runtime'
+} from '@/nostr-runtime'
 import { createInjection } from '../utils/useUtils'
 import { ReactiveStaff } from '../utils/vue'
 import { useActiveComponent } from './ProvideActive'
@@ -28,11 +22,11 @@ export const [
     noWarn: true,
   },
   (...rest: any[]) => {
-    return new EventLineFactory().add(
+    return new EventLineMod().add(
       ReactiveStaff,
       PoolStaff,
       //中继同步器
-      RelayConfiguratorSynchronizerStaff,
+      // RelayConfiguratorSynchronizer.Staff,
       RelayConfiguratorSynchronizerAddUrlsStaff,
       //登录
       LoginStaff,
@@ -71,19 +65,24 @@ export function provideEventLineScoped(name?: string) {
   return scopedMod
 }
 
-export function useEventLine<REST extends StaffFlag[] = []>(
-  ...rest: REST
-): EventLine<MergeStaffConfig<REST>>
-export function useEventLine<
-  Config extends EventLineConfig = {},
-  REST extends Array<
-    (line: EventLineFactory<any>) => EventLineFactory<any>
-  > = []
->(...rest: any[]) {
-  return assertInjectEventLineMod()
-    .out()
-    .add(...(rest as [any]))
+// export function useEventLine<REST extends StaffFlag[] = []>(
+//   ...rest: REST
+// ): EventLine<MergeStaffConfig<REST>>
+export const useEventLine: ReturnType<
+  typeof assertInjectEventLineMod
+>['line']['add'] = function (...rest: any) {
+  return (
+    assertInjectEventLineMod()
+      .out()
+      //@jumpalong
+      .add(...rest)
+  )
 }
+
+// assertInjectEventLineMod()
+//   .out()
+//   //@jumpalong
+//   .add<REST>(...rest)
 export function usePubkey() {
   let line = useEventLine(LoginUtilsStaff)
   let pubkey = asyncComputed(() => {

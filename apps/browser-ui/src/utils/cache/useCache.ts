@@ -1,15 +1,15 @@
-import { EventEmitter } from "events";
-import { isPromise, withDefault } from "../utils";
-import { cacheParser, cacheStringify, createCache } from "./cache";
-import { defaultCacheOptions } from "./defaultCacheOptions";
-import keylist from "./keylist";
-import { AsyncReCacheOptions, Cache, CacheOptions } from "./types";
+import { EventEmitter } from '@jumpalong/shared'
+import { isPromise, withDefault } from '../utils'
+import { cacheParser, cacheStringify, createCache } from './cache'
+import { defaultCacheOptions } from './defaultCacheOptions'
+import keylist from './keylist'
+import { AsyncReCacheOptions, Cache, CacheOptions } from './types'
 
 /**内存缓存数据对象，更快一点 */
-let memoryCacheDate: { [key: string]: any } = {};
+let memoryCacheDate: { [key: string]: any } = {}
 /** promise合并事件对象 */
-const promiseMergeEventEmitter = new EventEmitter();
-promiseMergeEventEmitter.setMaxListeners(1000);
+const promiseMergeEventEmitter = new EventEmitter()
+promiseMergeEventEmitter.setMaxListeners(1000)
 
 /**
  * 异步缓存
@@ -22,7 +22,7 @@ promiseMergeEventEmitter.setMaxListeners(1000);
  * @param {number} [options] 缓存持续时间
  * @return {*}  {Promise<E>}
  */
-export const useAsyncCache = useCache;
+export const useAsyncCache = useCache
 
 /**
  * 同步和异部缓存
@@ -41,24 +41,24 @@ export function useCache<E, REST extends any[]>(
   options: AsyncReCacheOptions = defaultCacheOptions,
   ...rest: REST
 ): E {
-  withDefault(options, defaultCacheOptions);
+  withDefault(options, defaultCacheOptions)
   try {
-    return getCache(key, options);
+    return getCache(key, options)
   } catch (error) {
-    return autoReCache(key, genValue, options, rest);
+    return autoReCache(key, genValue, options, rest)
   }
 }
 
 export function getMemoryCacheLength() {
-  return Object.keys(memoryCacheDate).length;
+  return Object.keys(memoryCacheDate).length
 }
 export function clearMemoryCache() {
-  memoryCacheDate = {} as any;
+  memoryCacheDate = {} as any
 }
 
 /** @type {*} 缓存失效或没有缓存将会抛出此错误 */
-const noCache = Symbol("noCache");
-const skip = Symbol("skip");
+const noCache = Symbol('noCache')
+const skip = Symbol('skip')
 
 /**
  * 异步从新缓存
@@ -75,22 +75,21 @@ export function autoReCache<E, REST extends any[]>(
   rest: REST
 ): E {
   const _setCache = (v: any) => {
-    setCache(key, v, options);
-    return v;
-  };
+    setCache(key, v, options)
+    return v
+  }
 
   if (options.requestMerge) {
     //只有第一次执行函数才执行，后面的都等待出结果
-    return promiseMerge(key, genValue, options, rest);
+    return promiseMerge(key, genValue, options, rest)
   } else {
     return autoAsyncChche(
       key,
       genValue,
       options,
       rest,
-      (v) =>
-        v.then(_setCache, options.cacheError ? _setCache : undefined) as any
-    );
+      v => v.then(_setCache, options.cacheError ? _setCache : undefined) as any
+    )
   }
 }
 /**
@@ -104,32 +103,32 @@ function promiseMerge<E, REST extends any[]>(
   options: AsyncReCacheOptions,
   rest: REST
 ): any {
-  const resKey = `res:${key}`;
-  const rejKey = `rej:${key}`;
-  const emitRes = (v: any) => promiseMergeEventEmitter.emit(resKey, v);
-  const emitRej = (v: any) => promiseMergeEventEmitter.emit(rejKey, v);
+  const resKey = `res:${key}`
+  const rejKey = `rej:${key}`
+  const emitRes = (v: any) => promiseMergeEventEmitter.emit(resKey, v)
+  const emitRej = (v: any) => promiseMergeEventEmitter.emit(rejKey, v)
   const asyncOn = () =>
     new Promise<any>((res, rej) => {
-      promiseMergeEventEmitter.once(resKey, res);
-      promiseMergeEventEmitter.once(rejKey, rej);
-    }) as any;
+      promiseMergeEventEmitter.once(resKey, res)
+      promiseMergeEventEmitter.once(rejKey, rej)
+    }) as any
 
-  if (promiseMergeEventEmitter.listenerCount(resKey) > 0) return asyncOn();
+  if (promiseMergeEventEmitter.listenerCount(resKey) > 0) return asyncOn()
 
-  return autoAsyncChche(key, genValue, options, rest, (v) => {
+  return autoAsyncChche(key, genValue, options, rest, v => {
     v.then(
       (value: any) => {
-        setCache(key, value, options);
+        setCache(key, value, options)
 
-        emitRes(value);
+        emitRes(value)
       },
       (error: any) => {
-        options.cacheError && setCache(key, error, options);
-        emitRej(error);
+        options.cacheError && setCache(key, error, options)
+        emitRej(error)
       }
-    );
-    return asyncOn();
-  });
+    )
+    return asyncOn()
+  })
 }
 
 /**
@@ -149,12 +148,12 @@ function autoAsyncChche<E, REST extends any[]>(
   rest: REST,
   promiseHandle: (v: Promise<any>) => Promise<any>
 ): any {
-  const v = genValue(...rest);
+  const v = genValue(...rest)
   if (isPromise(v)) {
-    return promiseHandle(v as any);
+    return promiseHandle(v as any)
   } else {
-    setCache(key, v, options);
-    return v;
+    setCache(key, v, options)
+    return v
   }
 }
 /**
@@ -172,10 +171,10 @@ function reCache<E, REST extends any[]>(
   options?: CacheOptions,
   ...rest: REST
 ) {
-  const value = genValue(...rest);
-  setCache(key, value, options);
+  const value = genValue(...rest)
+  setCache(key, value, options)
 
-  return value;
+  return value
 }
 /**
  * 获取缓存
@@ -189,16 +188,16 @@ export function getCache(
 ) {
   try {
     if (!options.useMemoryCache) {
-      throw skip;
+      throw skip
     }
-    return getMemoryCache(key);
+    return getMemoryCache(key)
   } catch (error) {
     if (!options.useLocalStorage) {
-      throw skip;
+      throw skip
     }
-    const cache = getLocalStorageCache(key);
+    const cache = getLocalStorageCache(key)
 
-    return cache;
+    return cache
   }
 }
 export function getCacheOrNull<T>(
@@ -206,9 +205,9 @@ export function getCacheOrNull<T>(
   options?: CacheOptions
 ): null | T {
   try {
-    return getCache(key, options);
+    return getCache(key, options)
   } catch (error) {
-    return null;
+    return null
   }
 }
 
@@ -220,10 +219,10 @@ export function getCacheOrNull<T>(
  * @param {number} [duration]
  */
 export function setCache(key: string, value: any, options?: CacheOptions) {
-  const localStorageCache = createCache(value, options?.duration);
+  const localStorageCache = createCache(value, options?.duration)
 
-  options?.useMemoryCache && setMemoryCache(key, localStorageCache);
-  options?.useLocalStorage && setLocalStorage(key, localStorageCache);
+  options?.useMemoryCache && setMemoryCache(key, localStorageCache)
+  options?.useLocalStorage && setLocalStorage(key, localStorageCache)
 }
 /**
  * 缓存内存缓存，更快
@@ -232,11 +231,11 @@ export function setCache(key: string, value: any, options?: CacheOptions) {
  * @return {*}
  */
 function getMemoryCache(key: string) {
-  const cache = memoryCacheDate[key];
+  const cache = memoryCacheDate[key]
 
-  checkCache(cache);
+  checkCache(cache)
 
-  return cache.value;
+  return cache.value
 }
 /**
  * 获取LocationStorage缓存
@@ -245,28 +244,28 @@ function getMemoryCache(key: string) {
  * @return {*}
  */
 export function getLocalStorageCache(key: string) {
-  const catchString = getLocalStorageString(key);
+  const catchString = getLocalStorageString(key)
 
   try {
-    const cache: Cache<any> = cacheParser(catchString);
-    checkCache(cache);
-    return cache.value;
+    const cache: Cache<any> = cacheParser(catchString)
+    checkCache(cache)
+    return cache.value
   } catch (error) {
-    keylist.delete(key);
-    throw error;
+    keylist.delete(key)
+    throw error
   }
 }
 
 export function deleteCache(key: string) {
-  deleteLocalStorageCache(key);
-  deleteMemoryCache(key);
+  deleteLocalStorageCache(key)
+  deleteMemoryCache(key)
 }
 export function deleteMemoryCache(key: string) {
-  delete memoryCacheDate[key];
+  delete memoryCacheDate[key]
 }
 export function deleteLocalStorageCache(key: string) {
-  keylist.delete(key);
-  localStorage.removeItem(key);
+  keylist.delete(key)
+  localStorage.removeItem(key)
 }
 /**
  * LocalStorage只可以存储文本
@@ -275,12 +274,12 @@ export function deleteLocalStorageCache(key: string) {
  * @return {*}
  */
 function getLocalStorageString(key: string) {
-  const valueString = localStorage.getItem(key);
+  const valueString = localStorage.getItem(key)
 
   if (!valueString) {
-    throw noCache;
+    throw noCache
   }
-  return valueString;
+  return valueString
 }
 /**
  * 设置内存缓存
@@ -289,7 +288,7 @@ function getLocalStorageString(key: string) {
  * @param {*} value
  */
 function setMemoryCache(key: string, value: any) {
-  memoryCacheDate[key] = value;
+  memoryCacheDate[key] = value
 }
 /**
  * 设置LocalStorage缓存
@@ -298,19 +297,19 @@ function setMemoryCache(key: string, value: any) {
  * @param {*} cache
  */
 export function setLocalStorage(key: string, cache: any) {
-  keylist.add(key);
-  localStorage.setItem(key, cacheStringify(cache));
+  keylist.add(key)
+  localStorage.setItem(key, cacheStringify(cache))
 }
 
 export function removeCache(key: string) {
-  removeMemoryCache(key);
-  removeLocalStorage(key);
+  removeMemoryCache(key)
+  removeLocalStorage(key)
 }
 export function removeMemoryCache(key: string) {
-  delete memoryCacheDate[key];
+  delete memoryCacheDate[key]
 }
 export function removeLocalStorage(key: string) {
-  localStorage.removeItem(key);
+  localStorage.removeItem(key)
 }
 /**
  * 验证本地缓存
@@ -321,33 +320,33 @@ export function removeLocalStorage(key: string) {
  */
 export function checkCache<E>(localCache: Cache<E>) {
   if (!localCache) {
-    throw noCache;
+    throw noCache
   }
 
-  const nowTime = Date.now();
-  const updateTime = localCache.updateTime;
-  const duration = localCache.duration;
+  const nowTime = Date.now()
+  const updateTime = localCache.updateTime
+  const duration = localCache.duration
 
   try {
     if (!(nowTime - updateTime < duration)) {
-      throw noCache;
+      throw noCache
     }
   } catch (error) {
-    throw noCache;
+    throw noCache
   }
 }
 export function isCache(v: any): v is Cache<any> {
   if (!v) {
-    return false;
+    return false
   }
-  if (typeof v !== "object") {
-    return false;
+  if (typeof v !== 'object') {
+    return false
   }
-  if (typeof v.updateTime !== "number") {
-    return false;
+  if (typeof v.updateTime !== 'number') {
+    return false
   }
-  if (typeof v.duration !== "number") {
-    return false;
+  if (typeof v.duration !== 'number') {
+    return false
   }
-  return true;
+  return true
 }

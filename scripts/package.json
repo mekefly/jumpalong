@@ -1,0 +1,9 @@
+{
+  "module": "commonjs",
+  "dependencies": {
+    "minimist": "^1.2.8"
+  },
+  "devDependencies": {
+    "@types/minimist": "^1.2.5"
+  }
+}

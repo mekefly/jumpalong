@@ -3,7 +3,7 @@ import { usePushShortTextNote } from '../views/ShortTextNoteView'
 import { useNostrContainerGet } from './NostrContainerProvade'
 import Papaw from './Papaw.vue'
 import PapawTreeHierarchy from './PapawTreeHierarchy.vue'
-import { EventApiStaff } from '@jumpalong/nostr-runtime'
+import { EventApiStaff } from '@/nostr-runtime'
 import { useEventLine } from './ProvideEventLine'
 import { NEmpty } from 'naive-ui'
 

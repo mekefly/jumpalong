@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { LoginStaff, WindowNostr } from '@jumpalong/nostr-runtime'
+import { LoginStaff, WindowNostr } from '@jumpalong/nostr'
 import AiddrLink from './NaddrLink.vue'
 import { useEventLine } from './ProvideEventLine'
 import TestNostrApi from './TestNostrApi.vue'

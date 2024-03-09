@@ -1,5 +1,5 @@
 // import { getSourceUrls } from "@/nostr/staff/createEventSourceTracers";
-import { deserializeTagR } from '@jumpalong/nostr-runtime'
+import { deserializeTagR } from '@/nostr-runtime'
 import {
   defaultCacheOptions,
   getCacheOrNull,

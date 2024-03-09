@@ -4,7 +4,7 @@ import { useNostrContainerGet } from './NostrContainerProvade'
 import { usePapawFocusState } from './Papaw'
 import PapawTree from './PapawTree.vue'
 import { useEventLine } from './ProvideEventLine'
-import { EventApiStaff } from '@jumpalong/nostr-runtime'
+import { EventApiStaff } from '@/nostr-runtime'
 logger.debug()
 
 const props = defineProps<{ event: Event; noTree?: boolean }>()
@@ -14,16 +14,15 @@ const limit = 5
 
 const generalEventEventBeltline = useEventLine(EventApiStaff)
 const line = computed(() =>
-  generalEventEventBeltline
-    .textEventBeltline({
-      limit,
-      filters: [
-        {
-          '#e': [id.value],
-          kinds: [1, 30023],
-        },
-      ],
-    })
+  generalEventEventBeltline.textEventBeltline({
+    limit,
+    filters: [
+      {
+        '#e': [id.value],
+        kinds: [1, 30023],
+      },
+    ],
+  })
 )
 const eventList = computed(() => line.value.getList())
 const state = usePapawFocusState()

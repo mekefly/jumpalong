@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events'
+import { EventEmitter } from '../events'
 import { isPromise, withDefault } from '../utils'
 import { cacheParser, cacheStringify, createCache } from './cache'
 import { defaultCacheOptions } from './defaultCacheOptions'

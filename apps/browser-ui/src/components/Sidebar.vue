@@ -19,7 +19,7 @@ import UserVue from './icon/User.vue'
 import UsersVue from './icon/Users.vue'
 import LogoutButtonVue from './LogoutButton.vue'
 import { useEventLine } from './ProvideEventLine'
-import { NostrModeStaff } from '@jumpalong/nostr-runtime'
+import { NostrModeStaff } from '@/nostr-runtime'
 let line = useEventLine(NostrModeStaff)
 
 const { collapsed } = defineProps<{ collapsed: boolean }>()

@@ -3,7 +3,7 @@ import {
   EventByIdApiStaff,
   neventEncodeByEvent,
   toDeCodeNevent,
-} from '@jumpalong/nostr-runtime'
+} from '@/nostr-runtime'
 import { useNostrContainerGet } from '../components/NostrContainerProvade'
 import { useEventLine } from '../components/ProvideEventLine'
 // import { neventEncodeByEvent, toDeCodeNevent } from "../utils/nostr";

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-// import { localMap } from '@jumpalong/nostr-runtime'
+// import { localMap } from '@/nostr-runtime'
 // import { parseMetadata } from "@jumpalong/nostr-runtime";
 import {
   matchTagPlaceholderRegExp,
@@ -14,7 +14,7 @@ import ContentWebsiteVue from './ContentWebsite.vue'
 import AiddrLink from './NaddrLink.vue'
 // import RelayContent from './RelayContent.vue'
 import UserLinkVue from './UserLink.vue'
-import { parseMetadata } from '@jumpalong/nostr-runtime'
+import { parseMetadata } from '@/nostr-runtime'
 
 const props = defineProps<{
   event: Event

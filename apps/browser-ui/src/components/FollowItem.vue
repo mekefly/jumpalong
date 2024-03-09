@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { UserApiStaff, Pubkey } from '@jumpalong/nostr-runtime'
+import { UserApiStaff, Pubkey } from '@/nostr-runtime'
 import profile from '../assets/profile-2-400x400.png'
 import { useLazyComponent } from '../utils/use'
 import Ellipsis from './Ellipsis.vue'

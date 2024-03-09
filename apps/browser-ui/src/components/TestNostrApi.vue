@@ -10,7 +10,7 @@ import {
   apiNameList,
   NostrApi,
   CommonNostrApiImpl,
-} from '@jumpalong/nostr-runtime'
+} from '@/nostr-runtime'
 import { defineModel } from 'vue'
 import AbsentPrompt from './AbsentPrompt.vue'
 import { useAbsentPromptDialog } from '../utils/naiveUi'

@@ -19,13 +19,7 @@
     "removeComments": false,
     "jsx": "preserve",
     "lib": ["ESNext", "dom"],
-    "types": [
-      "vitest/globals",
-      "node",
-      "@jumpalong/logger/globals",
-      "@jumpalong/browser-ui/auto-imports",
-      "@jumpalong/browser-ui/components"
-    ],
+    "types": ["vitest/globals", "node"],
     "rootDir": ".",
     "paths": {
       "@jumpalong/*": ["packages/*/src"],

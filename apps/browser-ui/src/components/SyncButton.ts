@@ -1,7 +1,4 @@
-import {
-  RelayConfiguratorSynchronizerStaff,
-  Synchronizer,
-} from '@jumpalong/nostr-runtime'
+import { RelayConfiguratorSynchronizer, Synchronizer } from '@/nostr-runtime'
 import { useThemeVars } from 'naive-ui'
 import { DialogApiInjection } from 'naive-ui/es/dialog/src/DialogProvider'
 import { MessageApiInjection } from 'naive-ui/es/message/src/MessageProvider'
@@ -44,7 +41,7 @@ function handelSync(
   })
 }
 export function useSyncState(url: Ref<string>) {
-  let line = useEventLine(RelayConfiguratorSynchronizerStaff)
+  let line = useEventLine(RelayConfiguratorSynchronizer.Staff)
   let relayConfigurator = line.relayConfigurator
   const dialog = useDialog()
   const message = useMessage()

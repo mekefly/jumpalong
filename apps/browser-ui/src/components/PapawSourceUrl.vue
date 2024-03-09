@@ -1,16 +1,13 @@
 <script lang="ts" setup>
+import { RelayConfiguratorSynchronizer } from '@/nostr-runtime'
 import { Event } from 'nostr-tools'
 import DrawerVue from './Drawer.vue'
-import { getUrlColor } from './PapawSourceUrl'
-import RelayAddButtonVue from './RelayAddButton.vue'
-import RelayConnectListVue from './RelayConnectList.vue'
-import ScrollbarVue from './Scrollbar.vue'
-import { RelayConfiguratorSynchronizerStaff } from '@jumpalong/nostr-runtime'
 import { useEventLine } from './ProvideEventLine'
+import ScrollbarVue from './Scrollbar.vue'
 
 const props = defineProps<{ event: Event }>()
 const event = toRef(props, 'event')
-let l = useEventLine(RelayConfiguratorSynchronizerStaff)
+let l = useEventLine(RelayConfiguratorSynchronizer.Staff)
 // const sourceUrls = computed(() => getSourceUrls(event.value.id));
 const active = ref(false)
 

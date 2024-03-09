@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Pubkey, UserMetaData } from '@jumpalong/nostr-runtime'
+import { Pubkey, UserMetaData } from '@/nostr-runtime'
 import profile from '../assets/profile-2-400x400.png'
 import EllipsisVue from '../components/Ellipsis.vue'
 import CloudLightning from '../components/icon/CloudLightning.vue'

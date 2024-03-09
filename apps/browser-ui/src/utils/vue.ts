@@ -4,7 +4,7 @@ import { debounce } from './utils'
 import {
   ReactiveStaff as runtime_ReactiveStaff,
   createStaff,
-} from '@jumpalong/nostr-runtime'
+} from '@/nostr-runtime'
 
 export const debounceWatch: typeof watch &
   ((

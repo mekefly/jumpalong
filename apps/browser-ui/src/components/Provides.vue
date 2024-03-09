@@ -1,10 +1,9 @@
 <script lang="ts" setup>
 import {
-  NButton,
   NDialogProvider,
+  NLoadingBarProvider,
   NMessageProvider,
   NNotificationProvider,
-  NLoadingBarProvider,
 } from 'naive-ui'
 import ProvideEventLine from './ProvideEventLine.vue'
 import NostrConnect from './ProvideNostrConnect.vue'

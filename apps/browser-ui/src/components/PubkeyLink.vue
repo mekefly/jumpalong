@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Pubkey, UserMetaData } from '@jumpalong/nostr-runtime'
+import { Pubkey, UserMetaData } from '@/nostr-runtime'
 import { NButton } from 'naive-ui'
 import { RouterLink } from 'vue-router'
 

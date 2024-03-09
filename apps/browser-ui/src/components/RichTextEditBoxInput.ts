@@ -5,7 +5,7 @@ import {
   ChannelMetadata,
   LocalMapStaff,
   parseMetadata,
-} from '@jumpalong/nostr-runtime'
+} from '@/nostr-runtime'
 import {
   defaultCacheOptions,
   deleteCache,

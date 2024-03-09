@@ -1,14 +1,15 @@
 <script lang="ts" setup>
-import { LoginStaff, Pubkey, AskOption } from '@jumpalong/nostr-runtime'
+import { AskOption } from '@jumpalong/nostr'
+import { Pubkey } from '@jumpalong/nostr-shared'
 import Drawer from './Drawer.vue'
 import Papaw from './Papaw.vue'
-import { usePubkey, useEventLine } from './ProvideEventLine'
+import { useEventLine, usePubkey } from './ProvideEventLine'
+import { provideSigner } from './ProvideNostrConnect'
 import PubkeyLink from './PubkeyLink.vue'
 import Scrollbar from './Scrollbar.vue'
-import { provideSigner } from './ProvideNostrConnect'
 
 const pubkey = usePubkey()
-const line = useEventLine(LoginStaff)
+const line = useEventLine()
 let { remoteSigner } = provideSigner()
 
 const connectLine = computed(() => {

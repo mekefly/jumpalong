@@ -18,7 +18,7 @@ import PapawTreeHierarchy from './PapawTreeHierarchy.vue'
 import { useInjectScrollbarInstRef } from './Scrollbar'
 import SMSButton from './SMSButton.vue'
 import UserInfo from './UserInfo.vue'
-import { ConfigStaff } from '@jumpalong/nostr-runtime'
+import { ConfigStaff } from '@/nostr-runtime'
 import { useEventLine } from './ProvideEventLine'
 import { usePushShortTextNote } from '../views/ShortTextNoteView'
 const line = useEventLine(ConfigStaff)
@@ -120,7 +120,6 @@ function handelDeleteEvent(e: string) {
 </script>
 
 <template>
-
   <div class="mt-4" ref="target">
     <LazyItemDisabled
       :delay="config.lazyDelayForPapaw"

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { LoginUtilsStaff, NostrApiStaff } from '@jumpalong/nostr-runtime'
+import { LoginUtilsStaff, NostrApiStaff } from '@/nostr-runtime'
 import FloatingCardVue from '../components/LoginCard.vue'
 import {
   useLoginCompleteHook,

@@ -1,6 +1,6 @@
 import { createId } from '@/utils/utils'
 import { MaybeRef } from '@vueuse/core'
-import { EventEmitter } from 'events'
+import { EventEmitter } from '@jumpalong/shared'
 import { Event } from 'nostr-tools'
 
 import { Marker } from './RichTextEditBoxInput'

@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import {
   UserApiStaff,
-  RelayConfiguratorSynchronizerStaff,
   RelayConfiguration,
   LoginUtilsStaff,
-} from '@jumpalong/nostr-runtime'
+  RelayConfiguratorSynchronizer,
+} from '@/nostr-runtime'
 import { useEventLine } from './ProvideEventLine'
 import RelayAddButtonVue from './RelayAddButton.vue'
 import RelayConnectListVue from './RelayConnectList.vue'
@@ -21,7 +21,7 @@ const { pubkey } = toRefs(props)
 const l = useEventLine(
   UserApiStaff,
   LoginUtilsStaff,
-  RelayConfiguratorSynchronizerStaff
+  RelayConfiguratorSynchronizer.Staff
 )
 
 const line = computed(() => l.getUserRelayUrlConfigByPubkey(pubkey.value))

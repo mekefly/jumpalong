@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import Article from '../components/Article.vue'
 import { proviteArticeSetting, useMarkdownState } from '../components/Markdown'
-import { deserializeTagR } from '@jumpalong/nostr-runtime'
+import { deserializeTagR } from '@/nostr-runtime'
 
 const route = useRoute()
 const value = computed(() => route.params.value as string)

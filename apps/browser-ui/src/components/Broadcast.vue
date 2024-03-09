@@ -2,8 +2,8 @@
 import { useThemeVars } from 'naive-ui'
 import TooltipVue from './Tooltip.vue'
 import { useEventLine } from './ProvideEventLine'
-import { RelayConfiguratorSynchronizerStaff } from '@jumpalong/nostr-runtime'
-let line = useEventLine(RelayConfiguratorSynchronizerStaff)
+import { RelayConfiguratorSynchronizer } from '@jumpalong/nostr'
+let line = useEventLine(RelayConfiguratorSynchronizer.Staff)
 let relayConfigurator = line.relayConfigurator
 
 const msg = useMessage()
