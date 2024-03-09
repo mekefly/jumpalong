@@ -13,6 +13,7 @@ import PublishEmitStaff from '../publish/PublishEmitStaff'
 import SubEmitStaff from '../sub/SubEmitStaff'
 import Relay from './Relay'
 import { createGetValue } from '@jumpalong/shared'
+import { EoseStaff, EventStaff } from '..'
 //@LoggerScope
 
 export default createStaff('pool-staff', ({ mod, line }) => {
@@ -40,6 +41,8 @@ export const Pool = createStaffClass(
           .add(PublishEmitStaff)
           .add(CloseRelayStaff)
           .add(AuthStaff)
+          .add(EventStaff)
+          .add(EoseStaff)
       )
       this.listen()
     }

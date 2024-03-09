@@ -1,1 +1,0 @@
-{"name":"@vue-vapor/compile-sfc","version":"0.0.0-bate.0","description":"","types":"dist/types/index.d.ts","scripts":{},"author":"","license":"ISC","dependencies":{},"main":"dist/vue-vapor-compile-sfc.cjs.prod.js","module":"dist/vue-vapor-compile-sfc.esm.prod.js","unpkg":"dist/vue-vapor-compile-sfc.iife.prod.js","jsdelivr":"dist/vue-vapor-compile-sfc.iife.prod.js"}
