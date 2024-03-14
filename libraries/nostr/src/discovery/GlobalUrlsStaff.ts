@@ -11,12 +11,12 @@ import {
   useCache,
 } from '@jumpalong/shared'
 import managerStaff from '../manager/ManagerStaff'
-import PoolStaff from '../server/PoolStaff'
 import { ReactiveStaff } from '../staffExport'
 import DefaultUrlStaff from './DefaultUrlStaff'
+import { Pool } from '@/server/Pool'
 
 export default createStaff(
-  () => [managerStaff, DefaultUrlStaff, PoolStaff, ReactiveStaff],
+  () => [managerStaff, DefaultUrlStaff, Pool.Staff, ReactiveStaff],
   ({ mod, line }) => {
     let queue = createTaskQueue(500)
     let vote = createVote<boolean>({ max: 10, min: 10 })
@@ -30,7 +30,7 @@ export default createStaff(
       .assignFeat({
         globalUrlList: line.reactive({ value: new Set<string>() }),
       })
-      .assignFeat({
+      .assignFn({
         getCacheGlobalUrls() {
           let arr = getCacheOrNull(cacheKey) as string[]
 

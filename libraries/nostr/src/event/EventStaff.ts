@@ -3,8 +3,8 @@ import { createStaff, listenerFlags } from '@jumpalong/core'
 
 type PropType = [subId: string, event: Event, url: string]
 type ReturnType = boolean | void
-export default createStaff(mod => {
-  let _mod = mod
+export default createStaff(mod =>
+  mod
     .defineEmit<'event', PropType, ReturnType>()
     .defineEmit<`event:${string}`, PropType, ReturnType>()
     .assignChain({
@@ -39,6 +39,4 @@ export default createStaff(mod => {
         }
       },
     })
-
-  return _mod
-})
+)

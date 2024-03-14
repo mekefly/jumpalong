@@ -19,10 +19,10 @@
   "author": "Mekefly",
   "license": "MIT",
   "dependencies": {
-    "@jumpalong/logger": "workspace:*",
-    "@jumpalong/shared": "workspace:*",
     "@jumpalong/core": "workspace:*",
+    "@jumpalong/logger": "workspace:*",
     "@jumpalong/nostr-shared": "workspace:*",
+    "@jumpalong/shared": "workspace:*",
     "nostr-tools": "^2.1.1",
     "sha256": "^0.2.0"
   },
@@ -30,7 +30,9 @@
     "@jumpalong/logger-vite-plugin": "workspace:*",
     "@types/sha256": "^0.2.2",
     "rollup": "^4.9.6",
+    "rollup-plugin-typescript2": "^0.36.0",
     "url": "^0.11.3",
-    "vite": "^5.1.5"
+    "vite": "^5.1.5",
+    "vite-plugin-dts": "~3.7.3"
   }
 }

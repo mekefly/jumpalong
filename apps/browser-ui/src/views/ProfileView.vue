@@ -1,11 +1,13 @@
 <script lang="ts" setup>
 import {
+  ListEnum,
   LoginStaff,
   Pubkey,
-  ContactConfigurationSynchronizer,
   RelayConfiguratorSynchronizer,
+  Synchronizer,
   toDeCodeNprofile,
 } from '@/nostr-runtime'
+import { NButton } from 'naive-ui'
 import { computed } from 'vue'
 import Profile from '../components/Profile.vue'
 import {
@@ -13,22 +15,22 @@ import {
   useIsMe,
   usePubkey,
 } from '../components/ProvideEventLine'
-import { useZaps } from '../components/ZapsPrivider'
-import { NButton } from 'naive-ui'
 import UserInformationButton from '../components/UserInformationButton.vue'
 
 const route = useRoute()
-const zaps = useZaps()
+// const zaps = useZaps()
 const currentPubkey = usePubkey()
 
 const line = useEventLine(
   // RelayConf
   RelayConfiguratorSynchronizer.Staff,
-  ContactConfigurationSynchronizer.Staff,
+  Synchronizer.ListSynchronizerManager.Staff,
   LoginStaff
 )
 
-const contactConfiguration = computed(() => line.contactConfiguration)
+const contactConfiguration = computed(() =>
+  line.listSynchronizerManager.getInitStandardListSynchronizer(ListEnum.Follow)
+)
 
 const hashValue = computed(() => route.params.value as string)
 
@@ -52,24 +54,34 @@ const urls = computed(() => {
 
 const isFollow = computed(() => {
   if (!pubkey.value) return false
-  return contactConfiguration.value.isFollow(pubkey.value)
+  return contactConfiguration.value.has({
+    type: 'p',
+    pubkey: pubkey.value.toHex(),
+  })
 })
+
 async function handelClick() {
   if (!pubkey.value) {
     return
   }
   if (isFollow.value) {
-    await contactConfiguration.value.unFollow(pubkey.value)
+    await contactConfiguration.value.delete({
+      type: 'p',
+      pubkey: pubkey.value.toHex(),
+    })
   } else {
-    await contactConfiguration.value.follow(pubkey.value)
+    await contactConfiguration.value.add({
+      type: 'p',
+      pubkey: pubkey.value.toHex(),
+    })
   }
 }
-function handleReward() {
-  if (!pubkey.value) {
-    return
-  }
-  zaps?.reward(pubkey.value)
-}
+// function handleReward() {
+//   if (!pubkey.value) {
+//     return
+//   }
+//   zaps?.reward(pubkey.value)
+// }
 </script>
 
 <template>

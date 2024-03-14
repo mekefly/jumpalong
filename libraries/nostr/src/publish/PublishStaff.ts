@@ -1,13 +1,13 @@
-import type { Event } from 'nostr-tools'
-import type { PoolStaff } from '..'
 import { createNotInjectStaff, createStaff } from '@jumpalong/core'
+import type { Event } from 'nostr-tools'
+import type { Pool } from '..'
 import type { OkParmType } from '../server/OkStaff'
 export interface PublishOptions {
   onOK?: (...rest: OkParmType) => void
 }
 
 export default createStaff(
-  () => [createNotInjectStaff<'pool-staff', typeof PoolStaff>('pool-staff')],
+  () => [createNotInjectStaff<'pool-staff', typeof Pool.Staff>('pool-staff')],
   mod => {
     return mod.assignFeat({
       publish(url: string, event: Event, ops: PublishOptions = {}) {

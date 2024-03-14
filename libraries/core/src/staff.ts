@@ -57,21 +57,38 @@ export type MergeStaffConfig<ArrayConfig extends StaffFlag[]> =
 //   }
 // )
 export type GetConfig<Flag extends StaffFlag> = Flag[typeof StaffConfigFlag]
+type ClassStaffOption<N extends string> = {
+  name: N
+  id?: string
+}
 
 export function createClassStaff<REST extends any[], T, N extends string>(
   name: N,
   Class: new (mod: EventLine<any>, ...rest: REST) => T,
   ...rest: REST
+): StaffFlag<AssignFeat<{ [k in N]: T }>>
+export function createClassStaff<REST extends any[], T, N extends string>(
+  options: ClassStaffOption<N>,
+  Class: new (mod: EventLine<any>, ...rest: REST) => T,
+  ...rest: REST
+): StaffFlag<AssignFeat<{ [k in N]: T }>>
+export function createClassStaff<REST extends any[], T, N extends string>(
+  nameOrOptions: N,
+  Class: new (mod: EventLine<any>, ...rest: REST) => T,
+  ...rest: REST
 ): StaffFlag<AssignFeat<{ [k in N]: T }>> {
-  return createStaff(name, mod => {
+  const options = (
+    typeof nameOrOptions === 'string' ? { name: nameOrOptions } : nameOrOptions
+  ) as ClassStaffOption<N>
+  return createStaff(options.id ?? options.name, mod => {
     const m = mod.assignFeat({
-      [name]: new Class(mod.out(), ...rest),
+      [options.name]: new Class(mod.out(), ...rest),
     })
     return m
   }) as any
 }
 
-export function createStaffClass<
+export function warpClassWithStaff<
   N extends string,
   Class extends new (line: EventLine<any>) => any
 >(
@@ -81,22 +98,23 @@ export function createStaffClass<
   Staff: StaffFlag<AssignFeat<{ [k in N]: InstanceType<Class> }>>
 }
 
-export function createStaffClass<
+export function warpClassWithStaff<
   N extends string,
   Class extends new (line: EventLine<any>, ...rest: REST) => any,
   REST extends any[] = []
 >(
   options: REST extends []
-    ? { name: N; rest?: REST }
+    ? { name: N; id?: string; rest?: REST }
     : {
         name: N
+        id?: string
         rest: REST
       },
   Class: Class
 ): Class & {
   Staff: StaffFlag<AssignFeat<{ [k in N]: InstanceType<Class> }>>
 }
-export function createStaffClass<
+export function warpClassWithStaff<
   N extends string,
   Class extends new (line: EventLine<any>, ...rest: REST) => any,
   REST extends any[] = []
@@ -111,13 +129,17 @@ export function createStaffClass<
 ): Class & {
   Staff: StaffFlag<AssignFeat<{ [k in N]: InstanceType<Class> }>>
 } {
-  const { name, rest = [] } = (
+  const options = (
     typeof nameOrOptions === 'string' ? { name: nameOrOptions } : nameOrOptions
   ) as {
     name: string
     rest?: any[]
   }
-  ;(Class as any).Staff = createClassStaff(name, Class, ...(rest as any))
+  ;(Class as any).Staff = createClassStaff(
+    options,
+    Class,
+    ...(options.rest ?? ([] as any))
+  )
   return Class as any
 }
 

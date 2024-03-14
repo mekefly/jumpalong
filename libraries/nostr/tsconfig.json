@@ -25,7 +25,6 @@
       "@/*": ["src/*"]
     }
   },
-
   "lib": ["ESNext", "dom"],
   "include": ["./src/**/*.ts", "./src/**/*.d.ts", "vitest.config.ts"]
 }

@@ -1,8 +1,8 @@
 import { type Filter } from 'nostr-tools'
 // type Filter = any
 import { createNotInjectStaff, createStaff } from '@jumpalong/core'
+import { EventStaff, Pool } from '..'
 import CreateIdStaff from '../common/CreateIdStaff'
-import { EventStaff, PoolStaff } from '..'
 import EoseStaff from '../server/EoseStaff'
 $LoggerScope()
 
@@ -15,7 +15,7 @@ export type SubOpt = {
 export default createStaff(
   () => [
     CreateIdStaff,
-    createNotInjectStaff<'pool-staff', typeof PoolStaff>('pool-staff'),
+    createNotInjectStaff<'pool-staff', typeof Pool.Staff>('pool-staff'),
     EventStaff,
     EoseStaff,
   ],

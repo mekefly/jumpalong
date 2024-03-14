@@ -8,6 +8,7 @@ import { fileURLToPath, URL } from 'node:url'
 const __filename = (url as any).fileURLToPath(import.meta.url)
 const __dirname = (url as any).fileURLToPath(new URL('.', import.meta.url))
 const [startName, shortName] = packageJson.name.split('/')
+import t2 from 'rollup-plugin-typescript2'
 const name = shortName ?? startName
 
 // https://vitejs.dev/config/

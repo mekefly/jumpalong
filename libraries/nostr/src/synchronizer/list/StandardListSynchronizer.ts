@@ -1,25 +1,27 @@
+import {
+  GetTagHandelArrayType,
+  Tag,
+  TagHandle,
+  TagsHandle,
+} from '@jumpalong/nostr-shared'
 import type { Filter } from 'nostr-tools'
 import { ReplaceableSynchronizer } from '../common/ReplaceableSynchronizer'
-import { GetTagHandelArrayType, TagHandel, tagIsEq } from './TagHandel'
-import { Tag } from './types'
+import { ListEnum } from './ListSynchronizerManager'
 
-export class StandardListSynchronizer<HANDEL extends TagHandel<any, any>[]> {
-  private synchronizer: ReplaceableSynchronizer<GetTagHandelArrayType<HANDEL>[]>
+export class StandardListSynchronizer<HANDLE extends TagHandle<any, any>[]> {
+  private synchronizer: ReplaceableSynchronizer<GetTagHandelArrayType<HANDLE>[]>
   static isStandardListKind(kind: number) {
-    return kind >= 10000 && kind < 20000
+    return (kind >= 10000 && kind < 20000) || kind === ListEnum.Follow
   }
-  tagHandelMap: Record<string, TagHandel> = {}
-  constructor(line: any, kind: number, tagHandel: Readonly<HANDEL>) {
+  tagsHandle: TagsHandle<HANDLE>
+  constructor(line: any, kind: number, handleArray: Readonly<HANDLE>) {
     if (!StandardListSynchronizer.isStandardListKind(kind)) {
       throw new Error('StandardListSynchronizer: Not is a StandardListKind')
     }
-
-    for (const handel of tagHandel as any) {
-      this.tagHandelMap[handel.type] = handel
-    }
+    this.tagsHandle = new TagsHandle(handleArray)
     let self = this
     this.synchronizer = new ReplaceableSynchronizer<
-      GetTagHandelArrayType<HANDEL>[]
+      GetTagHandelArrayType<HANDLE>[]
     >(
       line,
       {
@@ -37,29 +39,15 @@ export class StandardListSynchronizer<HANDEL extends TagHandel<any, any>[]> {
           return [{ kinds: [kind], limit: 1, authors: [pubkey.toHex()] }]
         },
         async deserializeToEvent(list, created_at) {
-          const tags: string[][] = []
-          for (const tag of list) {
-            let handel = self.tagHandelMap[(tag as Tag).type]
-            if (!handel) continue
-            tags.push(handel.deserialize(tag))
-          }
           const event = await self.synchronizer.getLine().createEvent({
             kind,
-            tags,
+            tags: self.tagsHandle.toTagArrayList(list),
             created_at,
           })
           return event
         },
         async serializeToData(e) {
-          let data: GetTagHandelArrayType<HANDEL>[] = []
-          for (const tag of e.tags) {
-            let type = tag[0]
-            if (!type) continue
-            let handel = self.tagHandelMap[type]
-            if (!handel) continue
-            data.push(handel.serialize(tag as any) as any)
-          }
-          return data
+          return self.tagsHandle.handle(e.tags)
         },
       },
       { autoSync: true }
@@ -69,14 +57,13 @@ export class StandardListSynchronizer<HANDEL extends TagHandel<any, any>[]> {
    * 添加列表内容
    * @param tag
    */
-  async add(tag: GetTagHandelArrayType<HANDEL>) {
+  async add(tag: GetTagHandelArrayType<HANDLE>) {
     const tagList = await this.synchronizer.getData()
     tagList.push(tag)
     let index = tagList.findIndex((item: Tag) =>
-      tagIsEq(this.tagHandelMap, item, tag)
+      this.tagsHandle.tagIsEq(item, tag)
     )
     if (index !== -1) return
-
     this.synchronizer.toChanged()
     this.synchronizer.save()
   }
@@ -85,10 +72,10 @@ export class StandardListSynchronizer<HANDEL extends TagHandel<any, any>[]> {
    * @param tag
    * @returns
    */
-  async delete(tag: GetTagHandelArrayType<HANDEL>) {
+  async delete(tag: GetTagHandelArrayType<HANDLE>) {
     let list = await this.synchronizer.getData()
     let index = list.findIndex((item: Tag) =>
-      tagIsEq(this.tagHandelMap, item, tag)
+      this.tagsHandle.tagIsEq(item, tag)
     )
 
     if (index === -1) return
@@ -96,10 +83,10 @@ export class StandardListSynchronizer<HANDEL extends TagHandel<any, any>[]> {
     this.synchronizer.toChanged()
     this.synchronizer.save()
   }
-  has(tag: GetTagHandelArrayType<HANDEL>) {
-    let list = this.synchronizer.getData()
+  has(tag: GetTagHandelArrayType<HANDLE>) {
+    let list = this.getList()
     let index = list.findIndex((item: Tag) =>
-      tagIsEq(this.tagHandelMap, item, tag)
+      this.tagsHandle.tagIsEq(item, tag as any)
     )
 
     return !(index === -1)

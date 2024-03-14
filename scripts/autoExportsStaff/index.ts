@@ -125,8 +125,6 @@ function thePathTurnsRelative(rootPath: string, pathName: string) {
   }
 }
 function generate(path: string, filesPath: string[]) {
-  let staffPath = resolve('packages/nostr-runtime/src/staff/staff')
-
   let exportAllLine: string[] = []
   let importDefaultLine: [name: string, path: string][] = []
   let staffConfigExportLine: [name: string, configTypeName: string][] = []
