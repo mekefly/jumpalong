@@ -1,20 +1,10 @@
 import { createGetValue } from '@jumpalong/shared'
 import { SetsSynchronizer } from './SetsSynchronizer'
 import { StandardListSynchronizer } from './StandardListSynchronizer'
-import {
-  GetTagHandelArrayType,
-  a,
-  e,
-  emoji,
-  i,
-  p,
-  r,
-  relay,
-  t,
-  version,
-  word,
-} from './TagHandel'
-import { EventLine, createStaffClass } from '@jumpalong/core'
+
+import { EventLine, warpClassWithStaff } from '@jumpalong/core'
+import { GetTagHandelArrayType, TagHandles } from '@jumpalong/nostr-shared'
+const { a, e, emoji, i, p, r, relay, t, version, word, follow } = TagHandles
 //nip-51
 
 export enum SetsEnum {
@@ -37,6 +27,7 @@ export enum ListEnum {
   SearchRelays = 10007,
   Interests = 10015,
   Emojis = 10030,
+  Follow = 3,
 }
 
 const StandardListMap = {
@@ -58,6 +49,9 @@ const StandardListMap = {
   [ListEnum.Interests]: [t, a],
   //表情符号
   [ListEnum.Emojis]: [emoji, a],
+
+  //关注列表
+  [ListEnum.Follow]: [follow],
 }
 const {
   FollowSets,
@@ -92,11 +86,11 @@ export type TagMapType = {
     (typeof StandardListMap)[key]
   >
 }
-export const ListSynchronizerManager = createStaffClass(
+export const ListSynchronizerManager = warpClassWithStaff(
   'listSynchronizerManager',
   class ListSynchronizerManager {
     getLine
-    constructor(private line: EventLine<{}>) {
+    constructor(line: EventLine<{}>) {
       this.getLine = createGetValue(() => line.createChild())
     }
     map = new Map()
