@@ -1,8 +1,6 @@
 <script lang="ts" setup>
-// import { useNostrContainerAsyncGet } from '@/components/NostrContainerProvade'
-// import { useRichTextEditBoxOpt } from '@/components/RichTextEditBox'
-// import RichTextEditBoxVue from '@/components/RichTextEditBox.vue'
-// import ScrollbarVue from '@/components/Scrollbar.vue'
+import { ListEnum, Synchronizer } from '@jumpalong/nostr'
+import MustLogin from '../components/MustLogin.vue'
 import PostList from '../components/PostList.vue'
 import {
   useEventLine,
@@ -10,32 +8,24 @@ import {
   useIsLogin,
 } from '../components/ProvideEventLine'
 import ProvideEventLine from '../components/ProvideEventLine.vue'
+import { useRichTextEditBoxOpt } from '../components/RichTextEditBox'
 import RichTextEditBox from '../components/RichTextEditBox.vue'
 import Scrollbar from '../components/Scrollbar.vue'
 import { t } from '../i18n'
-import { GlobalUrlsStaff, Synchronizer } from '@jumpalong/nostr'
-// import { TYPES } from '@/nostr/nostr'
 import { useHandleSendMessage } from '../utils/use'
-import { useRichTextEditBoxOpt } from '../components/RichTextEditBox'
-import MustLogin from '../components/MustLogin.vue'
-// import PostList from '../components/PostList.vue'
-let line = useEventLine(
-  Synchronizer.ContactConfigurationSynchronizer.Staff,
-  GlobalUrlsStaff
-)
 
 $LoggerScope('disabled')
-logger.info('homeView', logger)
-// let xx = useEventLine(RelayConfiguratorSynchronizerStaff)
-// console.log(xx.relayConfigurator)
+logger.info('homeView')
+
+let line = useEventLine(Synchronizer.ListSynchronizerManager.Staff)
 
 //需要为显示区域和编辑区域架设一个隧道
 useRichTextEditBoxOpt('home')
+const contactConfiguration =
+  line.listSynchronizerManager.getInitStandardListSynchronizer(ListEnum.Follow)
 
 const pubkeys = computed(() => {
-  const pubkeys = Object.keys(
-    line.contactConfiguration.getContactConfiguration()
-  )
+  const pubkeys = contactConfiguration.getList().map(item => item.pubkey)
   return pubkeys
 })
 const handleSendEvent = useHandleSendMessage(1)
