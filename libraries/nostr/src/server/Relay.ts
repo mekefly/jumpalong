@@ -9,7 +9,7 @@ import CloseRelayStaff from './CloseRelayStaff'
 import EoseStaff from './EoseStaff'
 import NoticeStaff from './NoticeStaff'
 import OkStaff from './OkStaff'
-import PoolStaff from './PoolStaff'
+import { Pool } from './Pool'
 $LoggerScope()
 let queue = createTaskQueue(10)
 
@@ -30,7 +30,7 @@ export default class Relay {
   }
   getLine = cached(() =>
     this._line.add(
-      PoolStaff,
+      Pool.Staff,
       CloseRelayStaff,
       AuthStaff,
       PublishStaff,

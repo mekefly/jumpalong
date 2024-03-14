@@ -2,6 +2,7 @@ import { createStaff } from '@jumpalong/core'
 import NostrApiStaff from './NostrApiStaff'
 import { NostrApiMode, getNostrApiMode } from '@/nostr-api/NostrApiMode'
 import { PriKeyNostrApiImpl } from '@/nostr-api/PriKeyNostrApiImpl'
+import { Pubkey } from '@jumpalong/nostr-shared'
 
 export default createStaff(
   () => [NostrApiStaff],
@@ -25,7 +26,9 @@ export default createStaff(
         } catch (error) {}
         return null
       },
-      async getPubkeyOrNull(opt?: { intercept: boolean }) {
+      async getPubkeyOrNull(opt?: {
+        intercept: boolean
+      }): Promise<Pubkey | null> {
         try {
           let _pubkey = await this.getNostrApi().getPublicKey()
           return _pubkey

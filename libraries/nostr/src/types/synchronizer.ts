@@ -12,3 +12,5 @@ export type SyncOption = {
   autoSync?: boolean
 }
 export type SynchronizerAbstractOption = {} & SyncOption
+
+

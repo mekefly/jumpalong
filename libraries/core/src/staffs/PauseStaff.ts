@@ -1,6 +1,5 @@
-import type { AssignFeat, Emit, EventLine } from '..'
-import { CreateChildHookStaff, type PauseStaffConfigType } from '..'
-import { createStaff, CreateHookStaff } from '..'
+import type { Emit, EventLine } from '..'
+import { CreateChildHookStaff, createStaff } from '..'
 
 export default createStaff(
   () => [CreateChildHookStaff],

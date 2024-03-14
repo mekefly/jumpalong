@@ -1,3 +1,4 @@
+import CachedStaff from '@/common/CachedStaff'
 import Kind10002ReadWriteListConfigStaff from '@/event/Kind10002ReadWriteListConfigStaff'
 import MetadataStaff from '@/event/MetadataStaff'
 import LocalMapStaff from '@/local-event/LocalMapStaff'
@@ -9,12 +10,18 @@ import ManagerStaff from '../manager/ManagerStaff'
 import EoseAutoUnSubStaff from '../sub/EoseAutoUnSubStaff'
 import ApiAddUrlsStaff from './ApiAddUrlsStaff'
 import EventApiStaff from './EventApiStaff'
+import { AddFilterStaff } from '..'
 $LoggerScope()
 
 export default createStaff(
-  () => [EventApiStaff, LocalMapStaff, RelayConfiguratorSynchronizer.Staff],
+  () => [
+    EventApiStaff,
+    LocalMapStaff,
+    RelayConfiguratorSynchronizer.Staff,
+    CachedStaff,
+  ],
   ({ mod, line }) => {
-    return mod.assignFeat({
+    return mod.assignFn({
       getUserMetadataLineByPubkey(
         pubkey: Pubkey | string,
         options: ApiAddUrlsOptions & CommonOptions = {}
@@ -25,7 +32,7 @@ export default createStaff(
           () => {
             const kind0line = line
               .createChild()
-              .add(ManagerStaff)
+              .add(AddFilterStaff)
               .add(MetadataStaff)
               .add(EoseAutoUnSubStaff)
               .add(ApiAddUrlsStaff)

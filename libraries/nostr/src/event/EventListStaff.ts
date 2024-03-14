@@ -6,9 +6,9 @@ import {
 } from '@jumpalong/shared'
 import { Event } from 'nostr-tools'
 import ReactiveStaff from '../reactive/ReactiveStaff'
-import PoolStaff from '../server/PoolStaff'
 import EventStaff from './EventStaff'
 import { SortOptions } from '@/types/event'
+import { Pool } from '@/server/Pool'
 type InsertBySort = (eventList: Event[], value: Event) => void
 
 export const sortMethodFactory = {
@@ -50,7 +50,7 @@ const sortMap = createSortMap({
 })
 
 export default createStaff(
-  () => [PoolStaff, ReactiveStaff, CreateChildHookStaff, EventStaff],
+  () => [Pool.Staff, ReactiveStaff, CreateChildHookStaff, EventStaff],
   ({ mod, line }) => {
     function initList() {
       return line.ref([] as Event[])

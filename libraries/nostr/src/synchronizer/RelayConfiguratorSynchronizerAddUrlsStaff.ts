@@ -1,7 +1,7 @@
-import { createStaff } from '@jumpalong/core'
-import { AddUrlStaff } from '..'
 import { RelayConfiguratorSynchronizer } from '@/synchronizer/RelayConfiguratorSynchronizer'
 import { RelayConfiguratorOptions } from '@/types/synchronizer'
+import { createStaff } from '@jumpalong/core'
+import { AddUrlStaff } from '..'
 
 export default createStaff(
   () => [RelayConfiguratorSynchronizer.Staff, AddUrlStaff],

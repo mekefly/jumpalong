@@ -1,15 +1,20 @@
+// import {
+//   EventLineMod,
+//   GlobalUrlsStaff,
+//   LoginUtilsStaff,
+//   Pubkey,
+// } from '@/nostr-runtime'
+import { ReactiveStaff } from '@/utils/vue'
+import { EventLineMod, PauseStaff } from '@jumpalong/core'
 import {
-  EventLineMod,
   GlobalUrlsStaff,
   LoginStaff,
   LoginUtilsStaff,
-  PauseStaff,
-  PoolStaff,
-  Pubkey,
-  RelayConfiguratorSynchronizerAddUrlsStaff,
-} from '@/nostr-runtime'
+  Pool,
+  RelayConfiguratorSynchronizer,
+} from '@jumpalong/nostr'
+import { Pubkey } from '@jumpalong/nostr-shared'
 import { createInjection } from '../utils/useUtils'
-import { ReactiveStaff } from '../utils/vue'
 import { useActiveComponent } from './ProvideActive'
 
 export const [
@@ -23,11 +28,12 @@ export const [
   },
   (...rest: any[]) => {
     return new EventLineMod().add(
+      //响应化需要的部分
       ReactiveStaff,
-      PoolStaff,
+      //中继池
+      Pool.Staff,
       //中继同步器
-      // RelayConfiguratorSynchronizer.Staff,
-      RelayConfiguratorSynchronizerAddUrlsStaff,
+      RelayConfiguratorSynchronizer.Staff,
       //登录
       LoginStaff,
       //暂停器

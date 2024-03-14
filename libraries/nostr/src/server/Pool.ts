@@ -1,30 +1,22 @@
 import AuthStaff from './AuthStaff'
 import CloseRelayStaff from './CloseRelayStaff'
 import WebSocketStaff from './WebSocketFactoryStaff'
-
 import ReactiveClass from '@/reactive/ReactiveClass'
 import {
   ClassStaffInterface,
   EventLine,
-  createStaff,
-  createStaffClass,
+  warpClassWithStaff,
 } from '@jumpalong/core'
+import { createGetValue } from '@jumpalong/shared'
+import { EoseStaff, EventStaff, OkStaff } from '..'
 import PublishEmitStaff from '../publish/PublishEmitStaff'
 import SubEmitStaff from '../sub/SubEmitStaff'
 import Relay from './Relay'
-import { createGetValue } from '@jumpalong/shared'
-import { EoseStaff, EventStaff } from '..'
-//@LoggerScope
 
-export default createStaff('pool-staff', ({ mod, line }) => {
-  logger.debug('pool-staff')
-
-  return mod.add(Pool.Staff)
-})
-
-export const Pool = createStaffClass(
-  'relayPool',
+export const Pool = warpClassWithStaff(
+  { name: 'relayPool', id: 'pool-staff' },
   class Pool extends ReactiveClass implements ClassStaffInterface<'relayPool'> {
+    // static Staff = createStaff('relayPool',ReactiveClass)
     name = 'relayPool' as const
     public getLine
     public pool = new Map<string, Relay>()
@@ -43,6 +35,7 @@ export const Pool = createStaffClass(
           .add(AuthStaff)
           .add(EventStaff)
           .add(EoseStaff)
+          .add(OkStaff)
       )
       this.listen()
     }
