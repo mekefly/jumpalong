@@ -3,7 +3,7 @@ import type { AutoAdd10002Options } from './discovery'
 import type { SortOptions } from './event'
 import type { FilterOptions } from './manager'
 import type { RelayConfiguratorOptions } from './synchronizer'
-import type { PublishOptions } from '@/publish/PublishStaff'
+import type { PublishOptions } from '../publish/PublishStaff'
 
 export interface CommonEventListOptions
   extends CueOptions,

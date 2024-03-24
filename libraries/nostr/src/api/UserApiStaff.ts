@@ -1,16 +1,15 @@
-import CachedStaff from '@/common/CachedStaff'
-import Kind10002ReadWriteListConfigStaff from '@/event/Kind10002ReadWriteListConfigStaff'
-import MetadataStaff from '@/event/MetadataStaff'
-import LocalMapStaff from '@/local-event/LocalMapStaff'
-import { RelayConfiguratorSynchronizer } from '@/synchronizer/RelayConfiguratorSynchronizer'
-import { ApiAddUrlsOptions, CommonOptions } from '@/types/api'
+import Kind10002ReadWriteListConfigStaff from '../event/Kind10002ReadWriteListConfigStaff'
+import MetadataStaff from '../event/MetadataStaff'
+import LocalMapStaff from '../local-event/LocalMapStaff'
+import { RelayConfiguratorSynchronizer } from '../synchronizer/RelayConfiguratorSynchronizer'
+import { ApiAddUrlsOptions, CommonOptions } from '../types/api'
 import { createStaff } from '@jumpalong/core'
 import { Pubkey } from '@jumpalong/nostr-shared'
 import ManagerStaff from '../manager/ManagerStaff'
 import EoseAutoUnSubStaff from '../sub/EoseAutoUnSubStaff'
 import ApiAddUrlsStaff from './ApiAddUrlsStaff'
 import EventApiStaff from './EventApiStaff'
-import { AddFilterStaff } from '..'
+import { AddFilterStaff, CachedStaff } from '..'
 $LoggerScope()
 
 export default createStaff(

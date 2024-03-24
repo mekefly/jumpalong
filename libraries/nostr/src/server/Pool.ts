@@ -1,7 +1,7 @@
 import AuthStaff from './AuthStaff'
 import CloseRelayStaff from './CloseRelayStaff'
 import WebSocketStaff from './WebSocketFactoryStaff'
-import ReactiveClass from '@/reactive/ReactiveClass'
+import ReactiveClass from '../reactive/ReactiveClass'
 import {
   ClassStaffInterface,
   EventLine,

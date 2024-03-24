@@ -1,11 +1,10 @@
 <script lang="ts" setup>
 import PapawVueList from '../components/PapawList.vue'
-import { useElementIntoScreen } from '../utils/use'
 import { Event, Filter } from 'nostr-tools'
 import PapawByAddr from './PapawByAddr.vue'
 import PapawById from './PapawById.vue'
 import { useEventLine } from './ProvideEventLine'
-import { EventApiStaff } from '@/nostr-runtime'
+import { EventApiStaff } from '../nostr-runtime'
 import { useLoad } from './Refresh'
 
 logger.debug()
@@ -41,7 +40,6 @@ const {
   active,
   reverseSort,
 } = toRefs(props)
-const message = useMessage()
 let eventLine = useEventLine(EventApiStaff)
 
 const mergeFilters = computed(() => {

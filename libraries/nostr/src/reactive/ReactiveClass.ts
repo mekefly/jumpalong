@@ -1,4 +1,4 @@
-import ReactionStaff from '@/api/ReactionStaff'
+import ReactionStaff from '../api/ReactionStaff'
 import type { EventLine } from '@jumpalong/core'
 
 export default class ReactiveClass {

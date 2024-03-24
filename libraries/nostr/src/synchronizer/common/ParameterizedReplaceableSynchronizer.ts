@@ -4,7 +4,7 @@ import {
   ReplaceableSynchronizer,
   ReplaceableSynchronizerAbstractApi,
 } from './ReplaceableSynchronizer'
-import { SynchronizerAbstractOption } from './types'
+import { SynchronizerAbstractOption } from '../../types/synchronizer'
 
 /**
  * 参数化可替换同步器Api

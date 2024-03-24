@@ -4,7 +4,7 @@ import {
   EventUtilsStaff,
   LoginStaff,
   RelayConfiguratorSynchronizer,
-} from '@/nostr-runtime'
+} from '../nostr-runtime'
 import type { Event, EventTemplate } from 'nostr-tools'
 import {
   ComputedGetter,

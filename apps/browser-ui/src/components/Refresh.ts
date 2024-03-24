@@ -1,7 +1,7 @@
 import { createInjection } from '../utils/useUtils'
 import { MaybeRef } from '@vueuse/core'
 // import { autoSetLoadBuffer } from './LoadProgress'
-import { EventLine, LoadStaffConfigType } from '@/nostr-runtime'
+import { EventLine, LoadStaffConfigType } from '../nostr-runtime'
 import { EventEmitter } from '@jumpalong/shared'
 
 export const [provideRefreshState, useRefreshState] = createInjection(

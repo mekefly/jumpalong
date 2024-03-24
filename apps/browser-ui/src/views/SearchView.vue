@@ -1,13 +1,13 @@
 <script lang="ts" setup>
-import { useNostrContainerGet } from '@/components/NostrContainerProvade'
+import { useNostrContainerGet } from '../components/NostrContainerProvade'
 import PapawVue from '@/components/Papaw.vue'
 import RelayUrlShowVue from '@/components/RelayUrlShow.vue'
 import SearchChannelItemVue from '@/components/SearchChannelItem.vue'
 import UserInfoVue from '@/components/UserInfo.vue'
-import { EventBeltline } from '@/nostr/eventBeltline'
-import { TYPES, rootEventBeltline } from '@/nostr/nostr'
-import { createDoNotRepeatStaff } from '@/nostr/staff'
-import { toDeCodeNevent, toDeCodeNprofile } from '@/utils/nostr'
+import { EventBeltline } from '../nostr/eventBeltline'
+import { TYPES, rootEventBeltline } from '../nostr/nostr'
+import { createDoNotRepeatStaff } from '../nostr/staff'
+import { toDeCodeNevent, toDeCodeNprofile } from '../utils/nostr'
 import { Event, Filter } from 'nostr-tools'
 
 const eventApi = useNostrContainerGet(TYPES.EventApi)

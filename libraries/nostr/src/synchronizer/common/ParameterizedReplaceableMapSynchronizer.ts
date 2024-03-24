@@ -2,7 +2,7 @@ import { getOnlyTag } from '@jumpalong/nostr-shared'
 import { Event, Filter } from 'nostr-tools'
 import { AddressPointer } from 'nostr-tools/nip19'
 import { MapSynchronizer, MapSynchronizerApi } from './MapSynchronizer'
-import { SynchronizerAbstractOption } from './types'
+import { SynchronizerAbstractOption } from '../../types/synchronizer'
 
 /**
  * 参数化可替换同步器map

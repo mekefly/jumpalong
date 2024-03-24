@@ -4,7 +4,7 @@ import { useNostrContainerGet } from './NostrContainerProvade'
 import { usePapawFocusState } from './Papaw'
 import PapawTree from './PapawTree.vue'
 import { useEventLine } from './ProvideEventLine'
-import { EventApiStaff } from '@/nostr-runtime'
+import { EventApiStaff } from '../nostr-runtime'
 logger.debug()
 
 const props = defineProps<{ event: Event; noTree?: boolean }>()

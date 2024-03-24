@@ -20,7 +20,7 @@ import MoreIconVue from './icon/MoreIcon.vue'
 import { useRichTextEditBoxOpt } from './RichTextEditBox'
 import { Handle, useSMSButton } from './SMSButtonProvide'
 import { useModelBind } from '../utils/use'
-import { createAddress } from '@/nostr-runtime'
+import { createAddress } from '../nostr-runtime'
 import { usePubkey } from './ProvideEventLine'
 const message = useMessage()
 

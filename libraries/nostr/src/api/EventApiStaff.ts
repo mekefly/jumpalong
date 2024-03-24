@@ -5,11 +5,11 @@ import EventCreateAtStaff from '../common/EventCreateAtStaff'
 import LoadStaff from '../common/LoadStaff'
 import ManagerStaff from '../manager/ManagerStaff'
 import RelayConfiguratorSynchronizerAddUrlsStaff from '../synchronizer/RelayConfiguratorSynchronizerAddUrlsStaff'
-import DoNotRepeatStaff from '@/event/DoNotRepeatStaff'
-import { RelayConfiguratorSynchronizer } from '@/synchronizer/RelayConfiguratorSynchronizer'
-import AutoAddKind10002UrlStaff from '@/discovery/AutoAddKind10002UrlStaff'
+import DoNotRepeatStaff from '../event/DoNotRepeatStaff'
+import { RelayConfiguratorSynchronizer } from '../synchronizer/RelayConfiguratorSynchronizer'
+import AutoAddKind10002UrlStaff from '../discovery/AutoAddKind10002UrlStaff'
 import { AddUrlsByCueStaff, EventListStaff } from '..'
-import { CommonEventListOptions } from '@/types/api'
+import { CommonEventListOptions } from '../types/api'
 
 $LoggerScope()
 

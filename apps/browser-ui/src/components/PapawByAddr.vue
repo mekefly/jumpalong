@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { type AddressPointer } from 'nostr-tools/nip19'
 import Papaw from './Papaw.vue'
-import { EventApiStaff, toDeCodeAddress } from '@/nostr-runtime'
+import { EventApiStaff, toDeCodeAddress } from '../nostr-runtime'
 import { useEventLine } from './ProvideEventLine'
 
 const props = defineProps<{

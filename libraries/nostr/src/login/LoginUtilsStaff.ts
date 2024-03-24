@@ -1,13 +1,13 @@
 import { createStaff } from '@jumpalong/core'
 import NostrApiStaff from './NostrApiStaff'
-import { NostrApiMode, getNostrApiMode } from '@/nostr-api/NostrApiMode'
-import { PriKeyNostrApiImpl } from '@/nostr-api/PriKeyNostrApiImpl'
+import { NostrApiMode, getNostrApiMode } from '../nostr-api/NostrApiMode'
+import { PriKeyNostrApiImpl } from '../nostr-api/PriKeyNostrApiImpl'
 import { Pubkey } from '@jumpalong/nostr-shared'
 
 export default createStaff(
   () => [NostrApiStaff],
   ({ mod, line }) => {
-    return mod.assignFeat({
+    return mod.assignFn({
       async getPrikeyOrNull() {
         //@Todo
         if (getNostrApiMode() !== NostrApiMode.PrivateKey) {

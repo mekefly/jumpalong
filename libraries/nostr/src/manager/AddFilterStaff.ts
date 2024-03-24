@@ -4,7 +4,7 @@ import PublishStaff from '../publish/PublishStaff'
 import SubStaff, { SubOpt } from '../sub/SubStaff'
 import AddUrlStaff from './AddUrlStaff'
 import FilterStaff from './FilterStaff'
-import { FilterOptions } from '@/types/manager'
+import { FilterOptions } from '../types/manager'
 
 export default createStaff(
   () => [

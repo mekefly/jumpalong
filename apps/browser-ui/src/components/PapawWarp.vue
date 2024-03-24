@@ -18,7 +18,7 @@ import PapawTreeHierarchy from './PapawTreeHierarchy.vue'
 import { useInjectScrollbarInstRef } from './Scrollbar'
 import SMSButton from './SMSButton.vue'
 import UserInfo from './UserInfo.vue'
-import { ConfigStaff } from '@/nostr-runtime'
+import { ConfigStaff } from '../nostr-runtime'
 import { useEventLine } from './ProvideEventLine'
 import { usePushShortTextNote } from '../views/ShortTextNoteView'
 const line = useEventLine(ConfigStaff)

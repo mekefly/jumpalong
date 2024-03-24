@@ -5,8 +5,8 @@ import {
   CommonEvent,
   ParameterizedReplaceableEventMap,
   ReplaceableEventMap,
-} from '@/local-event'
-import EventStaff from '@/event/EventStaff'
+} from '../local-event'
+import EventStaff from '../event/EventStaff'
 
 interface Options extends IncludeExcludeKindOptions {
   disabledAutoCache?: boolean

@@ -2,7 +2,7 @@ import {
   NostrApiMode,
   getNostrApiMode,
   setNostrApiMode,
-} from '@/nostr-api/NostrApiMode'
+} from '../nostr-api/NostrApiMode'
 import { createStaff } from '@jumpalong/core'
 
 export default createStaff(({ mod, line }) => {

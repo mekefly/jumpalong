@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import AddButtonVue from './AddButton.vue'
 import { useEventLine } from './ProvideEventLine'
-import { RelayConfiguratorSynchronizer } from '@/nostr-runtime'
+import { RelayConfiguratorSynchronizer } from '../nostr-runtime'
 
 let line = useEventLine(RelayConfiguratorSynchronizer.Staff)
 let relayConfigurator = line.relayConfigurator

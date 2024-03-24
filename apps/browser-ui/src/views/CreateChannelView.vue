@@ -8,7 +8,8 @@ import {
   LoginStaff,
   Synchronizer,
   RelayConfiguratorSynchronizerAddUrlsStaff,
-} from '@/nostr-runtime'
+  EventUtilsStaff,
+} from '../nostr-runtime'
 
 const message = useMessage()
 const onOK = useOnOK()
@@ -23,7 +24,9 @@ async function handleCreate() {
     message.warning('请输入channelName')
     return
   }
-  const publishLine = line.createChild().add(AddPublishStaff, LoginStaff)
+  const publishLine = line
+    .createChild()
+    .add(AddPublishStaff, LoginStaff, EventUtilsStaff)
 
   let event = await publishLine.createEvent({
     kind: 40,
@@ -36,10 +39,8 @@ async function handleCreate() {
       .getInitStandardListSynchronizer(Synchronizer.ListEnum.PublicChats)
       .add({
         type: 'e',
-        value: {
-          id: event.id,
-          relay: undefined,
-        },
+        id: event.id,
+        relay: undefined,
       })
     message.success('创建成功')
   } else {

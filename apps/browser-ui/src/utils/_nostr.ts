@@ -7,7 +7,7 @@ import {
 } from 'nostr-tools'
 import { AddressPointer, ProfilePointer } from 'nostr-tools/lib/nip19'
 import { setAdds } from './utils'
-import { deserializeTagR } from '@/nostr-runtime'
+import { deserializeTagR } from '../nostr-runtime'
 
 export function toDeCodeNprofile(str: string): ProfilePointer | null {
   try {

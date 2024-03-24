@@ -1,14 +1,13 @@
 <script lang="ts" setup>
-import { ConfigStaff } from '@/nostr-runtime'
 import ArrowForwardIosRoundVue from '../components/icon/ArrowForwardIosRound.vue'
-import { clearCache, intelligentCleaning } from '../utils/cache/index'
 import { useEventLine } from '../components/ProvideEventLine'
+import { ConfigStaff } from '../nostr-runtime'
+import { clearCache, intelligentCleaning } from '../utils/cache/index'
 
 const line = useEventLine(ConfigStaff)
 const config = line.getConfig()
 
 const dialog = useDialog()
-const message = useMessage()
 function handelClearLocalStorage() {
   dialog.warning({
     title: t('warning'),

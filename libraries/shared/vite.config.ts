@@ -21,6 +21,7 @@ export default defineConfig(opt => {
         // the proper extensions will be added
         fileName: name,
       },
+      sourcemap: true,
     },
   }
 })

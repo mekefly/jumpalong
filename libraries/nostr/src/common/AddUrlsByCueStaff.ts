@@ -2,7 +2,7 @@ import { createStaff } from '@jumpalong/core'
 import { filterTags } from '@jumpalong/nostr-shared'
 import { timeout } from '@jumpalong/shared'
 import { AutoAddKind10002UrlStaff } from '..'
-import { CueOptions } from '@/types/api'
+import { CueOptions } from '../types/api'
 
 export default createStaff(
   () => [AutoAddKind10002UrlStaff],

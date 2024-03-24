@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { createNostrContainer } from '@/nostr/nostrRuntime'
+import { createNostrContainer } from '../nostr/nostrRuntime'
 import { provideNostrContainer } from './NostrContainerProvade'
 
 const nostr = createNostrContainer()

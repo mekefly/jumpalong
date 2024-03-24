@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 // import { PRIVATE_KEY } from '../api/login'
 // import { UserApi } from '../api/user'
-import { LoginStaff, NostrApiMode, PRIVATE_KEY } from '@/nostr-runtime'
+import { LoginStaff, NostrApiMode, PRIVATE_KEY } from '../nostr-runtime'
 import { useCacheStorage } from '../utils/use'
 import AuthorizedFormVue from './AuthorizedFormVue.vue'
 import LoginFormVue from './LoginForm.vue'

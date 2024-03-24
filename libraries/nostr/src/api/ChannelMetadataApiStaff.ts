@@ -3,10 +3,10 @@ import ManagerStaff from '../manager/ManagerStaff'
 import EoseAutoUnSubStaff from '../sub/EoseAutoUnSubStaff'
 import ApiAddUrlsStaff from './ApiAddUrlsStaff'
 import EventApiStaff from './EventApiStaff'
-import { RelayConfiguratorSynchronizer } from '@/synchronizer/RelayConfiguratorSynchronizer'
-import { ApiAddUrlsOptions, CommonOptions } from '@/types/api'
-import MetadataStaff from '@/event/MetadataStaff'
-import LocalMapStaff from '@/local-event/LocalMapStaff'
+import { RelayConfiguratorSynchronizer } from '../synchronizer/RelayConfiguratorSynchronizer'
+import { ApiAddUrlsOptions, CommonOptions } from '../types/api'
+import MetadataStaff from '../event/MetadataStaff'
+import LocalMapStaff from '../local-event/LocalMapStaff'
 $LoggerScope()
 
 export default createStaff(

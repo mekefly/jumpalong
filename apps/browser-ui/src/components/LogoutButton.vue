@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { TYPES } from '@/nostr/nostr'
-import { getNostrApiMode, NostrApiMode } from '@/nostr/nostrApi/NostrApiMode'
-import { pushToLogin } from '@/utils/login'
+import { TYPES } from '../nostr/nostr'
+import { getNostrApiMode, NostrApiMode } from '../nostr/nostrApi/NostrApiMode'
+import { pushToLogin } from '../utils/login'
 import { useNostrContainerGet } from './NostrContainerProvade'
 
 const dialog = useDialog()

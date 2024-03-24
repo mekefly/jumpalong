@@ -6,7 +6,7 @@ import PapawTreeAutoFindParent from './PapawTreeAutoFindRoot.vue'
 import PapawTreeHierarchyVue from './PapawTreeHierarchy.vue'
 import { useRefreshState } from './Refresh'
 import { useEventLine } from './ProvideEventLine'
-import { ConfigStaff, EventApiStaff, EventByIdApiStaff } from '@/nostr-runtime'
+import { ConfigStaff, EventApiStaff, EventByIdApiStaff } from '../nostr-runtime'
 
 const props = defineProps<{
   id: string

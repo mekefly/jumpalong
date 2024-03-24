@@ -2,7 +2,7 @@
 // import { decodeToPrikey } from '../utils/nostr'
 import { useSetAutocomplete } from './Login'
 // import { useNostrContainerFactory } from './NostrContainerProvade'
-import { Prikey, LoginStaff } from '@/nostr-runtime'
+import { Prikey, LoginStaff } from '../nostr-runtime'
 import { useEventLine } from './ProvideEventLine'
 
 const emit = defineEmits<{

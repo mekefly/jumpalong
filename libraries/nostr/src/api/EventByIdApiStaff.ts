@@ -7,9 +7,9 @@ import {
   LatestEventStaff,
 } from '..'
 import ManagerStaff from '../manager/ManagerStaff'
-import { CommonOptions, CueOptions } from '@/types/api'
-import { RelayConfiguratorOptions } from '@/types/synchronizer'
-import { RelayConfiguratorSynchronizer } from '@/synchronizer/RelayConfiguratorSynchronizer'
+import { CommonOptions, CueOptions } from '../types/api'
+import { RelayConfiguratorOptions } from '../types/synchronizer'
+import { RelayConfiguratorSynchronizer } from '../synchronizer/RelayConfiguratorSynchronizer'
 
 export default createStaff(
   () => [RelayConfiguratorSynchronizer.Staff, CachedStaff, AddUrlsByCueStaff],

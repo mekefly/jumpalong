@@ -2,7 +2,7 @@ import { nowSecondTimestamp } from '@jumpalong/shared'
 import { Event, Filter } from 'nostr-tools'
 import ReactiveClass from '../../reactive/ReactiveClass'
 import { Synchronizer, SynchronizerAbstractApi } from './Synchronizer'
-import { SynchronizerAbstractOption } from './types'
+import { SynchronizerAbstractOption } from '../../types/synchronizer'
 
 /**
  * 可替换同步器api

@@ -1,4 +1,4 @@
-import { ProvideRemoteSigner } from '@/nostr-runtime'
+import { ProvideRemoteSigner } from '../nostr-runtime'
 import { createInjection } from '../utils/useUtils'
 import { useEventLine } from './ProvideEventLine'
 
