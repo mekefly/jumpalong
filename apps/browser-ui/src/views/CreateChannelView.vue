@@ -34,13 +34,15 @@ async function handleCreate() {
   })
   publishLine.addPublish(event, { onOK })
   publishLine.initedAddWrite()
+  let readList = await line.relayConfigurator.initedGetReadList()
+  let url = readList.values().next().value
   if (event) {
     line.listSynchronizerManager
       .getInitStandardListSynchronizer(Synchronizer.ListEnum.PublicChats)
       .add({
         type: 'e',
         id: event.id,
-        relay: undefined,
+        relay: url,
       })
     message.success('创建成功')
   } else {
