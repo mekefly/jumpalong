@@ -2,12 +2,12 @@ import {
   NostrApiMode,
   getNostrApiMode,
   setNostrApiMode,
-} from '@/nostr-api/NostrApiMode'
-import { NostrConnectNostrApiImpl } from '@/nostr-api/NostrConnectNostrApiImpl'
-import { NotLoginNostrApiImpl } from '@/nostr-api/NotLoginNostrApiImpl'
-import { PriKeyNostrApiImpl } from '@/nostr-api/PriKeyNostrApiImpl'
-import { WindowNostrApiImpl } from '@/nostr-api/WindowNostrApiImpl'
-import { NostrApi } from '@/nostr-api/interface/NostrApi'
+} from '../nostr-api/NostrApiMode'
+import { NostrConnectNostrApiImpl } from '../nostr-api/NostrConnectNostrApiImpl'
+import { NotLoginNostrApiImpl } from '../nostr-api/NotLoginNostrApiImpl'
+import { PriKeyNostrApiImpl } from '../nostr-api/PriKeyNostrApiImpl'
+import { WindowNostrApiImpl } from '../nostr-api/WindowNostrApiImpl'
+import { NostrApi } from '../nostr-api/interface/NostrApi'
 import { EventLine, createStaff } from '@jumpalong/core'
 import { Prikey, getPubkey } from '@jumpalong/nostr-shared'
 import EventCreateAtStaff from '../common/EventCreateAtStaff'

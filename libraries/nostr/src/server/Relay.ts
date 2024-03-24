@@ -1,4 +1,4 @@
-import EventStaff from '@/event/EventStaff'
+import EventStaff from '../event/EventStaff'
 import type { EventLine } from '@jumpalong/core'
 import { cached, createTaskQueue } from '@jumpalong/shared'
 import { type Event, type Filter } from 'nostr-tools'

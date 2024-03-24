@@ -7,7 +7,7 @@ import SmileBeamRegularVue from './icon/SmileBeamRegular.vue'
 // import { useNostrContainerAsyncGet } from './NostrContainerProvade'
 import PapawReactionItemVue from './PapawReactionItem.vue'
 import { useEventLine, usePubkey } from './ProvideEventLine'
-import { ReactionStaff } from '@/nostr-runtime'
+import { ReactionStaff } from '../nostr-runtime'
 
 const props = defineProps<{
   event: Event

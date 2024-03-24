@@ -7,7 +7,7 @@ import {
   LoginStaff,
   RelayConfiguratorSynchronizer,
   toDeCodeNevent,
-} from '@/nostr-runtime'
+} from '../nostr-runtime'
 import { useEventLine } from '../components/ProvideEventLine'
 import { useOnOK } from '../utils/use'
 

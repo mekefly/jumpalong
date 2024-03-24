@@ -3,7 +3,7 @@ import {
   EventUtilsStaff,
   getOnlyTag,
   toDeCodeAddress,
-} from '@/nostr-runtime'
+} from '../nostr-runtime'
 import { nowSecondTimestamp } from '@jumpalong/shared'
 import { type Event } from 'nostr-tools'
 import { type AddressPointer } from 'nostr-tools/nip19'

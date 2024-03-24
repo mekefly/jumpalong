@@ -4,7 +4,7 @@ import { proviteArticeSetting } from '../components/Markdown'
 import { providePapawFocus } from '../components/Papaw'
 import { useRichTextEditBoxOpt } from '../components/RichTextEditBox'
 import { useEvent } from './ShortTextNoteView'
-import { deserializeTagR } from '@/nostr-runtime'
+import { deserializeTagR } from '../nostr-runtime'
 
 //需要为显示区域和编辑区域架设一个隧道
 

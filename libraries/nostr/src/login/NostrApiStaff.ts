@@ -1,5 +1,5 @@
-import { NotLoginNostrApiImpl } from '@/nostr-api/NotLoginNostrApiImpl'
-import { NostrApi } from '@/nostr-api/interface/NostrApi'
+import { NotLoginNostrApiImpl } from '../nostr-api/NotLoginNostrApiImpl'
+import { NostrApi } from '../nostr-api/interface/NostrApi'
 import { createStaff } from '@jumpalong/core'
 
 export default createStaff('nostr-api', ({ mod, line }) => {

@@ -16,7 +16,7 @@ import {
   toDeCodeNevent,
   Synchronizer,
   LoginStaff,
-} from '@/nostr-runtime'
+} from '../nostr-runtime'
 import { useEventLine } from '../components/ProvideEventLine'
 import { NPageHeader } from 'naive-ui'
 

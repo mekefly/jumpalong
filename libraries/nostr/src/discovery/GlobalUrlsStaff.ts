@@ -13,7 +13,7 @@ import {
 import managerStaff from '../manager/ManagerStaff'
 import { ReactiveStaff } from '../staffExport'
 import DefaultUrlStaff from './DefaultUrlStaff'
-import { Pool } from '@/server/Pool'
+import { Pool } from '../server/Pool'
 
 export default createStaff(
   () => [managerStaff, DefaultUrlStaff, Pool.Staff, ReactiveStaff],

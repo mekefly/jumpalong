@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-// import { getNostrApiMode, NostrApiMode } from '@/nostr/nostrApi/NostrApiMode'
+// import { getNostrApiMode, NostrApiMode } from '../nostr/nostrApi/NostrApiMode'
 import { NIcon, NMenu, type MenuOption } from 'naive-ui'
 import { h } from 'vue'
 import { RouterLink } from 'vue-router'
@@ -19,7 +19,7 @@ import UserVue from './icon/User.vue'
 import UsersVue from './icon/Users.vue'
 import LogoutButtonVue from './LogoutButton.vue'
 import { useEventLine } from './ProvideEventLine'
-import { NostrModeStaff } from '@/nostr-runtime'
+import { NostrModeStaff } from '../nostr-runtime'
 let line = useEventLine(NostrModeStaff)
 
 const { collapsed } = defineProps<{ collapsed: boolean }>()

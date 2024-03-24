@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import i18n, { t } from '@/i18n'
-import { useNowSecondTimestamp } from '@/utils/use'
+import i18n, { t } from '../i18n'
+import { useNowSecondTimestamp } from '../utils/use'
 const props = defineProps<{ secondTimestamp: number }>()
 const { secondTimestamp } = toRefs(props)
 const nowSecondTimestamp = useNowSecondTimestamp()

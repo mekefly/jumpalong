@@ -1,4 +1,4 @@
-import { type Logger } from '@/logger/Logger'
+import { type Logger } from '../logger/Logger'
 
 export function throwNotFoundError(
   name: string,

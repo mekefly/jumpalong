@@ -5,7 +5,7 @@ import {
   DeleteReactionsOptions,
   ReactionsContent,
   SendReactionsOption,
-} from '@/types/api'
+} from '../types/api'
 import { createStaff } from '@jumpalong/core'
 import { Pubkey, filterTags } from '@jumpalong/nostr-shared'
 import { KeyList, LocalStorageMap } from '@jumpalong/shared'

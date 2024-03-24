@@ -1,12 +1,4 @@
 <script lang="ts" setup>
-import {
-  ListEnum,
-  LoginStaff,
-  Pubkey,
-  RelayConfiguratorSynchronizer,
-  Synchronizer,
-  toDeCodeNprofile,
-} from '@/nostr-runtime'
 import { NButton } from 'naive-ui'
 import { computed } from 'vue'
 import Profile from '../components/Profile.vue'
@@ -16,6 +8,14 @@ import {
   usePubkey,
 } from '../components/ProvideEventLine'
 import UserInformationButton from '../components/UserInformationButton.vue'
+import {
+  ListEnum,
+  LoginStaff,
+  Pubkey,
+  RelayConfiguratorSynchronizer,
+  Synchronizer,
+  toDeCodeNprofile,
+} from '../nostr-runtime'
 
 const route = useRoute()
 // const zaps = useZaps()

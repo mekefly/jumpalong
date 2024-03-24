@@ -5,7 +5,7 @@ import PapawTreeVue from './PapawTree.vue'
 import PapawTreeParentVue from './PapawTreeParent.vue'
 import PapawTreeReply from './PapawTreeReply.vue'
 import { setAdds } from '@jumpalong/shared'
-import { deserializeTagR, getRootTagE } from '@/nostr-runtime'
+import { deserializeTagR, getRootTagE } from '../nostr-runtime'
 
 const props = withDefaults(
   defineProps<{

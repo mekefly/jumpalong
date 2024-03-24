@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { LoginStaff, NostrApiMode, Pubkey } from '@/nostr-runtime'
+import { LoginStaff, NostrApiMode, Pubkey } from '../nostr-runtime'
 import { nip19 } from 'nostr-tools'
 import { useEventLine, useIsMe } from '../components/ProvideEventLine'
 import { renderIcon, useClipboardDialog } from '../utils/naiveUi'

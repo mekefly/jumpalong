@@ -12,7 +12,7 @@ import {
   LoginUtilsStaff,
   Pool,
   RelayConfiguratorSynchronizer,
-} from '@jumpalong/nostr'
+} from '../nostr-runtime'
 import { Pubkey } from '@jumpalong/nostr-shared'
 import { createInjection } from '../utils/useUtils'
 import { useActiveComponent } from './ProvideActive'

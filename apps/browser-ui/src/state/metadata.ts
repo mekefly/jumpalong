@@ -1,6 +1,6 @@
 import { useEventLine } from '../components/ProvideEventLine'
-import { Pubkey, UserApiStaff, UserMetaData } from '@/nostr-runtime'
-import { Metadata } from '../types/MetaData'
+import { Pubkey, UserApiStaff, UserMetaData } from '../nostr-runtime'
+import { Metadata } from '../types/Metadata'
 
 export function useUserMetadata<m extends Metadata>(
   pubkey:

@@ -2,7 +2,7 @@
 import RelayConfigVue from '@/components/RelayConfig.vue'
 import ScrollbarVue from '@/components/Scrollbar.vue'
 import TooltipVue from '@/components/Tooltip.vue'
-import { LoginStaff } from '@/nostr-runtime'
+import { LoginStaff } from '../nostr-runtime'
 import { useEventLine } from '../components/ProvideEventLine'
 
 console.log('event-line', inject(Symbol.for('event-line')))

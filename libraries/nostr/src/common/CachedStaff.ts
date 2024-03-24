@@ -1,6 +1,6 @@
 import { useCache, deleteCache } from '@jumpalong/shared'
 import { createStaff } from '@jumpalong/core'
-import { CacheOptions } from '@/types/api'
+import { CacheOptions } from '../types/api'
 
 function createKeyByOptions(opts: CacheOptions): string {
   return `CE:${opts.name ? `${opts.name}:` : ''}:${JSON.stringify(opts)}`

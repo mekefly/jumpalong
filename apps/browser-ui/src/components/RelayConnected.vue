@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import { RelayConfiguratorSynchronizer } from '@/nostr-runtime'
 import AddButtonVue from './AddButton.vue'
 import ButtonCloseVue from './ButtonClose.vue'
 import { useEventLine } from './ProvideEventLine'
 import RelayConnectListVue from './RelayConnectListCard.vue'
 import AccountTreeRoundVue from './icon/AccountTreeRound.vue'
+import { RelayConfiguratorSynchronizer } from '../nostr-runtime'
 
 let line = useEventLine(RelayConfiguratorSynchronizer.Staff)
 let relayPoolLine = useEventLine()

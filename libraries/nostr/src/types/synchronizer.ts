@@ -1,7 +1,7 @@
 export interface RelayConfiguratorOptions {
   autoAddRelayUrls?: boolean | 'write' | 'read'
 }
-import { OkParmType } from '@/server/OkStaff'
+import { OkParmType } from '../server/OkStaff'
 import { Event } from 'nostr-tools'
 export type SyncOption = {
   moreUrls?: Set<string>

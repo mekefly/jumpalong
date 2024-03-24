@@ -8,7 +8,7 @@ import RelayReadableButtonVue from './RelayReadableButton.vue'
 import RelayWritableButtonVue from './RelayWritableButton.vue'
 import TooltipVue from './Tooltip.vue'
 import { useEventLine } from './ProvideEventLine'
-import { RelayConfiguratorSynchronizer } from '@/nostr-runtime'
+import { RelayConfiguratorSynchronizer } from '../nostr-runtime'
 import EditCalendarRound from './icon/EditCalendarRound.vue'
 
 let line = useEventLine(RelayConfiguratorSynchronizer.Staff)

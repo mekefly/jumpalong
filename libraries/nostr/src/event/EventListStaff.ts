@@ -7,8 +7,8 @@ import {
 import { Event } from 'nostr-tools'
 import ReactiveStaff from '../reactive/ReactiveStaff'
 import EventStaff from './EventStaff'
-import { SortOptions } from '@/types/event'
-import { Pool } from '@/server/Pool'
+import { Pool } from '../server/Pool'
+import { SortOptions } from '../types/event'
 type InsertBySort = (eventList: Event[], value: Event) => void
 
 export const sortMethodFactory = {

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { RelayConfiguratorSynchronizer } from '@/nostr-runtime'
+import { RelayConfiguratorSynchronizer } from '../nostr-runtime'
 import { Event } from 'nostr-tools'
 import DrawerVue from './Drawer.vue'
 import { useEventLine } from './ProvideEventLine'

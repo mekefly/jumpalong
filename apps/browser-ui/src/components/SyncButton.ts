@@ -1,4 +1,4 @@
-import { RelayConfiguratorSynchronizer, Synchronizer } from '@/nostr-runtime'
+import { RelayConfiguratorSynchronizer, Synchronizer } from '../nostr-runtime'
 import { useThemeVars } from 'naive-ui'
 import { DialogApiInjection } from 'naive-ui/es/dialog/src/DialogProvider'
 import { MessageApiInjection } from 'naive-ui/es/message/src/MessageProvider'

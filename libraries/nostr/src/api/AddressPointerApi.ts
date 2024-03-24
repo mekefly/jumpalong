@@ -11,8 +11,8 @@ import {
   LatestEventStaff,
   ManagerStaff,
 } from '../'
-import { RelayConfiguratorSynchronizer } from '@/synchronizer/RelayConfiguratorSynchronizer'
-import { CommonOptions, CueOptions } from '@/types/api'
+import { RelayConfiguratorSynchronizer } from '../synchronizer/RelayConfiguratorSynchronizer'
+import { CommonOptions, CueOptions } from '../types/api'
 
 export default createStaff(
   () => [

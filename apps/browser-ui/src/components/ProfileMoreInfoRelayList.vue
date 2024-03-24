@@ -4,7 +4,7 @@ import {
   RelayConfiguration,
   LoginUtilsStaff,
   RelayConfiguratorSynchronizer,
-} from '@/nostr-runtime'
+} from '../nostr-runtime'
 import { useEventLine } from './ProvideEventLine'
 import RelayAddButtonVue from './RelayAddButton.vue'
 import RelayConnectListVue from './RelayConnectList.vue'

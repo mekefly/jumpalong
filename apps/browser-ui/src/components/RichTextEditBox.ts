@@ -1,4 +1,4 @@
-import { createId } from '@/utils/utils'
+import { createId } from '../utils/utils'
 import { MaybeRef } from '@vueuse/core'
 import { EventEmitter } from '@jumpalong/shared'
 import { Event } from 'nostr-tools'

@@ -1,7 +1,7 @@
 import { Event, Filter } from 'nostr-tools'
 import AddFilterStaff from '../manager/AddFilterStaff'
 import { createStaff } from '@jumpalong/core'
-import EventStaff from '@/event/EventStaff'
+import EventStaff from '../event/EventStaff'
 
 export default createStaff(
   () => [EventStaff, AddFilterStaff],

@@ -1,11 +1,9 @@
+import { useEventLine } from '../components/ProvideEventLine'
 import {
-  EventApiStaff,
   EventByIdApiStaff,
   neventEncodeByEvent,
   toDeCodeNevent,
-} from '@/nostr-runtime'
-import { useNostrContainerGet } from '../components/NostrContainerProvade'
-import { useEventLine } from '../components/ProvideEventLine'
+} from '../nostr-runtime'
 // import { neventEncodeByEvent, toDeCodeNevent } from "../utils/nostr";
 import { Event } from 'nostr-tools'
 

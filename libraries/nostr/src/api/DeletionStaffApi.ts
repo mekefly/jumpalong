@@ -6,7 +6,7 @@ import {
   EventUtilsStaff,
 } from '..'
 import { PublishOptions } from '../publish/PublishStaff'
-import { CueOptions } from '@/types/api'
+import { CueOptions } from '../types/api'
 
 /**
  * NIP-09

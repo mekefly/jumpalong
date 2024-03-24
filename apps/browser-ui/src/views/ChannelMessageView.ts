@@ -1,4 +1,4 @@
-import { Synchronizer } from '@/nostr-runtime'
+import { Synchronizer } from '../nostr-runtime'
 import { useEventLine } from '../components/ProvideEventLine'
 import { useInjectScrollbarInstRef } from '../components/Scrollbar'
 import { Event } from 'nostr-tools'

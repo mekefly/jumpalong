@@ -2,7 +2,7 @@
 // import { relayConfigurator, rootEventBeltline, TYPES } from "@/nostr/nostr";
 // import { useOnOK } from "../utils/use";
 // import { generatePrivateKey, getPublicKey, nip19 } from "nostr-tools";
-import { Prikey, LoginStaff } from '@/nostr-runtime'
+import { Prikey, LoginStaff } from '../nostr-runtime'
 import { useSetAutocomplete } from './Login'
 import { useLoginCompleteHook } from './LoginCompleteHook'
 // import {

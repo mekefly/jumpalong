@@ -4,7 +4,7 @@ import {
   Pubkey,
   LoginStaff,
   NostrApiMode,
-} from '@/nostr-runtime'
+} from '../nostr-runtime'
 import { useSetAutocomplete } from './Login'
 
 // import { getTempPubkey } from "@/api/NostrConnect";

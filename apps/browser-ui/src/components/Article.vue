@@ -7,7 +7,7 @@ import RichTextEditBox from './RichTextEditBox.vue'
 import Scrollbar from './Scrollbar.vue'
 import { useHandleSendMessage } from '../utils/use'
 import { useEventLine } from './ProvideEventLine'
-import { ConfigStaff } from '@/nostr-runtime'
+import { ConfigStaff } from '../nostr-runtime'
 
 const props = defineProps<{
   event: Event

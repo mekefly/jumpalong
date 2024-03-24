@@ -1,8 +1,8 @@
 import { createStaff } from '@jumpalong/core'
 import { timeout } from '@jumpalong/shared'
 import { AutoAddKind10002UrlStaff, LatestEventStaff, ManagerStaff } from '..'
-import { RelayConfiguratorSynchronizer } from '@/synchronizer/RelayConfiguratorSynchronizer'
-import { ApiAddUrlsOptions } from '@/types/api'
+import { RelayConfiguratorSynchronizer } from '../synchronizer/RelayConfiguratorSynchronizer'
+import { ApiAddUrlsOptions } from '../types/api'
 
 export default createStaff(
   () => [

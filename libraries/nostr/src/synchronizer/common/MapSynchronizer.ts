@@ -1,6 +1,6 @@
 import { nowSecondTimestamp } from '@jumpalong/shared'
 import { Synchronizer, SynchronizerAbstractApi } from './Synchronizer'
-import { SynchronizerAbstractOption } from './types'
+import { SynchronizerAbstractOption } from '../../types/synchronizer'
 
 /**
  * 同步器mapApi
