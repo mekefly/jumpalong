@@ -58,13 +58,19 @@ export class StandardListSynchronizer<HANDLE extends TagHandle<any, any>[]> {
    * @param tag
    */
   async add(tag: GetTagHandelArrayType<HANDLE>) {
+    // 获取标签列表
     const tagList = await this.synchronizer.getData()
-    tagList.push(tag)
+    // 查找标签列表中是否存在与传入的标签相等的标签
     let index = tagList.findIndex((item: Tag) =>
       this.tagsHandle.tagIsEq(item, tag)
     )
+    // 如果存在相等的标签，则直接返回，不再执行后续操作
     if (index !== -1) return
+    // 将新的标签添加到标签列表中
+    tagList.push(tag)
+    // 将标签列表标记为已修改
     this.synchronizer.toChanged()
+    // 保存标签列表
     this.synchronizer.save()
   }
   /**
