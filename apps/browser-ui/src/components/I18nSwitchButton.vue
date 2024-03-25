@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import i18n, {
   getSupportLocales,
+  loadLocaleMessages,
   setLang,
   t,
-  loadLocaleMessages,
 } from '../i18n'
-import { useAsyncComputed, useAsyncData } from '../utils/use'
+import { useAsyncData } from '../utils/use'
 
 const languageOptions = useAsyncData(() => {
   return Promise.all(

@@ -1,13 +1,13 @@
 <script lang="ts" setup>
 import { Event, EventTemplate } from 'nostr-tools'
+import { TreeConfigStaff } from '../nostr-runtime'
+import { useHandleSendMessage } from '../utils/use'
 import Papaw from './Papaw.vue'
 import PapawTreeAutoFindRoot from './PapawTreeAutoFindRoot.vue'
 import PostList from './PostList.vue'
+import { useConfig } from './ProvideEventLine'
 import RichTextEditBox from './RichTextEditBox.vue'
 import Scrollbar from './Scrollbar.vue'
-import { useHandleSendMessage } from '../utils/use'
-import { useEventLine } from './ProvideEventLine'
-import { ConfigStaff } from '../nostr-runtime'
 
 const props = defineProps<{
   event: Event
@@ -19,8 +19,7 @@ const emits = defineEmits<{
 }>()
 const message = useMessage()
 const urls = toRef(props, 'urls')
-const line = useEventLine(ConfigStaff)
-const config = line.config
+const config = useConfig(TreeConfigStaff)
 
 const pushEvent = ref<any>(undefined)
 const handleSendEvent = useHandleSendMessage(
@@ -43,7 +42,7 @@ async function handleSend(e: EventTemplate) {
 <template>
   <div v-if="event" class="flex flex-col w-full h-full overflow-auto">
     <Scrollbar class="w-full h-0 flex-shrink flex-1" loadable refreshable>
-      <PapawTreeAutoFindRoot v-if="config.enablePapawTree" :event="event" />
+      <PapawTreeAutoFindRoot v-if="config.enableTree" :event="event" />
       <Papaw v-else :event="event">
         <template #reply>
           <PostList

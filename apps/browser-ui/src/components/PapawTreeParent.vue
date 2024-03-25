@@ -1,12 +1,11 @@
 <script lang="ts" setup>
 import { Event } from 'nostr-tools'
-import { useNostrContainerGet } from './NostrContainerProvade'
+import { EventByIdApiStaff, PapawTreeLazyModeStaff } from '../nostr-runtime'
 import PapawTree from './PapawTree.vue'
 import PapawTreeAutoFindParent from './PapawTreeAutoFindRoot.vue'
 import PapawTreeHierarchyVue from './PapawTreeHierarchy.vue'
+import { useConfig, useEventLine } from './ProvideEventLine'
 import { useRefreshState } from './Refresh'
-import { useEventLine } from './ProvideEventLine'
-import { ConfigStaff, EventApiStaff, EventByIdApiStaff } from '../nostr-runtime'
 
 const props = defineProps<{
   id: string
@@ -14,7 +13,8 @@ const props = defineProps<{
   chindEvent: Event
 }>()
 
-const line = useEventLine(EventByIdApiStaff, ConfigStaff)
+const line = useEventLine(EventByIdApiStaff)
+const config = useConfig(PapawTreeLazyModeStaff)
 
 const idLine = computed(() =>
   line.getEventById(props.id, { urls: props.relays })
@@ -48,7 +48,7 @@ if (refreshState) {
   })
   onUnmounted(removeListener)
 }
-!line.config.enablePapawTreeLazyMode && handelLoadParent()
+!config.enableLazyLoadPapawTree && handelLoadParent()
 </script>
 
 <template>

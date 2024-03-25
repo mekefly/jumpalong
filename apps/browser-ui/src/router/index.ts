@@ -94,13 +94,13 @@ const router = createRouter({
           component: () => import('../views/TaskView.vue'),
         },
         {
-          path: '/settings',
-          component: () => import('../views/SettingsView.vue'),
-        },
-        {
           path: '/settings/language',
           name: 'language-settings',
           component: () => import('../views/LanguageSettingsView.vue'),
+        },
+        {
+          path: '/settings/:path*',
+          component: () => import('../views/SettingsView.vue'),
         },
         {
           path: '/about',

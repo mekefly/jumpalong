@@ -5,8 +5,16 @@
 //   Pubkey,
 // } from '@/nostr-runtime'
 import { ReactiveStaff } from '@/utils/vue'
-import { EventLineMod, PauseStaff } from '@jumpalong/core'
 import {
+  EventLine,
+  EventLineMod,
+  MergeStaffConfig,
+  PauseStaff,
+  StaffFlag,
+} from '@jumpalong/core'
+import {
+  DefineConfigStaff,
+  DefineConfigStaffConfigType,
   GlobalUrlsStaff,
   LoginStaff,
   LoginUtilsStaff,
@@ -37,7 +45,8 @@ export const [
       //登录
       LoginStaff,
       //暂停器
-      PauseStaff
+      PauseStaff,
+      DefineConfigStaff
     )
   }
 )
@@ -74,9 +83,8 @@ export function provideEventLineScoped(name?: string) {
 // export function useEventLine<REST extends StaffFlag[] = []>(
 //   ...rest: REST
 // ): EventLine<MergeStaffConfig<REST>>
-export const useEventLine: ReturnType<
-  typeof assertInjectEventLineMod
->['line']['add'] = function (...rest: any) {
+export type AddType = ReturnType<typeof assertInjectEventLineMod>['line']['add']
+export const useEventLine: AddType = function (...rest: any) {
   return (
     assertInjectEventLineMod()
       .out()
@@ -104,6 +112,14 @@ export function useIsMe(pubkey: Ref<Pubkey | null | undefined>) {
       currentPubkey.value &&
       pubkey.value.toHex() === currentPubkey.value.toHex()
   )
+}
+export const useConfig = <ArrayFlag extends StaffFlag[] = []>(
+  ...staffs: ArrayFlag
+): EventLine<
+  DefineConfigStaffConfigType & MergeStaffConfig<ArrayFlag>
+>['config'] => {
+  const line = useEventLine(...staffs)
+  return line.getConfig() as any
 }
 export function useIsLogin() {
   let line = useEventLine(LoginUtilsStaff)

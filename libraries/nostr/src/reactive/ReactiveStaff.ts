@@ -1,6 +1,6 @@
 import { createStaff } from '@jumpalong/core'
 export default createStaff('reactive-staff', ({ mod, line }) => {
-  return mod.assignFeat({
+  return mod.assignFn({
     reactive<T>(value: T): T & {
       __isReactive: boolean
     } {

@@ -7,6 +7,8 @@ import { arrayRemove, timeout } from '../utils/utils'
 // import { usePushShortTextNote } from '../views/ShortTextNoteView'
 import { vOnLongPress } from '@vueuse/components'
 import { Event } from 'nostr-tools'
+import { PapawTreeLazyModeStaff } from '../nostr-runtime'
+import { usePushShortTextNote } from '../views/ShortTextNoteView'
 import DateTime from './DateTime.vue'
 import DrawerProvide from './DrawerProvide.vue'
 import LazyItemDisabled from './LazyItemDisabled.vue'
@@ -15,14 +17,12 @@ import { usePapawFocusState } from './Papaw'
 import PapawOptionsButtons from './PapawOptionsButtons.vue'
 import PapawSourceUrl from './PapawSourceUrl.vue'
 import PapawTreeHierarchy from './PapawTreeHierarchy.vue'
+import { useConfig } from './ProvideEventLine'
 import { useInjectScrollbarInstRef } from './Scrollbar'
 import SMSButton from './SMSButton.vue'
 import UserInfo from './UserInfo.vue'
-import { ConfigStaff } from '../nostr-runtime'
-import { useEventLine } from './ProvideEventLine'
-import { usePushShortTextNote } from '../views/ShortTextNoteView'
-const line = useEventLine(ConfigStaff)
-const config = line.getConfig()
+
+const config = useConfig(PapawTreeLazyModeStaff)
 
 const props = withDefaults(
   defineProps<{
