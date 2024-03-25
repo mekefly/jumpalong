@@ -29,9 +29,11 @@
   "dependencies": {},
   "devDependencies": {
     "@jumpalong/logger-vite-plugin": "workspace:*",
+    "@jumpalong/logger": "workspace:*",
     "@types/sha256": "^0.2.2",
     "rollup": "^4.9.6",
     "url": "^0.11.3",
-    "vite": "^5.1.5"
+    "vite": "^5.1.5",
+    "vitest": "^1.3.1"
   }
 }

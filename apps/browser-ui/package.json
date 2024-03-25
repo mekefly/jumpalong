@@ -10,7 +10,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": ""
+    "build": "vite build"
   },
   "exports": {
     "./auto-imports": {

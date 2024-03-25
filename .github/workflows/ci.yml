@@ -1,27 +1,26 @@
-name: CI
+name: Build and Deploy
 on:
   push:
-    branches: [ "main" ]
+    branches: ['main', 'refactor/all']
   pull_request:
-    branches: [ "main" ]
+    branches: ['main', 'refactor/all']
 jobs:
-  build:
+  deploy:
+    concurrency: ci-${{ github.ref }} # Recommended if you intend to make multiple deployments in quick succession.
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 2
-      - name: Git config user
-        uses: snow-actions/git-config-user@v1.0.0
-        with:
-          name: # Service Account's Name
-          email: # Service Account's Email Address
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
-      - name: Verify Change Logs
-        run: node common/scripts/install-run-rush.js change --verify
-      - name: Rush Install
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+      - name: Rush Install 💼
         run: node common/scripts/install-run-rush.js install
-      - name: Rush rebuild
-        run: node common/scripts/install-run-rush.js rebuild --verbose --production
+      - name: Rush Build 🛠️
+        run: node common/scripts/install-run-rush.js build
+        env:
+          RUSH_BUILD_CACHE_WRITE_ALLOWED: 1
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: apps/browser-ui/dist # The folder the action should deploy.
+          branch: main
+          repository-name: jumpalong/test
+          token: ${{ secrets.JUMPALONG_DEPLY_TOKEN }}
