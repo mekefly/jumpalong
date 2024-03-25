@@ -38,16 +38,31 @@ export function clipboardText(text: string) {
 export function nowSecondTimestamp() {
   return Math.floor(Date.now() / 1000)
 }
+/**
+ * !!! 会改变原对象
+ * 将默认对象与目标对象合并，返回合并后的目标对象
+ *
+ * @param target 目标对象，可选
+ * @param def 默认对象，可选
+ * @returns 返回合并后的目标对象
+ */
 export function withDefault<T extends object, D extends object>(
+  // 目标对象，可选
   target?: T,
+  // 默认对象，可选
   def?: D
 ): T & D {
+  // 如果目标对象不存在，则返回默认对象
   if (!target) return { ...def } as any
+  // 如果默认对象不存在，则返回目标对象
   if (!def) return target as any
 
+  // 遍历默认对象的每个属性
   for (const key in def) {
+    // 如果目标对象不存在该属性，则将该属性从默认对象复制到目标对象
     ;(target as any)[key] ?? ((target as any)[key] = (def as any)[key])
   }
+  // 返回合并后的目标对象
   return target as any
 }
 export function timeout(timeout: number = 0) {

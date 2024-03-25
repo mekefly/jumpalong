@@ -1,25 +1,25 @@
 <script lang="ts" setup>
-import { UploadFinishEventOpt } from "./Upload";
-import UploadButtonVue from "./UploadButton.vue";
+import { UploadFinishEventOpt } from './Upload'
+import UploadButtonVue from './UploadButton.vue'
 const props = defineProps<{
-  placeholder?: string;
-  value?: string;
-}>();
+  placeholder?: string
+  value?: string
+}>()
 const emit = defineEmits<{
-  (e: "update:value", v: string): void;
-}>();
-const { placeholder } = toRefs(props);
+  (e: 'update:value', v: string): void
+}>()
+const { placeholder } = toRefs(props)
 
 const value = computed<string>({
   get(): string {
-    return props.value ?? "";
+    return props.value ?? ''
   },
   set(v: string) {
-    emit("update:value", v);
+    emit('update:value', v)
   },
-});
+})
 function handleUploadResult(opt: UploadFinishEventOpt) {
-  value.value = opt.url;
+  value.value = opt.url
 }
 </script>
 
