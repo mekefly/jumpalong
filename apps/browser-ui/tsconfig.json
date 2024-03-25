@@ -32,7 +32,6 @@
       "@/*": ["./src/*"]
     }
   },
-
   "lib": ["ESNext", "dom"],
   "include": ["./src/**/*.ts", "./src/**/*.vue", "vitest.config.ts"]
 }

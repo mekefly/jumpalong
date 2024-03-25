@@ -66,11 +66,12 @@ const router = createRouter({
           name: 'relays',
           component: () => import('../views/RelaysView.vue'),
         },
-        {
-          path: '/collect',
-          name: 'collect',
-          component: () => import('../views/CollectView.vue'),
-        },
+        // TODO: 收藏功能暂时屏蔽
+        // {
+        //   path: '/collect',
+        //   name: 'collect',
+        //   component: () => import('../views/CollectView.vue'),
+        // },
         {
           path: '/channels',
           component: () => import('../views/ChannelsView.vue'),
@@ -122,16 +123,18 @@ const router = createRouter({
               component: () => import('../views/TagView.vue'),
               meta: {},
             },
-            {
-              path: '/notice',
-              name: 'notice',
-              component: () => import('../views/NoticeView.vue'),
-            },
-            {
-              path: '/search/:value?',
-              name: 'search',
-              component: () => import('../views/SearchView.vue'),
-            },
+            // TODO: 通知功能暂时屏蔽
+            // {
+            //   path: '/notice',
+            //   name: 'notice',
+            //   component: () => import('../views/NoticeView.vue'),
+            // },
+            // TODO: 搜索功能暂时关闭
+            // {
+            //   path: '/search/:value?',
+            //   name: 'search',
+            //   component: () => import('../views/SearchView.vue'),
+            // },
             {
               path: '/short/text/note/:value',
               name: 'short-text-note',
@@ -152,16 +155,18 @@ const router = createRouter({
               name: 'edit-channel',
               component: () => import('../views/EditChannelView.vue'),
             },
-            {
-              path: '/move/house',
-              name: 'move-house',
-              component: () => import('../views/MoveHouseView.vue'),
-            },
-            {
-              path: '/mute/user',
-              name: 'mute-user',
-              component: () => import('../views/MuteUserListView.vue'),
-            },
+            // TODO: 数据迁移暂时关闭
+            // {
+            //   path: '/move/house',
+            //   name: 'move-house',
+            //   component: () => import('../views/MoveHouseView.vue'),
+            // },
+            // TODO: 屏蔽功能暂时关闭,原因是正在重构部署功能
+            // {
+            //   path: '/mute/user',
+            //   name: 'mute-user',
+            //   component: () => import('../views/MuteUserListView.vue'),
+            // },
             {
               path: '/nostr/connect',
               name: 'nostr-connect-setting',
