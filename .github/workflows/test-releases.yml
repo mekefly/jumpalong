@@ -1,0 +1,43 @@
+name: Upload Release Asset
+on:
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+      - 'v*-test.*' # Push events to matching v*, i.e. v1.0, v20.15.10
+
+jobs:
+  build:
+    name: Upload Release Asset
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+      - name: Rush Install 💼
+        run: node common/scripts/install-run-rush.js install
+      - name: Rush Build 🛠️
+        run: node common/scripts/install-run-rush.js build
+        env:
+          RUSH_BUILD_CACHE_WRITE_ALLOWED: 1
+      - name: Zip Source Code 📦
+        run: |
+          zip -r "dist.zip" ./apps/browser-ui/dist
+      - name: Create Release 🎁
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.JUMPALONG_RELEASE }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: true
+      - name: Upload Release Asset 📍
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.JUMPALONG_RELEASE }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ./dist.zip
+          asset_name: dist
+          asset_content_type: application/zip
